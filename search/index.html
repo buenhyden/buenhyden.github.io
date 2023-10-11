@@ -10,8 +10,8 @@
     <meta property="og:type" content="article">
 
     
-    <meta property="og:image" content="https://buenhyden.github.io//">
-    <meta property="twitter:image" content="https://buenhyden.github.io//" />
+    <meta property="og:image" content="https://buenhyden.github.io//img/home-bg-jeep.jpg">
+    <meta property="twitter:image" content="https://buenhyden.github.io//img/home-bg-jeep.jpg" />
     
 
     
@@ -116,6 +116,12 @@
                     
                     
 		    
+                        <li><a href="https://buenhyden.github.io/archive//">ARCHIVE</a></li>
+                    
+                        <li><a href="https://buenhyden.github.io/notes//">NOTES</a></li>
+                    
+                        <li><a href="https://buenhyden.github.io/about//">ABOUT</a></li>
+                    
 		            <li>
                         <a href="https://buenhyden.github.io/search"><i class="fa fa-search"></i></a>
 		           </li>
@@ -157,7 +163,7 @@
 
 
 
-<header class="intro-header" style="background-image: url('/')">
+<header class="intro-header" style="background-image: url('/img/home-bg-jeep.jpg')">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 ">
@@ -185,14 +191,115 @@
             post-container
         ">
         
-            <link href="https://buenhyden.github.io/_pagefind/pagefind-ui.css" rel="stylesheet">
-<script src="https://buenhyden.github.io/_pagefind/pagefind-ui.js" type="text/javascript"></script>
-<div id="search"></div>
+            
+<script src="https://cdn.jsdelivr.net/npm/instantsearch.js@2.6.0/dist/instantsearch.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/instantsearch.js@2.6.0/dist/instantsearch.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/instantsearch.js@2.6.0/dist/instantsearch-theme-algolia.min.css">
+
+<div id="search-searchbar"></div>
+ <div class="post-list" id="search-hits">
+ </div>
+
 <script>
-    window.addEventListener('DOMContentLoaded', (event) => {
-        new PagefindUI({ element: "#search" });
-    });
+const search = instantsearch({
+  appId: '',
+  indexName: '',
+  apiKey: ''
+});
+
+const hitTemplate = function(hit) {
+
+
+  let date = '';
+  if (hit.date) {
+    date = moment.unix(hit.date).format('MMM D, YYYY');
+  }
+  let url = `${hit.url}#${hit.anchor}`;
+  const title = hit._highlightResult.title.value;
+
+  let breadcrumbs = '';
+  if (hit._highlightResult.headings) {
+    breadcrumbs = hit._highlightResult.headings.map(match => {
+      return `<span class="post-breadcrumb">${match.value}</span>`
+    }).join(' > ')
+  }
+
+  let content = "" ; 
+  if (hit._highlightResult.content){
+      content = hit._highlightResult.content.value;
+  }
+  else{
+      content = hit.summary;
+  }
+
+
+  return `
+    <div class="post-item">
+      <span class="post-meta">${date}</span>
+      <h2><a class="post-link" href="${url}">${title}</a></h2>
+      <a href="${url}" class="post-breadcrumbs">${breadcrumbs}</a>
+      <div class="post-snippet">${content}</div>
+    </div>
+  `;
+}
+
+
+search.addWidget(
+  instantsearch.widgets.searchBox({
+    container: '#search-searchbar',
+    placeholder: 'Search into posts...',
+    poweredBy: true 
+  })
+);
+
+search.addWidget(
+  instantsearch.widgets.hits({
+    container: '#search-hits',
+    templates: {
+      item: hitTemplate
+    }
+  })
+);
+
+search.start();
 </script>
+
+<style>
+.ais-search-box {
+  max-width: 100%;
+  margin-bottom: 15px;
+}
+.post-item {
+  margin-bottom: 30px;
+}
+.post-link .ais-Highlight {
+  color: #111;
+  font-style: normal;
+  text-decoration: underline;
+}
+.post-breadcrumbs {
+  color: #424242;
+  display: block;
+}
+.post-breadcrumb {
+  font-size: 18px;
+  color: #424242;
+}
+.post-breadcrumb .ais-Highlight {
+  font-weight: bold;
+  font-style: normal;
+}
+.post-snippet .ais-Highlight {
+  color: #2a7ae2;
+  font-style: normal;
+  font-weight: bold;
+}
+.post-snippet img {
+  display: none;
+}
+</style>
+
         
        	</div>
         
@@ -206,12 +313,136 @@
 ">
     
 	
+    <section class="visible-md visible-lg">
+	
+        <div class="short-about">
+            
+            
+           
+           <ul class="list-inline">
+               
+               <li>
+                   <a href="mailto:chochyjj@gmail.com">
+                      <span class="fa-stack fa-lg">
+                          <i class="fa fa-circle fa-stack-2x"></i>
+                          <i class="fa fa-envelope fa-stack-1x fa-inverse"></i>
+                      </span>
+                   </a>
+               </li>
+               
+               
+               
+               
+               
+               
+               
+               <li>
+                   <a target="_blank" href="https://github.com/buenhyden">
+                       <span class="fa-stack fa-lg">
+                           <i class="fas fa-circle fa-stack-2x"></i>
+                           <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                       </span>
+                   </a>
+               </li>
+               
+               
+               
+               
+               
+               
+            
+            
+               
+               
+               
+               
+                </ul>
+            </div>
+    </section>
+	
     
     
     
+    
+    <section>
+        <hr class="hidden-sm hidden-xs">
+        <h5>FEATURED TAGS</h5>
+        <div class="tags">
+            
+            
+               
+            
+               
+            
+               
+                    <a href="https://buenhyden.github.io/tags/docker" title="docker">
+                        docker
+                    </a>
+               
+            
+               
+            
+               
+                    <a href="https://buenhyden.github.io/tags/istio" title="istio">
+                        istio
+                    </a>
+               
+            
+               
+            
+               
+                    <a href="https://buenhyden.github.io/tags/kubernetes" title="kubernetes">
+                        kubernetes
+                    </a>
+               
+            
+               
+                    <a href="https://buenhyden.github.io/tags/microservice" title="microservice">
+                        microservice
+                    </a>
+               
+            
+               
+            
+               
+                    <a href="https://buenhyden.github.io/tags/security" title="security">
+                        security
+                    </a>
+               
+            
+               
+                    <a href="https://buenhyden.github.io/tags/service-mesh" title="service-mesh">
+                        service-mesh
+                    </a>
+               
+            
+               
+                    <a href="https://buenhyden.github.io/tags/tips" title="tips">
+                        tips
+                    </a>
+               
+            
+               
+            
+               
+            
+               
+            
+        </div>
+    </section>
     
 
     
+    
+    <section>
+        <hr class="hidden-sm hidden-xs">
+        <h5>FRIENDS</h5>
+        <ul class="list-inline">
+            
+            <li><a target="_blank" href=""></a></li>
+            
+        </ul>
+    </section>
     
     
 </div>
@@ -227,6 +458,15 @@
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                 <ul class="list-inline text-center">                  
                     
+                    <li>
+                        <a href="mailto:chochyjj@gmail.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		           
                     
                     
                     
@@ -235,6 +475,15 @@
 		            
                     
                     
+                    <li>
+                        <a target="_blank" href="https://github.com/buenhyden">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		            
                     
                     
                     
@@ -248,6 +497,15 @@
             
             
            
+                   <li>
+                       <a href='https://buenhyden.github.io/search/index.xml' rel="alternate" type="application/rss+xml" title="Hyden&#39;s Dev Story&#39;" >
+                           <span class="fa-stack fa-lg">
+                               <i class="fas fa-circle fa-stack-2x"></i>
+                               <i class="fas fa-rss fa-stack-1x fa-inverse"></i>
+                           </span>
+                       </a>
+                   </li>
+            
              </ul>
 		<p class="copyright text-muted">
                     Copyright &copy; Hyden&#39;s Dev Story&#39; 2023
