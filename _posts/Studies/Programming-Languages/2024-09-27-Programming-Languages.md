@@ -13,11 +13,7 @@ toc:
 
 ![Programming Language](programming-language.webp "https://www.computerhope.com/issues/ch000569.htm")
 
-  
-
 ## Reference
-
-  
 
 [Java와 Javascript의 차이점은?](https://yozm.wishket.com/magazine/detail/4/)  
 

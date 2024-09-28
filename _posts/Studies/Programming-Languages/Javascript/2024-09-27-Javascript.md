@@ -14,11 +14,7 @@ toc: "true"
 
 ![Javascript](javascript_badge.svg.png "https://commons.wikimedia.org/wiki/File:Javascript_badge.svg")
 
-  
-
 ## Roadmap
-
-  
 
 <p align="center">
 
@@ -26,19 +22,11 @@ toc: "true"
 
 </p>
 
-  
-
 ## Lecture
-
-  
 
 [자바스크립트의 시작](https://www.boostcourse.org/cs124)
 
-  
-
 ## Tutorial
-
-  
 
 [모던 JavaScript 튜토리얼](https://javascript.info/)  
 
@@ -46,11 +34,7 @@ toc: "true"
 
 [10 Popular JavaScript methods implemented from scratch](https://dev.to/northwillov/10-popular-javascript-methods-implemented-from-scratch-1ohk)
 
-  
-
 ## Reference
-
-  
 
 [Javascript Memory Management: How to Avoid Common Memory Leaks and Improve Performance](https://itnext.io/javascript-memory-management-how-to-avoid-common-memory-leaks-and-improve-performance-c018dbbca954)  
 

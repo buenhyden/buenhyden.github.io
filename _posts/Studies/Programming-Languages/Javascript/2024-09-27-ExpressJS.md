@@ -20,14 +20,8 @@ toc: "true"
 
 ![Express JS](express-js.png "https://medium.com/@dnvavinash/everything-about-express-ce2ab2f0b80d")
 
-  
-
 ## Tutorial
 
-  
-
 ## Reference
-
-  
 
 [ExpressJS Official Homepage](https://expressjs.com/)

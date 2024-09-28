@@ -12,19 +12,11 @@ toc: "true"
   
 ![programming languages](programming-languages.webp "https://www.codecademy.com/resources/blog/programming-languages/")
 
-  
-
 ## Lecture
-
-  
 
 [웹 프로그래밍(풀스택)](https://www.boostcourse.org/web316)
 
-  
-
 ## Reference
-
-  
 
 [CNCF 플랫폼 백서](https://yozm.wishket.com/magazine/detail/2037/)  
 

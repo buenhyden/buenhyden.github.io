@@ -12,8 +12,8 @@ toc:
 ## Web Application
 
   ![Web Application](web-application.png "https://nitro04.blogspot.com/2020/01/web-web-application-architecture.html")  
-## Roadmap
 
+## Roadmap
 
 <p align="center">
 
@@ -25,11 +25,11 @@ toc:
 
 ## Lecture
 
-  
 [웹 UI 개발](https://www.boostcourse.org/web344)  
 [웹 프론트엔드 시작하기 (리액트&리덕스)](https://www.boostcourse.org/web231)
- 
+
 ## Reference
+
 [10 Web Development Trends in 2023](https://ykss.netlify.app/translation/10_web_development_trends_in_2023/)  
 [fe-news Naver](https://github.com/naver/fe-news/tree/master/issues)  
 [61 Frontend Web Development Buzz Words](https://tapajyoti-bose.medium.com/61-frontend-web-development-buzz-words-every-developer-should-have-in-their-vocabulary-8054e484875)  

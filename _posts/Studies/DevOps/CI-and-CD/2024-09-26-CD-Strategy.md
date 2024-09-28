@@ -11,6 +11,7 @@ comments: "true"
 toc: "true"
 ---
 ## Reference
+
 [[Kubernetes] Deployment strategies (배포 전략) - WONIZZ.LOG](https://blog.wonizz.tk/2019/11/01/kubernetes-deployment-strategies/)
 [[kubernetes] Deployment 배포 전략(Recreate, RollingUpdate) :: 까치의 일상노트](https://magpienote.tistory.com/275)
 [배포전략(Deployment Strategy) - MMM](https://poikilo.github.io/2020/03/03/deployment-strategy/)

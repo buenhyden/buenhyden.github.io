@@ -19,4 +19,3 @@ toc: "true"
 ## Reference
 
 [AI 서비스의 모든 것 3편: 음성 인식 AI](https://yozm.wishket.com/magazine/detail/743/)
-

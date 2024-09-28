@@ -15,11 +15,7 @@ toc:
 
 ![Web Browser](web-browser.webp "https://idealcomputer.biz/best-types-of-computer-software/")
 
-  
-
 ## Reference
-
-  
 
 [프론트엔드 개발자라면 알고 있어야 할 브라우저의 동작 과정](https://yozm.wishket.com/magazine/detail/1338/)  
 

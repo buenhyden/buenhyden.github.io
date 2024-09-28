@@ -14,6 +14,4 @@ toc:
 
 ## Reference
 
-  
-
 [CSP](https://developer.mozilla.org/ko/docs/Glossary/CSP)

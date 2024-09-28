@@ -13,15 +13,9 @@ toc: "true"
 
 ## 데이터베이스는
 
-  
-
 - 단어, 숫자, 이미지, 비디오 및 파일을 포함한 모든 유형의 데이터가 포함될 수 있음
 
-  
-
 ## 데이터베이스가 필수적인 이유
-
-  
 
 - 효율적인 확장
 
@@ -41,15 +35,9 @@ toc: "true"
 
   -
 
-  
-
 ![Where RDBMS and other DBMS technologies intersect](media/images/differencetypeofdbms2.png "https://www.facebook.com/photo/?fbid=935327580286542&set=pcb.935327616953205")
 
-  
-
 ## Reference
-
-  
 
 [11 Database Optimization Techniques](https://danielfoo.medium.com/11-database-optimization-techniques-97fdbed1b627)  
 

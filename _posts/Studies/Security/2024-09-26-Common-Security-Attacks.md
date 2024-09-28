@@ -13,6 +13,7 @@ toc: "true"
   
 
 ## Common Security Attacks in the OSI Layer Model
+
 ![Common Security Attacks in the OSI Layer Model](common-security-attacks-in-the-osi-layer-model.jpg)
 
-  ## Reference
+## Reference

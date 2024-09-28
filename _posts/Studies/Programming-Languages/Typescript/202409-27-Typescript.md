@@ -14,11 +14,7 @@ toc: "true"
 
 ![TypeScript](typescript.webp "https://dev.to/shivamblog/8-tips-for-clean-typescript-code-you-must-know-488k")
 
-  
-
 ## Roadmap
-
-  
 
 <p align="center">
 
@@ -26,11 +22,7 @@ toc: "true"
 
 </p>
 
-  
-
 ## Reference
-
-  
 
 [What Are K, T, and V in TypeScript Generics?](https://medium.com/frontend-canteen/what-are-k-t-and-v-in-typescript-generics-9fabe1d0f0f3)  
 
