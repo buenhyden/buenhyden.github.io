@@ -1,28 +1,12 @@
 ---
 title: What is Firebase
-linkTitle: What is Firebase
+date: 2024-09-26 11:10:00
+categories: 
+tags: 
 description: 모바일 및 웹 애플리케이션 개발 플랫폼
-summary: 모바일 및 웹 애플리케이션 개발 플랫폼
-date: 2023-11-19T01:55:32.485Z
-series:
-  - Backend
-categories:
-  - Firebase
-  - Backend
-tags:
-  - Firebase
-authors:
-  - Hyunyoun Jo
-lastmod: 2024-01-02T22:16:38
-draft: false
-featured: true
+comments: "true"
 ---
 
-## What is firebase?
-
-{{< lead >}}
-모바일 및 웹 애플리케이션 개발 플랫폼
-{{< /lead >}}
 
 ## Reference
 
