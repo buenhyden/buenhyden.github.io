@@ -11,6 +11,7 @@ tags:
 description: HashiCorp가 개발한 오픈 소스 코드형 인프라스트럭처
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ![Terraform](what-is-terraform.webp "https://www.scaler.com/topics/aws/terraform-aws/")

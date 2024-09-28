@@ -13,6 +13,7 @@ tags:
 description: 특정 HTTP 요청이 성공적으로 완료되었는지 알려준다
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## Reference

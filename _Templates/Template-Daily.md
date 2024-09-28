@@ -11,6 +11,7 @@ tags:
   - 
 description: 
 comments: 
+media_subpath: /assets/img/
 ---
 
 # <% moment(tp.file.title, "YYYY-MM-DD").format("YYYY-MM-DD") %>

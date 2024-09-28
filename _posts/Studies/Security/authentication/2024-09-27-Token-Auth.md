@@ -11,6 +11,7 @@ tags:
 description: a protocol which allows users to verify their identity, and in return receive a unique access token
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## Reference

@@ -10,6 +10,7 @@ tags:
 description: HTTP 또는 HTTPS를 통해 웹 브라우저에서 요청하는 HTML 문서나 오브젝트(이미지 파일 등)을 전송해주는 서비스 프로그램
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ![Web Server](web-server.webp "https://www.exabytes.my/blog/web-server-vs-application-server/")

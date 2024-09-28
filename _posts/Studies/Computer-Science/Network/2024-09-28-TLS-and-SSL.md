@@ -13,6 +13,7 @@ tags:
 description: 보안 소켓 계층(SSL)은 네트워크상의 두 디바이스 또는 애플리케이션 간에 보안 연결을 생성하는 통신 프로토콜 또는 규칙 세트이고, 전송 계층 보안(TLS)은 기존 SSL 취약성을 수정하는 업그레이드된 SSL 버전
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ![Protocol](protocol.png "http://www.tcpipguide.com/free/t_TCPIPProtocols.htm")

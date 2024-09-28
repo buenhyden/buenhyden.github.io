@@ -11,6 +11,7 @@ tags:
 description: a collection of APIs, SDKs, and tools. Use it to instrument, generate, collect, and export telemetry data (metrics, logs, and traces) to help you analyze your software’s performance and behavior
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## Reference

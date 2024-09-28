@@ -9,6 +9,7 @@ tags:
 description: 컴퓨터 네트워크에서 장치들이 서로를 인식하고 통신을 하기 위해서 사용하는 특수한 번호
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 - 네트워크에 연결된 장치가 라우터이든, 일반 서버이든, 모든 기계는 이 특수한 번호를 가지고 있어야 한다.

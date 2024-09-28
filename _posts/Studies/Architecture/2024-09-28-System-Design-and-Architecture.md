@@ -13,6 +13,7 @@ tags:
 description: 시스템의 구조, 행위, 더 많은 뷰를 정의하는 개념적 모형
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ![Enterprise System Architecture](Enterprise-system-architecture-1.png "https://blogs.sw.siemens.com/thought-leadership/2018/11/26/future-ready-framework-for-enterprise-system-architecture/")

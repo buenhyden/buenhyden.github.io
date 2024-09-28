@@ -9,6 +9,7 @@ tags:
 description: 원시 데이터(raw data)를 가져와 분석 및 머신러닝과 같은 다운스트림 사용 사례를 지원하고, 고품질의 일관된 정보를 생성하는 시스템과 프로세스의 개발, 구현 및 유지 관리
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## Roadmap

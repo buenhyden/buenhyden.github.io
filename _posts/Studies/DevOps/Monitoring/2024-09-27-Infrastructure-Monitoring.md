@@ -11,4 +11,5 @@ tags:
 description: used to collect health and performance data from servers, virtual machines, containers, databases, and other backend components in a tech stack.
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---

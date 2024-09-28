@@ -9,6 +9,7 @@ tags:
 description: Common Security Attacks in the OSI Layer Model
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
   
 

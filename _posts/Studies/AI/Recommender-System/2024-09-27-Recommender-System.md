@@ -10,6 +10,7 @@ tags:
 description: 사용자의 행동 패턴, 신호, 이전의 행동 등을 분석해 개인에게 제안을 하는 것에 맞춤화된 기술
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## What is Recommender System?

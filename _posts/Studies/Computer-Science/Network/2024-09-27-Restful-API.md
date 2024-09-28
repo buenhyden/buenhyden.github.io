@@ -13,6 +13,7 @@ tags:
 description: 두 컴퓨터 시스템이 인터넷을 통해 정보를 안전하게 교환하기 위해 사용하는 인터페이스
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ![What is Rest API](what-is-rest-api.png "https://mannhowie.com/rest-api")

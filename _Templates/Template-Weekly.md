@@ -11,6 +11,7 @@ tags:
   - 
 description: 
 comments: 
+media_subpath: /assets/img/
 ---
 
 <%*

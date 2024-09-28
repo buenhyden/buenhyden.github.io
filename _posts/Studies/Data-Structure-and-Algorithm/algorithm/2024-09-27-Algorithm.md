@@ -8,6 +8,7 @@ tags:
 description: 컴퓨터 프로그램에서 문제를 해결하기 위한 방법,순서,명령어들의 집합체
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ![Data algorithms](Taxonomy-of-the-algorithms.png "https://www.researchgate.net/figure/Taxonomy-of-the-algorithms-and-data-structures-considered-for-the-AlgoVis-tool_fig1_329481179")

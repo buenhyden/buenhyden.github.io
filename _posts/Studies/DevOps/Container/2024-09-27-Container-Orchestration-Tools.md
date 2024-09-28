@@ -11,6 +11,7 @@ tags:
 description: Container Orchestration(CO)을 위해 많이 사용되는 도구와 각 도구별 특성을 정리
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ![CO Tools](co-tools.webp "https://www.suse.com/c/rancher_blog/kubernetes-mesos-and-swarm-comparing-the-rancher-orchestration-engine-options/")

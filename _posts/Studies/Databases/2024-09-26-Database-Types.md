@@ -9,6 +9,7 @@ tags:
 description: Database 타입
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
   
 

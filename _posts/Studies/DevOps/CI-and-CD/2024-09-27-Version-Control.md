@@ -11,6 +11,7 @@ tags:
 description: 동일한 정보에 대한 여러 버전을 관리하는 것
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## 로컬 버전관리(Local VCS)

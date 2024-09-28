@@ -12,6 +12,7 @@ tags:
 description: a log aggregation system designed to store and query logs from all your applications and infrastructure
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## Reference

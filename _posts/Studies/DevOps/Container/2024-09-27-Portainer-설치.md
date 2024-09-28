@@ -13,6 +13,7 @@ tags:
 description: Web GUI 기반 Container 관리 툴
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## Portainer란?

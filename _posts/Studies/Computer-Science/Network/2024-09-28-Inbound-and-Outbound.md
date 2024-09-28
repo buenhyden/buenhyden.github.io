@@ -11,6 +11,7 @@ tags:
 description: 
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## Reference

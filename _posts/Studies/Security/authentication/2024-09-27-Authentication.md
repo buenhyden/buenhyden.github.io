@@ -10,4 +10,5 @@ tags:
 description: 자신이 누구라고 주장하는 사람을 확인하는 절차
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---

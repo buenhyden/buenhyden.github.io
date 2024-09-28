@@ -9,6 +9,7 @@ tags:
 description: 서비스를 더 작게 만들고(마이크로 서비스) 더 자주 배포(Deployment) 하는 방식으로 변화함에 따라 이에 대응하여 배포할 수 있도록 구성
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 ## Reference
 

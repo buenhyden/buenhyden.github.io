@@ -10,6 +10,7 @@ tags:
 description: 특정 문제에 대한 전문적인 지식을 컴퓨터에 기억시키고, 시스템화하여 비전문가도 전문지식을 활용할 수 있도록 하는 시스템
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## What is Expert System?

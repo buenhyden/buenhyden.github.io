@@ -11,6 +11,7 @@ tags:
 description: Linux에서 자주 사용하는 명령어 모음
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## Linux Command
@@ -110,12 +111,12 @@ drwxrwxr-x  5 hyden hyden     4096 Aug  3 14:47 manage_kubernetes/
 ### cd
 
 - change directory의 약자로 디렉터리 이동시 사용하는 명령어
-  |Option|Description|
-  |------|-----------|
-  |cd ~|홈 디렉터리로 이동|
-  |cd ..|상위 디렉터리로 이동. cd ../../ 같은 식으로 여러 단계를 한 번에 이동 가능|
-  |cd /dir|절대 경로를 지정해 이동 가능|
-  |cd -|바로 전의 디렉터리로 이동|
+  | Option  | Description                                                               |
+  | ------- | ------------------------------------------------------------------------- |
+  | cd ~    | 홈 디렉터리로 이동                                                        |
+  | cd ..   | 상위 디렉터리로 이동. cd ../../ 같은 식으로 여러 단계를 한 번에 이동 가능 |
+  | cd /dir | 절대 경로를 지정해 이동 가능                                              |
+  | cd -    | 바로 전의 디렉터리로 이동                                                 |
 
 ### mkdir
 
@@ -284,14 +285,14 @@ RX bytes:349206971 (349.2 MB) TX bytes:349206971 (349.2 MB)
 - socket statistics의 약자로 네트워크 상태를 확인하는 데 사용.
 
 - nestat과 동일. 옵션으로 a, t, u, l, p, n 등이 있다.
-  |Option|Description|
-  |------|-----------|
-  |ss -a | 모든 포트 확인|
-  |ss -t | TCP 포트 확인|
-  |ss -u | UDP 포트 확인|
-  |ss -l | LISTEN 상태 포트 확인|
-  |ss -p | 프로세스 표시|
-  |ss -n | 호스트, 포트, 사용자명을 숫자로 표시|
+  | Option | Description                          |
+  | ------ | ------------------------------------ |
+  | ss -a  | 모든 포트 확인                       |
+  | ss -t  | TCP 포트 확인                        |
+  | ss -u  | UDP 포트 확인                        |
+  | ss -l  | LISTEN 상태 포트 확인                |
+  | ss -p  | 프로세스 표시                        |
+  | ss -n  | 호스트, 포트, 사용자명을 숫자로 표시 |
 
 - TCP 포트 중 LISTEN 상태인 포트의 번호를 알고 싶을 때 다음과 같이.
 

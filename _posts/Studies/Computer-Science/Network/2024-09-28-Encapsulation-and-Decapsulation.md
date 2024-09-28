@@ -10,13 +10,14 @@ tags:
 description: 데이터에 헤더(Header)를 붙이고 아래 계층에 보내는 것을 캡슐화(Encapsulation), 데이터에 헤더를 제거하고 위 계층에 보내는 것을 역캡슐화(Decapsulation)
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## 데이터 캡슐화(Encapsulation)와 역캡슐화(Decapsulation)
 
 - 데이터 전송시 캡슐화가 이뤄지고 수신시 역캡슐화(Decapsulation)가 이뤄진다.
 - 데이터에 헤더(Header)를 붙이고 아래 계층에 보내는 것을 캡슐화(Encapsulation), 데이터에 헤더를 제거하고 위 계층에 보내는 것을 역캡슐화(Decapsulation)라고 한다.
-  ![OSI 7계층 데이터 캡슐](media/images/images_poiuyy0420_post_ad150139-1620-40c0-a12a-9b245a169dd1_iso7.jpg "https://velog.io/@poiuyy0420/%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-OSI-7-%EA%B3%84%EC%B8%B5-%EA%B0%9C%EB%85%90-%EC%A0%95%EB%A6%AC")  
+  ![OSI 7계층 데이터 캡슐](images_poiuyy0420_post_ad150139-1620-40c0-a12a-9b245a169dd1_iso7.jpg "https://velog.io/@poiuyy0420/%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-OSI-7-%EA%B3%84%EC%B8%B5-%EA%B0%9C%EB%85%90-%EC%A0%95%EB%A6%AC")  
   AH : Application Header  
   PH : Presentation Header  
   SH : Session Header  

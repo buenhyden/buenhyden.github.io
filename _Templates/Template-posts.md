@@ -8,4 +8,5 @@ tags:
 description: 
 comments: 
 toc: 
+media_subpath: /assets/img/
 ---

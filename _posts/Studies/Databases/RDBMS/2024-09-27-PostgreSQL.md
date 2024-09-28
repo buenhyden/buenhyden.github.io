@@ -12,6 +12,7 @@ tags:
 description: 오픈 소스 관계형 데이터베이스 관리 시스템
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 ## Roadmap
 

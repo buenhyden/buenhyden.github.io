@@ -6,6 +6,7 @@ tags:
 description: 
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## 하나 이상의 서비스 구현을 추상화 하는 API

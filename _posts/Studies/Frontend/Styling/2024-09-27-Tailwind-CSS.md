@@ -14,6 +14,7 @@ tags:
 description: 오픈 소스 CSS 프레임워크. 이 라이브러리의 주요 특징은 Bootstrap과 같은 다른 CSS 프레임워크와 달리 버튼이나 테이블과 같은 요소에 대해 미리 정의된 일련의 클래스를 제공하지 않는다는 것
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 

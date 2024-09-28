@@ -7,6 +7,7 @@ tags:
 description: 전체적인 프로그래밍 방식
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
   
 

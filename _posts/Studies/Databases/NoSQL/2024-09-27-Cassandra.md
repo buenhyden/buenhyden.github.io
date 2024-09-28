@@ -13,6 +13,7 @@ tags:
 description: 자유-오픈 소스 분산형 NoSQL 데이터베이스 관리 시스템의 하나로, 단일 장애점 없이 고성능을 제공하면서 수많은 서버 간의 대용량의 데이터를 관리하기 위해 설계
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## Reference

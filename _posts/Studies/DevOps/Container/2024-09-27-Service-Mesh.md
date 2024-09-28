@@ -13,6 +13,7 @@ tags:
 description: 소프트웨어 아키텍처에서 서비스 메시는 프록시를 사용하여 서비스 또는 마이크로서비스 간 서비스 간 통신을 촉진하기 위한 전용 인프라 계층
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## Reference

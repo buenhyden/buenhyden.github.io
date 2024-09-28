@@ -9,6 +9,7 @@ tags:
 description: 컴퓨터 및 통신에 관련된 보안
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ![IT Security](it-security.webp "https://teamwin.in/index.php/services/security-system/")

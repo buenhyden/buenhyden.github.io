@@ -11,6 +11,7 @@ tags:
 description: 인프라를 모니터링하고 유지하는 방법
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## Components of Infrastructure Management

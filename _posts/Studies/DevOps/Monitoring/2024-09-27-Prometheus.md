@@ -13,6 +13,7 @@ tags:
 description: 이벤트 모니터링 및 경고에 사용되는 무료 소프트웨어 애플리케이션
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## Reference

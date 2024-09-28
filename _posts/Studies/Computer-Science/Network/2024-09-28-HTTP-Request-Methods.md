@@ -13,6 +13,7 @@ tags:
 description: HTTP는 요청 메서드를 정의하여, 주어진 리소스에 수행하길 원하는 행동을 나타낸다.
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## Reference

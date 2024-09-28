@@ -11,6 +11,7 @@ tags:
 description: is the result of wondering how we could enhance CSS for styling React component systems
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## Reference

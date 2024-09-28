@@ -11,6 +11,7 @@ tags:
 description: a super fast, lightweight, and highly scalable logging and metrics processor and forwarder
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## Reference

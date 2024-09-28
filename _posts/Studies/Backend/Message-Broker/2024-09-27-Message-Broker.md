@@ -10,6 +10,7 @@ tags:
 description: 애플리케이션, 시스템 및 서비스가 서로 간에 통신하고 정보를 교환할 수 있도록 해주는 소프트웨어
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ![Diagram Message Broker](diagram-message-broker.png "https://ko.wikipedia.org/wiki/%EB%A9%94%EC%8B%9C%EC%A7%80_%EB%B8%8C%EB%A1%9C%EC%BB%A4")

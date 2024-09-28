@@ -9,6 +9,7 @@ tags:
 description: 멀티-패러다임 언어로 명령형, 함수형, 객체 지향형 언어
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
   
 

@@ -10,6 +10,7 @@ tags:
 description: Frontend design involves creating the HTML, CSS, and presentational JavaScript code that makes up a user interface
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ![UI&UX](ui-ux.jpg "https://medium.com/@sumaiya-journal/the-fundamentals-of-ui-and-ux-design-189d61821069")

@@ -11,6 +11,7 @@ tags:
 description: 통합 인증은 한 번의 인증 과정으로 여러 컴퓨터 상의 자원을 이용 가능하게 하는 인증 기능
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## Reference

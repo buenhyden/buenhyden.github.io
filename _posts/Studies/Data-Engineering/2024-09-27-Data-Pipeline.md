@@ -9,6 +9,7 @@ tags:
 description: Data Pipeline다양한 데이터 소스에서 원시 데이터를 수집한 다음 분석을 위해 데이터 레이크 또는 데이터 웨어하우스와 같은 데이터 저장소로 이전하는 방법
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## Stages in Data Processing Pipeline

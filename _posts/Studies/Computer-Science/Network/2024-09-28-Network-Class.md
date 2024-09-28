@@ -9,6 +9,7 @@ tags:
 description: IPv4 에서 첫 번째 구조 변화를 나타내는 기법
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## Reference

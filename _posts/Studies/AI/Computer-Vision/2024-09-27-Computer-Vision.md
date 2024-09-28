@@ -10,6 +10,7 @@ tags:
 description: 컴퓨터의 시각적인 부분을 연구하여 디지털 이미지, 비디오 등에서 의미 있는 정보를 추출하는 기술
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## What is Computer Vision?

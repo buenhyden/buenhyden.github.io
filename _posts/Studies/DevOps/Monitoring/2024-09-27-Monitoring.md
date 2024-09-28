@@ -10,6 +10,7 @@ tags:
 description: 컴퓨터 시스템의 시스템 리소스와 성능을 모니터링하는 데 사용되는 하드웨어 또는 소프트웨어 구성 요소
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ![Monitoring](types-it-monitoring.png "https://www.bmc.com/blogs/it-monitoring/")

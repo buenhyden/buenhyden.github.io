@@ -10,6 +10,7 @@ tags:
 description: 소프트웨어 개발 중 특정 문맥에서 발생할 수 있는 문제에 대한 solution을 나타내는 패턴
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## Reference

@@ -11,6 +11,7 @@ tags:
 description: " the process of monitoring an application's performance, availability, and end-user experience to ensure the application is functioning properly"
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## Reference

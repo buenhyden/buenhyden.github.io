@@ -11,6 +11,7 @@ tags:
 description: 하나의 TCP 접속에 전이중 통신 채널을 제공하는 컴퓨터 통신 프로토콜
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ![Web Socket](web-socket.png "https://blog.stackademic.com/api-101-introduction-imp-of-api-paradigms-8d8e0e463f96")

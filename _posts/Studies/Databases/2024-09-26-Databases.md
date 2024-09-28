@@ -8,6 +8,7 @@ tags:
 description: 여러 사람이 공유하여 사용할 목적으로 체계화해 통합, 관리하는 데이터의 집합
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
   
 
@@ -35,7 +36,7 @@ toc: "true"
 
   -
 
-![Where RDBMS and other DBMS technologies intersect](media/images/differencetypeofdbms2.png "https://www.facebook.com/photo/?fbid=935327580286542&set=pcb.935327616953205")
+![Where RDBMS and other DBMS technologies intersect](differencetypeofdbms2.png "https://www.facebook.com/photo/?fbid=935327580286542&set=pcb.935327616953205")
 
 ## Reference
 

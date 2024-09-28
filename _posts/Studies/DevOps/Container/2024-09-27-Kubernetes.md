@@ -14,6 +14,7 @@ tags:
 description: 컨테이너화된 애플리케이션의 자동 디플로이, 스케일링 등을 제공하는 관리시스템으로, 오픈 소스 기반
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ![Kubernetes](kubernetes.png "https://kubernetes.io/ko/docs/concepts/overview/components/")

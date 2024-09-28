@@ -10,6 +10,7 @@ tags:
 description: 요소, 관계, 원칙, 디자인으로 구현된 환경에서의 시스템의 근본적인 개념 혹은 속성
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ![Software Architecture](software-architecture.webp "https://herbertograca.com/tag/explicit-architecture/")

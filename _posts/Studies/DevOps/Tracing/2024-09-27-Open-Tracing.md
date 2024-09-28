@@ -10,6 +10,7 @@ tags:
 description: Vendor-neutral APIs and instrumentation for distributed tracing
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## Reference

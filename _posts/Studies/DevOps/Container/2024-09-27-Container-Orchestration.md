@@ -12,6 +12,7 @@ tags:
 description: 컨테이너의 프로비저닝, 배포, 네트워킹, 확장, 가용성, 라이프사이클 관리를 자동화
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ![Center Orchestration](automation-with-container-orchestration.png "https://devpress.csdn.net/cicd/62f4229bc6770329307f9728.html")

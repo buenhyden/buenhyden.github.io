@@ -9,6 +9,7 @@ tags:
 description: is the study of computation, information, and automation
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## Computer Science

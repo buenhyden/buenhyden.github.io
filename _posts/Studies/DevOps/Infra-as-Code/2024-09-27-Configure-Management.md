@@ -11,4 +11,5 @@ tags:
 description: " the process of maintaining systems, such as computer hardware and software, in a desired state"
 comments: "true"
 toc: "true"
+media_subpath: /assets/img/
 ---
