@@ -3,6 +3,7 @@ title:
 date: 2024-09-27 14:31:00
 categories:
   - AI
+  - Computer-Vision
 tags:
   - AI
   - Computer-Vision
