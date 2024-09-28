@@ -5,6 +5,7 @@ categories:
 tags: 
 description: 모바일 및 웹 애플리케이션 개발 플랫폼
 comments: "true"
+media_subpath: /assets/img/
 ---
 
 

@@ -37,8 +37,6 @@ media_subpath: /assets/img/
 
 ## Lecture
 
-[UX/UI 디자인: 입문부터 심화까지](http://www.kmooc.kr/series_view/34/)
-
 ## Reference
 
 [6 Web Design Concepts Proven To Increase Conversions](https://webdesignledger.com/6-web-design-concepts-proven-increase-conversions/)  

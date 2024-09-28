@@ -5,6 +5,7 @@ categories:
 tags: 
 description: 
 comments: "true"
+media_subpath: /assets/img/
 ---
 
 ![Memory Size](memory-sizes-to-yotta.png "https://cryptosmith.com/2013/10/18/memory-sizes-kilo-mega-giga-tera-peta-exa/")

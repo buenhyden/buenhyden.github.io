@@ -9,7 +9,9 @@ tags:
   - Python
 description: ip주소를 검사하고 조작하는 모듈
 comments: "true"
+media_subpath: /assets/img/
 ---
+
 ## Reference
 
 - For readers that aren’t particularly familiar with IP addressing, it’s important to know that the Internet Protocol (IP) is currently in the process of moving from version 4 of the protocol to version 6.
