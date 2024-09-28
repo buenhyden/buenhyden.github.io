@@ -2,7 +2,12 @@
 title: Software Design & Architecture
 date: 2024-09-27 14:40:00
 categories: 
+  - Software-Design-and-Architecture  
 tags: 
+  - Software-Design-and-Architecture
+  - Software-Design
+  - Architecture
+  - Roadmap
 description: 
 comments: "true"
 toc: "true"

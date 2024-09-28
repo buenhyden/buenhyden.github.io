@@ -7,6 +7,7 @@ categories:
 tags:
   - Frontend
   - Design
+  - Roadmap
 description: Frontend design involves creating the HTML, CSS, and presentational JavaScript code that makes up a user interface
 comments: "true"
 toc: "true"
