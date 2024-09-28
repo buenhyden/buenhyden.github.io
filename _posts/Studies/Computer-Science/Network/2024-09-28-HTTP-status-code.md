@@ -1,6 +1,6 @@
 ---
 title: HTTP status Code
-date: 2024-09-28 13:48:00
+date: 2024-09-28 04:48:00
 categories:
   - Network
   - Protocol

@@ -1,6 +1,6 @@
 ---
 title: HTTP Request Method
-date: 2024-09-28 13:49:00
+date: 2024-09-28 04:49:00
 categories:
   - Network
   - Protocol

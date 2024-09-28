@@ -1,9 +1,9 @@
 ---
 title: 
-date: <% moment(tp.file.creation_date()).format("YYYY-MM-DD HH:mm:ss") %>
-month: <% moment(tp.date.now()).format("YYYY-MM") %>
-Quarter: <% moment(tp.date.now()).format("YYYY-[Q]Q") %>
-year: <% moment(tp.date.now()).format("YYYY") %>
+date: <% moment(tp.file.creation_date()).utc().format("YYYY-MM-DD HH:mm:ss") %>
+month: <% moment(tp.date.now()).utc().format("YYYY-MM") %>
+Quarter: <% moment(tp.date.now()).utc().format("YYYY-[Q]Q") %>
+year: <% moment(tp.date.now()).utc().format("YYYY") %>
 categories:
   - 
 tags:

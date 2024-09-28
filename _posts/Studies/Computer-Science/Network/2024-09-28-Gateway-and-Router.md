@@ -1,6 +1,6 @@
 ---
 title: Gateway & Router
-date: 2024-09-28 14:16:00
+date: 2024-09-28 05:16:00
 categories:
   - Network
 tags:
