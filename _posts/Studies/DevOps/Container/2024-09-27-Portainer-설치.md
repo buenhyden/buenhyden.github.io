@@ -36,7 +36,7 @@ docker run -d -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock -v /kube
 ```
 
 3. Portainer 로그인
-   웹브라우저 Portainer 서버(예: <http://서버IP:9000>)에 접근
+   웹브라우저 Portainer 서버(예: http://서버IP:9000)에 접근
    [처음 접속시]
    username과 password 입력
    ![Portainer 로그인](portainer-1.png)
