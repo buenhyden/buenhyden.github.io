@@ -9,8 +9,9 @@ tags:
   - Backend
   - SearchEngine
 description: Apache 2.0 라이선스 하에 제공되는 분산형 커뮤니티 기반 100% 오픈 소스 검색 및 분석 제품군
-comments: 
-toc:
+comments: "true"
+toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## Reference

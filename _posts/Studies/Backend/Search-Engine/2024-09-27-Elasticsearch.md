@@ -9,8 +9,9 @@ tags:
   - Backend
   - SearchEngine
 description: " 루씬 기반의 검색 엔진이다. HTTP 웹 인터페이스와 스키마에서 자유로운 JSON 문서와 함께 분산 멀티테넌트 지원 전문 검색 엔진을 제공"
-comments: 
-toc:
+comments: "true"
+toc: "true"
+media_subpath: /assets/img/
 ---
 
 ![ELK](elk.jpg "https://www.linkedin.com/posts/anezkahonke_brazil-softwaredevelopers-softwareengineer-activity-6937760892772077568-QfQd?trk=public_profile")

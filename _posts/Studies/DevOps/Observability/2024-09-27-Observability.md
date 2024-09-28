@@ -8,8 +8,9 @@ tags:
   - DevOps
   - Observability
 description: 오직 시스템의 외부 출력만을 이용해서 시스템의 현재 상태를 이해할 수 있는 능력
-comments: 
-toc:
+comments: "true"
+toc: "true"
+media_subpath: /assets/img/
 ---
 
 ## Reference

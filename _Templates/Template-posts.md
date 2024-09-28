@@ -6,7 +6,7 @@ categories:
 tags:
   - 
 description: 
-comments: 
-toc: 
+comments: "true"
+toc: "true" 
 media_subpath: /assets/img/
 ---

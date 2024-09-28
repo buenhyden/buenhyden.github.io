@@ -6,8 +6,9 @@ categories:
 tags:
   - programming-Languages
 description: 기계(컴퓨터)에게 명령이나 연산을 시킬 목적으로 설계되어 기계와 의사소통을 할 수 있게 해주는 언어
-comments: 
-toc:
+comments: "true"
+toc: "true"
+media_subpath: /assets/img/
 ---
   
 

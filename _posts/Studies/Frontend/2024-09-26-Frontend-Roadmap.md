@@ -6,8 +6,9 @@ categories:
 tags:
   - Roadmap
 description: 
-comments: 
-toc:
+comments: "true"
+toc: "true"
+media_subpath: /assets/img/
 ---
 ## Web Application
 
