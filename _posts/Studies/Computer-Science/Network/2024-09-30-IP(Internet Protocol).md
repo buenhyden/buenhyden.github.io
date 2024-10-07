@@ -17,7 +17,7 @@ comments: "true"
 toc: "true"
 media_subpath: /assets/img/
 ---
-![Client - Sever](Client-server-model.svg <https://ko.wikipedia.org/wiki/%ED%81%B4%EB%9D%BC%EC%9D%B4%EC%96%B8%ED%8A%B8_%EC%84%9C%EB%B2%84_%EB%AA%A8%EB%8D%B8#/media/%ED%8C%8C%EC%9D%BC:Client-server-model.svg>)  
+![Client - Sever](Client-server-model.svg "https://ko.wikipedia.org/wiki/%ED%81%B4%EB%9D%BC%EC%9D%B4%EC%96%B8%ED%8A%B8_%EC%84%9C%EB%B2%84_%EB%AA%A8%EB%8D%B8#/media/%ED%8C%8C%EC%9D%BC:Client-server-model.svg")  
 # IP (Internet Protocol)
 ![Internet Protocol(IP) Address Diagram](internet_protocol_ip_address_diagram.svg "https://www.cloudflare.com/ko-kr/learning/network-layer/internet-protocol/")  
 - 데이터 패킷이 네트워크를 통해 이동하고 올바른 대상에 도착할 수 있도록 데이터 패킷을 라우팅하고 주소를 지정하기 위한 프로토콜 또는 규칙의 집합
