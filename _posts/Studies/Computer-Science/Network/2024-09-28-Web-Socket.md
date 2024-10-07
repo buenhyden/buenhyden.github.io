@@ -23,7 +23,6 @@ media_subpath: /assets/img/
 - TCP 위에서 동작
 
 ## Reference
-
 [Web Socket 이란?](https://velog.io/@codingbotpark/Web-Socket-%EC%9D%B4%EB%9E%80)
 [웹소켓](https://ko.wikipedia.org/wiki/%EC%9B%B9%EC%86%8C%EC%BC%93)
 [WebSocket이란 무엇이며 어떻게 생성합니까?](https://appmaster.io/ko/blog/websocketiran-mueosimyeo-eoddeohge-saengseonghabnigga)

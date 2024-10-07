@@ -29,6 +29,6 @@ media_subpath: /assets/img/
 | 핸드셰이크  | SSL 핸드셰이크는 복잡하고 느리다                                            | TLS 핸드셰이크는 단계가 적고 연결 속도가 빠르다                             |
 
 ## Reference
-
 [AWS - SSL과 TLS의 차이점은 무엇인가요?](https://aws.amazon.com/ko/compare/the-difference-between-ssl-and-tls/)
 [그림으로 쉽게 보는 HTTPS, SSL, TLS](https://brunch.co.kr/@swimjiy/47)
+[LINT: HTTP/2와 TLS를 통한 네트워크 현대화](https://engineering.linecorp.com/ko/blog/LINT-newtork-modernization-http2-tls)  

@@ -6,13 +6,12 @@ categories:
 tags:
   - Computer-Science
   - Roadmap
-description: is the study of computation, information, and automation
+description: 계산(Computation), 정보(Information) 그리고 자동화(Automation)에 대한 학문
 comments: "true"
 toc: "true"
 media_subpath: /assets/img/
 ---
-
-## Computer Science
+# Computer Science
 
 ![Computer Science](computer-science.png "https://ecse.postech.ac.kr/research-activities/research-field/")
 
@@ -28,9 +27,3 @@ media_subpath: /assets/img/
 [[해외명강] 컴퓨터 과학 교양 강좌: CS50](https://www.edwith.org/cs50)
 
 ## Reference
-
-[주니어 PM이 알아야 할 서버 기초 상식](https://yozm.wishket.com/magazine/detail/1907/)  
-[웹/앱 외주 개발 시 꼭 알아야 하는 IT 용어 - 웹](https://yozm.wishket.com/magazine/detail/379/)  
-[비개발자를 위한 IT 용어 : 프레임워크가 뭐죠?](https://yozm.wishket.com/magazine/detail/378/)  
-[동시성, 병렬, 비동기, 논블럭킹과 컨셉들](https://black7375.tistory.com/90)  
-[개발자를 위한 인프라 기초 총정리](https://futurecreator.github.io/2018/11/09/it-infrastructure-basics/)
