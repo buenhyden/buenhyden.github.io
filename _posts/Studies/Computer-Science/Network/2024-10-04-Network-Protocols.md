@@ -34,7 +34,7 @@ media_subpath: /assets/img/
 - 상이한 컴퓨터 시스템이 서로 통신할 수 있는 표준을 제공
 - 컴퓨터 네트워킹의 범용 언어로 볼 수 있다.
 - 통신에 관련된 목적을 달성하기 위하여 계층별로 분할하여 분업이 가능  
-![OSI 7Layers](osi-model-7-layers.SVG "https://www.cloudflare.com/ko-kr/learning/network-layer/what-is-a-protocol/")  
+![OSI 7Layers](osi-model-7-layers.svg "https://www.cloudflare.com/ko-kr/learning/network-layer/what-is-a-protocol/")  
 
 ### 의의
 
