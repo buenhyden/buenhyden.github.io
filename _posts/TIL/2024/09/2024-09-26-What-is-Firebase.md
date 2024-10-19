@@ -1,4 +1,5 @@
 ---
+type: posts
 title: What is Firebase
 date: 2024-09-26 11:10:00
 categories: 

@@ -1,4 +1,5 @@
 ---
+type: posts
 title: Memory Sizes
 date: 2024-09-25 13:46:00
 categories: 

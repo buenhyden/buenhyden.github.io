@@ -1,4 +1,5 @@
 ---
+type: posts
 title: Python Package - ipaddress
 date: 2024-09-24 13:46:00
 categories:
