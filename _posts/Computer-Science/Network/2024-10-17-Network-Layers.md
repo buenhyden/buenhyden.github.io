@@ -2,8 +2,10 @@
 type: posts
 title: Network Layers
 date: 2024-10-17 13:08:00
-categories: 
-tags: 
+categories:
+  - Network
+tags:
+  - Network
 description: 
 comments: "true"
 toc: "true"
