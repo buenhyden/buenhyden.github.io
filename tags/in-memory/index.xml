@@ -1,1 +1,675 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>In-Memory :: Tag :: hyunyoun's Blog</title><link>https://buenhyden.github.io/tags/in-memory/</link><description/><generator>Hugo</generator><language>en</language><managingEditor>chochyjj@gmail.com (Hyunyoun Jo)</managingEditor><webMaster>chochyjj@gmail.com (Hyunyoun Jo)</webMaster><lastBuildDate>Sat, 19 Oct 2024 15:35:00 +0000</lastBuildDate><atom:link href="https://buenhyden.github.io/tags/in-memory/index.xml" rel="self" type="application/rss+xml"/><item><title>Redis와 Valkey</title><link>https://buenhyden.github.io/til/2024/10/redis%EC%99%80-valkey/</link><pubDate>Fri, 18 Oct 2024 01:34:00 +0000</pubDate><author>chochyjj@gmail.com (Hyunyoun Jo)</author><guid>https://buenhyden.github.io/til/2024/10/redis%EC%99%80-valkey/</guid><description>Redis와 Valkey 모두 인메모리 데이터베이스로, 빠른 읽기/쓰기 성능을 제공하나, Redis의 라이선스 정책 변경으로 인해 Valkey가 fork되어 새로운 프로젝트가 되었다.</description></item><item><title>Redis</title><link>https://buenhyden.github.io/posts/backend/database-systems/nosql/in-memory/redis/</link><pubDate>Sat, 19 Oct 2024 15:35:00 +0000</pubDate><author>chochyjj@gmail.com (Hyunyoun Jo)</author><guid>https://buenhyden.github.io/posts/backend/database-systems/nosql/in-memory/redis/</guid><description>Remote Dictionary Server의 약자로서, "키-값" 구조의 비정형 데이터를 저장하고 관리하기 위한 오픈 소스 기반의 비관계형 데이터베이스 관리 시스템</description></item><item><title>Valkey</title><link>https://buenhyden.github.io/posts/backend/database-systems/nosql/in-memory/valkey/</link><pubDate>Sat, 19 Oct 2024 01:33:00 +0000</pubDate><author>chochyjj@gmail.com (Hyunyoun Jo)</author><guid>https://buenhyden.github.io/posts/backend/database-systems/nosql/in-memory/valkey/</guid><description>Valkey는 선택적 내구성을 갖춘 분산형 인메모리 키-값 데이터베이스, 캐시 및 메시지 브로커로 사용되는 오픈 소스 인메모리 스토리지.</description></item><item><title>In Memory</title><link>https://buenhyden.github.io/posts/backend/database-systems/nosql/in-memory/</link><pubDate>Fri, 18 Oct 2024 06:29:00 +0000</pubDate><author>chochyjj@gmail.com (Hyunyoun Jo)</author><guid>https://buenhyden.github.io/posts/backend/database-systems/nosql/in-memory/</guid><description>In-Memory 데이터베이스는 데이터를 주 메모리(RAM)에 저장하고 관리하는 NoSQL 데이터베이스 시스템이다.</description></item></channel></rss>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>hyunyoun's Blog – In-Memory</title><link>https://buenhyden.github.io/tags/in-memory/</link><description>Recent content in In-Memory on hyunyoun's Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Sat, 19 Oct 2024 15:35:00 +0000</lastBuildDate><atom:link href="https://buenhyden.github.io/tags/in-memory/index.xml" rel="self" type="application/rss+xml"/><item><title>Redis와 Valkey</title><link>https://buenhyden.github.io/til/2024/10/redis%EC%99%80-valkey/</link><pubDate>Fri, 18 Oct 2024 01:34:00 +0000</pubDate><guid>https://buenhyden.github.io/til/2024/10/redis%EC%99%80-valkey/</guid><description>
+&lt;h2>Redis와 Valkey&lt;span class="hx-absolute -hx-mt-20" id="redis와-valkey">&lt;/span>
+&lt;a href="#redis%ec%99%80-valkey" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Redis는 원래 오픈소스 프로젝트로 시작되었지만, 최근 라이선스 정책을 변경하여 더 이상 완전한 오픈소스가 아니다. 이에 반해 Valkey는 Redis의 오픈소스 정신을 계승하기 위해 만들어진 프로젝트로, Linux Foundation의 관리 하에 있다.&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>특징&lt;/th>
+&lt;th>Valkey&lt;/th>
+&lt;th>Redis&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>라이선스&lt;/td>
+&lt;td>BSD 3-clause 오픈 소스&lt;/td>
+&lt;td>Redis Source Available (제한적 오픈 소스)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>커뮤니티 지원&lt;/td>
+&lt;td>AWS, Oracle 등이 지원하는 커뮤니티 주도&lt;/td>
+&lt;td>Redis Inc.가 상업적으로 지원&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>멀티스레딩&lt;/td>
+&lt;td>I/O 및 명령 실행을 위한 향상된 멀티스레드 아키텍처&lt;/td>
+&lt;td>대부분의 작업이 단일 스레드&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>복제&lt;/td>
+&lt;td>이중 채널 복제&lt;/td>
+&lt;td>마스터-슬레이브 복제 및 Redis Cluster 지원&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>확장성&lt;/td>
+&lt;td>자동 클러스터 장애 조치 및 개선된 확장성&lt;/td>
+&lt;td>클러스터링 및 샤딩 지원&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>관찰 가능성&lt;/td>
+&lt;td>상세한 모니터링을 위한 슬롯별 메트릭 제공&lt;/td>
+&lt;td>기본적인 모니터링 및 메트릭&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>RDMA 지원&lt;/td>
+&lt;td>RDMA에 대한 실험적 지원&lt;/td>
+&lt;td>기본 RDMA 지원 없음&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>플랫폼 지원&lt;/td>
+&lt;td>Linux, macOS, OpenBSD, NetBSD, FreeBSD&lt;/td>
+&lt;td>Windows, Linux, macOS&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>개발 초점&lt;/td>
+&lt;td>높은 처리량과 낮은 지연 시간&lt;/td>
+&lt;td>고성능 및 데이터 지속성&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>기능 세트&lt;/td>
+&lt;td>Redis 7.2.4 기반, 일부 고급 기능 부족&lt;/td>
+&lt;td>더 광범위한 기능 세트 (JSON, TimeSeries 등)&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;hr>
+&lt;h2>참고 및 출처&lt;span class="hx-absolute -hx-mt-20" id="참고-및-출처">&lt;/span>
+&lt;a href="#%ec%b0%b8%ea%b3%a0-%eb%b0%8f-%ec%b6%9c%ec%b2%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item><item><title>Redis</title><link>https://buenhyden.github.io/posts/backend/database-systems/nosql/in-memory/redis/</link><pubDate>Sat, 19 Oct 2024 15:35:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/backend/database-systems/nosql/in-memory/redis/</guid><description>
+&lt;h2>Redis (Remote Dictionary Server)&lt;span class="hx-absolute -hx-mt-20" id="redis-remote-dictionary-server">&lt;/span>
+&lt;a href="#redis-remote-dictionary-server" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>고성능 오픈 소스 인메모리 데이터 구조 저장소로, 주로 키-값 형태의 데이터베이스, 캐시, 메시지 브로커로 사용된다.&lt;/p>
+&lt;h3>특징&lt;span class="hx-absolute -hx-mt-20" id="특징">&lt;/span>
+&lt;a href="#%ed%8a%b9%ec%a7%95" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>인메모리 데이터 저장: Redis는 모든 데이터를 주 메모리(RAM)에 저장하여 매우 빠른 읽기와 쓰기 성능을 제공합니다.&lt;/li>
+&lt;li>다양한 데이터 구조: 문자열, 리스트, 해시, 세트, 정렬된 세트, 비트맵, 하이퍼로그로그, 지리공간 인덱스 등 다양한 데이터 타입을 지원합니다.&lt;/li>
+&lt;li>영속성: RDB(Redis Database) 스냅샷과 AOF(Append-Only File) 로그를 통해 데이터의 영속성을 보장합니다.&lt;/li>
+&lt;li>싱글 스레드 아키텍처: 기본적으로 싱글 스레드로 동작하여 데이터의 원자성을 보장합니다. 단, 버전 4.0부터는 일부 작업에 대해 멀티 스레드를 지원합니다.&lt;/li>
+&lt;li>복제 및 클러스터링: 마스터-슬레이브 복제와 Redis 클러스터를 통해 고가용성과 확장성을 제공합니다.&lt;/li>
+&lt;/ol>
+&lt;h3>장점&lt;span class="hx-absolute -hx-mt-20" id="장점">&lt;/span>
+&lt;a href="#%ec%9e%a5%ec%a0%90" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>매우 빠른 읽기/쓰기 속도&lt;/li>
+&lt;li>다양한 데이터 구조 지원&lt;/li>
+&lt;li>간단한 복제 및 클러스터링&lt;/li>
+&lt;li>다양한 프로그래밍 언어에 대한 클라이언트 라이브러리 지원&lt;/li>
+&lt;/ul>
+&lt;h3>단점&lt;span class="hx-absolute -hx-mt-20" id="단점">&lt;/span>
+&lt;a href="#%eb%8b%a8%ec%a0%90" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>메모리 용량의 제한&lt;/li>
+&lt;li>영속성 보장을 위한 추가 설정 필요&lt;/li>
+&lt;li>복잡한 쿼리나 조인 연산의 어려움&lt;/li>
+&lt;/ul>
+&lt;h3>기본 데이터 구조&lt;span class="hx-absolute -hx-mt-20" id="기본-데이터-구조">&lt;/span>
+&lt;a href="#%ea%b8%b0%eb%b3%b8-%eb%8d%b0%ec%9d%b4%ed%84%b0-%ea%b5%ac%ec%a1%b0" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Redis는 5가지 기본 데이터 구조를 제공한다.&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>Strings (문자열):&lt;br>
+가장 기본적인 데이터 타입으로, 텍스트나 이진 데이터를 저장할 수 있습니다.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;pre>&lt;code># 기본적인 문자열 조작
+SET user:1:name &amp;#34;John Doe&amp;#34;
+GET user:1:name
+# 숫자 증감
+SET counter 1
+INCR counter
+INCRBY counter 5
+# 만료 시간 설정
+SET session:123 &amp;#34;data&amp;#34; EX 3600 # 1시간 후 만료&lt;/code>&lt;/pre>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>Lists (리스트):&lt;br>
+순서가 있는 문자열의 모음으로, 양쪽에서 추가/제거가 가능합니다.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;pre>&lt;code># 리스트 조작
+LPUSH mylist &amp;#34;first&amp;#34;
+RPUSH mylist &amp;#34;last&amp;#34;
+LRANGE mylist 0 -1 # 전체 리스트 조회
+# 큐처럼 사용
+LPUSH tasks &amp;#34;task1&amp;#34;
+RPOP tasks # 작업 가져오기&lt;/code>&lt;/pre>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>Sets (집합):&lt;br>
+순서가 없는 유일한 문자열의 모음입니다.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;pre>&lt;code># 집합 조작
+SADD myset &amp;#34;member1&amp;#34;
+SADD myset &amp;#34;member2&amp;#34;
+SMEMBERS myset
+# 집합 연산
+SINTER set1 set2 # 교집합
+SUNION set1 set2 # 합집합&lt;/code>&lt;/pre>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>Sorted Sets (정렬된 집합):&lt;br>
+각 멤버가 점수를 가진 정렬된 집합입니다.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;pre>&lt;code># 점수와 함께 멤버 추가
+ZADD rankings 100 &amp;#34;user1&amp;#34;
+ZADD rankings 200 &amp;#34;user2&amp;#34;
+# 순위 조회
+ZRANGE rankings 0 -1 WITHSCORES
+ZREVRANGE rankings 0 9 # 상위 10명&lt;/code>&lt;/pre>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>Hashes (해시):&lt;br>
+필드-값 쌍의 컬렉션입니다.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;pre>&lt;code># 해시 데이터 저장
+HSET user:1 name &amp;#34;John&amp;#34; age &amp;#34;30&amp;#34;
+HGET user:1 name
+HGETALL user:1
+# 여러 필드 한번에 설정
+HMSET user:2 name &amp;#34;Jane&amp;#34; age &amp;#34;25&amp;#34; city &amp;#34;New York&amp;#34;&lt;/code>&lt;/pre>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;/ol>
+&lt;h3>성능 최적화 팁&lt;span class="hx-absolute -hx-mt-20" id="성능-최적화-팁">&lt;/span>
+&lt;a href="#%ec%84%b1%eb%8a%a5-%ec%b5%9c%ec%a0%81%ed%99%94-%ed%8c%81" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>메모리 관리:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;pre>&lt;code># 메모리 정책 설정
+CONFIG SET maxmemory 2gb
+CONFIG SET maxmemory-policy allkeys-lru
+# 메모리 사용량 모니터링
+INFO memory&lt;/code>&lt;/pre>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>파이프라이닝:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;pre>&lt;code># 여러 명령을 한 번에 전송
+MULTI
+SET key1 &amp;#34;value1&amp;#34;
+SET key2 &amp;#34;value2&amp;#34;
+INCR counter
+EXEC&lt;/code>&lt;/pre>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>적절한 데이터 구조 선택:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;pre>&lt;code># 대규모 문자열 대신 해시 사용
+HMSET user:1000 name &amp;#34;John&amp;#34; email &amp;#34;john@example.com&amp;#34;
+# 대신
+SET user:1000 &amp;#34;{\&amp;#34;name\&amp;#34;:\&amp;#34;John\&amp;#34;,\&amp;#34;email\&amp;#34;:\&amp;#34;john@example.com\&amp;#34;}&amp;#34;&lt;/code>&lt;/pre>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;/ol>
+&lt;h3>보안 고려사항&lt;span class="hx-absolute -hx-mt-20" id="보안-고려사항">&lt;/span>
+&lt;a href="#%eb%b3%b4%ec%95%88-%ea%b3%a0%eb%a0%a4%ec%82%ac%ed%95%ad" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>인증 설정:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;pre>&lt;code># 비밀번호 설정
+CONFIG SET requirepass &amp;#34;strong_password&amp;#34;
+# 클라이언트 인증
+AUTH &amp;#34;strong_password&amp;#34;&lt;/code>&lt;/pre>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>네트워크 보안:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;pre>&lt;code># 바인딩 주소 제한
+bind 127.0.0.1
+# 보호 모드 활성화
+protected-mode yes&lt;/code>&lt;/pre>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;/ol>
+&lt;h3>모니터링 및 관리&lt;span class="hx-absolute -hx-mt-20" id="모니터링-및-관리">&lt;/span>
+&lt;a href="#%eb%aa%a8%eb%8b%88%ed%84%b0%eb%a7%81-%eb%b0%8f-%ea%b4%80%eb%a6%ac" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>기본 모니터링:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;pre>&lt;code># 서버 정보 조회
+INFO
+# 클라이언트 연결 정보
+CLIENT LIST
+# 슬로우 로그 설정
+CONFIG SET slowlog-log-slower-than 10000&lt;/code>&lt;/pre>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>백업 및 복제:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;pre>&lt;code># 백업 설정
+SAVE
+BGSAVE
+# 복제 설정
+SLAVEOF master_host master_port&lt;/code>&lt;/pre>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>성능 분석:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;pre>&lt;code># 메모리 분석
+MEMORY STATS
+MEMORY USAGE key_name
+# 명령어 통계
+INFO commandstats&lt;/code>&lt;/pre>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;/ol>
+&lt;h3>활용 사례&lt;span class="hx-absolute -hx-mt-20" id="활용-사례">&lt;/span>
+&lt;a href="#%ed%99%9c%ec%9a%a9-%ec%82%ac%eb%a1%80" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>캐싱&lt;/strong>:&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>실시간 분석&lt;/strong>: 빠른 데이터 처리 능력을 활용하여 실시간 데이터 분석에 사용됩니다.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>메시지 큐&lt;/strong>: Pub/Sub 기능을 이용해 실시간 채팅, 알림 서비스 등을 구현할 수 있습니다.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>세션 관리:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;pre>&lt;code># 세션 저장
+SET session:user123 &amp;#34;{\&amp;#34;userId\&amp;#34;:\&amp;#34;123\&amp;#34;,\&amp;#34;role\&amp;#34;:\&amp;#34;admin\&amp;#34;}&amp;#34; EX 3600
+# 세션 검증
+EXISTS session:user123&lt;/code>&lt;/pre>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>캐싱 시스템:데이터베이스 쿼리 결과, 세션 정보, API 응답 등을 캐싱하여 애플리케이션의 성능을 향상시킵니다.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;pre>&lt;code># 데이터 캐싱
+SET cache:user:1 &amp;#34;{\&amp;#34;name\&amp;#34;:\&amp;#34;John\&amp;#34;,\&amp;#34;age\&amp;#34;:30}&amp;#34; EX 300
+GET cache:user:1&lt;/code>&lt;/pre>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>실시간 순위표: Sorted Set을 이용해 게임 순위표, 인기 게시물 목록 등을 효율적으로 관리할 수 있습니다.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;pre>&lt;code># 점수 업데이트
+ZADD leaderboard:daily 1000 &amp;#34;player1&amp;#34;
+ZADD leaderboard:daily 2000 &amp;#34;player2&amp;#34;
+# 상위 플레이어 조회
+ZREVRANGE leaderboard:daily 0 4 WITHSCORES&lt;/code>&lt;/pre>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>레이트 리미팅: API 호출 횟수 제한 등에 활용될 수 있습니다.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;pre>&lt;code># 요청 카운트 증가
+INCR rate:ip:127.0.0.1
+EXPIRE rate:ip:127.0.0.1 60 # 1분 후 만료
+# 제한 확인
+GET rate:ip:127.0.0.1&lt;/code>&lt;/pre>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;/ol>
+&lt;hr>
+&lt;h2>참고 및 출처&lt;span class="hx-absolute -hx-mt-20" id="참고-및-출처">&lt;/span>
+&lt;a href="#%ec%b0%b8%ea%b3%a0-%eb%b0%8f-%ec%b6%9c%ec%b2%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>&lt;a href="https://redis.io/" target="_blank" rel="noopener">Redis Official Homepage&lt;/a>&lt;br>
+&lt;a href="https://news.hada.io/topic?id=11270" target="_blank" rel="noopener">Redis 사용량 타노스하기&lt;/a>&lt;br>
+&lt;a href="https://medium.com/@maheshsaini.sec/top-5-redis-use-cases-in-distributed-systems-6aadc73121c6" target="_blank" rel="noopener">Top 5 Redis Use Cases in Distributed Systems&lt;/a>&lt;br>
+&lt;a href="https://cheese10yun.github.io/redis-getting-started/" target="_blank" rel="noopener">Redis Getting Started&lt;/a>&lt;br>
+&lt;a href="https://meetup.nhncloud.com/posts/251" target="_blank" rel="noopener">캐시 성능 향상기 (Improving Cache Speed at Scale)&lt;/a>&lt;br>
+&lt;a href="https://meetup.nhncloud.com/posts/224" target="_blank" rel="noopener">개발자를 위한 레디스 튜토리얼 01&lt;/a>&lt;br>
+&lt;a href="https://meetup.nhncloud.com/posts/225" target="_blank" rel="noopener">개발자를 위한 레디스 튜토리얼 02&lt;/a>&lt;br>
+&lt;a href="https://meetup.nhncloud.com/posts/226" target="_blank" rel="noopener">개발자를 위한 레디스 튜토리얼 03&lt;/a>&lt;br>
+&lt;a href="https://meetup.nhncloud.com/posts/227" target="_blank" rel="noopener">개발자를 위한 레디스 튜토리얼 04&lt;/a>&lt;br>
+&lt;a href="https://sihyung92.oopy.io/database/redis/1" target="_blank" rel="noopener">레디스Redis가 뭐에요? 레디스 설치하기, 레디스 튜토리얼&lt;/a>&lt;br>
+&lt;a href="https://devlog-wjdrbs96.tistory.com/374" target="_blank" rel="noopener">[DB] Redis란 무엇일까? 간단하게 알아보기!&lt;/a>&lt;br>
+&lt;a href="https://s-core.co.kr/insight/view/redis-%EB%82%B4%EB%B6%80-%EB%8F%99%EC%9E%91-%EC%9B%90%EB%A6%AC%EC%99%80-%EC%B5%9C%EC%A0%81%ED%99%94-%EB%B0%A9%EC%95%88/" target="_blank" rel="noopener">Redis 내부 동작 원리와 최적화 방안&lt;/a>&lt;br>
+&lt;a href="https://aws.amazon.com/ko/redis/" target="_blank" rel="noopener">Redis 데이터베이스, 캐시, 메시지 브로커 및 대기열로 사용하는 빠른 오픈 소스 인 메모리 데이터 스토어.&lt;/a>&lt;br>
+&lt;a href="https://www.samsungsds.com/kr/database-redis/redis.html" target="_blank" rel="noopener">Redis (DBaaS, 빅데이터 처리 분석을 위한 NoSQL DBMS)&lt;/a>&lt;br>
+&lt;a href="https://dabeen.medium.com/redis-101-6dd36bca2ac" target="_blank" rel="noopener">Redis 101&lt;/a>&lt;br>
+&lt;a href="https://loosie.tistory.com/803" target="_blank" rel="noopener">[Database] Redis에 대해 알아보자 (Redis 컬렉션, Sentinel, Cluster, 운영시 장애 포인트)&lt;/a>&lt;br>
+&lt;a href="https://appmaster.io/ko/blog/ki-gabs-deiteobeiseu-redisneun-mueosibnigga" target="_blank" rel="noopener">키-값 데이터베이스: Redis란 무엇입니까?&lt;/a>&lt;/p></description></item><item><title>Valkey</title><link>https://buenhyden.github.io/posts/backend/database-systems/nosql/in-memory/valkey/</link><pubDate>Sat, 19 Oct 2024 01:33:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/backend/database-systems/nosql/in-memory/valkey/</guid><description>
+&lt;h2>Valkey&lt;span class="hx-absolute -hx-mt-20" id="valkey">&lt;/span>
+&lt;a href="#valkey" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>Redis Inc.가 최근 발표한 라이선스 변경에 대응하기 위해 여러 메인테이너, 커뮤니티, 기업 지원을 빠르게 모아서 재조직&lt;/li>
+&lt;li>Redis 7.2.4 기반으로 개발 진행, BSD 3-clause license 하에 프로젝트를 사용 및 배포할 수 있도록 유지할 것이라 발표&lt;/li>
+&lt;li>Amazon Web Services (AWS), Google Cloud, Oracle, Ericsson, Snap Inc. 등의 회사가 Valkey 프로젝트에 참여&lt;/li>
+&lt;/ul>
+&lt;p>특징&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>다양한 용도:&lt;/p>
+&lt;ul>
+&lt;li>캐싱&lt;/li>
+&lt;li>메시지 큐&lt;/li>
+&lt;li>주 데이터베이스로 활용 가능&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>유연한 구성:&lt;/p>
+&lt;ul>
+&lt;li>독립 실행형 데몬으로 작동&lt;/li>
+&lt;li>클러스터 모드로 운영 가능&lt;/li>
+&lt;li>복제 및 고가용성 옵션 제공&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>풍부한 데이터 타입 지원:&lt;/p>
+&lt;ul>
+&lt;li>문자열, 숫자, 해시, 리스트, 셋, 정렬된 셋, 비트맵, HyperLogLog 등&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>데이터 구조 조작:&lt;/p>
+&lt;ul>
+&lt;li>다양한 명령어를 통해 데이터 구조를 직접 조작 가능&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>확장성:&lt;/p>
+&lt;ul>
+&lt;li>Lua 스크립팅 지원&lt;/li>
+&lt;li>모듈 플러그인을 통해 새로운 명령어, 데이터 타입 등 확장 가능&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;hr>
+&lt;h2>참고 및 출처&lt;span class="hx-absolute -hx-mt-20" id="참고-및-출처">&lt;/span>
+&lt;a href="#%ec%b0%b8%ea%b3%a0-%eb%b0%8f-%ec%b6%9c%ec%b2%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>&lt;a href="https://valkey.io/" target="_blank" rel="noopener">Valkey&lt;/a>&lt;/p></description></item><item><title>In Memory</title><link>https://buenhyden.github.io/posts/backend/database-systems/nosql/in-memory/</link><pubDate>Fri, 18 Oct 2024 06:29:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/backend/database-systems/nosql/in-memory/</guid><description>
+&lt;h2>In Memory&lt;span class="hx-absolute -hx-mt-20" id="in-memory">&lt;/span>
+&lt;a href="#in-memory" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>In-Memory NoSQL 데이터베이스는 데이터를 주 메모리(RAM)에 저장하고 관리하는 NoSQL 데이터베이스 시스템이다.&lt;br>
+이 방식은 디스크 기반 데이터베이스에 비해 훨씬 빠른 데이터 접근과 처리 속도를 제공한다.&lt;/p>
+&lt;p>대표적인 In-Memory NoSQL 데이터베이스:&lt;/p>
+&lt;ol>
+&lt;li>Redis: 키-값 저장소로, 다양한 데이터 구조를 지원한다.&lt;/li>
+&lt;li>Apache Ignite: 분산 인메모리 컴퓨팅 플랫폼으로, SQL 지원과 강력한 확장성을 제공한다.&lt;/li>
+&lt;li>Memcached: 분산 메모리 캐싱 시스템으로, 간단한 키-값 저장소로 사용된다.&lt;/li>
+&lt;/ol>
+&lt;p>In-Memory Database의 기본 구조와 작동 방식을 코드로 살펴보자:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">InMemoryDatabase&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 메모리상의 주 저장소&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">data_store&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 만료 시간 관리&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">expiry_times&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">set&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">key&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">value&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">expire_seconds&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="kc">None&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;&amp;#34;&amp;#34;데이터 저장&amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">data_store&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">value&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="n">expire_seconds&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">expiry_times&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">time&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">time&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">expire_seconds&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">get&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">key&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;&amp;#34;&amp;#34;데이터 조회&amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 만료 시간 체크&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="n">key&lt;/span> &lt;span class="ow">in&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">expiry_times&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="n">time&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">time&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">&amp;gt;&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">expiry_times&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">]:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">del&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">data_store&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">del&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">expiry_times&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="kc">None&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">data_store&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">get&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">delete&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">key&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;&amp;#34;&amp;#34;데이터 삭제&amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="n">key&lt;/span> &lt;span class="ow">in&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">data_store&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">del&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">data_store&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="n">key&lt;/span> &lt;span class="ow">in&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">expiry_times&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">del&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">expiry_times&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">]&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>주요 특징&lt;span class="hx-absolute -hx-mt-20" id="주요-특징">&lt;/span>
+&lt;a href="#%ec%a3%bc%ec%9a%94-%ed%8a%b9%ec%a7%95" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>속도와 성능: 데이터를 메모리에 저장함으로써 디스크 I/O 병목 현상을 제거하고, 매우 빠른 읽기/쓰기 작업을 가능하게 한다.&lt;/li>
+&lt;li>실시간 처리: 밀리초 단위의 응답 시간을 제공하여 실시간 애플리케이션에 적합하다.&lt;/li>
+&lt;li>확장성: 대부분의 In-Memory NoSQL 데이터베이스는 수평적 확장이 용이하다.&lt;/li>
+&lt;li>유연한 데이터 모델: NoSQL의 특성상 스키마 없이 다양한 형태의 데이터를 저장할 수 있다.&lt;/li>
+&lt;li>휘발성: 메모리에 저장되므로 전원이 꺼지면 데이터가 손실될 수 있다. 그러나 대부분의 시스템은 지속성을 위한 백업 메커니즘을 제공한다.&lt;/li>
+&lt;/ol>
+&lt;h3>In-Memory Database의 주요 사용 사례&lt;span class="hx-absolute -hx-mt-20" id="in-memory-database의-주요-사용-사례">&lt;/span>
+&lt;a href="#in-memory-database%ec%9d%98-%ec%a3%bc%ec%9a%94-%ec%82%ac%ec%9a%a9-%ec%82%ac%eb%a1%80" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>세션 관리&lt;br>
+웹 애플리케이션에서의 사용자 세션 정보 저장:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">SessionManager&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">session_store&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">InMemoryDatabase&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">create_session&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">user_id&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;&amp;#34;&amp;#34;새로운 세션 생성&amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">session_id&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nb">str&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">uuid&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">uuid4&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">session_store&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">set&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">session_id&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>&lt;span class="s2">&amp;#34;user_id&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="n">user_id&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;created_at&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="n">time&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">time&lt;/span>&lt;span class="p">()},&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">expire_seconds&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="mi">3600&lt;/span> &lt;span class="c1"># 1시간 후 만료&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">session_id&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>캐싱 시스템&lt;br>
+자주 접근하는 데이터의 고속 캐시:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">CacheSystem&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">cache&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">InMemoryDatabase&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">get_user_data&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">user_id&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;&amp;#34;&amp;#34;캐시된 사용자 데이터 조회&amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cached_data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">cache&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">get&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sa">f&lt;/span>&lt;span class="s2">&amp;#34;user:&lt;/span>&lt;span class="si">{&lt;/span>&lt;span class="n">user_id&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="n">cached_data&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">cached_data&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 캐시 미스: DB에서 조회 후 캐시에 저장&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">user_data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">database&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">fetch_user&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">user_id&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">cache&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">set&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sa">f&lt;/span>&lt;span class="s2">&amp;#34;user:&lt;/span>&lt;span class="si">{&lt;/span>&lt;span class="n">user_id&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">user_data&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">expire_seconds&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="mi">300&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">user_data&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>실시간 분석&lt;br>
+실시간 데이터 처리와 분석:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">RealTimeAnalytics&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">metrics_store&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">InMemoryDatabase&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">track_event&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">event_type&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">event_data&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;&amp;#34;&amp;#34;실시간 이벤트 추적&amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">current_count&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">metrics_store&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">get&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">event_type&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="ow">or&lt;/span> &lt;span class="mi">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">metrics_store&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">set&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">event_type&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">current_count&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">get_real_time_metrics&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;&amp;#34;&amp;#34;실시간 메트릭 조회&amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;events_per_second&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">calculate_events_rate&lt;/span>&lt;span class="p">(),&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;top_events&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">get_top_events&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;/ol>
+&lt;h3>In-Memory Database 사용 시 주의사항&lt;span class="hx-absolute -hx-mt-20" id="in-memory-database-사용-시-주의사항">&lt;/span>
+&lt;a href="#in-memory-database-%ec%82%ac%ec%9a%a9-%ec%8b%9c-%ec%a3%bc%ec%9d%98%ec%82%ac%ed%95%ad" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>메모리 관리가 중요하다&lt;/p>
+&lt;ul>
+&lt;li>메모리 사용량 모니터링&lt;/li>
+&lt;li>적절한 데이터 만료 정책 설정&lt;/li>
+&lt;li>효율적인 메모리 회수 전략 수립&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>데이터 지속성을 고려해야 한다&lt;/p>
+&lt;ul>
+&lt;li>주기적인 스냅샷 생성&lt;/li>
+&lt;li>작업 로그 유지&lt;/li>
+&lt;li>장애 복구 전략 수립&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>확장성 전략이 필요하다.&lt;/p>
+&lt;ul>
+&lt;li>클러스터링 구성&lt;/li>
+&lt;li>데이터 파티셔닝&lt;/li>
+&lt;li>복제 전략 수립&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;p>In-Memory Database는 고성능이 요구되는 현대 애플리케이션에서 매우 중요한 역할을 한다.&lt;br>
+특히 실시간 처리, 세션 관리, 캐싱 등의 용도로 널리 사용되며, Redis나 Memcached와 같은 인기 있는 구현체들이 있다.&lt;/p>
+&lt;hr>
+&lt;h2>참고 및 출처&lt;span class="hx-absolute -hx-mt-20" id="참고-및-출처">&lt;/span>
+&lt;a href="#%ec%b0%b8%ea%b3%a0-%eb%b0%8f-%ec%b6%9c%ec%b2%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item></channel></rss>

@@ -1,1 +1,362 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Processor Architecture :: hyunyoun's Blog</title><link>https://buenhyden.github.io/posts/computer-system/computer-architecture/processor-architecture/</link><description/><generator>Hugo</generator><language>en</language><managingEditor>chochyjj@gmail.com (Hyunyoun Jo)</managingEditor><webMaster>chochyjj@gmail.com (Hyunyoun Jo)</webMaster><lastBuildDate>Tue, 14 Jan 2025 02:20:00 +0000</lastBuildDate><atom:link href="https://buenhyden.github.io/posts/computer-system/computer-architecture/processor-architecture/index.xml" rel="self" type="application/rss+xml"/><item><title>파이프라이닝 (Pipelining)</title><link>https://buenhyden.github.io/posts/computer-system/computer-architecture/processor-architecture/pipelining/</link><pubDate>Tue, 14 Jan 2025 02:20:00 +0000</pubDate><author>chochyjj@gmail.com (Hyunyoun Jo)</author><guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/processor-architecture/pipelining/</guid><description>파이프라이닝은 여러 명령어의 실행 단계를 중첩시켜 전체적인 처리량을 향상시키는 기술로, 여러 단계를 동시에 처리함으로써 효율성을 높인다.</description></item><item><title>명령어 집합 구조 (Instruction Set Architecture)</title><link>https://buenhyden.github.io/posts/computer-system/computer-architecture/processor-architecture/instruction-set-architecture/</link><pubDate>Tue, 14 Jan 2025 02:18:00 +0000</pubDate><author>chochyjj@gmail.com (Hyunyoun Jo)</author><guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/processor-architecture/instruction-set-architecture/</guid><description>ISA는 프로세서가 실행할 수 있는 명령어들의 집합을 정의하며, 프로그래머와 컴파일러 작성자에게 중요한 추상화 계층을 제공한다.</description></item><item><title>Harvard Architecture</title><link>https://buenhyden.github.io/posts/computer-system/computer-architecture/processor-architecture/harvard-architecture/</link><pubDate>Tue, 14 Jan 2025 01:51:00 +0000</pubDate><author>chochyjj@gmail.com (Hyunyoun Jo)</author><guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/processor-architecture/harvard-architecture/</guid><description>Harvard Architecture 참고 및 출처</description></item><item><title>Von Neumann architecture</title><link>https://buenhyden.github.io/posts/computer-system/computer-architecture/processor-architecture/von-neumann-architecture/</link><pubDate>Tue, 14 Jan 2025 01:51:00 +0000</pubDate><author>chochyjj@gmail.com (Hyunyoun Jo)</author><guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/processor-architecture/von-neumann-architecture/</guid><description>Von Neumann architecture는 1945년 John von Neumann이 제안한 컴퓨터 아키텍처로, 현대 대부분의 컴퓨터 시스템의 기본이 되는 설계이다.</description></item></channel></rss>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>hyunyoun's Blog – Processor Architecture</title><link>https://buenhyden.github.io/posts/computer-system/computer-architecture/processor-architecture/</link><description>Recent content in Processor Architecture on hyunyoun's Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://buenhyden.github.io/posts/computer-system/computer-architecture/processor-architecture/index.xml" rel="self" type="application/rss+xml"/><item><title>파이프라이닝 (Pipelining)</title><link>https://buenhyden.github.io/posts/computer-system/computer-architecture/processor-architecture/pipelining/</link><pubDate>Tue, 14 Jan 2025 02:20:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/processor-architecture/pipelining/</guid><description>
+&lt;h2>파이프라이닝 (Pipelining)&lt;span class="hx-absolute -hx-mt-20" id="파이프라이닝-pipelining">&lt;/span>
+&lt;a href="#%ed%8c%8c%ec%9d%b4%ed%94%84%eb%9d%bc%ec%9d%b4%eb%8b%9d-pipelining" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>프로세서 아키텍처에서의 파이프라이닝(Pipelining)은 CPU의 성능을 향상시키는 중요한 기술이다.&lt;/p>
+&lt;p>파이프라이닝은 여러 명령어의 실행 단계를 중첩시켜 전체적인 처리량을 향상시키는 기술로, 여러 단계를 동시에 처리함으로써 효율성을 높인다.&lt;/p>
+&lt;p>현대 프로세서 설계에서 필수적인 기술이며, 대부분의 현대 CPU는 최소 2단계에서 최대 30-40단계의 파이프라인을 사용한다.&lt;br>
+이 기술을 통해 프로세서의 전체적인 성능을 크게 향상시킬 수 있지만, 효과적인 구현을 위해서는 복잡한 설계 고려사항들을 신중히 관리해야 한다.&lt;/p>
+&lt;p>
+&lt;img src="../Untitled-Diagram-618.png" alt="Structure of a Pipeline Processor" loading="lazy" />&lt;br>
+_Source: &lt;a href="https://www.geeksforgeeks.org/pipelined-architecture-with-its-diagram/" target="_blank" rel="noopener">https://www.geeksforgeeks.org/pipelined-architecture-with-its-diagram/&lt;/a> _&lt;/p>
+&lt;h3>파이프라이닝의 작동 원리&lt;span class="hx-absolute -hx-mt-20" id="파이프라이닝의-작동-원리">&lt;/span>
+&lt;a href="#%ed%8c%8c%ec%9d%b4%ed%94%84%eb%9d%bc%ec%9d%b4%eb%8b%9d%ec%9d%98-%ec%9e%91%eb%8f%99-%ec%9b%90%eb%a6%ac" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>파이프라이닝은 명령어 실행 과정을 여러 단계로 나누어 처리한다.&lt;br>
+일반적인 파이프라인 단계는 다음과 같다:&lt;/p>
+&lt;ol>
+&lt;li>명령어 인출 (Instruction Fetch, IF)&lt;/li>
+&lt;li>명령어 해독 (Instruction Decode, ID)&lt;/li>
+&lt;li>실행 (Execution, EX)&lt;/li>
+&lt;li>메모리 접근 (Memory Access, MEM)&lt;/li>
+&lt;li>레지스터 쓰기 (Write Back, WB)&lt;br>
+각 단계는 동시에 다른 명령어를 처리할 수 있어, 전체적인 처리 속도가 향상된다.&lt;/li>
+&lt;/ol>
+&lt;h3>파이프라이닝의 장점&lt;span class="hx-absolute -hx-mt-20" id="파이프라이닝의-장점">&lt;/span>
+&lt;a href="#%ed%8c%8c%ec%9d%b4%ed%94%84%eb%9d%bc%ec%9d%b4%eb%8b%9d%ec%9d%98-%ec%9e%a5%ec%a0%90" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>처리량 증가&lt;/strong>: 여러 명령어를 동시에 처리하여 전체적인 처리량이 증가한다.&lt;/li>
+&lt;li>&lt;strong>CPU 활용도 향상&lt;/strong>: 파이프라이닝을 통해 CPU의 각 부분이 지속적으로 활용되어 유휴 시간이 줄어든다.&lt;/li>
+&lt;li>&lt;strong>클록 주파수 향상&lt;/strong>: 파이프라이닝을 사용하면 CPU의 산술 논리 장치를 더 빠르게 설계할 수 있다.&lt;/li>
+&lt;li>&lt;strong>반복적 작업에서의 성능 향상&lt;/strong>: 특히 반복적인 작업에서 파이프라이닝의 효과가 두드러진다.&lt;/li>
+&lt;/ol>
+&lt;h3>파이프라이닝의 단점&lt;span class="hx-absolute -hx-mt-20" id="파이프라이닝의-단점">&lt;/span>
+&lt;a href="#%ed%8c%8c%ec%9d%b4%ed%94%84%eb%9d%bc%ec%9d%b4%eb%8b%9d%ec%9d%98-%eb%8b%a8%ec%a0%90" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>설계 복잡성&lt;/strong>: 파이프라인 프로세서의 설계가 더 복잡하고 제조 비용이 높다.&lt;/li>
+&lt;li>&lt;strong>파이프라인 해저드&lt;/strong>: 데이터 의존성, 제어 흐름 변경, 자원 충돌 등으로 인한 파이프라인 해저드가 발생할 수 있다.&lt;/li>
+&lt;li>&lt;strong>분기 예측의 어려움&lt;/strong>: 분기 명령어로 인해 파이프라인이 비워져야 할 때 성능 저하가 발생할 수 있다.&lt;/li>
+&lt;li>&lt;strong>레이턴시 증가&lt;/strong>: 파이프라인 단계 사이에 플립플롭을 삽입함으로써 개별 명령어의 레이턴시가 증가할 수 있다.&lt;/li>
+&lt;/ol>
+&lt;h3>파이프라이닝의 구현&lt;span class="hx-absolute -hx-mt-20" id="파이프라이닝의-구현">&lt;/span>
+&lt;a href="#%ed%8c%8c%ec%9d%b4%ed%94%84%eb%9d%bc%ec%9d%b4%eb%8b%9d%ec%9d%98-%ea%b5%ac%ed%98%84" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>파이프라이닝을 구현할 때는 다음과 같은 요소들을 고려해야 한다:&lt;/p>
+&lt;ol>
+&lt;li>&lt;strong>파이프라인 깊이&lt;/strong>: 파이프라인 단계의 수를 결정한다. 더 많은 단계는 더 높은 처리량을 제공할 수 있지만, 해저드 관리가 더 복잡해진다.&lt;/li>
+&lt;li>&lt;strong>해저드 관리&lt;/strong>: 데이터 의존성, 제어 흐름 변경, 자원 충돌 등의 해저드를 효과적으로 관리해야 한다.&lt;/li>
+&lt;li>&lt;strong>분기 예측&lt;/strong>: 분기 명령어로 인한 성능 저하를 최소화하기 위해 효과적인 분기 예측 기법을 사용한다.&lt;/li>
+&lt;li>&lt;strong>클록 주파수 최적화&lt;/strong>: 파이프라인 단계를 균형있게 설계하여 최적의 클록 주파수를 달성한다.&lt;/li>
+&lt;/ol>
+&lt;hr>
+&lt;h2>참고 및 출처&lt;span class="hx-absolute -hx-mt-20" id="참고-및-출처">&lt;/span>
+&lt;a href="#%ec%b0%b8%ea%b3%a0-%eb%b0%8f-%ec%b6%9c%ec%b2%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item><item><title>명령어 집합 구조 (Instruction Set Architecture)</title><link>https://buenhyden.github.io/posts/computer-system/computer-architecture/processor-architecture/instruction-set-architecture/</link><pubDate>Tue, 14 Jan 2025 02:18:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/processor-architecture/instruction-set-architecture/</guid><description>
+&lt;h2>명령어 집합 구조 (Instruction Set Architecture)&lt;span class="hx-absolute -hx-mt-20" id="명령어-집합-구조-instruction-set-architecture">&lt;/span>
+&lt;a href="#%eb%aa%85%eb%a0%b9%ec%96%b4-%ec%a7%91%ed%95%a9-%ea%b5%ac%ec%a1%b0-instruction-set-architecture" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>명령어 집합 구조(Instruction Set Architecture, ISA)는 프로세서 아키텍처의 핵심 요소로, 하드웨어와 소프트웨어 간의 인터페이스 역할을 한다.&lt;br>
+ISA는 프로세서가 실행할 수 있는 명령어들의 집합을 정의하며, 프로그래머와 컴파일러 작성자에게 중요한 추상화 계층을 제공한다.&lt;/p>
+&lt;p>
+&lt;img src="../Untitled-Diagram1-1.png" alt="Instruction Set Architecture" loading="lazy" />&lt;br>
+_Source: &lt;a href="https://www.geeksforgeeks.org/microarchitecture-and-instruction-set-architecture/" target="_blank" rel="noopener">https://www.geeksforgeeks.org/microarchitecture-and-instruction-set-architecture/&lt;/a> _&lt;/p>
+&lt;h3>ISA의 주요 구성 요소&lt;span class="hx-absolute -hx-mt-20" id="isa의-주요-구성-요소">&lt;/span>
+&lt;a href="#isa%ec%9d%98-%ec%a3%bc%ec%9a%94-%ea%b5%ac%ec%84%b1-%ec%9a%94%ec%86%8c" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>명령어 세트&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>연산 유형&lt;/strong>: 산술 연산, 논리 연산, 데이터 이동, 제어 흐름 등&lt;/li>
+&lt;li>&lt;strong>명령어 형식&lt;/strong>: 각 명령어의 비트 구조와 인코딩 방식&lt;/li>
+&lt;li>&lt;strong>주소 지정 모드&lt;/strong>: 직접 주소 지정, 간접 주소 지정, 즉시 주소 지정 등&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>레지스터&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>범용 레지스터&lt;/strong>: 데이터 처리와 임시 저장에 사용&lt;/li>
+&lt;li>&lt;strong>특수 목적 레지스터&lt;/strong>: 프로그램 카운터(PC), 스택 포인터(SP) 등&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3>메모리 모델&lt;span class="hx-absolute -hx-mt-20" id="메모리-모델">&lt;/span>
+&lt;a href="#%eb%a9%94%eb%aa%a8%eb%a6%ac-%eb%aa%a8%eb%8d%b8" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>&lt;strong>주소 공간&lt;/strong>: 물리적/가상 메모리 주소 체계&lt;/li>
+&lt;li>&lt;strong>정렬 요구사항&lt;/strong>: 데이터 접근 시 정렬 규칙&lt;/li>
+&lt;/ul>
+&lt;h3>데이터 타입&lt;span class="hx-absolute -hx-mt-20" id="데이터-타입">&lt;/span>
+&lt;a href="#%eb%8d%b0%ec%9d%b4%ed%84%b0-%ed%83%80%ec%9e%85" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>&lt;strong>기본 데이터 타입&lt;/strong>: 정수, 부동 소수점, 문자 등&lt;/li>
+&lt;li>&lt;strong>벡터 데이터 타입&lt;/strong>: SIMD 연산을 위한 데이터 구조&lt;/li>
+&lt;/ul>
+&lt;h3>ISA의 분류&lt;span class="hx-absolute -hx-mt-20" id="isa의-분류">&lt;/span>
+&lt;a href="#isa%ec%9d%98-%eb%b6%84%eb%a5%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>CISC (Complex Instruction Set Computing)&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>특징&lt;/strong>: 복잡하고 특화된 명령어들을 포함&lt;/li>
+&lt;li>&lt;strong>장점&lt;/strong>: 강력한 단일 명령어로 복잡한 작업 수행 가능&lt;/li>
+&lt;li>&lt;strong>예시&lt;/strong>: x86, x86-64&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>RISC (Reduced Instruction Set Computing)&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;ul>
+&lt;li>&lt;strong>특징&lt;/strong>: 단순하고 일반적인 명령어들로 구성&lt;/li>
+&lt;li>&lt;strong>장점&lt;/strong>: 파이프라이닝과 병렬 처리에 유리
+&lt;ul>
+&lt;li>&lt;strong>예시&lt;/strong>: ARM, RISC-V, MIPS&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3>ISA의 중요성&lt;span class="hx-absolute -hx-mt-20" id="isa의-중요성">&lt;/span>
+&lt;a href="#isa%ec%9d%98-%ec%a4%91%ec%9a%94%ec%84%b1" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>소프트웨어 호환성&lt;/strong>: 동일한 ISA를 사용하는 프로세서들 간에 소프트웨어 호환성 보장&lt;/li>
+&lt;li>&lt;strong>성능 최적화&lt;/strong>: ISA 설계는 프로세서의 성능과 효율성에 직접적인 영향을 미침&lt;/li>
+&lt;li>&lt;strong>확장성&lt;/strong>: 새로운 기능이나 명령어를 추가하여 ISA를 확장할 수 있음&lt;/li>
+&lt;li>&lt;strong>전력 효율성&lt;/strong>: 적절한 ISA 설계로 전력 소비를 최적화할 수 있음&lt;/li>
+&lt;/ol>
+&lt;h3>ISA 설계 시 고려사항&lt;span class="hx-absolute -hx-mt-20" id="isa-설계-시-고려사항">&lt;/span>
+&lt;a href="#isa-%ec%84%a4%ea%b3%84-%ec%8b%9c-%ea%b3%a0%eb%a0%a4%ec%82%ac%ed%95%ad" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>&lt;strong>명령어 길이&lt;/strong>: 고정 길이 vs. 가변 길이&lt;/li>
+&lt;li>&lt;strong>엔디안(Endianness)&lt;/strong>: 데이터 저장 방식 (빅 엔디안 vs. 리틀 엔디안)&lt;/li>
+&lt;li>&lt;strong>확장성&lt;/strong>: 향후 기능 추가를 위한 여유 공간 확보&lt;/li>
+&lt;li>&lt;strong>메모리 일관성 모델&lt;/strong>: 멀티코어 시스템에서의 데이터 동기화 방식&lt;/li>
+&lt;/ul>
+&lt;h3>최신 ISA 동향&lt;span class="hx-absolute -hx-mt-20" id="최신-isa-동향">&lt;/span>
+&lt;a href="#%ec%b5%9c%ec%8b%a0-isa-%eb%8f%99%ed%96%a5" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>RISC-V&lt;/strong>: 오픈 소스 ISA로, 사용자 정의 확장이 가능한 모듈식 설계&lt;/li>
+&lt;li>&lt;strong>벡터 연산 지원&lt;/strong>: AI와 머신 러닝 워크로드를 위한 벡터 연산 명령어 추가&lt;/li>
+&lt;li>&lt;strong>보안 기능&lt;/strong>: 하드웨어 수준의 보안 기능 통합 (예: ARM의 TrustZone)&lt;/li>
+&lt;li>&lt;strong>특화된 명령어&lt;/strong>: 특정 도메인(예: 암호화, 신호 처리)을 위한 전용 명령어 추가&lt;/li>
+&lt;/ol>
+&lt;hr>
+&lt;h2>참고 및 출처&lt;span class="hx-absolute -hx-mt-20" id="참고-및-출처">&lt;/span>
+&lt;a href="#%ec%b0%b8%ea%b3%a0-%eb%b0%8f-%ec%b6%9c%ec%b2%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item><item><title>Harvard Architecture</title><link>https://buenhyden.github.io/posts/computer-system/computer-architecture/processor-architecture/harvard-architecture/</link><pubDate>Tue, 14 Jan 2025 01:51:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/processor-architecture/harvard-architecture/</guid><description>
+&lt;h2>Harvard Architecture&lt;span class="hx-absolute -hx-mt-20" id="harvard-architecture">&lt;/span>
+&lt;a href="#harvard-architecture" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;hr>
+&lt;h2>참고 및 출처&lt;span class="hx-absolute -hx-mt-20" id="참고-및-출처">&lt;/span>
+&lt;a href="#%ec%b0%b8%ea%b3%a0-%eb%b0%8f-%ec%b6%9c%ec%b2%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item><item><title>Von Neumann architecture</title><link>https://buenhyden.github.io/posts/computer-system/computer-architecture/processor-architecture/von-neumann-architecture/</link><pubDate>Tue, 14 Jan 2025 01:51:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/processor-architecture/von-neumann-architecture/</guid><description>
+&lt;h2>Von Neumann Architecture&lt;span class="hx-absolute -hx-mt-20" id="von-neumann-architecture">&lt;/span>
+&lt;a href="#von-neumann-architecture" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Von Neumann architecture는 1945년 John von Neumann이 제안한 컴퓨터 아키텍처로, 현대 대부분의 컴퓨터 시스템의 기본이 되는 설계이다.&lt;/p>
+&lt;p>
+&lt;img src="../Von_Neumann_architecture_basic_structure.png" alt="" loading="lazy" />&lt;/p>
+&lt;h3>특징&lt;span class="hx-absolute -hx-mt-20" id="특징">&lt;/span>
+&lt;a href="#%ed%8a%b9%ec%a7%95" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>순차적 실행:&lt;/p>
+&lt;ul>
+&lt;li>명령어를 메모리에서 한 번에 하나씩 순차적으로 가져와 실행&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>레지스터:&lt;/p>
+&lt;ul>
+&lt;li>프로그램 카운터 (PC): 다음 실행할 명령어의 주소 저장&lt;/li>
+&lt;li>명령어 레지스터 (CIR): 현재 실행 중인 명령어 저장&lt;/li>
+&lt;li>메모리 주소 레지스터 (MAR): 접근할 메모리 주소 저장&lt;/li>
+&lt;li>메모리 데이터 레지스터 (MDR): 메모리와 주고받는 데이터 저장&lt;/li>
+&lt;li>누산기 (Accumulator): 연산 결과 임시 저장&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>버스 시스템:&lt;/p>
+&lt;ul>
+&lt;li>데이터 버스: CPU와 메모리, 입출력 장치 간 데이터 전송&lt;/li>
+&lt;li>주소 버스: 메모리 주소 전송&lt;/li>
+&lt;li>제어 버스: 제어 신호 전송&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>Fetch-Decode-Execute 사이클:&lt;/p>
+&lt;ul>
+&lt;li>명령어 인출 (Fetch)&lt;/li>
+&lt;li>명령어 해독 (Decode)&lt;/li>
+&lt;li>명령어 실행 (Execute)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3>핵심 구성 요소&lt;span class="hx-absolute -hx-mt-20" id="핵심-구성-요소">&lt;/span>
+&lt;a href="#%ed%95%b5%ec%8b%ac-%ea%b5%ac%ec%84%b1-%ec%9a%94%ec%86%8c" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>제어 장치 (Control Unit):&lt;/p>
+&lt;ul>
+&lt;li>프로그램의 명령어를 해석하고 실행을 제어한다.&lt;/li>
+&lt;li>다른 모든 구성 요소들의 동작을 조정한다.&lt;/li>
+&lt;li>마치 오케스트라의 지휘자와 같은 역할을 한다.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>산술 논리 장치 (Arithmetic Logic Unit, ALU):&lt;/p>
+&lt;ul>
+&lt;li>실제 계산과 논리 연산을 수행한다.&lt;/li>
+&lt;li>덧셈, 뺄셈, 곱셈, 나눗셈과 같은 수학적 연산을 처리한다.&lt;/li>
+&lt;li>AND, OR, NOT과 같은 논리 연산도 수행한다.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>메모리 (Memory):&lt;/p>
+&lt;ul>
+&lt;li>프로그램과 데이터를 모두 저장한다.&lt;/li>
+&lt;li>각 메모리 위치는 고유한 주소를 가진다.&lt;/li>
+&lt;li>현대 컴퓨터에서는 RAM이 이 역할을 담당한다.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>입력 장치 (Input Devices):&lt;/p>
+&lt;ul>
+&lt;li>외부로부터 데이터를 받아들인다.&lt;/li>
+&lt;li>키보드, 마우스, 스캐너 등이 해당된다.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>출력 장치 (Output Devices):&lt;/p>
+&lt;ul>
+&lt;li>처리된 결과를 외부로 전달한다.&lt;/li>
+&lt;li>모니터, 프린터, 스피커 등이 해당된다.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3>작동 방식&lt;span class="hx-absolute -hx-mt-20" id="작동-방식">&lt;/span>
+&lt;a href="#%ec%9e%91%eb%8f%99-%eb%b0%a9%ec%8b%9d" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>폰 노이만 아키텍처의 작동 과정을 단계별로 살펴보자:&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>명령어 인출 (Fetch):&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;pre>&lt;code>Program Counter → Memory Address
+Memory → Instruction Register&lt;/code>&lt;/pre>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>프로그램 카운터가 가리키는 메모리 주소에서 다음 실행할 명령어를 가져온다.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>명령어 해석 (Decode):&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;pre>&lt;code>Control Unit analyzes instruction:
+- Operation to perform
+- Data locations
+- Next instruction&lt;/code>&lt;/pre>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>제어 장치가 명령어를 해석하여 수행할 작업을 결정한다.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>실행 (Execute):&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;pre>&lt;code>ALU performs operation:
+IF addition:
+result = operand1 &amp;#43; operand2
+ELSE IF comparison:
+result = compare(operand1, operand2)
+…&lt;/code>&lt;/pre>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>ALU나 다른 하드웨어 구성 요소가 명령어를 실행한다.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>저장 (Store):&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;pre>&lt;code>IF result needs storing:
+Memory[destination] = result
+Program Counter &amp;#43;= instruction_length&lt;/code>&lt;/pre>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>결과를 메모리에 저장하고 다음 명령어로 이동한다.&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;h3>폰 노이만 아키텍처의 특징과 장단점&lt;span class="hx-absolute -hx-mt-20" id="폰-노이만-아키텍처의-특징과-장단점">&lt;/span>
+&lt;a href="#%ed%8f%b0-%eb%85%b8%ec%9d%b4%eb%a7%8c-%ec%95%84%ed%82%a4%ed%85%8d%ec%b2%98%ec%9d%98-%ed%8a%b9%ec%a7%95%ea%b3%bc-%ec%9e%a5%eb%8b%a8%ec%a0%90" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>장점:&lt;/p>
+&lt;ol>
+&lt;li>단순성: 명확한 구조로 인해 설계와 구현이 비교적 단순하다.&lt;/li>
+&lt;li>유연성: 프로그램을 쉽게 수정하고 업데이트할 수 있다.&lt;/li>
+&lt;li>범용성: 다양한 종류의 프로그램을 실행할 수 있다.&lt;/li>
+&lt;/ol>
+&lt;p>단점:&lt;/p>
+&lt;ol>
+&lt;li>폰 노이만 병목 현상: 메모리와 처리 장치 사이의 단일 통로로 인한 성능 제한이 있다.&lt;/li>
+&lt;li>순차적 실행: 명령어가 순차적으로 실행되어 병렬 처리가 제한된다.&lt;/li>
+&lt;li>저장 프로그램 개념:
+&lt;ul>
+&lt;li>프로그램과 데이터를 동일한 메모리에 저장&lt;/li>
+&lt;li>이로 인해 프로그램의 수정과 실행이 용이해짐&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3>현대적 발전과 적용&lt;span class="hx-absolute -hx-mt-20" id="현대적-발전과-적용">&lt;/span>
+&lt;a href="#%ed%98%84%eb%8c%80%ec%a0%81-%eb%b0%9c%ec%a0%84%ea%b3%bc-%ec%a0%81%ec%9a%a9" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>현대 컴퓨터는 기본적으로 폰 노이만 아키텍처를 따르지만, 여러 가지 개선 사항을 도입했다:&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>캐시 메모리:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;pre>&lt;code>Memory Hierarchy:
+L1 Cache (Fastest, Smallest)
+L2 Cache
+L3 Cache
+RAM (Main Memory)
+Hard Drive (Storage)&lt;/code>&lt;/pre>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>파이프라이닝:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;pre>&lt;code>Instruction Pipeline:
+Fetch → Decode → Execute → Store
+Fetch → Decode → Execute → Store
+Fetch → Decode → Execute → Store&lt;/code>&lt;/pre>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>병렬 처리:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;pre>&lt;code>Multiple Cores:
+Core 1: Instruction Stream 1
+Core 2: Instruction Stream 2
+Core N: Instruction Stream N&lt;/code>&lt;/pre>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;/ol>
+&lt;hr>
+&lt;h2>참고 및 출처&lt;span class="hx-absolute -hx-mt-20" id="참고-및-출처">&lt;/span>
+&lt;a href="#%ec%b0%b8%ea%b3%a0-%eb%b0%8f-%ec%b6%9c%ec%b2%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item></channel></rss>

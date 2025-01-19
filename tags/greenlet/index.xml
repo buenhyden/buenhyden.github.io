@@ -1,1 +1,233 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Greenlet :: Tag :: hyunyoun's Blog</title><link>https://buenhyden.github.io/tags/greenlet/</link><description/><generator>Hugo</generator><language>en</language><managingEditor>chochyjj@gmail.com (Hyunyoun Jo)</managingEditor><webMaster>chochyjj@gmail.com (Hyunyoun Jo)</webMaster><lastBuildDate>Wed, 15 Jan 2025 05:33:00 +0000</lastBuildDate><atom:link href="https://buenhyden.github.io/tags/greenlet/index.xml" rel="self" type="application/rss+xml"/><item><title>Greenlet and Gevent</title><link>https://buenhyden.github.io/posts/programming-languages/python/library/concurrency/greenlet-and-gevent/</link><pubDate>Wed, 15 Jan 2025 05:33:00 +0000</pubDate><author>chochyjj@gmail.com (Hyunyoun Jo)</author><guid>https://buenhyden.github.io/posts/programming-languages/python/library/concurrency/greenlet-and-gevent/</guid><description>Greenlet과 Gevent는 Python에서 동시성 프로그래밍을 위한 라이브러리이다.</description></item></channel></rss>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>hyunyoun's Blog – Greenlet</title><link>https://buenhyden.github.io/tags/greenlet/</link><description>Recent content in Greenlet on hyunyoun's Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Wed, 15 Jan 2025 05:33:00 +0000</lastBuildDate><atom:link href="https://buenhyden.github.io/tags/greenlet/index.xml" rel="self" type="application/rss+xml"/><item><title>Greenlet and Gevent</title><link>https://buenhyden.github.io/posts/programming-languages/python/library/concurrency/greenlet-and-gevent/</link><pubDate>Wed, 15 Jan 2025 05:33:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/programming-languages/python/library/concurrency/greenlet-and-gevent/</guid><description>
+&lt;h2>Greenlet and Gevent&lt;span class="hx-absolute -hx-mt-20" id="greenlet-and-gevent">&lt;/span>
+&lt;a href="#greenlet-and-gevent" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Greenlet과 Gevent는 Python에서 동시성 프로그래밍을 위한 라이브러리이다.&lt;/p>
+&lt;h3>Greenlet&lt;span class="hx-absolute -hx-mt-20" id="greenlet">&lt;/span>
+&lt;a href="#greenlet" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Greenlet은 Python에서 경량 코루틴을 구현한 라이브러리이다.&lt;br>
+추가적으로 이야기 하면, Greenlet은 Python의 경량 협력적 멀티태스킹(cooperative multitasking)을 위한 기본 단위이다. 이는 마치 매우 가벼운 스레드처럼 작동하지만, 운영체제 수준의 스레드가 아닌 사용자 공간에서 실행되는 마이크로스레드이다.&lt;/p>
+&lt;p>주요 특징:&lt;/p>
+&lt;ul>
+&lt;li>경량성: 일반 스레드보다 생성 비용이 매우 적다.&lt;/li>
+&lt;li>협력적 멀티태스킹: 명시적으로 제어권을 양보할 때만 컨텍스트 스위칭이 일어난다.&lt;/li>
+&lt;li>단일 OS 스레드 내 실행: 모든 greenlet은 동일한 물리적 스레드에서 실행된다.&lt;/li>
+&lt;/ul>
+&lt;p>사용 예:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="kn">from&lt;/span> &lt;span class="nn">greenlet&lt;/span> &lt;span class="kn">import&lt;/span> &lt;span class="n">greenlet&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">def&lt;/span> &lt;span class="nf">test1&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">y&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">z&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">gr2&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">switch&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="n">y&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">z&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">def&lt;/span> &lt;span class="nf">test2&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">u&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">u&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">gr1&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">switch&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">42&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">gr1&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">greenlet&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">test1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">gr2&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">greenlet&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">test2&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">gr1&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">switch&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;hello&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;world&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h4>작동 원리&lt;span class="hx-absolute -hx-mt-20" id="작동-원리">&lt;/span>
+&lt;a href="#%ec%9e%91%eb%8f%99-%ec%9b%90%eb%a6%ac" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>Greenlet은 협력적 멀티태스킹을 사용한다.&lt;br>
+이는 각 greenlet이 자발적으로 제어권을 다른 greenlet에게 넘겨주는 방식이다.&lt;br>
+이를 코드로 살펴보면:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="kn">from&lt;/span> &lt;span class="nn">greenlet&lt;/span> &lt;span class="kn">import&lt;/span> &lt;span class="n">greenlet&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">def&lt;/span> &lt;span class="nf">task1&lt;/span>&lt;span class="p">():&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;Task 1: Start&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">gr2&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">switch&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="c1"># task2로 제어권 전환&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;Task 1: End&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">def&lt;/span> &lt;span class="nf">task2&lt;/span>&lt;span class="p">():&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;Task 2: Start&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">gr1&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">switch&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="c1"># task1으로 제어권 전환&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;Task 2: End&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">gr1&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">greenlet&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">task1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">gr2&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">greenlet&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">task2&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">gr1&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">switch&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="c1"># 실행 시작&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>이 코드에서 &lt;code>switch()&lt;/code>를 호출할 때마다 실행 컨텍스트가 한 greenlet에서 다른 greenlet으로 전환된다.&lt;br>
+이는 매우 효율적인데, 운영체제의 컨텍스트 스위칭이 필요 없기 때문이다.&lt;/p>
+&lt;h4>Greenlet Vs 시스템 스레드&lt;span class="hx-absolute -hx-mt-20" id="greenlet-vs-시스템-스레드">&lt;/span>
+&lt;a href="#greenlet-vs-%ec%8b%9c%ec%8a%a4%ed%85%9c-%ec%8a%a4%eb%a0%88%eb%93%9c" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>전통적인 스레드와 greenlet의 차이점을 이해하는 것이 중요하다:&lt;br>
+주요 차이점:&lt;/p>
+&lt;ol>
+&lt;li>스레드는 선점형(preemptive) 멀티태스킹을 사용하며, 운영체제가 스케줄링을 관리한다.&lt;/li>
+&lt;li>Greenlet은 협력적 멀티태스킹을 사용하며, 애플리케이션이 스케줄링을 제어한다.&lt;/li>
+&lt;/ol>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 전통적인 스레드 사용&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">threading&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">time&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">def&lt;/span> &lt;span class="nf">io_task&lt;/span>&lt;span class="p">():&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">while&lt;/span> &lt;span class="kc">True&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">time&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">sleep&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="c1"># 운영체제 수준의 블로킹&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;IO Task&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">thread&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">Thread&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">target&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="n">io_task&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">thread&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">start&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Greenlet을 사용한 비슷한 작업&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">from&lt;/span> &lt;span class="nn">greenlet&lt;/span> &lt;span class="kn">import&lt;/span> &lt;span class="n">greenlet&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">gevent&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">def&lt;/span> &lt;span class="nf">io_task_greenlet&lt;/span>&lt;span class="p">():&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">while&lt;/span> &lt;span class="kc">True&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">gevent&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">sleep&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="c1"># 다른 greenlet에게 제어권 양보&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;IO Task&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">g&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">gevent&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">spawn&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">io_task_greenlet&lt;/span>&lt;span class="p">)&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h4>메모리와 성능 특성&lt;span class="hx-absolute -hx-mt-20" id="메모리와-성능-특성">&lt;/span>
+&lt;a href="#%eb%a9%94%eb%aa%a8%eb%a6%ac%ec%99%80-%ec%84%b1%eb%8a%a5-%ed%8a%b9%ec%84%b1" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>Greenlet의 주요 장점은 그 효율성에 있다:&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>메모리 사용:&lt;/p>
+&lt;ul>
+&lt;li>일반 스레드: 약 8MB/스레드&lt;/li>
+&lt;li>Greenlet: 약 3KB/greenlet&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>컨텍스트 스위칭 비용:&lt;/p>
+&lt;ul>
+&lt;li>스레드: 운영체제 수준의 컨텍스트 스위치 필요&lt;/li>
+&lt;li>Greenlet: 사용자 공간에서의 간단한 점프 명령만 필요&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h4>제한사항과 고려사항&lt;span class="hx-absolute -hx-mt-20" id="제한사항과-고려사항">&lt;/span>
+&lt;a href="#%ec%a0%9c%ed%95%9c%ec%82%ac%ed%95%ad%ea%b3%bc-%ea%b3%a0%eb%a0%a4%ec%82%ac%ed%95%ad" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>Greenlet을 사용할 때 주의해야 할 점들이 있다:&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>CPU 바운드 작업:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="k">def&lt;/span> &lt;span class="nf">cpu_intensive&lt;/span>&lt;span class="p">():&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">while&lt;/span> &lt;span class="kc">True&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># CPU를 많이 사용하는 작업&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 다른 greenlet이 실행될 기회가 없음&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">result&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nb">sum&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">i&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="n">i&lt;/span> &lt;span class="k">for&lt;/span> &lt;span class="n">i&lt;/span> &lt;span class="ow">in&lt;/span> &lt;span class="nb">range&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">1000000&lt;/span>&lt;span class="p">))&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>이런 경우 다른 greenlet이 실행될 기회를 주기 위해 명시적으로 제어권을 양보해야 한다:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="k">def&lt;/span> &lt;span class="nf">cpu_intensive_with_yield&lt;/span>&lt;span class="p">():&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">while&lt;/span> &lt;span class="kc">True&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">result&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nb">sum&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">i&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="n">i&lt;/span> &lt;span class="k">for&lt;/span> &lt;span class="n">i&lt;/span> &lt;span class="ow">in&lt;/span> &lt;span class="nb">range&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">1000000&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">gevent&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">sleep&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="c1"># 다른 greenlet에게 기회 제공&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>블로킹 작업:&lt;br>
+일반적인 블로킹 I/O 작업은 다른 greenlet의 실행을 막을 수 있다.&lt;br>
+이를 해결하기 위해 gevent는 표준 라이브러리의 블로킹 함수들을 비동기 버전으로 패치하는 monkey patching을 제공한다:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="kn">from&lt;/span> &lt;span class="nn">gevent&lt;/span> &lt;span class="kn">import&lt;/span> &lt;span class="n">monkey&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">monkey&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">patch_all&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 이제 표준 라이브러리의 블로킹 함수들이 greenlet-friendly하게 변경됨&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;/ol>
+&lt;p>Greenlet은 Python에서 효율적인 비동기 프로그래밍을 가능하게 하는 강력한 도구이다.&lt;br>
+특히 I/O 바운드 작업이 많은 웹 애플리케이션에서 뛰어난 성능을 발휘할 수 있다. 하지만 그 특성과 제한사항을 잘 이해하고 적절한 상황에서 사용하는 것이 중요하다.&lt;/p>
+&lt;h3>Gevent&lt;span class="hx-absolute -hx-mt-20" id="gevent">&lt;/span>
+&lt;a href="#gevent" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Gevent는 Greenlet을 기반으로 구축된 동시성 라이브러리이다.&lt;/p>
+&lt;p>주요 특징:&lt;/p>
+&lt;ul>
+&lt;li>비동기 I/O: libev 또는 libuv 이벤트 루프를 사용하여 효율적인 비동기 I/O를 제공한다.&lt;/li>
+&lt;li>동기 API: 비동기 코드를 동기 스타일로 작성할 수 있게 해준다.&lt;/li>
+&lt;li>Monkey patching: 표준 라이브러리의 블로킹 함수들을 비동기 버전으로 자동 대체한다.&lt;/li>
+&lt;/ul>
+&lt;p>사용 예:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">gevent&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">def&lt;/span> &lt;span class="nf">foo&lt;/span>&lt;span class="p">():&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;Running in foo&amp;#39;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">gevent&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">sleep&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;Explicit context switch to foo again&amp;#39;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">def&lt;/span> &lt;span class="nf">bar&lt;/span>&lt;span class="p">():&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;Explicit context to bar&amp;#39;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">gevent&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">sleep&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;Implicit context switch back to bar&amp;#39;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">gevent&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">joinall&lt;/span>&lt;span class="p">([&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">gevent&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">spawn&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">foo&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">gevent&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">spawn&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">bar&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">])&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h4>Gevent와 Greenlet의 관계&lt;span class="hx-absolute -hx-mt-20" id="gevent와-greenlet의-관계">&lt;/span>
+&lt;a href="#gevent%ec%99%80-greenlet%ec%9d%98-%ea%b4%80%ea%b3%84" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>Gevent는 Greenlet을 기반으로 구축되었으며, Greenlet의 기능을 확장하여 더 편리한 비동기 프로그래밍 환경을 제공한다.&lt;br>
+Gevent는 Greenlet의 컨텍스트 스위칭을 자동화하고, 네트워크 작업을 비동기적으로 처리할 수 있게 해준다.&lt;/p>
+&lt;h3>사용 사례&lt;span class="hx-absolute -hx-mt-20" id="사용-사례">&lt;/span>
+&lt;a href="#%ec%82%ac%ec%9a%a9-%ec%82%ac%eb%a1%80" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>웹 서버 및 네트워크 애플리케이션 개발&lt;/li>
+&lt;li>동시에 많은 I/O 작업을 처리해야 하는 경우&lt;/li>
+&lt;li>기존의 동기식 코드를 최소한의 변경으로 비동기로 전환할 때&lt;/li>
+&lt;/ul>
+&lt;h3>주의사항&lt;span class="hx-absolute -hx-mt-20" id="주의사항">&lt;/span>
+&lt;a href="#%ec%a3%bc%ec%9d%98%ec%82%ac%ed%95%ad" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>Gevent 사용 시 모든 I/O 작업이 비동기로 처리되므로, CPU 바운드 작업에는 적합하지 않을 수 있다.&lt;/li>
+&lt;li>Monkey patching은 강력하지만, 일부 라이브러리와 호환성 문제를 일으킬 수 있으므로 주의가 필요하다.&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;h2>참고 및 출처&lt;span class="hx-absolute -hx-mt-20" id="참고-및-출처">&lt;/span>
+&lt;a href="#%ec%b0%b8%ea%b3%a0-%eb%b0%8f-%ec%b6%9c%ec%b2%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item></channel></rss>

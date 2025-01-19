@@ -1,1 +1,744 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Non-Blocking :: Tag :: hyunyoun's Blog</title><link>https://buenhyden.github.io/tags/non-blocking/</link><description/><generator>Hugo</generator><language>en</language><managingEditor>chochyjj@gmail.com (Hyunyoun Jo)</managingEditor><webMaster>chochyjj@gmail.com (Hyunyoun Jo)</webMaster><lastBuildDate>Sun, 17 Nov 2024 12:30:00 +0000</lastBuildDate><atom:link href="https://buenhyden.github.io/tags/non-blocking/index.xml" rel="self" type="application/rss+xml"/><item><title>동기(Synchronous)와 비동기(Asynchronous) 그리고 Blocking와 Non-Blocking</title><link>https://buenhyden.github.io/til/2024/11/synchronous-and-asynchronous-and-blocking-and-non-blocking/</link><pubDate>Sun, 17 Nov 2024 12:30:00 +0000</pubDate><author>chochyjj@gmail.com (Hyunyoun Jo)</author><guid>https://buenhyden.github.io/til/2024/11/synchronous-and-asynchronous-and-blocking-and-non-blocking/</guid><description>동기(Synchronous)와 비동기(Asynchronous) 그리고 Blocking와 Non-Blocking</description></item><item><title>Blocking vs Non-Blocking</title><link>https://buenhyden.github.io/til/2024/11/blocking-vs-non-blocking/</link><pubDate>Tue, 12 Nov 2024 12:36:00 +0000</pubDate><author>chochyjj@gmail.com (Hyunyoun Jo)</author><guid>https://buenhyden.github.io/til/2024/11/blocking-vs-non-blocking/</guid><description>프로그래밍에서 작업 처리 방식에 따라 프로그램의 실행 흐름이 어떻게 영향을 받는지를 설명하는 개념.</description></item></channel></rss>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>hyunyoun's Blog – Non-Blocking</title><link>https://buenhyden.github.io/tags/non-blocking/</link><description>Recent content in Non-Blocking on hyunyoun's Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Sun, 17 Nov 2024 12:30:00 +0000</lastBuildDate><atom:link href="https://buenhyden.github.io/tags/non-blocking/index.xml" rel="self" type="application/rss+xml"/><item><title>동기(Synchronous)와 비동기(Asynchronous) 그리고 Blocking와 Non-Blocking</title><link>https://buenhyden.github.io/til/2024/11/synchronous-and-asynchronous-and-blocking-and-non-blocking/</link><pubDate>Sun, 17 Nov 2024 12:30:00 +0000</pubDate><guid>https://buenhyden.github.io/til/2024/11/synchronous-and-asynchronous-and-blocking-and-non-blocking/</guid><description>
+&lt;h2>동기(Synchronous)와 비동기(Asynchronous) 그리고 Blocking와 Non-Blocking&lt;span class="hx-absolute -hx-mt-20" id="동기synchronous와-비동기asynchronous-그리고-blocking와-non-blocking">&lt;/span>
+&lt;a href="#%eb%8f%99%ea%b8%b0synchronous%ec%99%80-%eb%b9%84%eb%8f%99%ea%b8%b0asynchronous-%ea%b7%b8%eb%a6%ac%ea%b3%a0-blocking%ec%99%80-non-blocking" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>카테고리&lt;/th>
+&lt;th>동기(Synchronous)&lt;/th>
+&lt;th>비동기(Asynchronous)&lt;/th>
+&lt;th>Blocking&lt;/th>
+&lt;th>Non-Blocking&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;strong>핵심 개념&lt;/strong>&lt;/td>
+&lt;td>작업이 순차적으로 실행되며, 이전 작업이 완료될 때까지 다음 작업을 시작하지 않음&lt;/td>
+&lt;td>작업들이 독립적으로 실행되며, 이전 작업의 완료를 기다리지 않고 다음 작업 수행 가능&lt;/td>
+&lt;td>호출된 함수가 작업을 완료할 때까지 제어권을 반환하지 않음&lt;/td>
+&lt;td>호출된 함수가 작업 완료 여부와 관계없이 즉시 제어권을 반환함&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>작업 처리 방식&lt;/strong>&lt;/td>
+&lt;td>순차적으로 작업을 처리하며, 각 작업이 완료된 후 다음 작업 시작&lt;/td>
+&lt;td>여러 작업이 동시에 처리될 수 있으며, 작업 완료 순서는 불확실할 수 있음&lt;/td>
+&lt;td>호출한 함수는 작업이 완료될 때까지 대기 상태 유지&lt;/td>
+&lt;td>호출한 함수는 작업 진행 중에도 다른 작업 수행 가능&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>제어 흐름&lt;/strong>&lt;/td>
+&lt;td>프로그램의 제어 흐름이 순차적이고 예측 가능함&lt;/td>
+&lt;td>제어 흐름이 비선형적이며, 콜백이나 이벤트로 처리&lt;/td>
+&lt;td>제어권이 호출된 함수에 완전히 넘어감&lt;/td>
+&lt;td>제어권이 호출한 함수에 즉시 반환됨&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>결과 처리&lt;/strong>&lt;/td>
+&lt;td>작업 완료 후 바로 결과를 반환받아 처리&lt;/td>
+&lt;td>콜백 함수, Promise, async/await 등을 통해 결과 처리&lt;/td>
+&lt;td>결과를 직접 반환받아 처리&lt;/td>
+&lt;td>상태 확인이나 콜백을 통해 결과 처리&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>주요 특징&lt;/strong>&lt;/td>
+&lt;td>- 코드의 실행 순서가 명확함&lt;br>- 직관적인 코드 흐름&lt;br>- 단순한 구현&lt;/td>
+&lt;td>- 작업의 병렬 처리 가능&lt;br>- 복잡한 이벤트 처리&lt;br>- 높은 확장성&lt;/td>
+&lt;td>- 자원을 점유하며 대기&lt;br>- 단순한 구현&lt;br>- 예측 가능한 실행&lt;/td>
+&lt;td>- 자원의 효율적 활용&lt;br>- 복잡한 구현&lt;br>- 높은 동시성&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>에러 처리&lt;/strong>&lt;/td>
+&lt;td>try-catch 블록으로 즉시 에러 처리 가능&lt;/td>
+&lt;td>Promise의 catch나 async/await의 try-catch로 처리&lt;/td>
+&lt;td>동기적 에러 처리 가능&lt;/td>
+&lt;td>비동기적 에러 처리 메커니즘 필요&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>성능 특성&lt;/strong>&lt;/td>
+&lt;td>- 단순 작업에서 오버헤드 적음&lt;br>- 순차 처리로 인한 대기 시간 발생&lt;/td>
+&lt;td>- 동시 처리로 인한 전체 처리 시간 감소&lt;br>- 컨텍스트 스위칭 오버헤드&lt;/td>
+&lt;td>- I/O 작업에서 성능 저하&lt;br>- 리소스 독점&lt;/td>
+&lt;td>- 리소스 효율적 활용&lt;br>- 높은 처리량&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>적합한 사용 사례&lt;/strong>&lt;/td>
+&lt;td>- 간단한 계산 작업&lt;br>- 메모리 내 데이터 처리&lt;br>- 순차적 처리 필요 작업&lt;/td>
+&lt;td>- 네트워크 요청&lt;br>- 대용량 파일 처리&lt;br>- 독립적 실행 가능 작업&lt;/td>
+&lt;td>- CPU 연산 작업&lt;br>- 간단한 파일 작업&lt;br>- 메모리 작업&lt;/td>
+&lt;td>- I/O 작업&lt;br>- 네트워크 통신&lt;br>- 대용량 처리&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>실행 순서&lt;/strong>&lt;/td>
+&lt;td>코드 작성 순서와 실행 순서가 동일&lt;/td>
+&lt;td>실행 순서가 코드 작성 순서와 다를 수 있음&lt;/td>
+&lt;td>작업 완료 순서가 예측 가능&lt;/td>
+&lt;td>작업 완료 순서가 불확실&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>자원 활용&lt;/strong>&lt;/td>
+&lt;td>단일 자원을 순차적으로 사용&lt;/td>
+&lt;td>여러 자원을 동시에 효율적으로 활용&lt;/td>
+&lt;td>자원을 독점적으로 사용&lt;/td>
+&lt;td>자원을 공유하여 사용&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>응답성&lt;/strong>&lt;/td>
+&lt;td>작업 완료 전까지 다른 작업 불가&lt;/td>
+&lt;td>여러 작업의 동시 처리로 높은 응답성&lt;/td>
+&lt;td>대기 시간 동안 응답 불가&lt;/td>
+&lt;td>지속적인 응답 가능&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>디버깅&lt;/strong>&lt;/td>
+&lt;td>코드 흐름 추적이 용이함&lt;/td>
+&lt;td>비동기 로직으로 인한 디버깅 어려움&lt;/td>
+&lt;td>문제 발생 지점 파악 쉬움&lt;/td>
+&lt;td>문제 발생 지점 추적 어려움&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>확장성&lt;/strong>&lt;/td>
+&lt;td>수직적 확장에 제한적&lt;/td>
+&lt;td>수평적/수직적 확장 용이&lt;/td>
+&lt;td>동시 처리 능력 제한적&lt;/td>
+&lt;td>높은 동시성 처리 가능&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>데이터 일관성&lt;/strong>&lt;/td>
+&lt;td>데이터 일관성 보장이 쉬움&lt;/td>
+&lt;td>경쟁 조건 고려 필요&lt;/td>
+&lt;td>순차적 처리로 일관성 보장&lt;/td>
+&lt;td>동시성 제어 메커니즘 필요&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>추가적인 고려사항:&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>시스템 설계 시 고려사항:&lt;/p>
+&lt;ul>
+&lt;li>시스템의 목적과 요구사항&lt;/li>
+&lt;li>예상되는 부하와 처리량&lt;/li>
+&lt;li>확장성 요구사항&lt;/li>
+&lt;li>유지보수 용이성&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>성능 최적화:&lt;/p>
+&lt;ul>
+&lt;li>작업의 특성에 따른 적절한 방식 선택&lt;/li>
+&lt;li>리소스 사용량 모니터링&lt;/li>
+&lt;li>병목 현상 관리&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>개발 복잡도:&lt;/p>
+&lt;ul>
+&lt;li>팀의 기술적 역량&lt;/li>
+&lt;li>유지보수 가능성&lt;/li>
+&lt;li>디버깅 용이성&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3>주요 차이점 분석&lt;span class="hx-absolute -hx-mt-20" id="주요-차이점-분석">&lt;/span>
+&lt;a href="#%ec%a3%bc%ec%9a%94-%ec%b0%a8%ec%9d%b4%ec%a0%90-%eb%b6%84%ec%84%9d" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;h4>제어 흐름의 관점&lt;span class="hx-absolute -hx-mt-20" id="제어-흐름의-관점">&lt;/span>
+&lt;a href="#%ec%a0%9c%ec%96%b4-%ed%9d%90%eb%a6%84%ec%9d%98-%ea%b4%80%ec%a0%90" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>동기/비동기는 &lt;strong>작업의 실행 순서와 완료 시점&lt;/strong>에 관한 것.&lt;br>
+반면 Blocking/Non-Blocking은 제어권의 반환 시점에 관한 것이다.&lt;/p>
+&lt;h4>성능과 자원 활용&lt;span class="hx-absolute -hx-mt-20" id="성능과-자원-활용">&lt;/span>
+&lt;a href="#%ec%84%b1%eb%8a%a5%ea%b3%bc-%ec%9e%90%ec%9b%90-%ed%99%9c%ec%9a%a9" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>&lt;strong>동기&lt;/strong>: 순차적 실행으로 자원 사용이 효율적이지 않을 수 있다.&lt;/li>
+&lt;li>&lt;strong>비동기&lt;/strong>: 병렬 처리로 자원을 효율적으로 활용할 수 있다.&lt;/li>
+&lt;li>&lt;strong>Blocking&lt;/strong>: 대기 시간 동안 자원이 낭비될 수 있다.&lt;/li>
+&lt;li>&lt;strong>Non-Blocking&lt;/strong>: 대기 시간을 다른 작업에 활용할 수 있다.&lt;/li>
+&lt;/ul>
+&lt;h4>구현 복잡도&lt;span class="hx-absolute -hx-mt-20" id="구현-복잡도">&lt;/span>
+&lt;a href="#%ea%b5%ac%ed%98%84-%eb%b3%b5%ec%9e%a1%eb%8f%84" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>동기와 Blocking 방식은 구현이 상대적으로 단순한 반면, 비동기와 Non-Blocking 방식은 콜백이나 이벤트 처리 등으로 인해 구현이 복잡할 수 있다.&lt;/p>
+&lt;h3>조합별 비교 및 예시&lt;span class="hx-absolute -hx-mt-20" id="조합별-비교-및-예시">&lt;/span>
+&lt;a href="#%ec%a1%b0%ed%95%a9%eb%b3%84-%eb%b9%84%ea%b5%90-%eb%b0%8f-%ec%98%88%ec%8b%9c" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>구분&lt;/th>
+&lt;th>동기 + Blocking&lt;/th>
+&lt;th>동기 + Non-Blocking&lt;/th>
+&lt;th>비동기 + Blocking&lt;/th>
+&lt;th>비동기 + Non-Blocking&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;strong>특징&lt;/strong>&lt;/td>
+&lt;td>- 가장 단순한 실행 모델&lt;br>- 직관적인 코드 흐름&lt;br>- 순차적 실행 보장&lt;/td>
+&lt;td>- 동기적 실행 흐름 유지&lt;br>- 리소스 점유 최소화&lt;br>Polling 방식 사용&lt;/td>
+&lt;td>- Promise나 async/await 사용&lt;br>- 실행 순서 보장&lt;br>- 비동기 작업 대기&lt;/td>
+&lt;td>- 가장 유연한 실행 모델&lt;br>- 높은 리소스 활용도&lt;br>- 이벤트 기반 처리&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>장점&lt;/strong>&lt;/td>
+&lt;td>- 구현이 단순&lt;br>- 디버깅 용이&lt;br>- 결과 예측 쉬움&lt;/td>
+&lt;td>- 리소스 효율성&lt;br>- 응답성 유지&lt;br>- 동기 코드 장점 유지&lt;/td>
+&lt;td>- 비동기 코드의 동기적 처리&lt;br>- 에러 처리 용이&lt;br>- 코드 가독성 좋음&lt;/td>
+&lt;td>- 최고의 성능&lt;br>- 높은 확장성&lt;br>- 리소스 효율적 사용&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>단점&lt;/strong>&lt;/td>
+&lt;td>- 리소스 비효율적&lt;br>- 성능 저하&lt;br>- 응답성 저하&lt;/td>
+&lt;td>- 구현 복잡도 증가&lt;br>CPU 사용률 증가&lt;br>Polling 오버헤드&lt;/td>
+&lt;td>- 스레드 블로킹&lt;br>- 병렬 처리 제한&lt;br>- 성능 제약&lt;/td>
+&lt;td>- 복잡한 에러 처리&lt;br>- 디버깅 어려움&lt;br>- 콜백 지옥 가능성&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>적합한 시나리오&lt;/strong>&lt;/td>
+&lt;td>- 단순한 계산 작업&lt;br>- 메모리 내 연산&lt;br>- 설정 파일 로딩&lt;/td>
+&lt;td>- 주기적 상태 확인&lt;br>- 실시간 모니터링&lt;br>- 센서 데이터 처리&lt;/td>
+&lt;td>- 순차적 API 호출&lt;br>- 데이터베이스 트랜잭션&lt;br>- 의존적 비동기 작업&lt;/td>
+&lt;td>- 웹 서버&lt;br>- 실시간 애플리케이션&lt;br>- 대용량 I/O 처리&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>주의사항&lt;/strong>&lt;/td>
+&lt;td>- 긴 작업 시 시스템 블로킹&lt;br>- 타임아웃 처리 필요&lt;br>- 리소스 고려&lt;/td>
+&lt;td>- 무한 루프 주의&lt;br>CPU 사용량 모니터링&lt;br>- 폴링 간격 최적화&lt;/td>
+&lt;td>- 데드락 가능성&lt;br>- 메모리 누수 주의&lt;br>- 타임아웃 설정&lt;/td>
+&lt;td>- 상태 관리 복잡성&lt;br>- 동시성 제어&lt;br>- 메모리 관리&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>동작 방식&lt;/strong>&lt;/td>
+&lt;td>- 순차적 실행&lt;br>- 작업 완료까지 대기&lt;br>- 직접 결과 반환&lt;/td>
+&lt;td>- 상태 확인 루프&lt;br>- 작업 병행 처리&lt;br>- 폴링 기반 결과 확인&lt;/td>
+&lt;td>- 비동기 호출 후 대기&lt;br>Promise 기반 처리&lt;br>await 사용&lt;/td>
+&lt;td>- 이벤트 루프 활용&lt;br>- 콜백 기반 처리&lt;br>- 비동기 이벤트 처리&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>추가적인 구현 시 고려사항:&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>에러 처리:&lt;/p>
+&lt;ul>
+&lt;li>동기 + Blocking: try-catch 직접 사용&lt;/li>
+&lt;li>동기 + Non-Blocking: 상태 확인 시 에러 체크&lt;/li>
+&lt;li>비동기 + Blocking: try-catch와 async/await 사용&lt;/li>
+&lt;li>비동기 + Non-Blocking: 콜백의 에러 파라미터 처리&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>성능 최적화:&lt;/p>
+&lt;ul>
+&lt;li>동기 + Blocking: 작업 크기 최소화&lt;/li>
+&lt;li>동기 + Non-Blocking: 폴링 간격 최적화&lt;/li>
+&lt;li>비동기 + Blocking: 병렬 처리 가능성 검토&lt;/li>
+&lt;li>비동기 + Non-Blocking: 이벤트 루프 최적화&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>리소스 관리:&lt;/p>
+&lt;ul>
+&lt;li>동기 + Blocking: 타임아웃 설정&lt;/li>
+&lt;li>동기 + Non-Blocking: CPU 사용량 모니터링&lt;/li>
+&lt;li>비동기 + Blocking: 메모리 누수 방지&lt;/li>
+&lt;li>비동기 + Non-Blocking: 동시성 제어&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;p>각 조합의 선택은 애플리케이션의 요구사항, 성능 목표, 개발 팀의 역량 등을 종합적으로 고려하여 결정해야 한다.&lt;/p>
+&lt;h4>예시&lt;span class="hx-absolute -hx-mt-20" id="예시">&lt;/span>
+&lt;a href="#%ec%98%88%ec%8b%9c" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ol>
+&lt;li>동기(Synchronous) + Blocking&lt;/li>
+&lt;/ol>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 동기 + Blocking 예시
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="kd">function&lt;/span> &lt;span class="nx">syncBlockingExample&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;1. 작업 시작&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 동기적으로 실행되며, 작업이 완료될 때까지 블로킹됨
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kr">const&lt;/span> &lt;span class="nx">result&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nx">fs&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">readFileSync&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;example.txt&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s1">&amp;#39;utf8&amp;#39;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 파일 읽기가 완료된 후에만 실행됨
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;2. 파일 내용:&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">result&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 순차적으로 실행됨
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;3. 작업 완료&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;ol start="2">
+&lt;li>동기(Synchronous) + Non-Blocking&lt;/li>
+&lt;/ol>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 동기 + Non-Blocking 예시
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="kd">function&lt;/span> &lt;span class="nx">syncNonBlockingExample&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;1. 작업 시작&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 동기적이지만 블로킹하지 않음
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kd">let&lt;/span> &lt;span class="nx">result&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">while&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="o">!&lt;/span>&lt;span class="nx">result&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 작업 상태 확인 (polling)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nx">result&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nx">checkOperationStatus&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 다른 작업 수행 가능
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nx">doOtherWork&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;2. 결과:&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">result&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;3. 작업 완료&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;ol start="3">
+&lt;li>비동기(Asynchronous) + Blocking&lt;/li>
+&lt;/ol>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 비동기 + Blocking 예시
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="kr">async&lt;/span> &lt;span class="kd">function&lt;/span> &lt;span class="nx">asyncBlockingExample&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;1. 작업 시작&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 비동기 호출이지만 결과를 기다림 (블로킹)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kr">const&lt;/span> &lt;span class="nx">result&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kr">await&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="nb">Promise&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">resolve&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 비동기 작업 수행
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nx">setTimeout&lt;/span>&lt;span class="p">(()&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">resolve&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;작업 결과&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">},&lt;/span> &lt;span class="mi">1000&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">});&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 블로킹되어 기다린 후 실행
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;2. 결과:&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">result&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;3. 작업 완료&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;ol start="4">
+&lt;li>비동기(Asynchronous) + Non-Blocking&lt;/li>
+&lt;/ol>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 비동기 + Non-Blocking 예시
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="kd">function&lt;/span> &lt;span class="nx">asyncNonBlockingExample&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;1. 작업 시작&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 비동기 호출 후 즉시 반환
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nx">fs&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">readFile&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;example.txt&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s1">&amp;#39;utf8&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nx">err&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">result&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nx">err&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">error&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;에러 발생:&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">err&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 작업 완료 시 콜백으로 처리
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;3. 파일 내용:&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">result&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">});&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 파일 읽기 작업과 독립적으로 실행됨
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;2. 다른 작업 실행&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>적용 가이드라인&lt;span class="hx-absolute -hx-mt-20" id="적용-가이드라인">&lt;/span>
+&lt;a href="#%ec%a0%81%ec%9a%a9-%ea%b0%80%ec%9d%b4%eb%93%9c%eb%9d%bc%ec%9d%b8" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>동기 방식이 적합한 경우:&lt;/li>
+&lt;/ol>
+&lt;ul>
+&lt;li>작업의 순서가 중요한 경우&lt;/li>
+&lt;li>데이터의 정합성이 중요한 경우&lt;/li>
+&lt;li>간단한 스크립트나 배치 작업&lt;/li>
+&lt;li>즉각적인 결과가 필요한 경우&lt;/li>
+&lt;/ul>
+&lt;ol start="2">
+&lt;li>비동기 방식이 적합한 경우:&lt;/li>
+&lt;/ol>
+&lt;ul>
+&lt;li>다중 사용자 처리가 필요한 경우&lt;/li>
+&lt;li>긴 작업 시간이 예상되는 경우&lt;/li>
+&lt;li>높은 처리량이 요구되는 경우&lt;/li>
+&lt;li>실시간 데이터 처리가 필요한 경우&lt;/li>
+&lt;/ul>
+&lt;ol start="3">
+&lt;li>Blocking이 적합한 경우:&lt;/li>
+&lt;/ol>
+&lt;ul>
+&lt;li>간단한 I/O 작업&lt;/li>
+&lt;li>리소스 사용량이 적은 경우&lt;/li>
+&lt;li>즉각적인 응답이 필요한 경우&lt;/li>
+&lt;li>단일 사용자 시스템&lt;/li>
+&lt;/ul>
+&lt;ol start="4">
+&lt;li>Non-Blocking이 적합한 경우:&lt;/li>
+&lt;/ol>
+&lt;ul>
+&lt;li>높은 동시성이 요구되는 경우&lt;/li>
+&lt;li>대규모 I/O 작업 처리&lt;/li>
+&lt;li>실시간 네트워크 애플리케이션&lt;/li>
+&lt;li>고성능이 요구되는 서버&lt;/li>
+&lt;/ul>
+&lt;h3>최적화 전략&lt;span class="hx-absolute -hx-mt-20" id="최적화-전략">&lt;/span>
+&lt;a href="#%ec%b5%9c%ec%a0%81%ed%99%94-%ec%a0%84%eb%9e%b5" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>성능 최적화&lt;/li>
+&lt;/ol>
+&lt;ul>
+&lt;li>작업의 특성에 따른 적절한 방식 선택&lt;/li>
+&lt;li>리소스 사용량 모니터링&lt;/li>
+&lt;li>타임아웃 설정&lt;/li>
+&lt;li>에러 처리 메커니즘 구축&lt;/li>
+&lt;/ul>
+&lt;ol start="2">
+&lt;li>리소스 관리&lt;/li>
+&lt;/ol>
+&lt;ul>
+&lt;li>메모리 사용량 관리&lt;/li>
+&lt;li>스레드 풀 최적화&lt;/li>
+&lt;li>커넥션 풀 관리&lt;/li>
+&lt;li>캐시 활용&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;h2>참고 및 출처&lt;span class="hx-absolute -hx-mt-20" id="참고-및-출처">&lt;/span>
+&lt;a href="#%ec%b0%b8%ea%b3%a0-%eb%b0%8f-%ec%b6%9c%ec%b2%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item><item><title>Blocking vs Non-Blocking</title><link>https://buenhyden.github.io/til/2024/11/blocking-vs-non-blocking/</link><pubDate>Tue, 12 Nov 2024 12:36:00 +0000</pubDate><guid>https://buenhyden.github.io/til/2024/11/blocking-vs-non-blocking/</guid><description>
+&lt;h2>Blocking and Non-Blocking&lt;span class="hx-absolute -hx-mt-20" id="blocking-and-non-blocking">&lt;/span>
+&lt;a href="#blocking-and-non-blocking" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Blocking과 Non-Blocking은 프로그램의 제어 흐름을 다루는 두 가지 주요 방식이다.&lt;br>
+이 개념들은 I/O 작업, 프로세스 간 통신, 네트워크 통신 등 다양한 컴퓨팅 상황에서 중요한 역할을 한다.&lt;/p>
+&lt;p>Blocking과 Non-Blocking의 주요 차이점은 제어권의 반환 시점이다.&lt;br>
+Blocking은 작업이 완료될 때까지 제어권을 반환하지 않지만, Non-Blocking은 즉시 제어권을 반환한다.&lt;/p>
+&lt;h3>Blocking&lt;span class="hx-absolute -hx-mt-20" id="blocking">&lt;/span>
+&lt;a href="#blocking" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Blocking은 특정 작업이 완료될 때까지 프로그램의 제어권을 붙잡고 있는 상태를 의미한다.&lt;br>
+해당 작업이 완료되기 전까지는 다음 작업으로 진행할 수 없다.&lt;/p>
+&lt;h4>동작 방식&lt;span class="hx-absolute -hx-mt-20" id="동작-방식">&lt;/span>
+&lt;a href="#%eb%8f%99%ec%9e%91-%eb%b0%a9%ec%8b%9d" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ol>
+&lt;li>프로세스가 특정 작업을 요청한다.&lt;/li>
+&lt;li>해당 작업이 완료될 때까지 프로세스는 대기 상태에 들어간다.&lt;/li>
+&lt;li>작업이 완료되면 프로세스는 다시 실행 상태로 전환된다.&lt;/li>
+&lt;li>그동안 다른 작업은 수행될 수 없다.&lt;/li>
+&lt;/ol>
+&lt;h4>특징&lt;span class="hx-absolute -hx-mt-20" id="특징">&lt;/span>
+&lt;a href="#%ed%8a%b9%ec%a7%95" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>프로그램의 실행 흐름이 순차적이고 예측 가능하다.&lt;/li>
+&lt;li>리소스 사용이 일시적으로 중단된다.&lt;/li>
+&lt;li>응답을 즉시 받을 수 있다.&lt;/li>
+&lt;li>프로그램 구조가 단순하고 직관적이다.&lt;/li>
+&lt;/ul>
+&lt;h4>실제 예시&lt;span class="hx-absolute -hx-mt-20" id="실제-예시">&lt;/span>
+&lt;a href="#%ec%8b%a4%ec%a0%9c-%ec%98%88%ec%8b%9c" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// Blocking I/O의 예시&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="n">File&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">file&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">new&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">File&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;example.txt&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="n">FileInputStream&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">input&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">new&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">FileInputStream&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">file&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="kt">byte&lt;/span>&lt;span class="o">[]&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">buffer&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">new&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">byte&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="n">1024&lt;/span>&lt;span class="o">]&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="kt">int&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">bytesRead&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">input&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="na">read&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">buffer&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// 이 지점에서 Blocking 발생&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="o">//&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">파일&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">읽기가&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">완료될&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">때까지&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">다음&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">코드로&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">진행하지&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">않음&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h4>성능 측면&lt;span class="hx-absolute -hx-mt-20" id="성능-측면">&lt;/span>
+&lt;a href="#%ec%84%b1%eb%8a%a5-%ec%b8%a1%eb%a9%b4" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>단일 작업의 처리 시간이 예측 가능하다.&lt;/li>
+&lt;li>리소스 사용이 일시적으로 중단된다.&lt;/li>
+&lt;li>대기 시간이 발생한다.&lt;/li>
+&lt;/ul>
+&lt;h4>구현 복잡도&lt;span class="hx-absolute -hx-mt-20" id="구현-복잡도">&lt;/span>
+&lt;a href="#%ea%b5%ac%ed%98%84-%eb%b3%b5%ec%9e%a1%eb%8f%84" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>구현이 단순하다.&lt;/li>
+&lt;li>디버깅이 쉽다.&lt;/li>
+&lt;li>코드 흐름이 직관적이다.&lt;/li>
+&lt;/ul>
+&lt;h4>적합한 사례&lt;span class="hx-absolute -hx-mt-20" id="적합한-사례">&lt;/span>
+&lt;a href="#%ec%a0%81%ed%95%a9%ed%95%9c-%ec%82%ac%eb%a1%80" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>간단한 스크립트 작성&lt;/li>
+&lt;li>순차적 데이터 처리&lt;/li>
+&lt;li>즉각적인 응답이 필요한 경우&lt;/li>
+&lt;li>작은 규모의 애플리케이션&lt;/li>
+&lt;/ul>
+&lt;h3>Non-Blocking&lt;span class="hx-absolute -hx-mt-20" id="non-blocking">&lt;/span>
+&lt;a href="#non-blocking" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Non-Blocking은 작업의 완료 여부와 관계없이 프로그램이 계속 실행될 수 있는 상태를 의미한다.&lt;br>
+작업의 완료를 기다리는 동안에도 다른 작업을 수행할 수 있다.&lt;/p>
+&lt;h4>동작 방식&lt;span class="hx-absolute -hx-mt-20" id="동작-방식-1">&lt;/span>
+&lt;a href="#%eb%8f%99%ec%9e%91-%eb%b0%a9%ec%8b%9d-1" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ol>
+&lt;li>프로세스가 작업을 요청한다.&lt;/li>
+&lt;li>작업의 완료 여부와 관계없이 즉시 제어권을 반환받는다.&lt;/li>
+&lt;li>다른 작업을 계속 수행할 수 있다.&lt;/li>
+&lt;li>작업이 완료되면 이벤트나 콜백을 통해 알림을 받는다.&lt;/li>
+&lt;/ol>
+&lt;h4>특징&lt;span class="hx-absolute -hx-mt-20" id="특징-1">&lt;/span>
+&lt;a href="#%ed%8a%b9%ec%a7%95-1" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>프로그램의 실행이 중단되지 않는다.&lt;/li>
+&lt;li>리소스를 효율적으로 사용할 수 있다.&lt;/li>
+&lt;li>높은 동시성을 제공한다.&lt;/li>
+&lt;li>복잡한 프로그램 구조가 필요할 수 있다.&lt;/li>
+&lt;/ul>
+&lt;h4>실제 예시&lt;span class="hx-absolute -hx-mt-20" id="실제-예시-1">&lt;/span>
+&lt;a href="#%ec%8b%a4%ec%a0%9c-%ec%98%88%ec%8b%9c-1" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// Non-Blocking I/O의 예시
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="nx">fs&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">readFile&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;example.txt&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nx">err&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">data&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nx">err&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="k">throw&lt;/span> &lt;span class="nx">err&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">data&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">});&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 파일을 읽는 동안에도 다음 코드가 실행됨
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;파일 읽기를 요청했습니다.&amp;#39;&lt;/span>&lt;span class="p">);&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h4>성능 측면&lt;span class="hx-absolute -hx-mt-20" id="성능-측면-1">&lt;/span>
+&lt;a href="#%ec%84%b1%eb%8a%a5-%ec%b8%a1%eb%a9%b4-1" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>전체적인 처리량이 향상된다.&lt;/li>
+&lt;li>리소스를 지속적으로 활용할 수 있다.&lt;/li>
+&lt;li>대기 시간을 다른 작업으로 활용한다.&lt;/li>
+&lt;/ul>
+&lt;h4>구현 복잡도&lt;span class="hx-absolute -hx-mt-20" id="구현-복잡도-1">&lt;/span>
+&lt;a href="#%ea%b5%ac%ed%98%84-%eb%b3%b5%ec%9e%a1%eb%8f%84-1" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>구현이 복잡할 수 있다.&lt;/li>
+&lt;li>디버깅이 어려울 수 있다.&lt;/li>
+&lt;li>콜백이나 이벤트 핸들링이 필요하다.&lt;/li>
+&lt;/ul>
+&lt;h4>적합한 사례&lt;span class="hx-absolute -hx-mt-20" id="적합한-사례-1">&lt;/span>
+&lt;a href="#%ec%a0%81%ed%95%a9%ed%95%9c-%ec%82%ac%eb%a1%80-1" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>대규모 네트워크 애플리케이션&lt;/li>
+&lt;li>실시간 데이터 처리 시스템&lt;/li>
+&lt;li>높은 동시성이 요구되는 서버&lt;/li>
+&lt;li>사용자 인터페이스가 있는 애플리케이션&lt;/li>
+&lt;/ul>
+&lt;h3>Blocking과 Non-Blocking의 비교&lt;span class="hx-absolute -hx-mt-20" id="blocking과-non-blocking의-비교">&lt;/span>
+&lt;a href="#blocking%ea%b3%bc-non-blocking%ec%9d%98-%eb%b9%84%ea%b5%90" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>카테고리&lt;/th>
+&lt;th>Blocking&lt;/th>
+&lt;th>Non-Blocking&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;strong>기본 개념&lt;/strong>&lt;/td>
+&lt;td>- 호출된 함수가 자신의 작업을 완료할 때까지 제어권을 가지고 있음&lt;/td>
+&lt;td>- 호출된 함수가 즉시 제어권을 반환함&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;/td>
+&lt;td>- 호출한 함수는 작업 완료까지 대기&lt;/td>
+&lt;td>- 호출한 함수는 다른 작업을 계속 수행 가능&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;/td>
+&lt;td>- 실행 순서가 명확하고 예측 가능&lt;/td>
+&lt;td>- 실행 순서가 비결정적일 수 있음&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>제어권 처리&lt;/strong>&lt;/td>
+&lt;td>- 제어권이 호출된 함수에 완전히 넘어감&lt;/td>
+&lt;td>- 제어권이 호출한 함수에 즉시 반환됨&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;/td>
+&lt;td>- 작업 완료 전까지 제어권 반환 없음&lt;/td>
+&lt;td>- 작업 상태는 별도로 확인 가능&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;/td>
+&lt;td>- 호출 스택이 차단됨&lt;/td>
+&lt;td>- 호출 스택이 차단되지 않음&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>리소스 관리&lt;/strong>&lt;/td>
+&lt;td>- 작업 중 시스템 리소스를 독점&lt;/td>
+&lt;td>- 리소스를 효율적으로 공유&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;/td>
+&lt;td>- 메모리 사용량이 예측 가능&lt;/td>
+&lt;td>- 동시성으로 인한 메모리 사용량 변동 가능&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;/td>
+&lt;td>- 리소스 해제가 명확함&lt;/td>
+&lt;td>- 리소스 해제 시점 관리 필요&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>성능 특성&lt;/strong>&lt;/td>
+&lt;td>- 단순 작업에서는 오버헤드가 적음&lt;/td>
+&lt;td>- 문맥 교환으로 인한 오버헤드 발생 가능&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;/td>
+&lt;td>- I/O 작업에서 성능 저하&lt;/td>
+&lt;td>- I/O 작업에서 높은 성능&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;/td>
+&lt;td>- 동시성 처리에 제한적&lt;/td>
+&lt;td>- 높은 동시성 처리 가능&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>에러 처리&lt;/strong>&lt;/td>
+&lt;td>- 동기적 에러 처리 가능&lt;/td>
+&lt;td>- 비동기적 에러 처리 필요&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;/td>
+&lt;td>- try-catch로 직접적인 처리&lt;/td>
+&lt;td>- 콜백이나 Promise로 에러 처리&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;/td>
+&lt;td>- 스택 트레이스가 명확함&lt;/td>
+&lt;td>- 스택 트레이스 추적이 복잡할 수 있음&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>적합한 사용 사례&lt;/strong>&lt;/td>
+&lt;td>- 빠른 CPU 연산 작업&lt;/td>
+&lt;td>- 네트워크 통신&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;/td>
+&lt;td>- 간단한 파일 읽기/쓰기&lt;/td>
+&lt;td>- 대용량 파일 처리&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;/td>
+&lt;td>- 메모리 내 데이터 처리&lt;/td>
+&lt;td>- 데이터베이스 쿼리&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;/td>
+&lt;td>- 동기화가 필요한 작업&lt;/td>
+&lt;td>- 독립적인 병렬 처리&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>프로그래밍 모델&lt;/strong>&lt;/td>
+&lt;td>- 절차적 프로그래밍에 적합&lt;/td>
+&lt;td>- 이벤트 기반 프로그래밍에 적합&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;/td>
+&lt;td>- 코드 흐름이 직관적&lt;/td>
+&lt;td>- 콜백이나 Promise 기반&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;/td>
+&lt;td>- 디버깅이 상대적으로 쉬움&lt;/td>
+&lt;td>- 복잡한 비동기 패턴 사용&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>시스템 확장성&lt;/strong>&lt;/td>
+&lt;td>- 수직적 확장에 제한적&lt;/td>
+&lt;td>- 수평적/수직적 확장 용이&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;/td>
+&lt;td>- 동시 처리 능력 제한&lt;/td>
+&lt;td>- 높은 동시성 지원&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;/td>
+&lt;td>- 시스템 리소스 제약&lt;/td>
+&lt;td>- 효율적인 리소스 활용&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>개발 복잡도&lt;/strong>&lt;/td>
+&lt;td>- 구현이 단순하고 직관적&lt;/td>
+&lt;td>- 상태 관리가 필요함&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;/td>
+&lt;td>- 코드 흐름 추적이 쉬움&lt;/td>
+&lt;td>- 비동기 로직으로 인한 복잡도 증가&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;/td>
+&lt;td>- 유지보수가 상대적으로 용이&lt;/td>
+&lt;td>- 디버깅과 테스트가 어려울 수 있음&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>실제 애플리케이션 개발에서는 각 작업의 특성과 요구사항을 고려하여 적절한 방식을 선택해야 한다.&lt;br>
+특히:&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>시스템의 응답성이 중요한 경우:&lt;/p>
+&lt;ul>
+&lt;li>Non-Blocking 방식이 더 적합할 수 있다.&lt;/li>
+&lt;li>사용자 인터페이스의 반응성을 유지할 수 있다.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>정확성과 순서가 중요한 경우:&lt;/p>
+&lt;ul>
+&lt;li>Blocking 방식이 더 적합할 수 있다.&lt;/li>
+&lt;li>작업의 순서와 결과를 정확히 제어할 수 있다.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>리소스 활용이 중요한 경우:&lt;/p>
+&lt;ul>
+&lt;li>Non-Blocking 방식이 시스템 리소스를 더 효율적으로 활용할 수 있다.&lt;/li>
+&lt;li>높은 처리량이 필요한 시스템에 적합하다.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;p>이러한 특성들을 잘 이해하고 적절히 조합하여 사용하는 것이 현대 애플리케이션 개발에서 매우 중요하다.&lt;/p>
+&lt;h3>최신 트렌드 및 발전 방향&lt;span class="hx-absolute -hx-mt-20" id="최신-트렌드-및-발전-방향">&lt;/span>
+&lt;a href="#%ec%b5%9c%ec%8b%a0-%ed%8a%b8%eb%a0%8c%eb%93%9c-%eb%b0%8f-%eb%b0%9c%ec%a0%84-%eb%b0%a9%ed%96%a5" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>시스템 설계 측면&lt;/li>
+&lt;/ol>
+&lt;ul>
+&lt;li>하이브리드 접근 방식의 증가&lt;/li>
+&lt;li>마이크로서비스 아키텍처에서의 활용&lt;/li>
+&lt;li>클라우드 네이티브 환경에서의 최적화&lt;/li>
+&lt;/ul>
+&lt;ol start="2">
+&lt;li>프로그래밍 언어 측면&lt;/li>
+&lt;/ol>
+&lt;ul>
+&lt;li>비동기 프로그래밍 지원 강화&lt;/li>
+&lt;li>새로운 동시성 모델 도입&lt;/li>
+&lt;li>효율적인 리소스 관리 메커니즘 개발&lt;/li>
+&lt;/ul>
+&lt;h3>실제 구현 시 고려사항&lt;span class="hx-absolute -hx-mt-20" id="실제-구현-시-고려사항">&lt;/span>
+&lt;a href="#%ec%8b%a4%ec%a0%9c-%ea%b5%ac%ed%98%84-%ec%8b%9c-%ea%b3%a0%eb%a0%a4%ec%82%ac%ed%95%ad" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>시스템 설계 시 고려사항&lt;/li>
+&lt;/ol>
+&lt;ul>
+&lt;li>작업의 특성과 요구사항 분석&lt;/li>
+&lt;li>리소스 사용량 예측&lt;/li>
+&lt;li>확장성 고려&lt;/li>
+&lt;li>에러 처리 메커니즘 설계&lt;/li>
+&lt;/ul>
+&lt;ol start="2">
+&lt;li>성능 최적화&lt;/li>
+&lt;/ol>
+&lt;ul>
+&lt;li>적절한 타임아웃 설정&lt;/li>
+&lt;li>버퍼 크기 조정&lt;/li>
+&lt;li>스레드 풀 관리&lt;/li>
+&lt;li>메모리 사용량 모니터링&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;h2>참고 및 출처&lt;span class="hx-absolute -hx-mt-20" id="참고-및-출처">&lt;/span>
+&lt;a href="#%ec%b0%b8%ea%b3%a0-%eb%b0%8f-%ec%b6%9c%ec%b2%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item></channel></rss>

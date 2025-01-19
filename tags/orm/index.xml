@@ -1,1 +1,306 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>ORM :: Tag :: hyunyoun's Blog</title><link>https://buenhyden.github.io/tags/orm/</link><description/><generator>Hugo</generator><language>en</language><managingEditor>chochyjj@gmail.com (Hyunyoun Jo)</managingEditor><webMaster>chochyjj@gmail.com (Hyunyoun Jo)</webMaster><lastBuildDate>Mon, 25 Nov 2024 11:21:00 +0000</lastBuildDate><atom:link href="https://buenhyden.github.io/tags/orm/index.xml" rel="self" type="application/rss+xml"/><item><title>N+1</title><link>https://buenhyden.github.io/posts/backend/database-systems/orm/n+1/</link><pubDate>Mon, 25 Nov 2024 11:21:00 +0000</pubDate><author>chochyjj@gmail.com (Hyunyoun Jo)</author><guid>https://buenhyden.github.io/posts/backend/database-systems/orm/n+1/</guid><description>N+1 문제는 하나의 쿼리로 N개의 엔티티를 조회한 후, 각 엔티티와 연관된 데이터를 조회하기 위해 N번의 추가 쿼리가 발생하는 현상을 말한다.</description></item><item><title>SQLAlchemy</title><link>https://buenhyden.github.io/posts/programming-languages/python/library/orm/sqlalchemy/</link><pubDate>Wed, 06 Nov 2024 09:21:00 +0000</pubDate><author>chochyjj@gmail.com (Hyunyoun Jo)</author><guid>https://buenhyden.github.io/posts/programming-languages/python/library/orm/sqlalchemy/</guid><description>파이썬에서 사용되는 강력하고 유연한 SQL 툴킷 및 객체 관계 매핑(ORM) 라이브러리</description></item><item><title>ORM(Object-Relational Mapping)</title><link>https://buenhyden.github.io/posts/backend/database-systems/orm/</link><pubDate>Fri, 25 Oct 2024 03:42:00 +0000</pubDate><author>chochyjj@gmail.com (Hyunyoun Jo)</author><guid>https://buenhyden.github.io/posts/backend/database-systems/orm/</guid><description>객체 지향 프로그래밍 언어와 관계형 데이터베이스 사이의 불일치를 해결하기 위한 기술</description></item></channel></rss>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>hyunyoun's Blog – ORM</title><link>https://buenhyden.github.io/tags/orm/</link><description>Recent content in ORM on hyunyoun's Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Mon, 25 Nov 2024 11:21:00 +0000</lastBuildDate><atom:link href="https://buenhyden.github.io/tags/orm/index.xml" rel="self" type="application/rss+xml"/><item><title>N+1</title><link>https://buenhyden.github.io/posts/backend/database-systems/orm/n+1/</link><pubDate>Mon, 25 Nov 2024 11:21:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/backend/database-systems/orm/n+1/</guid><description>
+&lt;h2>N+1&lt;span class="hx-absolute -hx-mt-20" id="n1">&lt;/span>
+&lt;a href="#n1" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>N+1 문제는 하나의 쿼리로 N개의 엔티티를 조회한 후, 각 엔티티와 연관된 데이터를 조회하기 위해 N번의 추가 쿼리가 발생하는 현상을 말한다.&lt;br>
+주로 ORM(Object-Relational Mapping) 기술을 사용할 때 발생하는 성능 관련 이슈로 데이터베이스에 불필요하게 많은 쿼리를 실행하게 되는 상황을 말한다.&lt;/p>
+&lt;h3>발생 원인&lt;span class="hx-absolute -hx-mt-20" id="발생-원인">&lt;/span>
+&lt;a href="#%eb%b0%9c%ec%83%9d-%ec%9b%90%ec%9d%b8" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>연관 관계 매핑: 주로 1:N 또는 N:1 관계를 가진 엔티티를 조회할 때 발생한다.&lt;/li>
+&lt;li>지연 로딩(Lazy Loading): 연관된 엔티티를 실제로 사용할 때 추가적인 쿼리가 발생한다.&lt;/li>
+&lt;li>즉시 로딩(Eager Loading): 연관된 엔티티를 함께 조회하려 할 때 추가 쿼리가 발생할 수 있다.&lt;/li>
+&lt;/ol>
+&lt;h3>문제점&lt;span class="hx-absolute -hx-mt-20" id="문제점">&lt;/span>
+&lt;a href="#%eb%ac%b8%ec%a0%9c%ec%a0%90" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>성능 저하: 불필요한 데이터베이스 쿼리로 인해 애플리케이션의 성능이 크게 저하된다.&lt;/li>
+&lt;li>네트워크 부하: 데이터베이스와의 통신이 증가하여 네트워크 부하가 증가한다.&lt;/li>
+&lt;li>데이터베이스 부하: 과도한 쿼리 실행으로 데이터베이스 서버에 부담을 준다.&lt;/li>
+&lt;/ol>
+&lt;p>이러한 N+1 문제는 데이터베이스 성능에 큰 영향을 미칠 수 있으므로, 개발 초기 단계부터 인지하고 적절한 해결 방법을 적용하는 것이 중요하다.&lt;br>
+특히 대규모 애플리케이션에서는 이 문제를 해결하지 않으면 심각한 성능 저하를 경험할 수 있다.&lt;/p>
+&lt;p>N+1 문제가 어떻게 발생하는지에 대한 간단한 예시:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 블로그 게시물과 댓글의 관계를 나타내는 모델&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">Post&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">models&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">Model&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">title&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">models&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">CharField&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">max_length&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="mi">200&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">content&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">models&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">TextField&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">Comment&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">models&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">Model&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">post&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">models&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">ForeignKey&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Post&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">related_name&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s1">&amp;#39;comments&amp;#39;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">content&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">models&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">TextField&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># N+1 문제가 발생하는 코드&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">def&lt;/span> &lt;span class="nf">get_posts_with_comments&lt;/span>&lt;span class="p">():&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 첫 번째 쿼리: 모든 게시물을 가져옴&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">posts&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">Post&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">objects&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">all&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="c1"># 1번의 쿼리&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 각 게시물마다 댓글을 가져오는 추가 쿼리가 발생&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">for&lt;/span> &lt;span class="n">post&lt;/span> &lt;span class="ow">in&lt;/span> &lt;span class="n">posts&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">comments&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">post&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">comments&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">all&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="c1"># N번의 추가 쿼리&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sa">f&lt;/span>&lt;span class="s2">&amp;#34;Post: &lt;/span>&lt;span class="si">{&lt;/span>&lt;span class="n">post&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">title&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">, Comments: &lt;/span>&lt;span class="si">{&lt;/span>&lt;span class="nb">len&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">comments&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sql" data-lang="sql">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">-- 첫 번째 쿼리 (1번)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="k">SELECT&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">FROM&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">posts&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">LIMIT&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="mi">5&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c1">-- 이후 각 게시물마다 실행되는 쿼리 (N번)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="k">SELECT&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">FROM&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">comments&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">WHERE&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">post_id&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="k">SELECT&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">FROM&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">comments&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">WHERE&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">post_id&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="mi">2&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="k">SELECT&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">FROM&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">comments&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">WHERE&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">post_id&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="k">SELECT&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">FROM&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">comments&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">WHERE&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">post_id&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="mi">4&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="k">SELECT&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">FROM&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">comments&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">WHERE&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">post_id&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="mi">5&lt;/span>&lt;span class="p">;&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>위 코드에서 발생하는 문제를 단계별로 설명하면,&lt;/p>
+&lt;ol>
+&lt;li>첫 번째 쿼리에서 모든 게시물을 가져온다 (1번의 쿼리)&lt;/li>
+&lt;li>각 게시물에 대해 댓글을 가져오는 별도의 쿼리가 실행된다 (N번의 쿼리)&lt;/li>
+&lt;li>결과적으로 총 N+1번의 데이터베이스 쿼리가 실행된다&lt;/li>
+&lt;/ol>
+&lt;h3>N+1 문제를 해결하기 위한 일반적인 접근 방법&lt;span class="hx-absolute -hx-mt-20" id="n1-문제를-해결하기-위한-일반적인-접근-방법">&lt;/span>
+&lt;a href="#n1-%eb%ac%b8%ec%a0%9c%eb%a5%bc-%ed%95%b4%ea%b2%b0%ed%95%98%ea%b8%b0-%ec%9c%84%ed%95%9c-%ec%9d%bc%eb%b0%98%ec%a0%81%ec%9d%b8-%ec%a0%91%ea%b7%bc-%eb%b0%a9%eb%b2%95" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>Eager Loading (즉시 로딩): 연관된 엔티티를 함께 로드하여 추가 쿼리를 방지한다.&lt;/li>
+&lt;li>Fetch Join: 쿼리 작성 시 연관된 엔티티를 명시적으로 함께 조회하도록 지정한다.&lt;/li>
+&lt;li>Batch Size 조정: 연관된 엔티티를 일괄적으로 조회하여 쿼리 수를 줄인다.&lt;/li>
+&lt;li>쿼리 최적화: 필요한 데이터만 선택적으로 조회하여 불필요한 쿼리를 줄인다.&lt;/li>
+&lt;li>캐싱: 자주 사용되는 데이터를 캐시하여 반복적인 쿼리를 줄인다.&lt;/li>
+&lt;/ol>
+&lt;h3>모범 사례와 주의사항&lt;span class="hx-absolute -hx-mt-20" id="모범-사례와-주의사항">&lt;/span>
+&lt;a href="#%eb%aa%a8%eb%b2%94-%ec%82%ac%eb%a1%80%ec%99%80-%ec%a3%bc%ec%9d%98%ec%82%ac%ed%95%ad" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>적절한 패치 전략 선택&lt;/p>
+&lt;ul>
+&lt;li>필요한 데이터만 조회&lt;/li>
+&lt;li>페이징이 필요한 경우 고려&lt;/li>
+&lt;li>메모리 사용량 고려&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>캐싱 전략 활용&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>성능 테스트 수행&lt;/p>
+&lt;ul>
+&lt;li>대용량 데이터에서의 동작 확인&lt;/li>
+&lt;li>메모리 사용량 모니터링&lt;/li>
+&lt;li>응답 시간 측정&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3>N+1 문제를 방지하기 위한 설계 원칙&lt;span class="hx-absolute -hx-mt-20" id="n1-문제를-방지하기-위한-설계-원칙">&lt;/span>
+&lt;a href="#n1-%eb%ac%b8%ec%a0%9c%eb%a5%bc-%eb%b0%a9%ec%a7%80%ed%95%98%ea%b8%b0-%ec%9c%84%ed%95%9c-%ec%84%a4%ea%b3%84-%ec%9b%90%ec%b9%99" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>데이터 접근 패턴 분석&lt;/p>
+&lt;ul>
+&lt;li>애플리케이션에서 실제로 필요한 데이터가 무엇인지 파악&lt;/li>
+&lt;li>불필요한 데이터 조회 최소화&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>적절한 쿼리 최적화 전략 선택&lt;/p>
+&lt;ul>
+&lt;li>JOIN 사용이 적절한 경우&lt;/li>
+&lt;li>일괄 조회가 더 효율적인 경우&lt;/li>
+&lt;li>지연 로딩이 필요한 경우&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>성능 모니터링&lt;/p>
+&lt;ul>
+&lt;li>실행되는 쿼리의 수 추적&lt;/li>
+&lt;li>쿼리 실행 시간 모니터링&lt;/li>
+&lt;li>병목 지점 식별&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;hr>
+&lt;h2>참고 및 출처&lt;span class="hx-absolute -hx-mt-20" id="참고-및-출처">&lt;/span>
+&lt;a href="#%ec%b0%b8%ea%b3%a0-%eb%b0%8f-%ec%b6%9c%ec%b2%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item><item><title>SQLAlchemy</title><link>https://buenhyden.github.io/posts/programming-languages/python/library/orm/sqlalchemy/</link><pubDate>Wed, 06 Nov 2024 09:21:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/programming-languages/python/library/orm/sqlalchemy/</guid><description>
+&lt;h2>SQLAlchemy&lt;span class="hx-absolute -hx-mt-20" id="sqlalchemy">&lt;/span>
+&lt;a href="#sqlalchemy" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>파이썬에서 사용되는 강력하고 유연한 SQL 툴킷 및 객체 관계 매핑(ORM) 라이브러리&lt;br>
+데이터베이스와의 상호작용을 간소화하고 SQL과 객체 지향 프로그래밍 사이의 간격을 줄여준다.&lt;/p>
+&lt;p>주요 특징:&lt;/p>
+&lt;ol>
+&lt;li>&lt;strong>ORM 레이어&lt;/strong>: 파이썬 클래스를 데이터베이스 테이블에 매핑하여 SQL 쿼리를 직접 작성하지 않고도 데이터베이스 작업을 수행할 수 있다.&lt;/li>
+&lt;li>&lt;strong>SQL 표현 언어&lt;/strong>: 복잡한 SQL 쿼리를 파이썬 코드로 작성할 수 있는 선언적 방식을 제공한다.&lt;/li>
+&lt;li>&lt;strong>데이터베이스 독립성&lt;/strong>: SQLite, PostgreSQL, MySQL, Oracle, Microsoft SQL Server 등 다양한 데이터베이스 엔진을 지원한다.&lt;/li>
+&lt;li>&lt;strong>트랜잭션 관리&lt;/strong>: 세션 기반의 작업을 통해 트랜잭션을 효율적으로 관리한다.&lt;/li>
+&lt;/ol>
+&lt;p>SQLAlchemy의 구조:&lt;br>
+SQLAlchemy는 두 가지 주요 구성 요소로 이루어져 있다:&lt;/p>
+&lt;ol>
+&lt;li>&lt;strong>Core&lt;/strong>: SQL 표현 언어를 제공하며, 낮은 수준의 데이터베이스 작업에 사용된다.&lt;/li>
+&lt;li>&lt;strong>ORM&lt;/strong>: Core 위에 구축되어 더 높은 수준의 추상화를 제공한다.&lt;/li>
+&lt;/ol>
+&lt;p>사용 방법:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="kn">from&lt;/span> &lt;span class="nn">sqlalchemy&lt;/span> &lt;span class="kn">import&lt;/span> &lt;span class="n">create_engine&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">Column&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">Integer&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">String&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">from&lt;/span> &lt;span class="nn">sqlalchemy.ext.declarative&lt;/span> &lt;span class="kn">import&lt;/span> &lt;span class="n">declarative_base&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">from&lt;/span> &lt;span class="nn">sqlalchemy.orm&lt;/span> &lt;span class="kn">import&lt;/span> &lt;span class="n">sessionmaker&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 데이터베이스 엔진 생성&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">engine&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">create_engine&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;sqlite:///example.db&amp;#39;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 베이스 클래스 생성&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">Base&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">declarative_base&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 모델 클래스 정의&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">User&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Base&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">__tablename__&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s1">&amp;#39;users&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">id&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">Column&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Integer&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">primary_key&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="kc">True&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">Column&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">String&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">age&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">Column&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Integer&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__repr__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="sa">f&lt;/span>&lt;span class="s2">&amp;#34;&amp;lt;User(name=&amp;#39;&lt;/span>&lt;span class="si">{&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">name&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">&amp;#39;, age=&lt;/span>&lt;span class="si">{&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">age&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">)&amp;gt;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 테이블 생성&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">Base&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">metadata&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">create_all&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">engine&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 세션 생성&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">Session&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">sessionmaker&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">bind&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="n">engine&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">session&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">Session&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 데이터 추가&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">new_user&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">User&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">name&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s1">&amp;#39;John&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">age&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="mi">25&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">session&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">add&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">new_user&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">session&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">commit&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 데이터 조회&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">users&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">session&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">query&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">User&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">filter&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">User&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">age&lt;/span> &lt;span class="o">&amp;gt;&lt;/span> &lt;span class="mi">20&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">all&lt;/span>&lt;span class="p">()&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>고급 기능:&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>관계 설정: SQLAlchemy는 테이블 간의 관계(일대일, 일대다, 다대다)를 쉽게 정의할 수 있다.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="kn">from&lt;/span> &lt;span class="nn">sqlalchemy.orm&lt;/span> &lt;span class="kn">import&lt;/span> &lt;span class="n">relationship&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">Post&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Base&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">__tablename__&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s1">&amp;#39;posts&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">id&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">Column&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Integer&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">primary_key&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="kc">True&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">title&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">Column&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">String&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">user_id&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">Column&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Integer&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">ForeignKey&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;users.id&amp;#39;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">user&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">relationship&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;User&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">back_populates&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;posts&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>마이그레이션 지원: Alembic이라는 도구를 통해 데이터베이스 스키마 변경을 관리할 수 있다.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>트랜잭션 관리: SQLAlchemy는 안전한 트랜잭션 처리를 지원한다:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="k">try&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">with&lt;/span> &lt;span class="n">session&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">begin&lt;/span>&lt;span class="p">():&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">user1&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">User&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">name&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s1">&amp;#39;Alice&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">age&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="mi">30&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">user2&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">User&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">name&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s1">&amp;#39;Bob&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">age&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="mi">35&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">session&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">add_all&lt;/span>&lt;span class="p">([&lt;/span>&lt;span class="n">user1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">user2&lt;/span>&lt;span class="p">])&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 트랜잭션이 자동으로 커밋되거나 롤백됩니다&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">except&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 에러 발생 시 자동 롤백&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">pass&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;/ol>
+&lt;p>&lt;strong>장점&lt;/strong>:&lt;/p>
+&lt;ul>
+&lt;li>데이터베이스 독립성을 제공한다.&lt;/li>
+&lt;li>복잡한 쿼리와 데이터 관계를 쉽게 처리할 수 있다.&lt;/li>
+&lt;li>객체 지향적인 방식으로 데이터베이스를 다룰 수 있다.&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>단점&lt;/strong>:&lt;/p>
+&lt;ul>
+&lt;li>SQL을 아는 사람이라면 ORM을 별도로 학습해야 한다.&lt;/li>
+&lt;li>복잡한 쿼리의 경우 성능 저하가 발생할 수 있다.&lt;/li>
+&lt;li>간단한 프로젝트에서는 준비 과정이 다소 복잡할 수 있다.&lt;/li>
+&lt;/ul>
+&lt;p>SQLAlchemy를 사용할 때의 주의사항:&lt;/p>
+&lt;ol>
+&lt;li>세션 관리: 세션을 적절히 닫아주지 않으면 리소스 누수가 발생할 수 있다.&lt;/li>
+&lt;li>N+1 문제: 연관된 객체를 조회할 때 발생할 수 있는 성능 문제를 주의해야 한다.&lt;/li>
+&lt;li>Lazy Loading vs Eager Loading: 상황에 따라 적절한 로딩 전략을 선택해야 한다.&lt;/li>
+&lt;/ol>
+&lt;p>실제 프로젝트에서 SQLAlchemy를 효과적으로 사용하기 위한 팁을 공유하자면:&lt;/p>
+&lt;ol>
+&lt;li>Connection Pooling을 적절히 설정하여 데이터베이스 연결을 효율적으로 관리한다.&lt;/li>
+&lt;li>큰 데이터셋을 다룰 때는 yield_per()를 사용하여 메모리 사용을 최적화한다.&lt;/li>
+&lt;li>복잡한 쿼리는 hybrid_property나 custom SQL을 활용하여 최적화한다.&lt;/li>
+&lt;/ol>
+&lt;p>SQLAlchemy는 파이썬 개발자들 사이에서 널리 사용되는 ORM 라이브러리로, 데이터베이스 작업을 보다 효율적이고 파이썬스럽게 만들어준다.&lt;br>
+복잡한 데이터베이스 작업을 처리해야 하는 프로젝트에서 특히 유용하게 사용될 수 있다.&lt;/p>
+&lt;hr>
+&lt;h2>참고 및 출처&lt;span class="hx-absolute -hx-mt-20" id="참고-및-출처">&lt;/span>
+&lt;a href="#%ec%b0%b8%ea%b3%a0-%eb%b0%8f-%ec%b6%9c%ec%b2%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>&lt;a href="https://www.sqlalchemy.org/" target="_blank" rel="noopener">SQLAlchemy - The Database Toolkit for Python&lt;/a>&lt;/p></description></item><item><title>ORM(Object-Relational Mapping)</title><link>https://buenhyden.github.io/posts/backend/database-systems/orm/</link><pubDate>Fri, 25 Oct 2024 03:42:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/backend/database-systems/orm/</guid><description>
+&lt;h2>ORM(Object-Relational Mapping)&lt;span class="hx-absolute -hx-mt-20" id="ormobject-relational-mapping">&lt;/span>
+&lt;a href="#ormobject-relational-mapping" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>객체 지향 프로그래밍 언어와 관계형 데이터베이스 사이의 불일치를 해결하기 위한 기술&lt;/p>
+&lt;p>특징:&lt;/p>
+&lt;ol>
+&lt;li>객체와 데이터베이스 테이블 간의 매핑&lt;/li>
+&lt;li>SQL 쿼리 대신 객체 지향적 방식으로 데이터베이스 조작&lt;/li>
+&lt;li>데이터베이스 독립성 제공&lt;/li>
+&lt;/ol>
+&lt;p>장점:&lt;/p>
+&lt;ol>
+&lt;li>직관적이고 가독성 좋은 코드 작성 가능&lt;/li>
+&lt;li>생산성 향상: 개발자가 비즈니스 로직에 집중 가능&lt;/li>
+&lt;li>재사용성과 유지보수성 증가&lt;/li>
+&lt;li>데이터베이스 종속성 감소&lt;/li>
+&lt;/ol>
+&lt;p>단점:&lt;/p>
+&lt;ol>
+&lt;li>성능 저하 가능성: 복잡한 쿼리의 경우 최적화가 어려울 수 있음&lt;/li>
+&lt;li>학습 곡선: ORM 사용법을 익히는 데 시간이 필요&lt;/li>
+&lt;li>복잡한 쿼리 처리의 한계: 매우 복잡한 쿼리는 직접 SQL 작성이 필요할 수 있음&lt;/li>
+&lt;/ol>
+&lt;p>ORM과 raw query 사이에는 성능 차이가 존재한다.&lt;br>
+일반적으로 raw SQL이 ORM보다 더 나은 성능을 보인다.&lt;br>
+주요 차이점은 다음과 같습니다:&lt;/p>
+&lt;ol>
+&lt;li>실행 속도: raw SQL 쿼리가 ORM보다 더 빠른 실행 속도를 보인다. ORM은 추상화 계층으로 인한 오버헤드가 있어 성능이 저하될 수 있다.&lt;/li>
+&lt;li>복잡한 쿼리 처리: raw SQL은 복잡한 데이터베이스 작업에서 더 효율적이다. 개발자가 데이터베이스 특정 기능과 최적화를 직접 활용할 수 있기 때문이다.&lt;/li>
+&lt;li>쿼리 최적화: raw SQL을 사용하면 개발자가 쿼리를 세밀하게 조정하고 최적화할 수 있다. ORM이 생성하는 쿼리는 항상 최적화되지 않을 수 있다.&lt;/li>
+&lt;li>대규모 데이터 처리: 대량 삽입, 업데이트, 삭제 작업에서 ORM은 raw SQL보다 느릴 수 있다.&lt;br>
+그러나 ORM도 캐싱 메커니즘을 통해 성능을 개선할 수 있으며, 간단한 CRUD 작업이나 중소규모 애플리케이션에서는 충분히 효과적일 수 있다. 따라서 프로젝트의 요구사항과 복잡성에 따라 적절한 방식을 선택해야 한다.&lt;/li>
+&lt;/ol>
+&lt;hr>
+&lt;h2>참고 및 출처&lt;span class="hx-absolute -hx-mt-20" id="참고-및-출처">&lt;/span>
+&lt;a href="#%ec%b0%b8%ea%b3%a0-%eb%b0%8f-%ec%b6%9c%ec%b2%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item></channel></rss>

@@ -1,1 +1,1202 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Synchronization and Concurrency Control :: hyunyoun's Blog</title><link>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/</link><description/><generator>Hugo</generator><language>en</language><managingEditor>chochyjj@gmail.com (Hyunyoun Jo)</managingEditor><webMaster>chochyjj@gmail.com (Hyunyoun Jo)</webMaster><lastBuildDate>Sat, 23 Nov 2024 02:47:00 +0000</lastBuildDate><atom:link href="https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/index.xml" rel="self" type="application/rss+xml"/><item><title>동시성 제어 (Concurrency Control)</title><link>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/concurrency-control/</link><pubDate>Sat, 23 Nov 2024 02:47:00 +0000</pubDate><author>chochyjj@gmail.com (Hyunyoun Jo)</author><guid>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/concurrency-control/</guid><description>동시성 제어는 여러 프로세스나 스레드가 동시에 공유 자원에 접근할 때, 데이터의 일관성과 무결성을 보장하기 위한 제어 메커니즘</description></item><item><title>잠금 (Lock)</title><link>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/lock/</link><pubDate>Mon, 18 Nov 2024 10:54:00 +0000</pubDate><author>chochyjj@gmail.com (Hyunyoun Jo)</author><guid>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/lock/</guid><description>여러 스레드가 공유 자원에 동시에 접근하는 것을 방지하는 동기화 기본 요소이다. 임계 영역을 보호하고 한 번에 하나의 스레드만 접근할 수 있도록 한다.</description></item><item><title>상호 배제 (Mutual Exclusion)</title><link>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/mutual-exclusion/</link><pubDate>Sun, 17 Nov 2024 07:50:00 +0000</pubDate><author>chochyjj@gmail.com (Hyunyoun Jo)</author><guid>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/mutual-exclusion/</guid><description>여러 프로세스나 스레드가 공유 자원에 동시에 접근하는 것을 방지하는 동기화 메커니</description></item><item><title>임계 영역 (Critical Section)</title><link>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/critical-section/</link><pubDate>Sun, 17 Nov 2024 07:49:00 +0000</pubDate><author>chochyjj@gmail.com (Hyunyoun Jo)</author><guid>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/critical-section/</guid><description>여러 프로세스 또는 스레드가 공유하는 자원에 접근하는 코드 영역</description></item><item><title>동기화 (Synchronization)</title><link>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/synchronization/</link><pubDate>Thu, 07 Nov 2024 07:48:00 +0000</pubDate><author>chochyjj@gmail.com (Hyunyoun Jo)</author><guid>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/synchronization/</guid><description>여러 프로세스나 스레드가 공유 자원에 접근할 때 데이터의 일관성과 무결성을 보장하기 위한 메커니즘</description></item><item><title>Process Synchronization</title><link>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/process-synchronization/</link><pubDate>Sat, 28 Sep 2024 06:22:00 +0000</pubDate><author>chochyjj@gmail.com (Hyunyoun Jo)</author><guid>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/process-synchronization/</guid><description>여러 프로세스가 공유하는 자원의 일관성을 유지하기 위한 메커니즘</description></item></channel></rss>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>hyunyoun's Blog – Synchronization and Concurrency Control</title><link>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/</link><description>Recent content in Synchronization and Concurrency Control on hyunyoun's Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/index.xml" rel="self" type="application/rss+xml"/><item><title>동시성 제어 (Concurrency Control)</title><link>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/concurrency-control/</link><pubDate>Sat, 23 Nov 2024 02:47:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/concurrency-control/</guid><description>
+&lt;h2>동시성 제어 (Concurrency Control)&lt;span class="hx-absolute -hx-mt-20" id="동시성-제어-concurrency-control">&lt;/span>
+&lt;a href="#%eb%8f%99%ec%8b%9c%ec%84%b1-%ec%a0%9c%ec%96%b4-concurrency-control" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>동시성 제어는 여러 프로세스나 스레드가 동시에 공유 자원에 접근할 때, 데이터의 일관성과 무결성을 보장하기 위한 제어 메커니즘.&lt;br>
+다중 사용자 환경에서 필수적으로 지원해야 하는 기능으로, 병행제어라고도 한다.&lt;/p>
+&lt;h3>동시성 제어의 중요성&lt;span class="hx-absolute -hx-mt-20" id="동시성-제어의-중요성">&lt;/span>
+&lt;a href="#%eb%8f%99%ec%8b%9c%ec%84%b1-%ec%a0%9c%ec%96%b4%ec%9d%98-%ec%a4%91%ec%9a%94%ec%84%b1" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>동시성 제어는 다음과 같은 문제를 방지하여 데이터베이스의 무결성을 유지한다:&lt;/p>
+&lt;ul>
+&lt;li>갱신 손실: 동시에 수행된 갱신 작업으로 인한 데이터 손실&lt;/li>
+&lt;li>모순성: 일관성 없는 데이터 읽기&lt;/li>
+&lt;li>연쇄 복귀: 하나의 트랜잭션 실패로 인한 다른 트랜잭션들의 복귀&lt;/li>
+&lt;/ul>
+&lt;h3>목적&lt;span class="hx-absolute -hx-mt-20" id="목적">&lt;/span>
+&lt;a href="#%eb%aa%a9%ec%a0%81" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>트랜잭션의 직렬성 보장&lt;/li>
+&lt;li>데이터의 무결성 및 일관성 유지&lt;/li>
+&lt;li>시스템 활용도 최대화 (공유도 최대, 응답 시간 최소, 처리량 최대화)&lt;/li>
+&lt;/ol>
+&lt;h3>주요 동시성 제어 기법&lt;span class="hx-absolute -hx-mt-20" id="주요-동시성-제어-기법">&lt;/span>
+&lt;a href="#%ec%a3%bc%ec%9a%94-%eb%8f%99%ec%8b%9c%ec%84%b1-%ec%a0%9c%ec%96%b4-%ea%b8%b0%eb%b2%95" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;h4>락킹(Locking) 기법&lt;span class="hx-absolute -hx-mt-20" id="락킹locking-기법">&lt;/span>
+&lt;a href="#%eb%9d%bd%ed%82%b9locking-%ea%b8%b0%eb%b2%95" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>락킹은 가장 기본적인 동시성 제어 방법으로, 데이터에 접근할 때 잠금을 설정하여 다른 프로세스의 접근을 제한한다.&lt;/p>
+&lt;h5>종류&lt;span class="hx-absolute -hx-mt-20" id="종류">&lt;/span>
+&lt;a href="#%ec%a2%85%eb%a5%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h5>&lt;p>공유 락(Shared Lock):&lt;/p>
+&lt;ul>
+&lt;li>읽기 작업을 위한 락&lt;/li>
+&lt;li>여러 프로세스가 동시에 획득 가능&lt;/li>
+&lt;li>데이터 읽기만 허용됨&lt;/li>
+&lt;/ul>
+&lt;p>배타적 락(Exclusive Lock):&lt;/p>
+&lt;ul>
+&lt;li>쓰기 작업을 위한 락&lt;/li>
+&lt;li>한 번에 하나의 프로세스만 획득 가능&lt;/li>
+&lt;li>데이터 읽기와 쓰기 모두 가능&lt;/li>
+&lt;/ul>
+&lt;h4>타임스탬프 기반 기법(Timestamp-based Protocol)&lt;span class="hx-absolute -hx-mt-20" id="타임스탬프-기반-기법timestamp-based-protocol">&lt;/span>
+&lt;a href="#%ed%83%80%ec%9e%84%ec%8a%a4%ed%83%ac%ed%94%84-%ea%b8%b0%eb%b0%98-%ea%b8%b0%eb%b2%95timestamp-based-protocol" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>각 트랜잭션에 고유한 타임스탬프를 부여하여 실행 순서를 결정하는 방식.&lt;/p>
+&lt;h5>작동 원리&lt;span class="hx-absolute -hx-mt-20" id="작동-원리">&lt;/span>
+&lt;a href="#%ec%9e%91%eb%8f%99-%ec%9b%90%eb%a6%ac" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h5>&lt;ul>
+&lt;li>트랜잭션 시작 시 타임스탬프 부여&lt;/li>
+&lt;li>읽기/쓰기 타임스탬프 관리&lt;/li>
+&lt;li>충돌 발생 시 타임스탬프 비교하여 처리&lt;/li>
+&lt;/ul>
+&lt;h5>장점&lt;span class="hx-absolute -hx-mt-20" id="장점">&lt;/span>
+&lt;a href="#%ec%9e%a5%ec%a0%90" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h5>&lt;ul>
+&lt;li>교착상태 발생하지 않음&lt;/li>
+&lt;li>우선순위 기반 처리 가능&lt;/li>
+&lt;/ul>
+&lt;h4>낙관적 병행 제어(Optimistic Concurrency Control)&lt;span class="hx-absolute -hx-mt-20" id="낙관적-병행-제어optimistic-concurrency-control">&lt;/span>
+&lt;a href="#%eb%82%99%ea%b4%80%ec%a0%81-%eb%b3%91%ed%96%89-%ec%a0%9c%ec%96%b4optimistic-concurrency-control" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>충돌이 적을 것이라 가정하고, 검증 단계에서 충돌을 확인하는 방식.&lt;/p>
+&lt;h5>처리 단계&lt;span class="hx-absolute -hx-mt-20" id="처리-단계">&lt;/span>
+&lt;a href="#%ec%b2%98%eb%a6%ac-%eb%8b%a8%ea%b3%84" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h5>&lt;ul>
+&lt;li>읽기 단계: 데이터 읽기와 로컬 복사본 생성&lt;/li>
+&lt;li>수행 단계: 로컬 복사본에서 작업 수행&lt;/li>
+&lt;li>검증 단계: 충돌 여부 확인&lt;/li>
+&lt;li>쓰기 단계: 검증 성공 시 결과 반영&lt;/li>
+&lt;/ul>
+&lt;h4>다중버전 병행 제어(Multiversion Concurrency Control, MVCC)&lt;span class="hx-absolute -hx-mt-20" id="다중버전-병행-제어multiversion-concurrency-control-mvcc">&lt;/span>
+&lt;a href="#%eb%8b%a4%ec%a4%91%eb%b2%84%ec%a0%84-%eb%b3%91%ed%96%89-%ec%a0%9c%ec%96%b4multiversion-concurrency-control-mvcc" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>데이터의 여러 버전을 유지하여 읽기 작업의 병행성을 향상시키는 기법.&lt;/p>
+&lt;h5>특징&lt;span class="hx-absolute -hx-mt-20" id="특징">&lt;/span>
+&lt;a href="#%ed%8a%b9%ec%a7%95" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h5>&lt;ul>
+&lt;li>각 쓰기 작업마다 새로운 버전 생성&lt;/li>
+&lt;li>읽기 작업은 특정 시점의 버전을 참조&lt;/li>
+&lt;li>트랜잭션의 일관성 보장&lt;/li>
+&lt;/ul>
+&lt;h5>실제 적용 예시&lt;span class="hx-absolute -hx-mt-20" id="실제-적용-예시">&lt;/span>
+&lt;a href="#%ec%8b%a4%ec%a0%9c-%ec%a0%81%ec%9a%a9-%ec%98%88%ec%8b%9c" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h5>&lt;p>PostgreSQL이나 Oracle 같은 데이터베이스 시스템에서 MVCC를 사용하여 읽기 작업의 성능을 향상시킨다.&lt;/p>
+&lt;h3>동시성 제어의 구현 시 고려사항&lt;span class="hx-absolute -hx-mt-20" id="동시성-제어의-구현-시-고려사항">&lt;/span>
+&lt;a href="#%eb%8f%99%ec%8b%9c%ec%84%b1-%ec%a0%9c%ec%96%b4%ec%9d%98-%ea%b5%ac%ed%98%84-%ec%8b%9c-%ea%b3%a0%eb%a0%a4%ec%82%ac%ed%95%ad" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>성능과 확장성&lt;/p>
+&lt;ul>
+&lt;li>락의 세분성 조절&lt;/li>
+&lt;li>데드락 방지 메커니즘&lt;/li>
+&lt;li>캐시 일관성 유지&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>일관성 수준&lt;/p>
+&lt;ul>
+&lt;li>직렬성(Serializability)&lt;/li>
+&lt;li>스냅샷 격리(Snapshot Isolation)&lt;/li>
+&lt;li>읽기 일관성(Read Consistency)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>장애 복구&lt;/p>
+&lt;ul>
+&lt;li>롤백 메커니즘&lt;/li>
+&lt;li>복구 로그 관리&lt;/li>
+&lt;li>체크포인트 설정&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3>동시성 제어의 발전 방향&lt;span class="hx-absolute -hx-mt-20" id="동시성-제어의-발전-방향">&lt;/span>
+&lt;a href="#%eb%8f%99%ec%8b%9c%ec%84%b1-%ec%a0%9c%ec%96%b4%ec%9d%98-%eb%b0%9c%ec%a0%84-%eb%b0%a9%ed%96%a5" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>분산 시스템에서의 동시성 제어&lt;/p>
+&lt;ul>
+&lt;li>분산 락 관리&lt;/li>
+&lt;li>합의(Consensus) 알고리즘&lt;/li>
+&lt;li>최종 일관성(Eventual Consistency)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>새로운 하드웨어 지원&lt;/p>
+&lt;ul>
+&lt;li>하드웨어 트랜잭션 메모리&lt;/li>
+&lt;li>원자적 명령어 활용&lt;/li>
+&lt;li>멀티코어 최적화&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>인메모리 데이터베이스&lt;/p>
+&lt;ul>
+&lt;li>락-프리 알고리즘&lt;/li>
+&lt;li>비동기 복제&lt;/li>
+&lt;li>실시간 동시성 제어&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3>실제 구현 시 주의사항&lt;span class="hx-absolute -hx-mt-20" id="실제-구현-시-주의사항">&lt;/span>
+&lt;a href="#%ec%8b%a4%ec%a0%9c-%ea%b5%ac%ed%98%84-%ec%8b%9c-%ec%a3%bc%ec%9d%98%ec%82%ac%ed%95%ad" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>데드락 예방&lt;/p>
+&lt;ul>
+&lt;li>타임아웃 설정&lt;/li>
+&lt;li>자원 순서화&lt;/li>
+&lt;li>데드락 감지 알고리즘 구현&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>성능 최적화&lt;/p>
+&lt;ul>
+&lt;li>락 경합(Lock Contention) 최소화&lt;/li>
+&lt;li>트랜잭션 분할&lt;/li>
+&lt;li>캐시 활용&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>모니터링과 디버깅&lt;/p>
+&lt;ul>
+&lt;li>락 획득/해제 로깅&lt;/li>
+&lt;li>성능 메트릭 수집&lt;/li>
+&lt;li>병목 지점 분석&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;hr>
+&lt;h2>참고 및 출처&lt;span class="hx-absolute -hx-mt-20" id="참고-및-출처">&lt;/span>
+&lt;a href="#%ec%b0%b8%ea%b3%a0-%eb%b0%8f-%ec%b6%9c%ec%b2%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item><item><title>잠금 (Lock)</title><link>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/lock/</link><pubDate>Mon, 18 Nov 2024 10:54:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/lock/</guid><description>
+&lt;h2>잠금 (Lock)&lt;span class="hx-absolute -hx-mt-20" id="잠금-lock">&lt;/span>
+&lt;a href="#%ec%9e%a0%ea%b8%88-lock" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>여러 스레드가 공유 자원에 동시에 접근하는 것을 방지하는 동기화 기본 요소이다.&lt;br>
+임계 영역을 보호하고 한 번에 하나의 스레드만 접근할 수 있도록 한다.&lt;/p>
+&lt;p>스레드가 임계 영역에 진입하기 전에 lock을 획득(acquire)하고, 임계 영역을 빠져나올 때 lock을 해제(release)한다. 다른 스레드가 이미 lock을 보유하고 있다면, lock을 획득하려는 스레드는 lock이 해제될 때까지 대기한다.&lt;/p>
+&lt;p>Lock은 두 가지 상태를 가진다:&lt;/p>
+&lt;ul>
+&lt;li>잠금 해제 상태 (Unlocked): 다른 프로세스나 스레드가 Lock을 획득할 수 있는 상태&lt;/li>
+&lt;li>잠금 상태 (Locked): 이미 한 프로세스나 스레드가 Lock을 보유하고 있는 상태&lt;/li>
+&lt;/ul>
+&lt;h3>작동 방식&lt;span class="hx-absolute -hx-mt-20" id="작동-방식">&lt;/span>
+&lt;a href="#%ec%9e%91%eb%8f%99-%eb%b0%a9%ec%8b%9d" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>Lock 획득 (acquire): 스레드가 임계 영역에 진입하기 전에 lock을 획득합니다.&lt;/li>
+&lt;li>임계 영역 실행: lock을 획득한 스레드만 임계 영역의 코드를 실행할 수 있습니다.&lt;/li>
+&lt;li>Lock 해제 (release): 임계 영역을 빠져나올 때 lock을 해제합니다.&lt;/li>
+&lt;/ol>
+&lt;h3>Lock을 사용할 때 고려해야할 사항&lt;span class="hx-absolute -hx-mt-20" id="lock을-사용할-때-고려해야할-사항">&lt;/span>
+&lt;a href="#lock%ec%9d%84-%ec%82%ac%ec%9a%a9%ed%95%a0-%eb%95%8c-%ea%b3%a0%eb%a0%a4%ed%95%b4%ec%95%bc%ed%95%a0-%ec%82%ac%ed%95%ad" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>Lock의 범위는 가능한 한 작게 유지하여 성능 저하를 최소화한다.&lt;/li>
+&lt;li>Lock을 획득하는 시간을 최소화하여 다른 스레드의 대기 시간을 줄인다.&lt;/li>
+&lt;li>데드락을 방지하기 위해 Lock 획득 순서를 일관되게 유지한다.&lt;/li>
+&lt;li>예외 상황에서도 Lock이 올바르게 해제되도록 보장한다.&lt;/li>
+&lt;/ol>
+&lt;h3>사용 예시&lt;span class="hx-absolute -hx-mt-20" id="사용-예시">&lt;/span>
+&lt;a href="#%ec%82%ac%ec%9a%a9-%ec%98%88%ec%8b%9c" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">threading&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">BankAccount&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">balance&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">1000&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">lock&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">Lock&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="c1"># Lock 객체 생성&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">withdraw&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">amount&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># Lock을 획득 시도. 이미 잠겨있다면 획득할 때까지 대기&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">lock&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">acquire&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">try&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">balance&lt;/span> &lt;span class="o">&amp;gt;=&lt;/span> &lt;span class="n">amount&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 잔액 확인과 차감이 하나의 원자적 작업으로 수행됨&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">current_balance&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">balance&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">current_balance&lt;/span> &lt;span class="o">-=&lt;/span> &lt;span class="n">amount&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">balance&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">current_balance&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sa">f&lt;/span>&lt;span class="s2">&amp;#34;출금 성공: &lt;/span>&lt;span class="si">{&lt;/span>&lt;span class="n">amount&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">, 잔액: &lt;/span>&lt;span class="si">{&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">balance&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">else&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;잔액 부족&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">finally&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 예외가 발생하더라도 반드시 Lock을 해제&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">lock&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">release&lt;/span>&lt;span class="p">()&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>Lock의 유형&lt;span class="hx-absolute -hx-mt-20" id="lock의-유형">&lt;/span>
+&lt;a href="#lock%ec%9d%98-%ec%9c%a0%ed%98%95" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;h4>공유 락(Shared Lock)과 배타 락(Exclusive Lock)&lt;span class="hx-absolute -hx-mt-20" id="공유-락shared-lock과-배타-락exclusive-lock">&lt;/span>
+&lt;a href="#%ea%b3%b5%ec%9c%a0-%eb%9d%bdshared-lock%ea%b3%bc-%eb%b0%b0%ed%83%80-%eb%9d%bdexclusive-lock" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>공유 락(Shared Lock):&lt;br>
+여러 스레드가 동시에 리소스를 읽을 수 있지만, 쓰기는 불가능한 락.
+&lt;ul>
+&lt;li>읽기 작업에 사용되는 락(Lock)&lt;/li>
+&lt;li>여러 스레드가 동시에 획득 가능&lt;/li>
+&lt;li>쓰기 작업을 차단함&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>배타 락(Exclusive Lock):&lt;br>
+한 번에 하나의 스레드만 리소스에 접근할 수 있는 락.
+&lt;ul>
+&lt;li>쓰기 작업에 사용되는 락(Lock).&lt;/li>
+&lt;li>다른 세션의 읽기와 쓰기를 모두 막는다.&lt;/li>
+&lt;li>데이터 일관성 보장에 유용.&lt;/li>
+&lt;li>동시성이 낮음.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">threading&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">from&lt;/span> &lt;span class="nn">typing&lt;/span> &lt;span class="kn">import&lt;/span> &lt;span class="n">Set&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">Optional&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">SharedExclusiveLock&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_lock&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">Lock&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_shared_holders&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="n">Set&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nb">int&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nb">set&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="c1"># 공유 락을 보유한 스레드들&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_exclusive_holder&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="n">Optional&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nb">int&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">None&lt;/span> &lt;span class="c1"># 배타 락을 보유한 스레드&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_shared_count&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_condition&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">Condition&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_lock&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">acquire_shared&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">-&amp;gt;&lt;/span> &lt;span class="nb">bool&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;&amp;#34;&amp;#34;공유 락 획득&amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">with&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_lock&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">while&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_exclusive_holder&lt;/span> &lt;span class="ow">is&lt;/span> &lt;span class="ow">not&lt;/span> &lt;span class="kc">None&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_condition&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">wait&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">thread_id&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">get_ident&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_shared_holders&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">add&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">thread_id&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_shared_count&lt;/span> &lt;span class="o">+=&lt;/span> &lt;span class="mi">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="kc">True&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">release_shared&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;&amp;#34;&amp;#34;공유 락 해제&amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">with&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_lock&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">thread_id&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">get_ident&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="n">thread_id&lt;/span> &lt;span class="ow">not&lt;/span> &lt;span class="ow">in&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_shared_holders&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">raise&lt;/span> &lt;span class="ne">RuntimeError&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;공유 락을 보유하고 있지 않습니다&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_shared_holders&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">remove&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">thread_id&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_shared_count&lt;/span> &lt;span class="o">-=&lt;/span> &lt;span class="mi">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_shared_count&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_condition&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">notify_all&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">acquire_exclusive&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">-&amp;gt;&lt;/span> &lt;span class="nb">bool&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;&amp;#34;&amp;#34;배타 락 획득&amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">with&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_lock&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">while&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_exclusive_holder&lt;/span> &lt;span class="ow">is&lt;/span> &lt;span class="ow">not&lt;/span> &lt;span class="kc">None&lt;/span> &lt;span class="ow">or&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_shared_count&lt;/span> &lt;span class="o">&amp;gt;&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_condition&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">wait&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_exclusive_holder&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">get_ident&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="kc">True&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">release_exclusive&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;&amp;#34;&amp;#34;배타 락 해제&amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">with&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_lock&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_exclusive_holder&lt;/span> &lt;span class="o">!=&lt;/span> &lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">get_ident&lt;/span>&lt;span class="p">():&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">raise&lt;/span> &lt;span class="ne">RuntimeError&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;배타 락을 보유하고 있지 않습니다&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_exclusive_holder&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">None&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_condition&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">notify_all&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 사용 예시&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">def&lt;/span> &lt;span class="nf">reader&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">lock&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="n">SharedExclusiveLock&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">reader_id&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="nb">int&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;&amp;#34;&amp;#34;읽기 작업을 수행하는 스레드&amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sa">f&lt;/span>&lt;span class="s2">&amp;#34;Reader &lt;/span>&lt;span class="si">{&lt;/span>&lt;span class="n">reader_id&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2"> 시작&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">lock&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">acquire_shared&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">try&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sa">f&lt;/span>&lt;span class="s2">&amp;#34;Reader &lt;/span>&lt;span class="si">{&lt;/span>&lt;span class="n">reader_id&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2"> 읽기 작업 수행 중…&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">time&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">sleep&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">finally&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">lock&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">release_shared&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sa">f&lt;/span>&lt;span class="s2">&amp;#34;Reader &lt;/span>&lt;span class="si">{&lt;/span>&lt;span class="n">reader_id&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2"> 종료&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">def&lt;/span> &lt;span class="nf">writer&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">lock&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="n">SharedExclusiveLock&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">writer_id&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="nb">int&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;&amp;#34;&amp;#34;쓰기 작업을 수행하는 스레드&amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sa">f&lt;/span>&lt;span class="s2">&amp;#34;Writer &lt;/span>&lt;span class="si">{&lt;/span>&lt;span class="n">writer_id&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2"> 시작&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">lock&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">acquire_exclusive&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">try&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sa">f&lt;/span>&lt;span class="s2">&amp;#34;Writer &lt;/span>&lt;span class="si">{&lt;/span>&lt;span class="n">writer_id&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2"> 쓰기 작업 수행 중…&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">time&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">sleep&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">2&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">finally&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">lock&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">release_exclusive&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sa">f&lt;/span>&lt;span class="s2">&amp;#34;Writer &lt;/span>&lt;span class="si">{&lt;/span>&lt;span class="n">writer_id&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2"> 종료&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h4>업데이트 락(Update Lock)과 의도 락(Intent Lock)&lt;span class="hx-absolute -hx-mt-20" id="업데이트-락update-lock과-의도-락intent-lock">&lt;/span>
+&lt;a href="#%ec%97%85%eb%8d%b0%ec%9d%b4%ed%8a%b8-%eb%9d%bdupdate-lock%ea%b3%bc-%ec%9d%98%eb%8f%84-%eb%9d%bdintent-lock" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>업데이트 락(Update Lock):&lt;br>
+읽기는 허용하지만, 다른 업데이트 락이나 배타 락의 획득을 방지하는 락(Lock).
+&lt;ul>
+&lt;li>읽기 작업은 허용하지만 다른 업데이트나 쓰기 작업은 차단.&lt;/li>
+&lt;li>읽기-쓰기 전환 시 데드락 방지에 유용하다.&lt;/li>
+&lt;li>Conversion Deadlock을 방지하기 위해 사용된다.&lt;/li>
+&lt;li>수정을 위해 베타 락(Exclusive Lock)을 걸기 전에 사용하는 락(Lock).&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>의도 락(Intent Lock):&lt;br>
+상위 레벨 리소스에 대한 락을 설정하기 전에 사용되는 락.
+&lt;ul>
+&lt;li>계층적 락킹 구조에서 사용.&lt;/li>
+&lt;li>다른 트랜잭션에게 락 의도를 알림.&lt;/li>
+&lt;li>데이터베이스 시스템에서 주로 사용됨.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">threading&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">from&lt;/span> &lt;span class="nn">enum&lt;/span> &lt;span class="kn">import&lt;/span> &lt;span class="n">Enum&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">auto&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">from&lt;/span> &lt;span class="nn">typing&lt;/span> &lt;span class="kn">import&lt;/span> &lt;span class="n">Dict&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">Set&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">LockType&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Enum&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">INTENT_SHARED&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">auto&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">INTENT_EXCLUSIVE&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">auto&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">UPDATE&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">auto&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">SHARED&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">auto&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">EXCLUSIVE&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">auto&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">HierarchicalLock&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_lock&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">Lock&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_holders&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="n">Dict&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">LockType&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">Set&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nb">int&lt;/span>&lt;span class="p">]]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">lock_type&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="nb">set&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="k">for&lt;/span> &lt;span class="n">lock_type&lt;/span> &lt;span class="ow">in&lt;/span> &lt;span class="n">LockType&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_condition&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">Condition&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_lock&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">_can_acquire&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">lock_type&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="n">LockType&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">thread_id&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="nb">int&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">-&amp;gt;&lt;/span> &lt;span class="nb">bool&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;&amp;#34;&amp;#34;주어진 락 타입을 획득할 수 있는지 확인&amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="n">lock_type&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="n">LockType&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">UPDATE&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 업데이트 락은 공유 락과 호환되지만 다른 업데이트 락과는 호환되지 않음&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="ow">not&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_holders&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">LockType&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">EXCLUSIVE&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="ow">or&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_holders&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">LockType&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">UPDATE&lt;/span>&lt;span class="p">])&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">elif&lt;/span> &lt;span class="n">lock_type&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="n">LockType&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">INTENT_SHARED&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 의도 공유 락은 배타 락과만 충돌&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="ow">not&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_holders&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">LockType&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">EXCLUSIVE&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># … 다른 락 타입에 대한 호환성 검사 로직 추가&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">acquire&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">lock_type&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="n">LockType&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">-&amp;gt;&lt;/span> &lt;span class="nb">bool&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;&amp;#34;&amp;#34;락 획득&amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">with&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_lock&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">thread_id&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">get_ident&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">while&lt;/span> &lt;span class="ow">not&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_can_acquire&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">lock_type&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">thread_id&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_condition&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">wait&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_holders&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">lock_type&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">add&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">thread_id&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="kc">True&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">release&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">lock_type&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="n">LockType&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;&amp;#34;&amp;#34;락 해제&amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">with&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_lock&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">thread_id&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">get_ident&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="n">thread_id&lt;/span> &lt;span class="ow">not&lt;/span> &lt;span class="ow">in&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_holders&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">lock_type&lt;/span>&lt;span class="p">]:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">raise&lt;/span> &lt;span class="ne">RuntimeError&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sa">f&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="si">{&lt;/span>&lt;span class="n">lock_type&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2"> 락을 보유하고 있지 않습니다&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_holders&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">lock_type&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">remove&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">thread_id&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_condition&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">notify_all&lt;/span>&lt;span class="p">()&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h4>스핀 락 (Spin Lock)&lt;span class="hx-absolute -hx-mt-20" id="스핀-락-spin-lock">&lt;/span>
+&lt;a href="#%ec%8a%a4%ed%95%80-%eb%9d%bd-spin-lock" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>락을 획득할 때까지 계속해서 확인하는 바쁜 대기(busy-waiting) 방식의 락.&lt;/p>
+&lt;ul>
+&lt;li>CPU 사용량이 높지만 컨텍스트 스위칭 비용이 없음&lt;/li>
+&lt;li>짧은 대기 시간에 효율적&lt;/li>
+&lt;li>멀티코어 시스템에서 유용&lt;/li>
+&lt;/ul>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">threading&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">time&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">SpinLock&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_locked&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">False&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_owner&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">None&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">acquire&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">max_attempts&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="nb">int&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">1000&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;&amp;#34;&amp;#34;스핀락 획득 시도&amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">attempts&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">thread_id&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">get_ident&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">while&lt;/span> &lt;span class="n">attempts&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="n">max_attempts&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="ow">not&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_locked&lt;/span> &lt;span class="ow">and&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_owner&lt;/span> &lt;span class="ow">is&lt;/span> &lt;span class="kc">None&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_locked&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">True&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_owner&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">thread_id&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="kc">True&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">attempts&lt;/span> &lt;span class="o">+=&lt;/span> &lt;span class="mi">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># CPU를 과도하게 사용하지 않도록 짧은 대기 추가&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">time&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">sleep&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mf">0.000001&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="kc">False&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">release&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;&amp;#34;&amp;#34;스핀락 해제&amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">get_ident&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">!=&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_owner&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">raise&lt;/span> &lt;span class="ne">RuntimeError&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;잘못된 스레드가 해제를 시도했습니다&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_locked&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">False&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_owner&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">None&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h4>리더-라이터 락(Reader-Writer Lock)&lt;span class="hx-absolute -hx-mt-20" id="리더-라이터-락reader-writer-lock">&lt;/span>
+&lt;a href="#%eb%a6%ac%eb%8d%94-%eb%9d%bc%ec%9d%b4%ed%84%b0-%eb%9d%bdreader-writer-lock" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>읽기 작업과 쓰기 작업을 구분하여 관리하는 락.&lt;/p>
+&lt;ul>
+&lt;li>다수의 읽기 작업 동시 허용&lt;/li>
+&lt;li>쓰기 작업은 배타적으로 수행&lt;/li>
+&lt;li>읽기 작업이 많은 경우 성능 향상&lt;/li>
+&lt;/ul>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">threading&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">from&lt;/span> &lt;span class="nn">typing&lt;/span> &lt;span class="kn">import&lt;/span> &lt;span class="n">Set&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">Optional&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">ReaderWriterLock&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">prefer_writer&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="nb">bool&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">True&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_lock&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">Lock&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_readers&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="n">Set&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nb">int&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nb">set&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_writer&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="n">Optional&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nb">int&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">None&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_waiting_writers&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_prefer_writer&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">prefer_writer&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_condition&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">Condition&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_lock&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">acquire_read&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;&amp;#34;&amp;#34;읽기 락 획득&amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">with&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_lock&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">while&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_writer&lt;/span> &lt;span class="ow">is&lt;/span> &lt;span class="ow">not&lt;/span> &lt;span class="kc">None&lt;/span> &lt;span class="ow">or&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_prefer_writer&lt;/span> &lt;span class="ow">and&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_waiting_writers&lt;/span> &lt;span class="o">&amp;gt;&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">)):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_condition&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">wait&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_readers&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">add&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">get_ident&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">release_read&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;&amp;#34;&amp;#34;읽기 락 해제&amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">with&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_lock&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_readers&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">remove&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">get_ident&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="ow">not&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_readers&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_condition&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">notify_all&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">acquire_write&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;&amp;#34;&amp;#34;쓰기 락 획득&amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">with&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_lock&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_waiting_writers&lt;/span> &lt;span class="o">+=&lt;/span> &lt;span class="mi">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">while&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_writer&lt;/span> &lt;span class="ow">is&lt;/span> &lt;span class="ow">not&lt;/span> &lt;span class="kc">None&lt;/span> &lt;span class="ow">or&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_readers&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_condition&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">wait&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_waiting_writers&lt;/span> &lt;span class="o">-=&lt;/span> &lt;span class="mi">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_writer&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">get_ident&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">release_write&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;&amp;#34;&amp;#34;쓰기 락 해제&amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">with&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_lock&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_writer&lt;/span> &lt;span class="o">!=&lt;/span> &lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">get_ident&lt;/span>&lt;span class="p">():&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">raise&lt;/span> &lt;span class="ne">RuntimeError&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;쓰기 락을 보유하고 있지 않습니다&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_writer&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">None&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_condition&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">notify_all&lt;/span>&lt;span class="p">()&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h4>RCU 락 (Read-Copy-Update Lock)&lt;span class="hx-absolute -hx-mt-20" id="rcu-락-read-copy-update-lock">&lt;/span>
+&lt;a href="#rcu-%eb%9d%bd-read-copy-update-lock" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>읽기 작업에 대해 락을 사용하지 않고, 쓰기 작업 시 복사본을 만들어 업데이트하는 동기화 메커니즘.&lt;/p>
+&lt;ul>
+&lt;li>읽기 작업의 성능이 매우 높음&lt;/li>
+&lt;li>쓰기 작업의 오버헤드가 있음&lt;/li>
+&lt;li>읽기가 많고 쓰기가 적은 시나리오에 적합&lt;/li>
+&lt;/ul>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">threading&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">time&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">from&lt;/span> &lt;span class="nn">typing&lt;/span> &lt;span class="kn">import&lt;/span> &lt;span class="n">Optional&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">Any&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">Dict&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">RCULock&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_lock&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">Lock&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_current_version&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_data&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="n">Dict&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nb">int&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">Any&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="kc">None&lt;/span>&lt;span class="p">}&lt;/span> &lt;span class="c1"># 버전별 데이터 저장&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_active_readers&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="n">Dict&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nb">int&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nb">set&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{}&lt;/span> &lt;span class="c1"># 버전별 활성 읽기 작업&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">read_lock&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">-&amp;gt;&lt;/span> &lt;span class="nb">int&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;&amp;#34;&amp;#34;읽기 작업 시작&amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">with&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_lock&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">version&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_current_version&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="n">version&lt;/span> &lt;span class="ow">not&lt;/span> &lt;span class="ow">in&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_active_readers&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_active_readers&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">version&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nb">set&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_active_readers&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">version&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">add&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">get_ident&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">version&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">read_unlock&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">version&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="nb">int&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;&amp;#34;&amp;#34;읽기 작업 종료&amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">with&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_lock&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_active_readers&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">version&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">remove&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">get_ident&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="ow">not&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_active_readers&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">version&lt;/span>&lt;span class="p">]:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">del&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_active_readers&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">version&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 오래된 버전 정리&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">for&lt;/span> &lt;span class="n">old_version&lt;/span> &lt;span class="ow">in&lt;/span> &lt;span class="nb">list&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_data&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">keys&lt;/span>&lt;span class="p">()):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="n">old_version&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="n">version&lt;/span> &lt;span class="ow">and&lt;/span> &lt;span class="n">old_version&lt;/span> &lt;span class="ow">not&lt;/span> &lt;span class="ow">in&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_active_readers&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">del&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_data&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">old_version&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">update&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">new_data&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="n">Any&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;&amp;#34;&amp;#34;데이터 업데이트&amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">with&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_lock&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">new_version&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_current_version&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_data&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">new_version&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">new_data&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_current_version&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">new_version&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 더 이상 사용되지 않는 버전 정리&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">for&lt;/span> &lt;span class="n">version&lt;/span> &lt;span class="ow">in&lt;/span> &lt;span class="nb">list&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_data&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">keys&lt;/span>&lt;span class="p">()):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="n">version&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="n">new_version&lt;/span> &lt;span class="o">-&lt;/span> &lt;span class="mi">1&lt;/span> &lt;span class="ow">and&lt;/span> &lt;span class="n">version&lt;/span> &lt;span class="ow">not&lt;/span> &lt;span class="ow">in&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_active_readers&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">del&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_data&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">version&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">get_data&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">version&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="nb">int&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">-&amp;gt;&lt;/span> &lt;span class="n">Any&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;&amp;#34;&amp;#34;특정 버전의 데이터 조회&amp;#34;&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_data&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">version&lt;/span>&lt;span class="p">]&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;hr>
+&lt;h3>참고 및 출처&lt;span class="hx-absolute -hx-mt-20" id="참고-및-출처">&lt;/span>
+&lt;a href="#%ec%b0%b8%ea%b3%a0-%eb%b0%8f-%ec%b6%9c%ec%b2%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3></description></item><item><title>상호 배제 (Mutual Exclusion)</title><link>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/mutual-exclusion/</link><pubDate>Sun, 17 Nov 2024 07:50:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/mutual-exclusion/</guid><description>
+&lt;h2>상호 배제 (Mutual Exclusion)&lt;span class="hx-absolute -hx-mt-20" id="상호-배제-mutual-exclusion">&lt;/span>
+&lt;a href="#%ec%83%81%ed%98%b8-%eb%b0%b0%ec%a0%9c-mutual-exclusion" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>여러 프로세스나 스레드가 공유 자원에 동시에 접근하는 것을 방지하는 동기화 메커니즘.&lt;br>
+한 번에 하나의 프로세스나 스레드만 임계 영역(critical section)에 진입할 수 있도록 보장하는 기법이다.&lt;/p>
+&lt;p>필요한 이유:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 상호 배제가 없는 경우의 문제점&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">BankAccount&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">balance&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">1000&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">withdraw&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">amount&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 다음 세 줄의 작업이 원자적이지 않음&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">current_balance&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">balance&lt;/span> &lt;span class="c1"># 잔액 읽기&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">current_balance&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">current_balance&lt;/span> &lt;span class="o">-&lt;/span> &lt;span class="n">amount&lt;/span> &lt;span class="c1"># 계산&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">balance&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">current_balance&lt;/span> &lt;span class="c1"># 결과 저장&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 두 스레드가 동시에 실행되면 문제가 발생할 수 있음&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">account&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">BankAccount&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 스레드 1: withdraw(500)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 스레드 2: withdraw(500)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 예상 잔액: 0, 실제 잔액: 500 (잘못된 결과)&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>목적&lt;span class="hx-absolute -hx-mt-20" id="목적">&lt;/span>
+&lt;a href="#%eb%aa%a9%ec%a0%81" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>데이터 무결성 유지: 여러 프로세스가 동시에 공유 데이터를 수정하는 것을 방지한다.&lt;/li>
+&lt;li>경쟁 조건(Race Condition) 예방: 프로세스 실행 순서에 따른 결과 불일치를 막는다.&lt;/li>
+&lt;li>교착 상태(Deadlock)와 기아 상태(Starvation) 방지: 자원 할당의 효율성을 높인다.&lt;/li>
+&lt;/ul>
+&lt;h3>구현 방법&lt;span class="hx-absolute -hx-mt-20" id="구현-방법">&lt;/span>
+&lt;a href="#%ea%b5%ac%ed%98%84-%eb%b0%a9%eb%b2%95" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>잠금(Lock)&lt;br>
+가장 기본적인 동기화 메커니즘으로, 한 번에 하나의 스레드만 임계 영역에 접근할 수 있게 한다.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>세마포어(Semaphores)&lt;br>
+여러 스레드가 동시에 접근할 수 있는 자원의 수를 제한한다.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>모니터(Monitor)&lt;br>
+모니터는 객체 지향적인 동기화 메커니즘으로, 데이터와 해당 데이터에 접근하는 메서드들을 하나의 단위로 캡슐화한다.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>조건 변수(Condition Variable)&lt;br>
+스레드가 특정 조건이 만족될 때까지 대기하게 해주는 동기화 메커니즘.&lt;br>
+생산자-소비자 패턴에서 자주 사용된다.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>원자적 연산 (Atomic Operations)&lt;br>
+하드웨어 수준에서 지원하는 원자적 연산을 사용하여 상호 배제를 구현할 수 있다.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>메시지 패싱 (Message Passing)&lt;br>
+프로세스나 스레드 간에 메시지를 주고받아 상호 배제를 구현할 수 있다.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>비동기 프로그래밍 (Asynchronous Programming)&lt;br>
+비동기 프로그래밍을 통해 상호 배제를 구현할 수 있다.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>피터슨 알고리즘 (Peterson&amp;rsquo;s Algorithm)&lt;br>
+두 프로세스 간의 상호 배제를 소프트웨어적으로 구현하는 방법.&lt;br>
+플래그와 턴 변수를 사용하여 임계 영역 진입을 제어한다.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>데커 알고리즘 (Dekker&amp;rsquo;s Algorithm)&lt;br>
+피터슨 알고리즘과 비슷하지만 더 복잡한 구조를 가진 상호 배제 알고리즘.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>램포트의 빵집 알고리즘 (Lamport&amp;rsquo;s Bakery Algorithm)&lt;br>
+여러 프로세스 간의 상호 배제를 구현할 수 있는 알고리즘.&lt;br>
+빵집에서 번호표를 뽑는 것과 같은 방식으로 작동한다.&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;p>동기화 메커니즘은 서로 다른 상황에서 유용하다:&lt;/p>
+&lt;ul>
+&lt;li>Lock은 간단한 상호 배제가 필요할 때 사용&lt;/li>
+&lt;li>Semaphore는 리소스 풀 관리에 적합&lt;/li>
+&lt;li>Monitor는 데이터와 연산을 함께 캡슐화할 때 유용&lt;/li>
+&lt;li>Condition Variables는 스레드 간 시그널링이 필요할 때 사용&lt;/li>
+&lt;/ul>
+&lt;h3>조건&lt;span class="hx-absolute -hx-mt-20" id="조건">&lt;/span>
+&lt;a href="#%ec%a1%b0%ea%b1%b4" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>상호 배제: 한 번에 하나의 프로세스만 임계 영역에 진입할 수 있어야 한다.&lt;/li>
+&lt;li>진행: 임계 영역 외부의 프로세스가 다른 프로세스의 진입을 방해해서는 안 된다.&lt;/li>
+&lt;li>유한 대기: 프로세스는 임계 영역 진입을 무한정 기다리지 않아야 한다.&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;h2>참고 및 출처&lt;span class="hx-absolute -hx-mt-20" id="참고-및-출처">&lt;/span>
+&lt;a href="#%ec%b0%b8%ea%b3%a0-%eb%b0%8f-%ec%b6%9c%ec%b2%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item><item><title>임계 영역 (Critical Section)</title><link>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/critical-section/</link><pubDate>Sun, 17 Nov 2024 07:49:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/critical-section/</guid><description>
+&lt;h2>임계 영역 (Critical Section)&lt;span class="hx-absolute -hx-mt-20" id="임계-영역-critical-section">&lt;/span>
+&lt;a href="#%ec%9e%84%ea%b3%84-%ec%98%81%ec%97%ad-critical-section" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>운영체제에서 임계 영역(Critical Section)은 여러 프로세스 또는 스레드가 공유하는 자원에 접근하는 코드 영역을 말한다.&lt;br>
+이는 병렬 컴퓨팅 환경에서 중요한 개념으로, 데이터의 일관성과 무결성을 보장하기 위해 사용된다.&lt;/p>
+&lt;p>여러 프로세스가 동시에 임계 영역에 진입하면 데이터의 일관성이 깨질 수 있다.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 임계 영역 예시&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">balance&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">1000&lt;/span> &lt;span class="c1"># 공유 자원&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">def&lt;/span> &lt;span class="nf">withdraw&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">amount&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">global&lt;/span> &lt;span class="n">balance&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 임계 영역 시작&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">temp&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">balance&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">temp&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">temp&lt;/span> &lt;span class="o">-&lt;/span> &lt;span class="n">amount&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">balance&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">temp&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 임계 영역 종료&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>임계 영역 문제의 해결 조건&lt;span class="hx-absolute -hx-mt-20" id="임계-영역-문제의-해결-조건">&lt;/span>
+&lt;a href="#%ec%9e%84%ea%b3%84-%ec%98%81%ec%97%ad-%eb%ac%b8%ec%a0%9c%ec%9d%98-%ed%95%b4%ea%b2%b0-%ec%a1%b0%ea%b1%b4" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>상호 배제(Mutual Exclusion): 한 프로세스가 임계 영역에 있을 때 다른 프로세스는 진입할 수 없다.&lt;/li>
+&lt;li>진행(Progress): 임계 영역에 있는 프로세스가 없다면, 진입하려는 프로세스가 들어갈 수 있어야 한다.&lt;/li>
+&lt;li>한정된 대기(Bounded Waiting): 프로세스의 임계 영역 진입은 무한정 연기되어서는 안 된다.&lt;/li>
+&lt;/ol>
+&lt;h3>임계 영역 관련 문제와 해결 방법&lt;span class="hx-absolute -hx-mt-20" id="임계-영역-관련-문제와-해결-방법">&lt;/span>
+&lt;a href="#%ec%9e%84%ea%b3%84-%ec%98%81%ec%97%ad-%ea%b4%80%eb%a0%a8-%eb%ac%b8%ec%a0%9c%ec%99%80-%ed%95%b4%ea%b2%b0-%eb%b0%a9%eb%b2%95" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>구분&lt;/th>
+&lt;th>데드락(Deadlock)&lt;/th>
+&lt;th>경쟁 상태(Race Condition)&lt;/th>
+&lt;th>기아 상태(Starvation)&lt;/th>
+&lt;th>라이브락(Livelock)&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>정의&lt;/td>
+&lt;td>두 개 이상의 프로세스가 서로의 자원을 기다리며 영구적으로 블록된 상태&lt;/td>
+&lt;td>여러 프로세스가 공유 자원에 동시 접근할 때 실행 순서에 따라 결과가 달라지는 상태&lt;/td>
+&lt;td>특정 프로세스가 필요한 자원을 계속 할당받지 못하는 상태&lt;/td>
+&lt;td>프로세스들이 서로에게 응답하며 상태는 변하지만 실제 진행은 없는 상태&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>발생 원인&lt;/td>
+&lt;td>상호 배제, 점유와 대기, 비선점, 순환 대기 조건이 동시 충족&lt;/td>
+&lt;td>공유 자원에 대한 동시 접근, 원자성 결여&lt;/td>
+&lt;td>부적절한 자원 할당 정책, 우선순위 역전 현상&lt;/td>
+&lt;td>프로세스들의 과도한 양보, 재귀적 회피 동작&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>결과&lt;/td>
+&lt;td>시스템 전체 또는 일부 프로세스의 완전한 정지&lt;/td>
+&lt;td>데이터 불일치, 예측 불가능한 결과&lt;/td>
+&lt;td>특정 프로세스의 실행 지연 또는 무한 대기&lt;/td>
+&lt;td>CPU 자원 소비, 실제 작업 진행 없음&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>특징&lt;/td>
+&lt;td>프로세스들이 움직이지 않고 완전히 멈춤&lt;/td>
+&lt;td>타이밍에 따라 결과가 비결정적&lt;/td>
+&lt;td>자원 할당의 불공정성&lt;/td>
+&lt;td>프로세스들이 활발히 상태 변경&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>해결 방법&lt;/td>
+&lt;td>프로세스 강제 종료, 자원 선점, 데드락 발생 조건 제거&lt;/td>
+&lt;td>동기화 메커니즘 사용(뮤텍스, 세마포어 등)&lt;/td>
+&lt;td>에이징(Aging) 기법 도입, 공정한 스케줄링&lt;/td>
+&lt;td>무작위 대기 시간 도입, 우선순위 조정&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>예방 기법&lt;/td>
+&lt;td>자원 할당 그래프 사용, 자원 순서화, 타임아웃 설정&lt;/td>
+&lt;td>임계 영역 설정, 원자적 연산 사용&lt;/td>
+&lt;td>자원 예약 시스템, 우선순위 조정 메커니즘&lt;/td>
+&lt;td>타임아웃 설정, 재시도 횟수 제한&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>탐지 방법&lt;/td>
+&lt;td>자원 할당 그래프 분석, 대기 사이클 검출&lt;/td>
+&lt;td>데이터 일관성 검사, 로그 분석&lt;/td>
+&lt;td>자원 할당 통계 모니터링&lt;/td>
+&lt;td>CPU 사용률 분석, 진행률 모니터링&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>영향 범위&lt;/td>
+&lt;td>전체 시스템 또는 관련 프로세스 그룹&lt;/td>
+&lt;td>공유 자원을 사용하는 프로세스들&lt;/td>
+&lt;td>특정 프로세스 또는 프로세스 그룹&lt;/td>
+&lt;td>상호 작용하는 프로세스 그룹&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>복구 방법&lt;/td>
+&lt;td>프로세스 재시작, 시스템 재부팅&lt;/td>
+&lt;td>트랜잭션 롤백, 상태 복원&lt;/td>
+&lt;td>우선순위 재조정, 자원 재할당&lt;/td>
+&lt;td>프로세스 재시작 또는 동작 패턴 변경&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>모니터링 방법&lt;/td>
+&lt;td>시스템 자원 모니터링, 프로세스 상태 감시&lt;/td>
+&lt;td>로그 분석, 데이터 정합성 검사&lt;/td>
+&lt;td>자원 할당 히스토리 분석&lt;/td>
+&lt;td>CPU 사용률 추적, 진행 상태 모니터링&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h4>해결 방법&lt;span class="hx-absolute -hx-mt-20" id="해결-방법">&lt;/span>
+&lt;a href="#%ed%95%b4%ea%b2%b0-%eb%b0%a9%eb%b2%95" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ol>
+&lt;li>
+&lt;p>상호 배제(Mutual Exclusion) 구현:&lt;/p>
+&lt;ul>
+&lt;li>뮤텍스(Mutex): 하나의 공유 자원에 대한 접근을 제어한다.&lt;/li>
+&lt;li>세마포어(Semaphore): 여러 개의 공유 자원에 대한 접근을 제어한다.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>동기화 기법:&lt;/p>
+&lt;ul>
+&lt;li>피터슨 알고리즘(Peterson&amp;rsquo;s Algorithm): 두 프로세스 간의 상호 배제를 소프트웨어적으로 구현한다.&lt;/li>
+&lt;li>베이커리 알고리즘(Bakery Algorithm): 여러 프로세스 간의 상호 배제를 구현한다.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>하드웨어 지원:&lt;/p>
+&lt;ul>
+&lt;li>테스트와 설정(Test-and-Set) 명령어: 원자적 연산을 통해 상호 배제를 구현한다.&lt;/li>
+&lt;li>비교와 교환(Compare-and-Swap) 명령어: 더 정교한 동기화 제어를 가능하게 한다.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>운영체제 수준의 지원:&lt;/p>
+&lt;ul>
+&lt;li>모니터(Monitor): 고수준의 동기화 메커니즘으로, 상호 배제를 자동으로 보장한다.&lt;/li>
+&lt;li>조건 변수(Condition Variables): 프로세스 간 통신과 동기화를 위해 사용된다.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>프로그래밍 언어 수준의 지원:&lt;/p>
+&lt;ul>
+&lt;li>동기화 키워드(예: Java의 synchronized): 임계 영역에 대한 접근을 언어 차원에서 제어한다.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>락-프리(Lock-Free) 및 대기-프리(Wait-Free) 알고리즘:&lt;/p>
+&lt;ul>
+&lt;li>락을 사용하지 않고도 동시성을 관리하는 고급 기법.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h5>해결 방법들을 적용할 때 고려해야 할 중요한 원칙&lt;span class="hx-absolute -hx-mt-20" id="해결-방법들을-적용할-때-고려해야-할-중요한-원칙">&lt;/span>
+&lt;a href="#%ed%95%b4%ea%b2%b0-%eb%b0%a9%eb%b2%95%eb%93%a4%ec%9d%84-%ec%a0%81%ec%9a%a9%ed%95%a0-%eb%95%8c-%ea%b3%a0%eb%a0%a4%ed%95%b4%ec%95%bc-%ed%95%a0-%ec%a4%91%ec%9a%94%ed%95%9c-%ec%9b%90%ec%b9%99" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h5>&lt;ul>
+&lt;li>상호 배제(Mutual Exclusion)
+&lt;ul>
+&lt;li>한 번에 하나의 프로세스만 임계 영역에 진입할 수 있도록 보장&lt;/li>
+&lt;li>적절한 동기화 메커니즘 사용&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>진행(Progress)
+&lt;ul>
+&lt;li>임계 영역에 있는 프로세스가 없다면 진입을 원하는 프로세스가 진입할 수 있어야 함&lt;/li>
+&lt;li>기아 상태 방지&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>한정 대기(Bounded Waiting)
+&lt;ul>
+&lt;li>프로세스의 임계 영역 진입 요청 후 무한정 대기하지 않도록 보장&lt;/li>
+&lt;li>공정성 확보&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>원자성(Atomicity)
+&lt;ul>
+&lt;li>임계 영역의 연산은 중단되지 않고 완전히 수행되어야 함&lt;/li>
+&lt;li>트랜잭션 관리&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3>임계 영역 최적화 기법&lt;span class="hx-absolute -hx-mt-20" id="임계-영역-최적화-기법">&lt;/span>
+&lt;a href="#%ec%9e%84%ea%b3%84-%ec%98%81%ec%97%ad-%ec%b5%9c%ec%a0%81%ed%99%94-%ea%b8%b0%eb%b2%95" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;h4>임계 영역 최소화&lt;span class="hx-absolute -hx-mt-20" id="임계-영역-최소화">&lt;/span>
+&lt;a href="#%ec%9e%84%ea%b3%84-%ec%98%81%ec%97%ad-%ec%b5%9c%ec%86%8c%ed%99%94" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>임계 영역을 가능한 한 작게 유지하는 것이 중요하다.&lt;br>
+이를 통해 동기화로 인한 오버헤드를 줄이고 병렬 처리 효율을 높일 수 있다.&lt;/p>
+&lt;ul>
+&lt;li>공유 데이터 접근 코드만 임계 영역으로 설정&lt;/li>
+&lt;li>계산 로직은 임계 영역 밖으로 이동&lt;/li>
+&lt;/ul>
+&lt;h4>세밀한 잠금 (Fine-grained Locking)&lt;span class="hx-absolute -hx-mt-20" id="세밀한-잠금-fine-grained-locking">&lt;/span>
+&lt;a href="#%ec%84%b8%eb%b0%80%ed%95%9c-%ec%9e%a0%ea%b8%88-fine-grained-locking" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>큰 임계 영역을 여러 개의 작은 임계 영역으로 나누는 기법.&lt;/p>
+&lt;ul>
+&lt;li>데이터 구조의 일부분만 잠그도록 설계&lt;/li>
+&lt;li>동시성을 높이고 대기 시간을 줄임&lt;/li>
+&lt;/ul>
+&lt;h4>락-프리 알고리즘 (Lock-free Algorithms)&lt;span class="hx-absolute -hx-mt-20" id="락-프리-알고리즘-lock-free-algorithms">&lt;/span>
+&lt;a href="#%eb%9d%bd-%ed%94%84%eb%a6%ac-%ec%95%8c%ea%b3%a0%eb%a6%ac%ec%a6%98-lock-free-algorithms" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>락을 사용하지 않고 원자적 연산을 활용하여 동기화를 구현한다.&lt;/p>
+&lt;ul>
+&lt;li>Compare-and-Swap (CAS) 등의 원자적 연산 사용&lt;/li>
+&lt;li>데드락 위험 제거 및 성능 향상&lt;/li>
+&lt;/ul>
+&lt;h4>읽기-쓰기 락 (Read-Write Locks)&lt;span class="hx-absolute -hx-mt-20" id="읽기-쓰기-락-read-write-locks">&lt;/span>
+&lt;a href="#%ec%9d%bd%ea%b8%b0-%ec%93%b0%ea%b8%b0-%eb%9d%bd-read-write-locks" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>읽기 작업과 쓰기 작업에 대해 서로 다른 락을 사용한다.&lt;/p>
+&lt;ul>
+&lt;li>다수의 읽기 작업 동시 허용&lt;/li>
+&lt;li>쓰기 작업 시에만 배타적 접근&lt;/li>
+&lt;/ul>
+&lt;h4>비동기 프로그래밍 (Asynchronous Programming)&lt;span class="hx-absolute -hx-mt-20" id="비동기-프로그래밍-asynchronous-programming">&lt;/span>
+&lt;a href="#%eb%b9%84%eb%8f%99%ea%b8%b0-%ed%94%84%eb%a1%9c%ea%b7%b8%eb%9e%98%eb%b0%8d-asynchronous-programming" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>비동기 프로그래밍 모델을 사용하여 임계 영역 접근을 최소화한다.&lt;/p>
+&lt;ul>
+&lt;li>이벤트 기반 프로그래밍&lt;/li>
+&lt;li>콜백 또는 Promise 패턴 활용&lt;/li>
+&lt;/ul>
+&lt;h4>락 결합 (Lock Coalescing)&lt;span class="hx-absolute -hx-mt-20" id="락-결합-lock-coalescing">&lt;/span>
+&lt;a href="#%eb%9d%bd-%ea%b2%b0%ed%95%a9-lock-coalescing" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>여러 개의 연속된 락 획득과 해제를 하나로 합치는 기법.&lt;/p>
+&lt;ul>
+&lt;li>락 획득/해제 횟수 감소&lt;/li>
+&lt;li>오버헤드 감소 및 성능 향상&lt;/li>
+&lt;/ul>
+&lt;h4>락 계층화 (Lock Hierarchies)&lt;span class="hx-absolute -hx-mt-20" id="락-계층화-lock-hierarchies">&lt;/span>
+&lt;a href="#%eb%9d%bd-%ea%b3%84%ec%b8%b5%ed%99%94-lock-hierarchies" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>락을 계층적으로 구성하여 데드락을 방지하고 성능을 개선한다.&lt;/p>
+&lt;ul>
+&lt;li>락 획득 순서 강제&lt;/li>
+&lt;li>복잡한 동기화 시나리오에서 유용&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;h2>참고 및 출처&lt;span class="hx-absolute -hx-mt-20" id="참고-및-출처">&lt;/span>
+&lt;a href="#%ec%b0%b8%ea%b3%a0-%eb%b0%8f-%ec%b6%9c%ec%b2%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item><item><title>동기화 (Synchronization)</title><link>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/synchronization/</link><pubDate>Thu, 07 Nov 2024 07:48:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/synchronization/</guid><description>
+&lt;h2>동기화 (Synchronization)&lt;span class="hx-absolute -hx-mt-20" id="동기화-synchronization">&lt;/span>
+&lt;a href="#%eb%8f%99%ea%b8%b0%ed%99%94-synchronization" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>여러 프로세스나 스레드가 공유 자원에 접근할 때 데이터의 일관성과 무결성을 보장하기 위한 메커니즘.&lt;br>
+동기화란 프로세스 또는 스레드들이 수행되는 시점을 조절하여 서로가 알고 있는 정보가 일치하도록 하는 것을 의미한다. 이는 여러 작업 간의 실행 순서와 타이밍을 제어하여 데이터의 일관성을 유지하고 경쟁 상태(Race Condition)를 방지하는 것을 목표로 한다.&lt;/p>
+&lt;h3>동기화의 필요성&lt;span class="hx-absolute -hx-mt-20" id="동기화의-필요성">&lt;/span>
+&lt;a href="#%eb%8f%99%ea%b8%b0%ed%99%94%ec%9d%98-%ed%95%84%ec%9a%94%ec%84%b1" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>동기화가 필요한 주요 이유는 다음과 같다:&lt;/p>
+&lt;ol>
+&lt;li>데이터 일관성 유지: 여러 프로세스나 스레드가 동시에 같은 데이터에 접근할 때 발생할 수 있는 불일치를 방지한다.&lt;/li>
+&lt;li>경쟁 상태 방지: 둘 이상의 프로세스가 공유 자원에 동시에 접근하려 할 때 발생할 수 있는 예측 불가능한 결과를 방지한다.&lt;/li>
+&lt;li>순서 보장: 특정 작업이 다른 작업보다 먼저 실행되어야 하는 경우, 동기화를 통해 실행 순서를 제어할 수 있다.&lt;/li>
+&lt;/ol>
+&lt;h3>동기화 메커니즘&lt;span class="hx-absolute -hx-mt-20" id="동기화-메커니즘">&lt;/span>
+&lt;a href="#%eb%8f%99%ea%b8%b0%ed%99%94-%eb%a9%94%ec%bb%a4%eb%8b%88%ec%a6%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>동기화를 구현하기 위한 주요 메커니즘은 다음과 같다:&lt;/p>
+&lt;ol>
+&lt;li>뮤텍스(Mutex): 상호 배제를 위한 잠금 메커니즘으로, 한 번에 하나의 스레드만 공유 자원에 접근할 수 있도록 한다.&lt;/li>
+&lt;li>세마포어(Semaphore): 여러 프로세스나 스레드가 공유 자원에 접근할 수 있는 수를 제한하는 카운팅 메커니즘.&lt;/li>
+&lt;li>모니터(Monitor): 공유 자원을 내부적으로 관리하고, 외부에서는 정해진 인터페이스를 통해서만 접근할 수 있도록 하는 고수준의 동기화 구조.&lt;/li>
+&lt;li>조건 변수(Condition Variables): 특정 조건이 만족될 때까지 스레드를 대기시키고, 조건이 충족되면 대기 중인 스레드를 깨우는 메커니즘.&lt;/li>
+&lt;/ol>
+&lt;h3>동기화의 구현&lt;span class="hx-absolute -hx-mt-20" id="동기화의-구현">&lt;/span>
+&lt;a href="#%eb%8f%99%ea%b8%b0%ed%99%94%ec%9d%98-%ea%b5%ac%ed%98%84" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>프로그래밍에서 동기화를 구현할 때는 다음과 같은 방법들이 사용된다:&lt;/p>
+&lt;ol>
+&lt;li>임계 영역(Critical Section) 설정: 공유 자원에 접근하는 코드 부분을 임계 영역으로 지정하고, 한 번에 하나의 프로세스만 진입할 수 있도록 한다.&lt;/li>
+&lt;li>락(Lock) 사용: 공유 자원에 접근하기 전에 락을 획득하고, 작업이 끝나면 락을 해제하는 방식으로 동기화를 구현한다.&lt;/li>
+&lt;li>원자적 연산(Atomic Operations) 사용: 분할할 수 없는 단일 연산으로 처리하여 중간 상태를 방지한다.&lt;/li>
+&lt;/ol>
+&lt;h3>동기화의 주의사항&lt;span class="hx-absolute -hx-mt-20" id="동기화의-주의사항">&lt;/span>
+&lt;a href="#%eb%8f%99%ea%b8%b0%ed%99%94%ec%9d%98-%ec%a3%bc%ec%9d%98%ec%82%ac%ed%95%ad" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>동기화를 구현할 때는 다음과 같은 점들을 주의해야 한다:&lt;/p>
+&lt;ol>
+&lt;li>데드락(Deadlock) 방지: 여러 프로세스가 서로의 자원을 기다리며 영원히 블록되는 상황을 피해야 한다.&lt;/li>
+&lt;li>성능 고려: 과도한 동기화는 성능 저하를 초래할 수 있으므로, 필요한 부분에만 적절히 사용해야 한다.&lt;/li>
+&lt;li>세밀한 락 사용: 전역 락 대신 세분화된 락을 사용하여 병렬성을 높인다.&lt;/li>
+&lt;li>재진입성(Reentrancy) 고려: 동일한 스레드가 이미 획득한 락을 다시 획득할 수 있도록 재진입 가능한 락을 사용해야 할 수 있다.&lt;/li>
+&lt;/ol>
+&lt;hr>
+&lt;h2>참고 및 출처&lt;span class="hx-absolute -hx-mt-20" id="참고-및-출처">&lt;/span>
+&lt;a href="#%ec%b0%b8%ea%b3%a0-%eb%b0%8f-%ec%b6%9c%ec%b2%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item><item><title>Process Synchronization</title><link>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/process-synchronization/</link><pubDate>Sat, 28 Sep 2024 06:22:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/process-synchronization/</guid><description>
+&lt;h2>프로세스 동기화 (Process Synchronization)&lt;span class="hx-absolute -hx-mt-20" id="프로세스-동기화-process-synchronization">&lt;/span>
+&lt;a href="#%ed%94%84%eb%a1%9c%ec%84%b8%ec%8a%a4-%eb%8f%99%ea%b8%b0%ed%99%94-process-synchronization" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>여러 프로세스가 공유하는 자원의 일관성을 유지하기 위한 메커니즘.&lt;br>
+컴퓨터 시스템에서 여러 프로세스가 공유 자원에 접근할 때 충돌을 방지하고 데이터의 일관성을 유지하기 위해 동기화가 필요하다.&lt;/p>
+&lt;p>다음 두 가지 목적을 가진다:&lt;/p>
+&lt;ol>
+&lt;li>실행 순서 제어: 프로세스를 올바른 순서대로 실행하기&lt;/li>
+&lt;li>상호 배제: 동시에 접근해서는 안 되는 자원에 하나의 프로세스만 접근하게 하기&lt;/li>
+&lt;/ol>
+&lt;h3>필요성&lt;span class="hx-absolute -hx-mt-20" id="필요성">&lt;/span>
+&lt;a href="#%ed%95%84%ec%9a%94%ec%84%b1" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>데이터 일관성 유지: 여러 프로세스가 공유 데이터에 동시 접근할 때 발생할 수 있는 예상치 못한 결과를 방지한다.&lt;/li>
+&lt;li>실행 순서 보장: 특정 프로세스의 실행이 다른 프로세스의 결과에 의존하는 경우, 올바른 순서로 실행되도록 한다.&lt;/li>
+&lt;/ol>
+&lt;h3>임계 영역 문제&lt;span class="hx-absolute -hx-mt-20" id="임계-영역-문제">&lt;/span>
+&lt;a href="#%ec%9e%84%ea%b3%84-%ec%98%81%ec%97%ad-%eb%ac%b8%ec%a0%9c" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>임계 영역(Critical Section)은 여러 프로세스가 공유하는 데이터를 접근하는 코드 영역을 말한다.&lt;br>
+예를 들어, 은행 계좌의 잔액을 수정하는 코드가 임계 영역이 될 수 있다.&lt;/p>
+&lt;p>임계 영역 문제를 해결하기 위해서는 다음 세 가지 조건을 만족해야 한다:&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>상호 배제(Mutual Exclusion)&lt;br>
+한 번에 하나의 프로세스만 임계 영역에 진입할 수 있다.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>진행(Progress)&lt;br>
+임계 영역에 들어가려는 프로세스의 선택은 무한정 미루어질 수 없다.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>한정 대기(Bounded Waiting)&lt;br>
+프로세스가 임계 영역에 진입하기 위해 대기하는 시간은 유한해야 한다.&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;h3>주요 동기화 도구들&lt;span class="hx-absolute -hx-mt-20" id="주요-동기화-도구들">&lt;/span>
+&lt;a href="#%ec%a3%bc%ec%9a%94-%eb%8f%99%ea%b8%b0%ed%99%94-%eb%8f%84%ea%b5%ac%eb%93%a4" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>뮤텍스(Mutex)&lt;br>
+뮤텍스는 가장 기본적인 동기화 도구로, 상호 배제를 보장한다.&lt;br>
+다음은 뮤텍스를 사용하는 예시 코드:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="kt">pthread_mutex_t&lt;/span> &lt;span class="n">mutex&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">PTHREAD_MUTEX_INITIALIZER&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">void&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="nf">critical_section&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">void&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">arg&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">pthread_mutex_lock&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">mutex&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="c1">// 임계 영역 진입 전 잠금
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 임계 영역 코드
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">shared_resource&lt;/span>&lt;span class="o">++&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="c1">// 공유 자원 접근
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">pthread_mutex_unlock&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">mutex&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="c1">// 임계 영역 종료 후 잠금 해제
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">return&lt;/span> &lt;span class="nb">NULL&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>세마포어(Semaphore)&lt;br>
+세마포어는 여러 개의 프로세스가 공유 자원에 접근할 수 있도록 하는 카운팅 메커니즘:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="kt">sem_t&lt;/span> &lt;span class="n">semaphore&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">void&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="nf">resource_access&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">void&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">arg&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">sem_wait&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">semaphore&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="c1">// 세마포어 획득
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 자원 사용
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nf">use_shared_resource&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">sem_post&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">semaphore&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="c1">// 세마포어 반환
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">return&lt;/span> &lt;span class="nb">NULL&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>조건 변수(Condition Variables)&lt;br>
+조건 변수는 특정 조건이 만족될 때까지 프로세스를 대기시키는 메커니즘:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="kt">pthread_mutex_t&lt;/span> &lt;span class="n">mutex&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">PTHREAD_MUTEX_INITIALIZER&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">pthread_cond_t&lt;/span> &lt;span class="n">condition&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">PTHREAD_COND_INITIALIZER&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">void&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="nf">wait_for_condition&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">void&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">arg&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">pthread_mutex_lock&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">mutex&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">while&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="o">!&lt;/span>&lt;span class="n">condition_met&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">pthread_cond_wait&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">condition&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">mutex&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 조건이 만족된 후의 코드
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">pthread_mutex_unlock&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">mutex&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="nb">NULL&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;/ol>
+&lt;h3>고전적인 동기화 문제들과 해결책&lt;span class="hx-absolute -hx-mt-20" id="고전적인-동기화-문제들과-해결책">&lt;/span>
+&lt;a href="#%ea%b3%a0%ec%a0%84%ec%a0%81%ec%9d%b8-%eb%8f%99%ea%b8%b0%ed%99%94-%eb%ac%b8%ec%a0%9c%eb%93%a4%ea%b3%bc-%ed%95%b4%ea%b2%b0%ec%b1%85" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>생산자-소비자 문제&lt;br>
+제한된 버퍼를 공유하는 생산자와 소비자 프로세스 간의 동기화 문제:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#define BUFFER_SIZE 5
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>&lt;span class="kt">sem_t&lt;/span> &lt;span class="n">empty&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">full&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">pthread_mutex_t&lt;/span> &lt;span class="n">mutex&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">void&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="nf">producer&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">void&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">arg&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">while&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">item&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">produce_item&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">sem_wait&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">empty&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="c1">// 빈 공간 대기
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nf">pthread_mutex_lock&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">mutex&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 버퍼에 아이템 추가
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">pthread_mutex_unlock&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">mutex&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">sem_post&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">full&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="c1">// 채워진 공간 신호
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>철학자의 만찬 문제&lt;br>
+자원 할당과 교착상태 방지를 다루는 고전적인 문제:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#define N 5
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>&lt;span class="kt">pthread_mutex_t&lt;/span> &lt;span class="n">chopstick&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">N&lt;/span>&lt;span class="p">];&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">void&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="nf">philosopher&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">void&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">num&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">int&lt;/span> &lt;span class="n">i&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="n">num&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">while&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 왼쪽 젓가락 집기
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nf">pthread_mutex_lock&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">chopstick&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">]);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 오른쪽 젓가락 집기
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nf">pthread_mutex_lock&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">chopstick&lt;/span>&lt;span class="p">[(&lt;/span>&lt;span class="n">i&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&lt;/span> &lt;span class="n">N&lt;/span>&lt;span class="p">]);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">eat&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 젓가락 내려놓기
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nf">pthread_mutex_unlock&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">chopstick&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">]);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">pthread_mutex_unlock&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">chopstick&lt;/span>&lt;span class="p">[(&lt;/span>&lt;span class="n">i&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&lt;/span> &lt;span class="n">N&lt;/span>&lt;span class="p">]);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">think&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>읽기-쓰기 문제&lt;br>
+여러 읽기 프로세스와 쓰기 프로세스 간의 동기화를 다루는 문제:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="kt">pthread_rwlock_t&lt;/span> &lt;span class="n">rwlock&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">PTHREAD_RWLOCK_INITIALIZER&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">void&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="nf">reader&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">void&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">arg&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">pthread_rwlock_rdlock&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">rwlock&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="c1">// 읽기 잠금
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 데이터 읽기
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">pthread_rwlock_unlock&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">rwlock&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="nb">NULL&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">void&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="nf">writer&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">void&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">arg&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">pthread_rwlock_wrlock&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">rwlock&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="c1">// 쓰기 잠금
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 데이터 쓰기
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">pthread_rwlock_unlock&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">rwlock&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="nb">NULL&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;/ol>
+&lt;h3>동기화 관련 주의사항&lt;span class="hx-absolute -hx-mt-20" id="동기화-관련-주의사항">&lt;/span>
+&lt;a href="#%eb%8f%99%ea%b8%b0%ed%99%94-%ea%b4%80%eb%a0%a8-%ec%a3%bc%ec%9d%98%ec%82%ac%ed%95%ad" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>데드락(Deadlock) 방지&lt;/p>
+&lt;ul>
+&lt;li>자원 할당 순서 정하기&lt;/li>
+&lt;li>타임아웃 설정&lt;/li>
+&lt;li>데드락 감지 및 복구 메커니즘 구현&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>성능 최적화&lt;/p>
+&lt;ul>
+&lt;li>락의 범위를 최소화&lt;/li>
+&lt;li>세밀한 락킹 전략 사용&lt;/li>
+&lt;li>락 프리 알고리즘 고려&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>동기화 오버헤드 관리&lt;/p>
+&lt;ul>
+&lt;li>적절한 동기화 기법 선택&lt;/li>
+&lt;li>불필요한 동기화 제거&lt;/li>
+&lt;li>락 경합 최소화&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3>실제 응용 사례&lt;span class="hx-absolute -hx-mt-20" id="실제-응용-사례">&lt;/span>
+&lt;a href="#%ec%8b%a4%ec%a0%9c-%ec%9d%91%ec%9a%a9-%ec%82%ac%eb%a1%80" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>데이터베이스 시스템&lt;/li>
+&lt;/ol>
+&lt;ul>
+&lt;li>트랜잭션 격리 수준 구현&lt;/li>
+&lt;li>동시성 제어&lt;/li>
+&lt;li>데이터 일관성 유지&lt;/li>
+&lt;/ul>
+&lt;ol start="2">
+&lt;li>운영체제&lt;/li>
+&lt;/ol>
+&lt;ul>
+&lt;li>프로세스 스케줄링&lt;/li>
+&lt;li>메모리 관리&lt;/li>
+&lt;li>파일 시스템 접근&lt;/li>
+&lt;/ul>
+&lt;ol start="3">
+&lt;li>멀티스레드 애플리케이션&lt;/li>
+&lt;/ol>
+&lt;ul>
+&lt;li>GUI 이벤트 처리&lt;/li>
+&lt;li>백그라운드 작업 관리&lt;/li>
+&lt;li>네트워크 통신&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;h2>참고 및 출처&lt;span class="hx-absolute -hx-mt-20" id="참고-및-출처">&lt;/span>
+&lt;a href="#%ec%b0%b8%ea%b3%a0-%eb%b0%8f-%ec%b6%9c%ec%b2%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item></channel></rss>

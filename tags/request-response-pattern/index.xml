@@ -1,1 +1,120 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Request-Response-Pattern :: Tag :: hyunyoun's Blog</title><link>https://buenhyden.github.io/tags/request-response-pattern/</link><description/><generator>Hugo</generator><language>en</language><managingEditor>chochyjj@gmail.com (Hyunyoun Jo)</managingEditor><webMaster>chochyjj@gmail.com (Hyunyoun Jo)</webMaster><lastBuildDate>Sat, 28 Dec 2024 06:18:00 +0000</lastBuildDate><atom:link href="https://buenhyden.github.io/tags/request-response-pattern/index.xml" rel="self" type="application/rss+xml"/><item><title>Request-Response Pattern</title><link>https://buenhyden.github.io/posts/software-design-and-architecture/msa-patterns/communication/request-response-pattern/</link><pubDate>Sat, 28 Dec 2024 06:18:00 +0000</pubDate><author>chochyjj@gmail.com (Hyunyoun Jo)</author><guid>https://buenhyden.github.io/posts/software-design-and-architecture/msa-patterns/communication/request-response-pattern/</guid><description>Request-Response Pattern은 한 서비스(클라이언트)가 다른 서비스(서버)에 요청을 보내고, 서버가 이 요청을 처리한 후 응답을 반환하는 방식의 통신이다.</description></item></channel></rss>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>hyunyoun's Blog – Request-Response-Pattern</title><link>https://buenhyden.github.io/tags/request-response-pattern/</link><description>Recent content in Request-Response-Pattern on hyunyoun's Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Sat, 28 Dec 2024 06:18:00 +0000</lastBuildDate><atom:link href="https://buenhyden.github.io/tags/request-response-pattern/index.xml" rel="self" type="application/rss+xml"/><item><title>Request-Response Pattern</title><link>https://buenhyden.github.io/posts/software-design-and-architecture/msa-patterns/communication/request-response-pattern/</link><pubDate>Sat, 28 Dec 2024 06:18:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/software-design-and-architecture/msa-patterns/communication/request-response-pattern/</guid><description>
+&lt;h2>Request-Response Pattern&lt;span class="hx-absolute -hx-mt-20" id="request-response-pattern">&lt;/span>
+&lt;a href="#request-response-pattern" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Request-Response Pattern은 마이크로서비스 아키텍처(MSA)에서 가장 기본적이고 널리 사용되는 통신 패턴 중 하나이다.&lt;/p>
+&lt;p>Request-Response Pattern은 한 서비스(클라이언트)가 다른 서비스(서버)에 요청을 보내고, 서버가 이 요청을 처리한 후 응답을 반환하는 방식의 통신이다.&lt;br>
+이는 동기식 통신의 대표적인 예로, 클라이언트는 서버로부터 응답을 받을 때까지 대기한다.&lt;/p>
+&lt;h3>작동 방식&lt;span class="hx-absolute -hx-mt-20" id="작동-방식">&lt;/span>
+&lt;a href="#%ec%9e%91%eb%8f%99-%eb%b0%a9%ec%8b%9d" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>클라이언트가 서버에 요청을 보낸다.&lt;/li>
+&lt;li>서버는 요청을 받아 처리한다.&lt;/li>
+&lt;li>서버는 처리 결과를 응답으로 클라이언트에게 반환한다.&lt;/li>
+&lt;li>클라이언트는 응답을 받아 처리한다.&lt;/li>
+&lt;/ol>
+&lt;pre class="mermaid hx-mt-6">sequenceDiagram
+participant Client
+participant Server
+Note over Client,Server: HTTP/REST 기반 통신
+Client->>+Server: GET /users/123
+Note right of Server: 리소스 처리
+Server-->>-Client: 200 OK (사용자 데이터)
+Client->>+Server: POST /orders
+Note right of Server: 주문 생성
+Server-->>-Client: 201 Created&lt;/pre>&lt;h3>구현 방식과 프로토콜&lt;span class="hx-absolute -hx-mt-20" id="구현-방식과-프로토콜">&lt;/span>
+&lt;a href="#%ea%b5%ac%ed%98%84-%eb%b0%a9%ec%8b%9d%ea%b3%bc-%ed%94%84%eb%a1%9c%ed%86%a0%ec%bd%9c" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>REST API 구현&lt;br>
+REST API는 HTTP 프로토콜을 기반으로 하는 가장 보편적인 구현 방식이다.&lt;br>
+REST는 다음과 같은 특징을 가진다:&lt;/p>
+&lt;ul>
+&lt;li>자원 중심 설계: 모든 리소스는 고유한 URI로 식별된다.&lt;br>
+예를 들어, &amp;lsquo;/users/123&amp;rsquo;은 ID가 123인 사용자 리소스를 나타낸다.&lt;/li>
+&lt;li>HTTP 메서드 활용: GET(조회), POST(생성), PUT(수정), DELETE(삭제) 등의 표준 HTTP 메서드를 사용하여 리소스를 조작한다.&lt;/li>
+&lt;li>상태 없는(Stateless) 통신: 각 요청은 독립적이며, 서버는 이전 요청의 컨텍스트를 저장하지 않는다.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>gRPC 구현&lt;br>
+gRPC는 구글이 개발한 고성능 RPC 프레임워크로, 다음과 같은 특징이 있다:&lt;/p>
+&lt;ul>
+&lt;li>Protocol Buffers: 데이터를 효율적으로 직렬화하여 네트워크 대역폭을 절약합니다.&lt;/li>
+&lt;li>다양한 통신 모드: 단순 요청-응답뿐만 아니라, 스트리밍도 지원합니다.&lt;/li>
+&lt;li>강력한 타입 체크: 컴파일 시점에 타입 오류를 발견할 수 있습니다.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>GraphQL 구현&lt;br>
+GraphQL은 클라이언트가 필요한 데이터를 정확히 지정할 수 있는 쿼리 언어이다:&lt;/p>
+&lt;ul>
+&lt;li>선택적 데이터 조회: 클라이언트가 원하는 필드만 요청할 수 있다.&lt;/li>
+&lt;li>단일 엔드포인트: 모든 요청이 하나의 엔드포인트로 처리된다.&lt;/li>
+&lt;li>효율적인 데이터 로딩: 오버페칭과 언더페칭 문제를 해결한다.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3>통신 모드와 처리 방식&lt;span class="hx-absolute -hx-mt-20" id="통신-모드와-처리-방식">&lt;/span>
+&lt;a href="#%ed%86%b5%ec%8b%a0-%eb%aa%a8%eb%93%9c%ec%99%80-%ec%b2%98%eb%a6%ac-%eb%b0%a9%ec%8b%9d" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>일부 시나리오에서는 비동기 Request-Response 패턴을 사용할 수 있다.&lt;br>
+이 방식에서는 클라이언트가 요청을 보낸 후 즉시 응답을 받지만, 실제 처리 결과는 나중에 별도의 채널을 통해 받는다.&lt;br>
+이는 장시간 실행되는 작업이나 즉시 응답할 수 없는 상황에서 유용하다.&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>동기식 처리&lt;br>
+동기식 처리는 클라이언트가 요청을 보내고 응답을 받을 때까지 대기하는 방식:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 동기식 요청 예시&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="kd">public&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">UserResponse&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nf">getUserInfo&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Long&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">userId&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="k">return&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">userServiceClient&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="na">get&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;/users/&amp;#34;&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">userId&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>비동기식 처리&lt;br>
+비동기식 처리는 요청을 보낸 후 즉시 제어를 반환하고, 나중에 응답을 처리한다:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 비동기식 요청 예시&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="kd">public&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">CompletableFuture&lt;/span>&lt;span class="o">&amp;lt;&lt;/span>&lt;span class="n">UserResponse&lt;/span>&lt;span class="o">&amp;gt;&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nf">getUserInfoAsync&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Long&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">userId&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="k">return&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">userServiceClient&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="na">getAsync&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;/users/&amp;#34;&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">userId&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="na">thenApply&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">response&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">processResponse&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">response&lt;/span>&lt;span class="p">));&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/li>
+&lt;/ol>
+&lt;h3>장점&lt;span class="hx-absolute -hx-mt-20" id="장점">&lt;/span>
+&lt;a href="#%ec%9e%a5%ec%a0%90" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>명확한 통신&lt;/strong>: 요청과 응답이 명확히 구분되어 통신 흐름을 이해하기 쉽다.&lt;/li>
+&lt;li>&lt;strong>신뢰성&lt;/strong>: 동기식 통신으로 응답을 즉시 받을 수 있어 신뢰성이 높다.&lt;/li>
+&lt;li>&lt;strong>데이터 일관성&lt;/strong>: 요청에 대한 응답을 바로 받아 처리할 수 있어 데이터 일관성 유지에 유리하다.&lt;/li>
+&lt;li>&lt;strong>오류 처리&lt;/strong>: 응답에 오류 정보를 포함시켜 효과적인 오류 처리가 가능하다.&lt;/li>
+&lt;/ol>
+&lt;h3>단점&lt;span class="hx-absolute -hx-mt-20" id="단점">&lt;/span>
+&lt;a href="#%eb%8b%a8%ec%a0%90" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>높은 결합도&lt;/strong>: 서비스 간 의존성이 높아질 수 있다.&lt;/li>
+&lt;li>&lt;strong>지연 시간&lt;/strong>: 응답을 기다리는 동안 클라이언트가 차단될 수 있어 전체 시스템의 성능에 영향을 줄 수 있다.&lt;/li>
+&lt;li>&lt;strong>확장성 제한&lt;/strong>: 동기식 통신으로 인해 시스템 확장에 제약이 있을 수 있다.&lt;/li>
+&lt;/ol>
+&lt;h3>사용 사례&lt;span class="hx-absolute -hx-mt-20" id="사용-사례">&lt;/span>
+&lt;a href="#%ec%82%ac%ec%9a%a9-%ec%82%ac%eb%a1%80" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Request-Response Pattern은 다음과 같은 상황에서 주로 사용된다:&lt;/p>
+&lt;ol>
+&lt;li>&lt;strong>데이터 조회&lt;/strong>: 특정 정보를 즉시 가져와야 하는 경우&lt;/li>
+&lt;li>&lt;strong>인증 및 권한 부여&lt;/strong>: 사용자 인증이나 권한 확인이 필요한 경우&lt;/li>
+&lt;li>&lt;strong>트랜잭션 처리&lt;/strong>: 즉각적인 응답이 필요한 금융 거래 등의 처리&lt;/li>
+&lt;li>&lt;strong>실시간 상호작용&lt;/strong>: 사용자 인터페이스와 직접 연결된 작업 처리&lt;/li>
+&lt;/ol>
+&lt;hr>
+&lt;h2>참고 및 출처&lt;span class="hx-absolute -hx-mt-20" id="참고-및-출처">&lt;/span>
+&lt;a href="#%ec%b0%b8%ea%b3%a0-%eb%b0%8f-%ec%b6%9c%ec%b2%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item></channel></rss>

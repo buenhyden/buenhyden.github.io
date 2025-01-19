@@ -1,1 +1,99 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Mutual-Exclusion :: Tag :: hyunyoun's Blog</title><link>https://buenhyden.github.io/tags/mutual-exclusion/</link><description/><generator>Hugo</generator><language>en</language><managingEditor>chochyjj@gmail.com (Hyunyoun Jo)</managingEditor><webMaster>chochyjj@gmail.com (Hyunyoun Jo)</webMaster><lastBuildDate>Sun, 17 Nov 2024 07:50:00 +0000</lastBuildDate><atom:link href="https://buenhyden.github.io/tags/mutual-exclusion/index.xml" rel="self" type="application/rss+xml"/><item><title>상호 배제 (Mutual Exclusion)</title><link>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/mutual-exclusion/</link><pubDate>Sun, 17 Nov 2024 07:50:00 +0000</pubDate><author>chochyjj@gmail.com (Hyunyoun Jo)</author><guid>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/mutual-exclusion/</guid><description>여러 프로세스나 스레드가 공유 자원에 동시에 접근하는 것을 방지하는 동기화 메커니</description></item></channel></rss>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>hyunyoun's Blog – Mutual-Exclusion</title><link>https://buenhyden.github.io/tags/mutual-exclusion/</link><description>Recent content in Mutual-Exclusion on hyunyoun's Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Sun, 17 Nov 2024 07:50:00 +0000</lastBuildDate><atom:link href="https://buenhyden.github.io/tags/mutual-exclusion/index.xml" rel="self" type="application/rss+xml"/><item><title>상호 배제 (Mutual Exclusion)</title><link>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/mutual-exclusion/</link><pubDate>Sun, 17 Nov 2024 07:50:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/mutual-exclusion/</guid><description>
+&lt;h2>상호 배제 (Mutual Exclusion)&lt;span class="hx-absolute -hx-mt-20" id="상호-배제-mutual-exclusion">&lt;/span>
+&lt;a href="#%ec%83%81%ed%98%b8-%eb%b0%b0%ec%a0%9c-mutual-exclusion" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>여러 프로세스나 스레드가 공유 자원에 동시에 접근하는 것을 방지하는 동기화 메커니즘.&lt;br>
+한 번에 하나의 프로세스나 스레드만 임계 영역(critical section)에 진입할 수 있도록 보장하는 기법이다.&lt;/p>
+&lt;p>필요한 이유:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 상호 배제가 없는 경우의 문제점&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">BankAccount&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">balance&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">1000&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">withdraw&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">amount&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 다음 세 줄의 작업이 원자적이지 않음&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">current_balance&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">balance&lt;/span> &lt;span class="c1"># 잔액 읽기&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">current_balance&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">current_balance&lt;/span> &lt;span class="o">-&lt;/span> &lt;span class="n">amount&lt;/span> &lt;span class="c1"># 계산&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">balance&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">current_balance&lt;/span> &lt;span class="c1"># 결과 저장&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 두 스레드가 동시에 실행되면 문제가 발생할 수 있음&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">account&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">BankAccount&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 스레드 1: withdraw(500)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 스레드 2: withdraw(500)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 예상 잔액: 0, 실제 잔액: 500 (잘못된 결과)&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>목적&lt;span class="hx-absolute -hx-mt-20" id="목적">&lt;/span>
+&lt;a href="#%eb%aa%a9%ec%a0%81" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>데이터 무결성 유지: 여러 프로세스가 동시에 공유 데이터를 수정하는 것을 방지한다.&lt;/li>
+&lt;li>경쟁 조건(Race Condition) 예방: 프로세스 실행 순서에 따른 결과 불일치를 막는다.&lt;/li>
+&lt;li>교착 상태(Deadlock)와 기아 상태(Starvation) 방지: 자원 할당의 효율성을 높인다.&lt;/li>
+&lt;/ul>
+&lt;h3>구현 방법&lt;span class="hx-absolute -hx-mt-20" id="구현-방법">&lt;/span>
+&lt;a href="#%ea%b5%ac%ed%98%84-%eb%b0%a9%eb%b2%95" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>잠금(Lock)&lt;br>
+가장 기본적인 동기화 메커니즘으로, 한 번에 하나의 스레드만 임계 영역에 접근할 수 있게 한다.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>세마포어(Semaphores)&lt;br>
+여러 스레드가 동시에 접근할 수 있는 자원의 수를 제한한다.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>모니터(Monitor)&lt;br>
+모니터는 객체 지향적인 동기화 메커니즘으로, 데이터와 해당 데이터에 접근하는 메서드들을 하나의 단위로 캡슐화한다.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>조건 변수(Condition Variable)&lt;br>
+스레드가 특정 조건이 만족될 때까지 대기하게 해주는 동기화 메커니즘.&lt;br>
+생산자-소비자 패턴에서 자주 사용된다.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>원자적 연산 (Atomic Operations)&lt;br>
+하드웨어 수준에서 지원하는 원자적 연산을 사용하여 상호 배제를 구현할 수 있다.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>메시지 패싱 (Message Passing)&lt;br>
+프로세스나 스레드 간에 메시지를 주고받아 상호 배제를 구현할 수 있다.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>비동기 프로그래밍 (Asynchronous Programming)&lt;br>
+비동기 프로그래밍을 통해 상호 배제를 구현할 수 있다.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>피터슨 알고리즘 (Peterson&amp;rsquo;s Algorithm)&lt;br>
+두 프로세스 간의 상호 배제를 소프트웨어적으로 구현하는 방법.&lt;br>
+플래그와 턴 변수를 사용하여 임계 영역 진입을 제어한다.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>데커 알고리즘 (Dekker&amp;rsquo;s Algorithm)&lt;br>
+피터슨 알고리즘과 비슷하지만 더 복잡한 구조를 가진 상호 배제 알고리즘.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>램포트의 빵집 알고리즘 (Lamport&amp;rsquo;s Bakery Algorithm)&lt;br>
+여러 프로세스 간의 상호 배제를 구현할 수 있는 알고리즘.&lt;br>
+빵집에서 번호표를 뽑는 것과 같은 방식으로 작동한다.&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;p>동기화 메커니즘은 서로 다른 상황에서 유용하다:&lt;/p>
+&lt;ul>
+&lt;li>Lock은 간단한 상호 배제가 필요할 때 사용&lt;/li>
+&lt;li>Semaphore는 리소스 풀 관리에 적합&lt;/li>
+&lt;li>Monitor는 데이터와 연산을 함께 캡슐화할 때 유용&lt;/li>
+&lt;li>Condition Variables는 스레드 간 시그널링이 필요할 때 사용&lt;/li>
+&lt;/ul>
+&lt;h3>조건&lt;span class="hx-absolute -hx-mt-20" id="조건">&lt;/span>
+&lt;a href="#%ec%a1%b0%ea%b1%b4" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>상호 배제: 한 번에 하나의 프로세스만 임계 영역에 진입할 수 있어야 한다.&lt;/li>
+&lt;li>진행: 임계 영역 외부의 프로세스가 다른 프로세스의 진입을 방해해서는 안 된다.&lt;/li>
+&lt;li>유한 대기: 프로세스는 임계 영역 진입을 무한정 기다리지 않아야 한다.&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;h2>참고 및 출처&lt;span class="hx-absolute -hx-mt-20" id="참고-및-출처">&lt;/span>
+&lt;a href="#%ec%b0%b8%ea%b3%a0-%eb%b0%8f-%ec%b6%9c%ec%b2%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item></channel></rss>
