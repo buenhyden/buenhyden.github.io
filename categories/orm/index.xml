@@ -1,15 +1,12 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>hyunyoun's Blog – ORM</title><link>https://buenhyden.github.io/categories/orm/</link><description>Recent content in ORM on hyunyoun's Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Mon, 25 Nov 2024 11:21:00 +0000</lastBuildDate><atom:link href="https://buenhyden.github.io/categories/orm/index.xml" rel="self" type="application/rss+xml"/><item><title>N+1</title><link>https://buenhyden.github.io/posts/backend/database-systems/orm/n+1/</link><pubDate>Mon, 25 Nov 2024 11:21:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/backend/database-systems/orm/n+1/</guid><description>
-&lt;h2>N+1&lt;span class="hx-absolute -hx-mt-20" id="n1">&lt;/span>
-&lt;a href="#n1" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>N+1 문제는 하나의 쿼리로 N개의 엔티티를 조회한 후, 각 엔티티와 연관된 데이터를 조회하기 위해 N번의 추가 쿼리가 발생하는 현상을 말한다.&lt;br>
+&lt;h2>N+1&lt;/h2>&lt;p>N+1 문제는 하나의 쿼리로 N개의 엔티티를 조회한 후, 각 엔티티와 연관된 데이터를 조회하기 위해 N번의 추가 쿼리가 발생하는 현상을 말한다.&lt;br>
 주로 ORM(Object-Relational Mapping) 기술을 사용할 때 발생하는 성능 관련 이슈로 데이터베이스에 불필요하게 많은 쿼리를 실행하게 되는 상황을 말한다.&lt;/p>
-&lt;h3>발생 원인&lt;span class="hx-absolute -hx-mt-20" id="발생-원인">&lt;/span>
-&lt;a href="#%eb%b0%9c%ec%83%9d-%ec%9b%90%ec%9d%b8" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;h3>발생 원인&lt;/h3>&lt;ol>
 &lt;li>연관 관계 매핑: 주로 1:N 또는 N:1 관계를 가진 엔티티를 조회할 때 발생한다.&lt;/li>
 &lt;li>지연 로딩(Lazy Loading): 연관된 엔티티를 실제로 사용할 때 추가적인 쿼리가 발생한다.&lt;/li>
 &lt;li>즉시 로딩(Eager Loading): 연관된 엔티티를 함께 조회하려 할 때 추가 쿼리가 발생할 수 있다.&lt;/li>
 &lt;/ol>
-&lt;h3>문제점&lt;span class="hx-absolute -hx-mt-20" id="문제점">&lt;/span>
-&lt;a href="#%eb%ac%b8%ec%a0%9c%ec%a0%90" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;h3>문제점&lt;/h3>&lt;ol>
 &lt;li>성능 저하: 불필요한 데이터베이스 쿼리로 인해 애플리케이션의 성능이 크게 저하된다.&lt;/li>
 &lt;li>네트워크 부하: 데이터베이스와의 통신이 증가하여 네트워크 부하가 증가한다.&lt;/li>
 &lt;li>데이터베이스 부하: 과도한 쿼리 실행으로 데이터베이스 서버에 부담을 준다.&lt;/li>
@@ -70,16 +67,14 @@ title="Copy code"
 &lt;li>각 게시물에 대해 댓글을 가져오는 별도의 쿼리가 실행된다 (N번의 쿼리)&lt;/li>
 &lt;li>결과적으로 총 N+1번의 데이터베이스 쿼리가 실행된다&lt;/li>
 &lt;/ol>
-&lt;h3>N+1 문제를 해결하기 위한 일반적인 접근 방법&lt;span class="hx-absolute -hx-mt-20" id="n1-문제를-해결하기-위한-일반적인-접근-방법">&lt;/span>
-&lt;a href="#n1-%eb%ac%b8%ec%a0%9c%eb%a5%bc-%ed%95%b4%ea%b2%b0%ed%95%98%ea%b8%b0-%ec%9c%84%ed%95%9c-%ec%9d%bc%eb%b0%98%ec%a0%81%ec%9d%b8-%ec%a0%91%ea%b7%bc-%eb%b0%a9%eb%b2%95" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;h3>N+1 문제를 해결하기 위한 일반적인 접근 방법&lt;/h3>&lt;ol>
 &lt;li>Eager Loading (즉시 로딩): 연관된 엔티티를 함께 로드하여 추가 쿼리를 방지한다.&lt;/li>
 &lt;li>Fetch Join: 쿼리 작성 시 연관된 엔티티를 명시적으로 함께 조회하도록 지정한다.&lt;/li>
 &lt;li>Batch Size 조정: 연관된 엔티티를 일괄적으로 조회하여 쿼리 수를 줄인다.&lt;/li>
 &lt;li>쿼리 최적화: 필요한 데이터만 선택적으로 조회하여 불필요한 쿼리를 줄인다.&lt;/li>
 &lt;li>캐싱: 자주 사용되는 데이터를 캐시하여 반복적인 쿼리를 줄인다.&lt;/li>
 &lt;/ol>
-&lt;h3>모범 사례와 주의사항&lt;span class="hx-absolute -hx-mt-20" id="모범-사례와-주의사항">&lt;/span>
-&lt;a href="#%eb%aa%a8%eb%b2%94-%ec%82%ac%eb%a1%80%ec%99%80-%ec%a3%bc%ec%9d%98%ec%82%ac%ed%95%ad" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;h3>모범 사례와 주의사항&lt;/h3>&lt;ol>
 &lt;li>
 &lt;p>적절한 패치 전략 선택&lt;/p>
 &lt;ul>
@@ -100,8 +95,7 @@ title="Copy code"
 &lt;/ul>
 &lt;/li>
 &lt;/ol>
-&lt;h3>N+1 문제를 방지하기 위한 설계 원칙&lt;span class="hx-absolute -hx-mt-20" id="n1-문제를-방지하기-위한-설계-원칙">&lt;/span>
-&lt;a href="#n1-%eb%ac%b8%ec%a0%9c%eb%a5%bc-%eb%b0%a9%ec%a7%80%ed%95%98%ea%b8%b0-%ec%9c%84%ed%95%9c-%ec%84%a4%ea%b3%84-%ec%9b%90%ec%b9%99" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;h3>N+1 문제를 방지하기 위한 설계 원칙&lt;/h3>&lt;ol>
 &lt;li>
 &lt;p>데이터 접근 패턴 분석&lt;/p>
 &lt;ul>
@@ -127,10 +121,8 @@ title="Copy code"
 &lt;/li>
 &lt;/ol>
 &lt;hr>
-&lt;h2>참고 및 출처&lt;span class="hx-absolute -hx-mt-20" id="참고-및-출처">&lt;/span>
-&lt;a href="#%ec%b0%b8%ea%b3%a0-%eb%b0%8f-%ec%b6%9c%ec%b2%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item><item><title>SQLAlchemy</title><link>https://buenhyden.github.io/posts/programming-languages/python/library/orm/sqlalchemy/</link><pubDate>Wed, 06 Nov 2024 09:21:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/programming-languages/python/library/orm/sqlalchemy/</guid><description>
-&lt;h2>SQLAlchemy&lt;span class="hx-absolute -hx-mt-20" id="sqlalchemy">&lt;/span>
-&lt;a href="#sqlalchemy" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>파이썬에서 사용되는 강력하고 유연한 SQL 툴킷 및 객체 관계 매핑(ORM) 라이브러리&lt;br>
+&lt;h2>참고 및 출처&lt;/h2></description></item><item><title>SQLAlchemy</title><link>https://buenhyden.github.io/posts/programming-languages/python/library/orm/sqlalchemy/</link><pubDate>Wed, 06 Nov 2024 09:21:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/programming-languages/python/library/orm/sqlalchemy/</guid><description>
+&lt;h2>SQLAlchemy&lt;/h2>&lt;p>파이썬에서 사용되는 강력하고 유연한 SQL 툴킷 및 객체 관계 매핑(ORM) 라이브러리&lt;br>
 데이터베이스와의 상호작용을 간소화하고 SQL과 객체 지향 프로그래밍 사이의 간격을 줄여준다.&lt;/p>
 &lt;p>주요 특징:&lt;/p>
 &lt;ol>
@@ -268,10 +260,8 @@ title="Copy code"
 &lt;p>SQLAlchemy는 파이썬 개발자들 사이에서 널리 사용되는 ORM 라이브러리로, 데이터베이스 작업을 보다 효율적이고 파이썬스럽게 만들어준다.&lt;br>
 복잡한 데이터베이스 작업을 처리해야 하는 프로젝트에서 특히 유용하게 사용될 수 있다.&lt;/p>
 &lt;hr>
-&lt;h2>참고 및 출처&lt;span class="hx-absolute -hx-mt-20" id="참고-및-출처">&lt;/span>
-&lt;a href="#%ec%b0%b8%ea%b3%a0-%eb%b0%8f-%ec%b6%9c%ec%b2%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>&lt;a href="https://www.sqlalchemy.org/" target="_blank" rel="noopener">SQLAlchemy - The Database Toolkit for Python&lt;/a>&lt;/p></description></item><item><title>ORM(Object-Relational Mapping)</title><link>https://buenhyden.github.io/posts/backend/database-systems/orm/</link><pubDate>Fri, 25 Oct 2024 03:42:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/backend/database-systems/orm/</guid><description>
-&lt;h2>ORM(Object-Relational Mapping)&lt;span class="hx-absolute -hx-mt-20" id="ormobject-relational-mapping">&lt;/span>
-&lt;a href="#ormobject-relational-mapping" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>객체 지향 프로그래밍 언어와 관계형 데이터베이스 사이의 불일치를 해결하기 위한 기술&lt;/p>
+&lt;h2>참고 및 출처&lt;/h2>&lt;p>&lt;a href="https://www.sqlalchemy.org/" target="_blank" rel="noopener">SQLAlchemy - The Database Toolkit for Python&lt;/a>&lt;/p></description></item><item><title>ORM(Object-Relational Mapping)</title><link>https://buenhyden.github.io/posts/backend/database-systems/orm/</link><pubDate>Fri, 25 Oct 2024 03:42:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/backend/database-systems/orm/</guid><description>
+&lt;h2>ORM(Object-Relational Mapping)&lt;/h2>&lt;p>객체 지향 프로그래밍 언어와 관계형 데이터베이스 사이의 불일치를 해결하기 위한 기술&lt;/p>
 &lt;p>특징:&lt;/p>
 &lt;ol>
 &lt;li>객체와 데이터베이스 테이블 간의 매핑&lt;/li>
@@ -302,5 +292,4 @@ title="Copy code"
 그러나 ORM도 캐싱 메커니즘을 통해 성능을 개선할 수 있으며, 간단한 CRUD 작업이나 중소규모 애플리케이션에서는 충분히 효과적일 수 있다. 따라서 프로젝트의 요구사항과 복잡성에 따라 적절한 방식을 선택해야 한다.&lt;/li>
 &lt;/ol>
 &lt;hr>
-&lt;h2>참고 및 출처&lt;span class="hx-absolute -hx-mt-20" id="참고-및-출처">&lt;/span>
-&lt;a href="#%ec%b0%b8%ea%b3%a0-%eb%b0%8f-%ec%b6%9c%ec%b2%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item></channel></rss>
+&lt;h2>참고 및 출처&lt;/h2></description></item></channel></rss>

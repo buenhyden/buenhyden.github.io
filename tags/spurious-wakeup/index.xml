@@ -1,25 +1,20 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>hyunyoun's Blog – Spurious-Wakeup</title><link>https://buenhyden.github.io/tags/spurious-wakeup/</link><description>Recent content in Spurious-Wakeup on hyunyoun's Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Thu, 28 Nov 2024 10:54:00 +0000</lastBuildDate><atom:link href="https://buenhyden.github.io/tags/spurious-wakeup/index.xml" rel="self" type="application/rss+xml"/><item><title>조건 변수 (Condition Variable)</title><link>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/process-synchronization/condition-variable/</link><pubDate>Thu, 28 Nov 2024 10:54:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/process-synchronization/condition-variable/</guid><description>
-&lt;h2>조건 변수 (Condition Variable)&lt;span class="hx-absolute -hx-mt-20" id="조건-변수-condition-variable">&lt;/span>
-&lt;a href="#%ec%a1%b0%ea%b1%b4-%eb%b3%80%ec%88%98-condition-variable" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>조건 변수(Condition Variables)는 프로세스 동기화에서 중요한 역할을 하는 동기화 기본 요소로, 스레드가 특정 조건이 충족될 때까지 대기하도록 하는 메커니즘을 제공한다.&lt;/p>
+&lt;h2>조건 변수 (Condition Variable)&lt;/h2>&lt;p>조건 변수(Condition Variables)는 프로세스 동기화에서 중요한 역할을 하는 동기화 기본 요소로, 스레드가 특정 조건이 충족될 때까지 대기하도록 하는 메커니즘을 제공한다.&lt;/p>
 &lt;p>스레드가 특정 조건이 만족될 때까지 대기하고, 조건이 충족되면 다른 스레드가 대기 중인 스레드를 깨우는 데 사용된다.&lt;/p>
-&lt;h3>뮤텍스와의 연관&lt;span class="hx-absolute -hx-mt-20" id="뮤텍스와의-연관">&lt;/span>
-&lt;a href="#%eb%ae%a4%ed%85%8d%ec%8a%a4%ec%99%80%ec%9d%98-%ec%97%b0%ea%b4%80" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>조건 변수는 일반적으로 뮤텍스와 함께 사용된다.&lt;br>
+&lt;h3>뮤텍스와의 연관&lt;/h3>&lt;p>조건 변수는 일반적으로 뮤텍스와 함께 사용된다.&lt;br>
 뮤텍스는 조건을 원자적으로 검사하고 변경할 수 있도록 보장한다.&lt;/p>
-&lt;h3>주요 연산&lt;span class="hx-absolute -hx-mt-20" id="주요-연산">&lt;/span>
-&lt;a href="#%ec%a3%bc%ec%9a%94-%ec%97%b0%ec%82%b0" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;h3>주요 연산&lt;/h3>&lt;ul>
 &lt;li>wait(): 스레드가 조건이 충족될 때까지 대기하도록 한다.&lt;/li>
 &lt;li>signal()/notify_one(): 대기 중인 단일 스레드를 깨운다.&lt;/li>
 &lt;li>broadcast()/notify_all(): 해당 조건 변수에서 대기 중인 모든 스레드를 깨운다.&lt;/li>
 &lt;/ul>
-&lt;h3>사용 패턴&lt;span class="hx-absolute -hx-mt-20" id="사용-패턴">&lt;/span>
-&lt;a href="#%ec%82%ac%ec%9a%a9-%ed%8c%a8%ed%84%b4" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;h3>사용 패턴&lt;/h3>&lt;ul>
 &lt;li>조건을 보호하는 뮤텍스를 획득한다.&lt;/li>
 &lt;li>조건을 테스트한다.&lt;/li>
 &lt;li>조건이 거짓이면 wait()를 호출하여 대기한다.&lt;/li>
 &lt;li>조건이 참이면 작업을 수행하고 뮤텍스를 해제한다.&lt;/li>
 &lt;/ul>
-&lt;h3>가짜 깨우기(Spurious Wakeup)&lt;span class="hx-absolute -hx-mt-20" id="가짜-깨우기spurious-wakeup">&lt;/span>
-&lt;a href="#%ea%b0%80%ec%a7%9c-%ea%b9%a8%ec%9a%b0%ea%b8%b0spurious-wakeup" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>가짜 깨우기는 조건 변수(Condition Variable)를 사용할 때 발생할 수 있는 현상이다.&lt;br>
+&lt;h3>가짜 깨우기(Spurious Wakeup)&lt;/h3>&lt;p>가짜 깨우기는 조건 변수(Condition Variable)를 사용할 때 발생할 수 있는 현상이다.&lt;br>
 스레드가 실제로 signal이나 broadcast를 받지 않았는데도 wait 상태에서 깨어나는 현상을 말한다.&lt;/p>
 &lt;p>이는 운영체제의 구현 방식이나 하드웨어의 특성으로 인해 발생할 수 있다.&lt;br>
 가짜 깨우기가 발생하는 이유들은 다음과 같다:&lt;/p>
@@ -37,8 +32,7 @@
 이러한 방어적 프로그래밍 기법을 사용함으로써, 가짜 깨우기로 인한 문제를 효과적으로 방지할 수 있다.&lt;br>
 특히 멀티스레드 프로그래밍에서는 이러한 세부사항에 주의를 기울이는 것이 매우 중요하다.&lt;/li>
 &lt;/ol>
-&lt;h4>예시&lt;span class="hx-absolute -hx-mt-20" id="예시">&lt;/span>
-&lt;a href="#%ec%98%88%ec%8b%9c" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>다음은 가짜 깨우기 문제를 보여주는 잘못된 코드 예시:&lt;/p>
+&lt;h4>예시&lt;/h4>&lt;p>다음은 가짜 깨우기 문제를 보여주는 잘못된 코드 예시:&lt;/p>
 &lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
 &lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 잘못된 구현 - 가짜 깨우기에 취약&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">def&lt;/span> &lt;span class="nf">wait_for_data&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">condition&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">shared_data&lt;/span>&lt;span class="p">):&lt;/span>
@@ -117,8 +111,7 @@ title="Copy code"
 &lt;li>상태 변수(is_ready): 단순히 신호만 기다리는 것이 아니라, 실제 데이터의 상태를 추적하는 변수를 사용한다.&lt;/li>
 &lt;li>동기화 블록: 모든 공유 데이터 접근은 condition lock으로 보호된다.&lt;/li>
 &lt;/ol>
-&lt;h3>구현&lt;span class="hx-absolute -hx-mt-20" id="구현">&lt;/span>
-&lt;a href="#%ea%b5%ac%ed%98%84" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>대부분의 현대 운영 체제와 프로그래밍 언어에서 조건 변수를 지원한다.&lt;/p>
+&lt;h3>구현&lt;/h3>&lt;p>대부분의 현대 운영 체제와 프로그래밍 언어에서 조건 변수를 지원한다.&lt;/p>
 &lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
 &lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">threading&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">time&lt;/span>
@@ -200,5 +193,4 @@ title="Copy code"
 &lt;li>큐가 비었을 때 소비자를 대기시키고, 데이터가 들어오면 깨우기&lt;/li>
 &lt;/ol>
 &lt;hr>
-&lt;h2>참고 및 출처&lt;span class="hx-absolute -hx-mt-20" id="참고-및-출처">&lt;/span>
-&lt;a href="#%ec%b0%b8%ea%b3%a0-%eb%b0%8f-%ec%b6%9c%ec%b2%98" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item></channel></rss>
+&lt;h2>참고 및 출처&lt;/h2></description></item></channel></rss>
