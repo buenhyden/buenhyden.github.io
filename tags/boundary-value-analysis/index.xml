@@ -1,211 +1,24 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>hyunyoun's Blog – Boundary-Value-Analysis</title><link>https://buenhyden.github.io/tags/boundary-value-analysis/</link><description>Recent content in Boundary-Value-Analysis on hyunyoun's Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Thu, 12 Dec 2024 09:58:00 +0000</lastBuildDate><atom:link href="https://buenhyden.github.io/tags/boundary-value-analysis/index.xml" rel="self" type="application/rss+xml"/><item><title>Boundary Value Analysis</title><link>https://buenhyden.github.io/posts/qa/qc/test/test-design/black-box-testing/specification-based-test/boundary-value-analysis/</link><pubDate>Thu, 12 Dec 2024 09:58:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/qa/qc/test/test-design/black-box-testing/specification-based-test/boundary-value-analysis/</guid><description>
-&lt;h2>경계값 분석 (Boundary Value Analysis, BVA)&lt;/h2>&lt;p>경계값 분석은 입력 또는 출력 범위의 경계 근처에서 결함이 발생할 가능성이 높다는 경험적 관찰에 기반한 테스트 기법.&lt;br>
-프로그래머들이 흔히 &amp;ldquo;off-by-one&amp;rdquo; 오류를 범하거나 경계 조건을 잘못 처리하는 경향이 있기 때문에, 이러한 경계값을 집중적으로 테스트하는 것이 효과적이다.&lt;/p>
-&lt;p>예를 들어, 어떤 시스템이 1에서 100 사이의 숫자만 받아들인다고 가정해보자.&lt;br>
-이때 0, 1, 2와 99, 100, 101 같은 경계값들을 테스트하는 것이 중요하다.&lt;br>
-왜냐하면 이러한 값들에서 시스템이 올바르게 작동하지 않을 가능성이 높기 때문이다.&lt;/p>
-&lt;h3>경계값 분석의 주요 원칙&lt;/h3>&lt;p>경계값 분석에는 다음과 같은 핵심 원칙들이 있다:&lt;/p>
-&lt;ol>
-&lt;li>
-&lt;p>최소값과 최대값 테스트:&lt;br>
-유효 범위의 최소값과 최대값을 반드시 테스트한다.&lt;br>
-예를 들어, 1-100 범위라면 1과 100을 테스트한다.&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>경계 근처의 값 테스트:&lt;br>
-경계값 바로 안쪽과 바깥쪽의 값을 테스트한다.&lt;br>
-1-100 범위의 경우:&lt;/p>
-&lt;ul>
-&lt;li>최소값 경계: 0, 1, 2&lt;/li>
-&lt;li>최대값 경계: 99, 100, 101&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ol>
-&lt;h3>대표적인 경계값 상황들&lt;/h3>&lt;p>날짜와 시간:&lt;/p>
-&lt;ul>
-&lt;li>윤년/평년 전환 (2월 28일, 29일)&lt;/li>
-&lt;li>월말/월초 전환 (31일, 1일)&lt;/li>
-&lt;li>자정 전후 (23:59:59, 00:00:00)&lt;/li>
-&lt;/ul>
-&lt;p>수치 데이터:&lt;/p>
-&lt;ul>
-&lt;li>정수 자료형의 최대/최소값&lt;/li>
-&lt;li>부동소수점 정밀도 한계&lt;/li>
-&lt;li>배열의 첫 번째/마지막 요소&lt;/li>
-&lt;/ul>
-&lt;p>문자열 처리:&lt;/p>
-&lt;ul>
-&lt;li>빈 문자열&lt;/li>
-&lt;li>최대 길이 문자열&lt;/li>
-&lt;li>특수문자가 포함된 경계&lt;/li>
-&lt;/ul>
-&lt;h3>실제 적용 예시&lt;/h3>&lt;p>학생 성적 처리 시스템을 예로 들어보자다:&lt;/p>
-&lt;p>점수 범위: 0-100점&lt;br>
-등급 기준:&lt;/p>
-&lt;ul>
-&lt;li>A: 90-100&lt;/li>
-&lt;li>B: 80-89&lt;/li>
-&lt;li>C: 70-79&lt;/li>
-&lt;li>D: 60-69&lt;/li>
-&lt;li>F: 0-59&lt;/li>
-&lt;/ul>
-&lt;p>이 시스템의 경계값 테스트 케이스는 다음과 같이 설계할 수 있다:&lt;/p>
-&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
-&lt;pre>&lt;code>테스트 케이스 세트:
-1. 최저 경계
-- 입력값: -1 (유효하지 않은 값)
-- 입력값: 0 (최소 유효값)
-- 입력값: 1 (최소값 바로 위)
-2. 등급 경계
-- 입력값: 59, 60, 61 (F/D 경계)
-- 입력값: 69, 70, 71 (D/C 경계)
-- 입력값: 79, 80, 81 (C/B 경계)
-- 입력값: 89, 90, 91 (B/A 경계)
-3. 최고 경계
-- 입력값: 99 (최대값 바로 아래)
-- 입력값: 100 (최대 유효값)
-- 입력값: 101 (유효하지 않은 값)&lt;/code>&lt;/pre>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
-&lt;button
-class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
-title="Copy code"
->
-&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;/button>
-&lt;/div>
-&lt;/div>
-&lt;h3>효과적인 경계값 분석을 위한 지침&lt;/h3>&lt;ol>
-&lt;li>
-&lt;p>테스트 범위 결정:&lt;br>
-입력값뿐만 아니라 출력값의 경계도 고려한.&lt;br>
-예를 들어, 화면에 표시되는 데이터의 크기나 형식에 대한 경계값도 테스트한다.&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>데이터 타입 고려:&lt;br>
-각 데이터 타입별로 특별히 고려해야 할 경계값들이 있다:&lt;/p>
-&lt;ul>
-&lt;li>정수형: 최대/최소값, 부호 전환점&lt;/li>
-&lt;li>실수형: 정밀도 한계, 반올림/올림/내림 경계&lt;/li>
-&lt;li>문자열: 길이 제한, 인코딩 경계&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;p>복합 경계값:&lt;br>
-여러 조건이 결합된 경우, 각 조건의 경계값들을 조합하여 테스트한다.&lt;br>
-예를 들어:&lt;/p>
-&lt;ul>
-&lt;li>날짜와 시간이 결합된 경우&lt;/li>
-&lt;li>다중 범위 조건이 있는 경우&lt;/li>
-&lt;li>여러 입력 필드가 서로 연관된 경우&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ol>
-&lt;h3>주요 특징&lt;/h3>&lt;ul>
-&lt;li>모든 테스트 레벨, 테스트 형태, 테스트 분류에 적용 가능하다.&lt;/li>
-&lt;li>결함 발견율이 높고 적용하기 쉬운 장점이 있어 가장 많이 사용되는 테스트 기법 중 하나이다.&lt;/li>
-&lt;li>경계값을 명시한 자세한 명세서가 있을 경우 적용하기가 수월하다.&lt;/li>
-&lt;/ul>
-&lt;h3>경계값 분석의 종류&lt;/h3>&lt;ol>
-&lt;li>
-&lt;p>Boundary Value Analysis: 입력 범위의 경계값과 그 주변 값을 중점적으로 테스트하는 기법.&lt;br>
-특징:&lt;br>
-- 입력 도메인의 최소값, 최대값, 그리고 그 주변 값을 테스트한다.&lt;br>
-- 유효한 입력 범위 내의 값들만 테스트한다.&lt;br>
-- 많은 오류가 경계값 근처에서 발생한다는 경험에 기반한다.&lt;br>
-예시1: 연령 입력 필드(유효 범위: 18-65세)에 대한 테스트 케이스.&lt;/p>
-&lt;ul>
-&lt;li>테스트 케이스:
-&lt;ul>
-&lt;li>17세 (최소값 미만)&lt;/li>
-&lt;li>18세 (최소값)&lt;/li>
-&lt;li>19세 (최소값 초과)&lt;/li>
-&lt;li>64세 (최대값 미만)&lt;/li>
-&lt;li>65세 (최대값)&lt;/li>
-&lt;li>66세 (최대값 초과)&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;p>Robustness Testing: 유효하지 않은 입력값과 예상치 못한 상황에 대한 시스템의 대응을 테스트하는 기법.&lt;br>
-특징:&lt;br>
-- 유효한 입력 범위를 벗어난 값들도 테스트한다.&lt;br>
-- 시스템의 안정성과 오류 처리 능력을 평가한다.&lt;br>
-예시: 연령 입력 필드(유효 범위: 18-65세)에 대한 테스트 케이스.&lt;/p>
-&lt;ul>
-&lt;li>테스트 케이스:
-&lt;ul>
-&lt;li>-1세 (음수 값)&lt;/li>
-&lt;li>0세 (최소값보다 작은 유효하지 않은 값)&lt;/li>
-&lt;li>100세 (최대값보다 큰 유효하지 않은 값)&lt;/li>
-&lt;li>&amp;ldquo;ABC&amp;rdquo; (문자열 입력)&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;p>Worst-Case Testing: 시스템이 처리할 수 있는 극단적인 상황을 테스트하는 기법.&lt;br>
-특징:&lt;br>
-- 여러 입력 변수의 극단적인 값 조합을 사용한다.&lt;br>
-- 시스템의 한계를 테스트한다.&lt;br>
-예시1: 사용자 등록 시스템에서의 Worst-Case Testing.&lt;/p>
-&lt;ul>
-&lt;li>테스트 케이스:
-&lt;ul>
-&lt;li>이름: 최대 허용 길이의 문자열&lt;/li>
-&lt;li>나이: 시스템이 허용하는 최대 나이 (예: 120세)&lt;/li>
-&lt;li>이메일: 최대 길이의 유효한 이메일 주소&lt;/li>
-&lt;li>비밀번호: 최대 허용 길이의 복잡한 문자열&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;p>Robust worst-case Testing: Worst-Case Testing과 Robustness Testing을 결합한 기법.&lt;br>
-특징:&lt;br>
-- 극단적인 유효값과 유효하지 않은 값을 모두 테스트한다.&lt;br>
-- 가장 포괄적인 경계값 테스팅 방법이다.&lt;br>
-예시1: 사용자 등록 시스템에서의 Robust worst-case Testing.&lt;/p>
-&lt;ul>
-&lt;li>테스트 케이스:
-&lt;ul>
-&lt;li>이름: 빈 문자열 또는 특수 문자만으로 구성된 최대 길이 문자열&lt;/li>
-&lt;li>나이: -1, 0, 최대 허용 나이보다 큰 값 (예: 150세)&lt;/li>
-&lt;li>이메일: 유효하지 않은 최대 길이 문자열&lt;/li>
-&lt;li>비밀번호: 빈 문자열 또는 시스템 제한을 초과하는 길이의 문자열&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ol>
-&lt;h3>장점&lt;/h3>&lt;ul>
-&lt;li>결함 발견 효율성이 높다&lt;/li>
-&lt;li>테스트 케이스 수를 체계적으로 줄일 수 있다&lt;/li>
-&lt;li>구현 오류를 효과적으로 찾아낼 수 있다&lt;/li>
-&lt;/ul>
-&lt;h3>한계&lt;/h3>&lt;ul>
-&lt;li>모든 가능한 결함을 찾아내지는 못한다&lt;/li>
-&lt;li>복잡한 로직의 경우 경계값 정의가 어려울 수 있다&lt;/li>
-&lt;li>여러 변수가 결합된 경우 테스트 케이스가 급증할 수 있다&lt;/li>
-&lt;/ul>
-&lt;h3>자동화 및 도구 활용&lt;/h3>&lt;p>경계값 분석을 자동화하기 위한 방법들:&lt;/p>
-&lt;ol>
-&lt;li>
-&lt;p>테스트 데이터 생성기:&lt;/p>
-&lt;ul>
-&lt;li>정의된 범위에 대한 경계값을 자동으로 생성&lt;/li>
-&lt;li>다양한 데이터 타입에 대한 경계값 생성 지원&lt;/li>
-&lt;li>랜덤 테스트와의 결합 가능&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;p>테스트 프레임워크:&lt;/p>
-&lt;ul>
-&lt;li>경계값 테스트를 위한 특별한 어노테이션이나 기능 제공&lt;/li>
-&lt;li>테스트 결과의 자동 검증&lt;/li>
-&lt;li>테스트 커버리지 측정&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ol>
-&lt;hr>
-&lt;h2>참고 및 출처&lt;/h2></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Boundary-Value-Analysis on hyunyoun&#39;s Blog</title>
+    <link>https://buenhyden.github.io/tags/boundary-value-analysis/</link>
+    <description>Recent content in Boundary-Value-Analysis on hyunyoun&#39;s Blog</description>
+    <image>
+      <title>hyunyoun&#39;s Blog</title>
+      <url>https://buenhyden.github.io/images</url>
+      <link>https://buenhyden.github.io/images</link>
+    </image>
+    <generator>Hugo -- 0.141.0</generator>
+    <language>en</language>
+    <lastBuildDate>Thu, 12 Dec 2024 09:58:00 +0000</lastBuildDate>
+    <atom:link href="https://buenhyden.github.io/tags/boundary-value-analysis/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Boundary Value Analysis</title>
+      <link>https://buenhyden.github.io/posts/qa/qc/test/test-design/black-box-testing/specification-based-test/boundary-value-analysis/</link>
+      <pubDate>Thu, 12 Dec 2024 09:58:00 +0000</pubDate>
+      <guid>https://buenhyden.github.io/posts/qa/qc/test/test-design/black-box-testing/specification-based-test/boundary-value-analysis/</guid>
+      <description>경계값 분석은 입력 또는 출력 범위의 경계 근처에서 결함이 발생할 가능성이 높다는 경험적 관찰에 기반한 테스트 기법</description>
+    </item>
+  </channel>
+</rss>

@@ -1,282 +1,31 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>hyunyoun's Blog – Livelock</title><link>https://buenhyden.github.io/tags/livelock/</link><description>Recent content in Livelock on hyunyoun's Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Wed, 25 Dec 2024 07:03:00 +0000</lastBuildDate><atom:link href="https://buenhyden.github.io/tags/livelock/index.xml" rel="self" type="application/rss+xml"/><item><title>Deadlock vs Livelock</title><link>https://buenhyden.github.io/til/2024/12/deadlock-vs-livelock/</link><pubDate>Wed, 25 Dec 2024 07:03:00 +0000</pubDate><guid>https://buenhyden.github.io/til/2024/12/deadlock-vs-livelock/</guid><description>
-&lt;h2>Deadlock Vs Livelock&lt;/h2>&lt;p>데드락(Deadlock)과 라이브락(Livelock)은 둘 다 동시성 프로그래밍에서 발생할 수 있는 문제 상황으로, 데드락과 라이브락은 모두 시스템의 진행을 방해하는 심각한 문제이다.&lt;/p>
-&lt;p>데드락(Deadlock)은 두 개 이상의 프로세스나 스레드가 서로가 보유한 자원을 기다리며 무한정 대기하는 상태를 말하며, 상호 배제(Mutual Exclusion), 점유 대기(Hold and Wait), 비선점(No Preemption), 순환 대기(Circular Wait) 등의 조건이 충족되어야 한다. 예를 들어, 프로세스 A가 자원 X를 점유하고, 프로세스 B가 자원 Y를 점유한 상태에서, A는 Y를, B는 X를 요청하면 데드락이 발생한다&lt;/p>
-&lt;p>라이브락(Livelock)은 프로세스들이 계속해서 상태를 변경하지만 실제로는 어떤 진전도 없는 상황을 말한다.&lt;br>
-지속적인 상태 변경이 일어나지만, 진전이 없다. 예를 들어, 두 사람이 좁은 복도에서 마주쳤을 때, 서로 양보하려고 같은 방향으로 계속 이동하는 상황을 생각해볼 수 있다.&lt;/p>
-&lt;h2>비교 분석 표&lt;/h2>&lt;table>
-&lt;thead>
-&lt;tr>
-&lt;th>특성&lt;/th>
-&lt;th>데드락 (Deadlock)&lt;/th>
-&lt;th>라이브락 (Livelock)&lt;/th>
-&lt;/tr>
-&lt;/thead>
-&lt;tbody>
-&lt;tr>
-&lt;td>정의&lt;/td>
-&lt;td>프로세스들이 서로의 자원을 기다리며 무한정 대기하는 상태&lt;/td>
-&lt;td>프로세스들이 계속 상태를 변경하지만 진전이 없는 상태&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>프로세스 상태&lt;/td>
-&lt;td>완전히 멈춰있음&lt;/td>
-&lt;td>계속해서 상태 변경&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>자원 점유&lt;/td>
-&lt;td>자원을 점유한 채로 다른 자원을 기다림&lt;/td>
-&lt;td>자원을 점유하지 않고 계속 요청하고 해제&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>CPU 사용&lt;/td>
-&lt;td>CPU 사용 없음&lt;/td>
-&lt;td>CPU 계속 사용&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>해결 가능성&lt;/td>
-&lt;td>외부 개입 없이 해결 불가능&lt;/td>
-&lt;td>시간이 지나면 자연스럽게 해결될 가능성 있음&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>발생 원인&lt;/td>
-&lt;td>자원 할당의 순환 의존성&lt;/td>
-&lt;td>데드락을 피하려는 과정에서 발생 가능&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>프로세스 진행&lt;/td>
-&lt;td>완전히 멈춤&lt;/td>
-&lt;td>진행은 하지만 실질적 진전 없음&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>해결 방법&lt;/td>
-&lt;td>예방, 회피, 탐지 및 복구&lt;/td>
-&lt;td>무작위성 도입, 우선순위 부여, 타임아웃 설정&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>실제 예시&lt;/td>
-&lt;td>두 프로세스가 서로의 자원을 점유하고 대기&lt;/td>
-&lt;td>두 사람이 복도에서 서로 양보하며 계속 이동&lt;/td>
-&lt;/tr>
-&lt;/tbody>
-&lt;/table>
-&lt;h3>해결 방법&lt;/h3>&lt;h4>데드락 해결 방법&lt;/h4>&lt;ol>
-&lt;li>&lt;strong>예방&lt;/strong>: 데드락의 네 가지 조건 중 하나를 제거한다.&lt;/li>
-&lt;li>&lt;strong>회피&lt;/strong>: 자원 할당 상태를 지속적으로 검사하여 안전한 상태를 유지한다.&lt;/li>
-&lt;li>&lt;strong>탐지 및 복구&lt;/strong>: 데드락을 탐지하고, 발생 시 프로세스를 강제 종료하거나 자원을 선점한다.&lt;/li>
-&lt;/ol>
-&lt;blockquote>
-&lt;p>데드락(Deadlock)의 네 가지 조건&lt;/p>
-&lt;ol>
-&lt;li>&lt;strong>상호 배제(Mutual Exclusion)&lt;/strong>: 자원은 한 번에 하나의 프로세스만 사용할 수 있다.&lt;/li>
-&lt;li>&lt;strong>점유 대기(Hold and Wait)&lt;/strong>: 프로세스가 이미 자원을 보유한 상태에서 다른 자원을 요청한다.&lt;/li>
-&lt;li>&lt;strong>비선점(No Preemption)&lt;/strong>: 다른 프로세스가 사용 중인 자원을 강제로 빼앗을 수 없다.&lt;/li>
-&lt;li>&lt;strong>순환 대기(Circular Wait)&lt;/strong>: 프로세스들이 순환적으로 서로의 자원을 기다린다.&lt;/li>
-&lt;/ol>
-&lt;/blockquote>
-&lt;h4>라이브락 해결 방법&lt;/h4>&lt;ol>
-&lt;li>&lt;strong>무작위성 도입&lt;/strong>: 프로세스들이 동작을 결정할 때 약간의 무작위성을 도입한다.&lt;/li>
-&lt;li>&lt;strong>우선순위 부여&lt;/strong>: 프로세스들에게 서로 다른 우선순위를 부여한다.&lt;/li>
-&lt;li>&lt;strong>타임아웃 설정&lt;/strong>: 일정 시간 동안 진전이 없으면 작업을 재시도하거나 포기한다.&lt;/li>
-&lt;/ol>
-&lt;hr>
-&lt;h2>참고 및 출처&lt;/h2></description></item><item><title>라이브락 (Livelock)</title><link>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/critical-section/livelock/</link><pubDate>Mon, 25 Nov 2024 09:17:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/critical-section/livelock/</guid><description>
-&lt;h2>라이브락 (Livelock)&lt;/h2>&lt;p>멀티스레딩 환경에서 발생할 수 있는 문제 상황으로, 프로세스나 스레드가 계속 실행 중이지만 실제로는 유용한 작업을 수행하지 못하는 상태&lt;/p>
-&lt;h3>라이브락의 특징:&lt;/h3>&lt;ol>
-&lt;li>진행 중 상태: 프로세스나 스레드가 &amp;lsquo;실행 중&amp;rsquo; 상태를 유지한다.&lt;/li>
-&lt;li>무의미한 작업: 실제로는 어떠한 유용한 작업도 수행하지 못한다.&lt;/li>
-&lt;li>반복적 상태 변경: 특정 조건을 만족시키기 위해 상태를 계속 변경하지만 원하는 결과를 달성하지 못한다.&lt;/li>
-&lt;/ol>
-&lt;h3>라이브락과 데드락의 차이:&lt;/h3>&lt;ul>
-&lt;li>데드락: 프로세스들이 서로의 자원을 기다리며 완전히 멈춘 상태&lt;/li>
-&lt;li>라이브락: 프로세스들이 계속 실행되지만 실제로는 진전이 없는 상태&lt;/li>
-&lt;/ul>
-&lt;h3>라이브락의 예시:&lt;/h3>&lt;ol>
-&lt;li>복도에서 마주친 두 사람: 서로 지나가려고 같은 방향으로 계속 이동하지만 결국 지나가지 못하는 상황&lt;/li>
-&lt;li>프로세스 간 자원 경쟁:
-&lt;ul>
-&lt;li>프로세스 A가 자원 Y를 보유하고 X를 필요로 함&lt;/li>
-&lt;li>프로세스 B가 자원 X를 보유하고 Y를 필요로 함&lt;/li>
-&lt;li>두 프로세스가 서로의 자원을 기다리며 계속 상태를 변경하지만 진전이 없음&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ol>
-&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
-&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">threading&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">time&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">Philosopher&lt;/span>&lt;span class="p">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">name&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">left_fork&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">right_fork&lt;/span>&lt;span class="p">):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">name&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">left_fork&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">left_fork&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">right_fork&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">right_fork&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">try_eat&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">while&lt;/span> &lt;span class="kc">True&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="c1"># 계속해서 시도&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">left_fork&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">acquire&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">timeout&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">):&lt;/span> &lt;span class="c1"># 왼쪽 포크 잡기 시도&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sa">f&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="si">{&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">name&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">이(가) 왼쪽 포크를 집었습니다&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">right_fork&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">acquire&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">timeout&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">):&lt;/span> &lt;span class="c1"># 오른쪽 포크 잡기 시도&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sa">f&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="si">{&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">name&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">이(가) 식사를 시작합니다&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">time&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">sleep&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="c1"># 식사하는 시간&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">right_fork&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">release&lt;/span>&lt;span class="p">()&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">left_fork&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">release&lt;/span>&lt;span class="p">()&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sa">f&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="si">{&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">name&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">이(가) 포크를 내려놓고 다시 시도합니다&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">time&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">sleep&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mf">0.1&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="c1"># 다른 철학자에게 기회를 주기 위한 대기&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">else&lt;/span>&lt;span class="p">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sa">f&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="si">{&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">name&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">이(가) 포크를 얻지 못해 다시 시도합니다&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">time&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">sleep&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mf">0.1&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="c1"># 재시도 전 대기&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 테스트 코드&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">fork1&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">Lock&lt;/span>&lt;span class="p">()&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">fork2&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">Lock&lt;/span>&lt;span class="p">()&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">philosopher1&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">Philosopher&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;철학자1&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">fork1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">fork2&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">philosopher2&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">Philosopher&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;철학자2&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">fork2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">fork1&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 두 철학자가 동시에 식사하려 시도&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">t1&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">Thread&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">target&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="n">philosopher1&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">try_eat&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">t2&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">Thread&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">target&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="n">philosopher2&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">try_eat&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">t1&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">start&lt;/span>&lt;span class="p">()&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">t2&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">start&lt;/span>&lt;span class="p">()&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
-&lt;button
-class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
-title="Copy code"
->
-&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;/button>
-&lt;/div>
-&lt;/div>
-&lt;p>이 코드에서 두 철학자는 모두 활발히 행동하고 있지만(포크를 집었다 놨다 하면서), 실제로 식사는 하지 못하는 라이브락 상황이 발생할 수 있다.&lt;/p>
-&lt;p>라이브락 해결 방안:&lt;/p>
-&lt;ol>
-&lt;li>
-&lt;p>타임아웃 도입: 일정 시간 후 재시도하도록 설정&lt;/p>
-&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
-&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">TimeoutBasedResource&lt;/span>&lt;span class="p">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">timeout&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="mi">5&lt;/span>&lt;span class="p">):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">timeout&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">timeout&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">lock&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">Lock&lt;/span>&lt;span class="p">()&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">start_time&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">None&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">acquire&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">start_time&lt;/span> &lt;span class="ow">and&lt;/span> &lt;span class="n">time&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">time&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">-&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">start_time&lt;/span> &lt;span class="o">&amp;gt;&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">timeout&lt;/span>&lt;span class="p">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 시간 초과시 강제 해제&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">release&lt;/span>&lt;span class="p">()&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">lock&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">acquire&lt;/span>&lt;span class="p">()&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
-&lt;button
-class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
-title="Copy code"
->
-&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;/button>
-&lt;/div>
-&lt;/div>
-&lt;/li>
-&lt;li>
-&lt;p>무작위성 도입: 상태 변경에 무작위 지연을 추가하여 동시성 문제 해결&lt;/p>
-&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
-&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="k">def&lt;/span> &lt;span class="nf">resource_allocation_with_randomness&lt;/span>&lt;span class="p">():&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">retry_delay&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">random&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">uniform&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="c1"># 0-1초 사이의 무작위 대기&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">time&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">sleep&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">retry_delay&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">try_allocate_resource&lt;/span>&lt;span class="p">()&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
-&lt;button
-class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
-title="Copy code"
->
-&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;/button>
-&lt;/div>
-&lt;/div>
-&lt;/li>
-&lt;li>
-&lt;p>우선순위 조정: 프로세스나 스레드의 우선순위를 동적으로 조정&lt;/p>
-&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
-&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">PrioritizedProcess&lt;/span>&lt;span class="p">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">priority&lt;/span>&lt;span class="p">):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">priority&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">priority&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">attempt_action&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">resource&lt;/span>&lt;span class="p">):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">priority&lt;/span> &lt;span class="o">&amp;gt;&lt;/span> &lt;span class="n">resource&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">current_user_priority&lt;/span>&lt;span class="p">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">resource&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">allocate_to&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="kc">False&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
-&lt;button
-class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
-title="Copy code"
->
-&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;/button>
-&lt;/div>
-&lt;/div>
-&lt;/li>
-&lt;li>
-&lt;p>의존성 최소화: 프로세스 간 의존성을 줄이는 설계 적용&lt;/p>
-&lt;/li>
-&lt;/ol>
-&lt;p>라이브락 방지를 위한 모범 사례:&lt;/p>
-&lt;ol>
-&lt;li>
-&lt;p>재시도 메커니즘 개선:&lt;/p>
-&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
-&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="k">def&lt;/span> &lt;span class="nf">improved_retry_mechanism&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">max_attempts&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="p">):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">attempt&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">while&lt;/span> &lt;span class="n">attempt&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="n">max_attempts&lt;/span>&lt;span class="p">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">try&lt;/span>&lt;span class="p">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="n">perform_action&lt;/span>&lt;span class="p">():&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="kc">True&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">except&lt;/span> &lt;span class="n">ResourceBusyException&lt;/span>&lt;span class="p">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">backoff_time&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="mi">2&lt;/span> &lt;span class="o">**&lt;/span> &lt;span class="n">attempt&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="n">random&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">uniform&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">time&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">sleep&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">backoff_time&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">attempt&lt;/span> &lt;span class="o">+=&lt;/span> &lt;span class="mi">1&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="kc">False&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
-&lt;button
-class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
-title="Copy code"
->
-&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;/button>
-&lt;/div>
-&lt;/div>
-&lt;/li>
-&lt;li>
-&lt;p>리소스 할당 순서 정규화:&lt;/p>
-&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
-&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">ResourceManager&lt;/span>&lt;span class="p">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">resources&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">[]&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">resource_order&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{}&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">acquire_resources&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">needed_resources&lt;/span>&lt;span class="p">):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 리소스를 항상 정해진 순서대로 획득&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">sorted_resources&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nb">sorted&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">needed_resources&lt;/span>&lt;span class="p">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">key&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">lambda&lt;/span> &lt;span class="n">r&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">resource_order&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">r&lt;/span>&lt;span class="p">])&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">for&lt;/span> &lt;span class="n">resource&lt;/span> &lt;span class="ow">in&lt;/span> &lt;span class="n">sorted_resources&lt;/span>&lt;span class="p">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="ow">not&lt;/span> &lt;span class="n">resource&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">acquire&lt;/span>&lt;span class="p">():&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 실패시 이미 획득한 리소스 해제&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">release_resources&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sorted_resources&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="kc">False&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="kc">True&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
-&lt;button
-class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
-title="Copy code"
->
-&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;/button>
-&lt;/div>
-&lt;/div>
-&lt;/li>
-&lt;/ol>
-&lt;p>라이브락 예방:&lt;br>
-3. 명확한 상태 변경 조건 정의&lt;br>
-4. 시스템 설계 시 예상치 못한 상호작용 고려&lt;br>
-5. 주기적인 시스템 모니터링 및 분석 수행&lt;/p>
-&lt;hr>
-&lt;h2>참고 및 출처&lt;/h2></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Livelock on hyunyoun&#39;s Blog</title>
+    <link>https://buenhyden.github.io/tags/livelock/</link>
+    <description>Recent content in Livelock on hyunyoun&#39;s Blog</description>
+    <image>
+      <title>hyunyoun&#39;s Blog</title>
+      <url>https://buenhyden.github.io/images</url>
+      <link>https://buenhyden.github.io/images</link>
+    </image>
+    <generator>Hugo -- 0.141.0</generator>
+    <language>en</language>
+    <lastBuildDate>Wed, 25 Dec 2024 07:03:00 +0000</lastBuildDate>
+    <atom:link href="https://buenhyden.github.io/tags/livelock/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Deadlock vs Livelock</title>
+      <link>https://buenhyden.github.io/til/2024/12/deadlock-vs-livelock/</link>
+      <pubDate>Wed, 25 Dec 2024 07:03:00 +0000</pubDate>
+      <guid>https://buenhyden.github.io/til/2024/12/deadlock-vs-livelock/</guid>
+      <description>데드락(Deadlock)과 라이브락(Livelock)은 둘 다 동시성 프로그래밍에서 발생할 수 있는 문제 상황으로, 데드락과 라이브락은 모두 시스템의 진행을 방해하는 심각한 문제이다</description>
+    </item>
+    <item>
+      <title>라이브락 (Livelock)</title>
+      <link>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/critical-section/livelock/</link>
+      <pubDate>Mon, 25 Nov 2024 09:17:00 +0000</pubDate>
+      <guid>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/critical-section/livelock/</guid>
+      <description>멀티스레딩 환경에서 발생할 수 있는 문제 상황으로, 프로세스나 스레드가 계속 실행 중이지만 실제로는 유용한 작업을 수행하지 못하는 상태</description>
+    </item>
+  </channel>
+</rss>

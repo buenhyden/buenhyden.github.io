@@ -1,147 +1,24 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>hyunyoun's Blog – RCU-List</title><link>https://buenhyden.github.io/tags/rcu-list/</link><description>Recent content in RCU-List on hyunyoun's Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Mon, 06 Jan 2025 12:55:00 +0000</lastBuildDate><atom:link href="https://buenhyden.github.io/tags/rcu-list/index.xml" rel="self" type="application/rss+xml"/><item><title>Concurrent Data Structure</title><link>https://buenhyden.github.io/til/2025/01/concurrent-data-structure/</link><pubDate>Mon, 06 Jan 2025 12:55:00 +0000</pubDate><guid>https://buenhyden.github.io/til/2025/01/concurrent-data-structure/</guid><description>
-&lt;h2>Concurrent Data Structure&lt;/h2>&lt;p>Concurrent Data Structure는 여러 스레드가 동시에 안전하게 접근하고 조작할 수 있도록 설계된 데이터 구조이다.&lt;br>
-전통적인 데이터 구조와 달리, 동시성을 고려하여 데이터의 일관성과 무결성을 보장하면서도 높은 성능을 제공하는 것이 특징이다.&lt;br>
-Concurrent Data Structure는 여러 스레드가 동시에 안전하게 접근하고 수정할 수 있도록 설계된 데이터 구조입니다.&lt;/p>
-&lt;p>Concurrent Data Structure는 일반적으로 다음과 같은 방식으로 구현된다:&lt;/p>
-&lt;ul>
-&lt;li>세밀한 락(fine-grained locking) 사용&lt;/li>
-&lt;li>락 없는(lock-free) 알고리즘&lt;/li>
-&lt;li>대기 없는(wait-free) 알고리즘&lt;/li>
-&lt;li>지연된 삭제와 메모리 재사용 기법&lt;/li>
-&lt;/ul>
-&lt;p>이러한 구조는 고성능 멀티스레드 시스템, 데이터베이스, 운영체제, 네트워크 스택 등 다양한 분야에서 활용된다.&lt;/p>
-&lt;h3>주요 특징&lt;/h3>&lt;ol>
-&lt;li>스레드 안전성: 여러 스레드가 동시에 접근해도 데이터의 일관성을 유지한다.&lt;/li>
-&lt;li>높은 동시성: 여러 스레드가 동시에 작업을 수행할 수 있어 성능이 향상된다.&lt;/li>
-&lt;li>락 최소화: 전체 구조에 대한 락 대신 세밀한 락이나 락 없는 기법을 사용한다.&lt;/li>
-&lt;li>확장성: 스레드 수가 증가해도 성능 저하가 적다.&lt;/li>
-&lt;li>원자적 연산: Compare-And-Swap(CAS)과 같은 원자적 연산을 활용한다.&lt;/li>
-&lt;/ol>
-&lt;h3>Concurrent Data Structure 패턴 비교&lt;/h3>&lt;table>
-&lt;thead>
-&lt;tr>
-&lt;th>특성&lt;/th>
-&lt;th>Concurrent HashMap&lt;/th>
-&lt;th>Concurrent Skip List&lt;/th>
-&lt;th>Lock-free Queue&lt;/th>
-&lt;th>Lock-free Stack&lt;/th>
-&lt;th>Read-Copy-Update (RCU) List&lt;/th>
-&lt;/tr>
-&lt;/thead>
-&lt;tbody>
-&lt;tr>
-&lt;td>개념&lt;/td>
-&lt;td>동시에 여러 스레드가 접근 가능한 해시 기반 맵&lt;/td>
-&lt;td>동시성을 지원하는 계층화된 정렬 리스트&lt;/td>
-&lt;td>락 없이 동시 접근 가능한 FIFO 큐&lt;/td>
-&lt;td>락 없이 동시 접근 가능한 LIFO 스택&lt;/td>
-&lt;td>읽기에 최적화된 동시성 리스트&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>동기화 방식&lt;/td>
-&lt;td>세그먼트 락 또는 CAS&lt;/td>
-&lt;td>CAS 기반&lt;/td>
-&lt;td>CAS 기반&lt;/td>
-&lt;td>CAS 기반&lt;/td>
-&lt;td>읽기는 락 없음, 쓰기는 RCU 메커니즘&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>주요 용도&lt;/td>
-&lt;td>동시성 캐시, 공유 데이터 저장&lt;/td>
-&lt;td>정렬된 데이터의 동시 접근&lt;/td>
-&lt;td>작업 큐, 버퍼&lt;/td>
-&lt;td>후입선출 데이터 관리&lt;/td>
-&lt;td>읽기가 빈번한 데이터 구조&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>성능 특성&lt;/td>
-&lt;td>읽기/쓰기 균형&lt;/td>
-&lt;td>로그 시간 복잡도 연산&lt;/td>
-&lt;td>높은 처리량&lt;/td>
-&lt;td>빠른 푸시/팝 연산&lt;/td>
-&lt;td>매우 빠른 읽기, 느린 쓰기&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>장점&lt;/td>
-&lt;td>높은 동시성, 확장성&lt;/td>
-&lt;td>효율적인 검색과 삽입&lt;/td>
-&lt;td>높은 동시성, 데드락 없음&lt;/td>
-&lt;td>단순한 구현, 높은 동시성&lt;/td>
-&lt;td>락 없는 읽기, 높은 확장성&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>단점&lt;/td>
-&lt;td>메모리 사용량 증가&lt;/td>
-&lt;td>구현 복잡도 높음&lt;/td>
-&lt;td>ABA 문제 가능성&lt;/td>
-&lt;td>ABA 문제, 제한된 확장성&lt;/td>
-&lt;td>복잡한 메모리 관리&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>메모리 사용&lt;/td>
-&lt;td>중간~높음&lt;/td>
-&lt;td>중간&lt;/td>
-&lt;td>낮음&lt;/td>
-&lt;td>낮음&lt;/td>
-&lt;td>높음 (여러 버전 유지)&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>구현 방식&lt;/td>
-&lt;td>버킷 배열, 연결 리스트/트리&lt;/td>
-&lt;td>계층화된 연결 리스트&lt;/td>
-&lt;td>연결 리스트, 원자적 포인터&lt;/td>
-&lt;td>연결 리스트, 원자적 포인터&lt;/td>
-&lt;td>버전 관리된 연결 리스트&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>특징&lt;/td>
-&lt;td>동적 크기 조정&lt;/td>
-&lt;td>확률적 밸런싱&lt;/td>
-&lt;td>대기 없는 연산&lt;/td>
-&lt;td>단순한 구조&lt;/td>
-&lt;td>읽기 최적화&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>구현 복잡도&lt;/td>
-&lt;td>중간&lt;/td>
-&lt;td>높음&lt;/td>
-&lt;td>중간&lt;/td>
-&lt;td>낮음&lt;/td>
-&lt;td>높음&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>확장성&lt;/td>
-&lt;td>매우 좋음&lt;/td>
-&lt;td>좋음&lt;/td>
-&lt;td>좋음&lt;/td>
-&lt;td>제한적&lt;/td>
-&lt;td>매우 좋음 (읽기)&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>ABA 문제&lt;/td>
-&lt;td>해결됨&lt;/td>
-&lt;td>해결 필요&lt;/td>
-&lt;td>해결 필요&lt;/td>
-&lt;td>해결 필요&lt;/td>
-&lt;td>해결됨&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>순서 보장&lt;/td>
-&lt;td>보장 안 됨&lt;/td>
-&lt;td>정렬 순서 보장&lt;/td>
-&lt;td>FIFO 보장&lt;/td>
-&lt;td>LIFO 보장&lt;/td>
-&lt;td>보장 안 됨&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>사용 사례&lt;/td>
-&lt;td>데이터베이스, 캐시 시스템&lt;/td>
-&lt;td>정렬된 데이터 관리&lt;/td>
-&lt;td>작업 스케줄링, 이벤트 처리&lt;/td>
-&lt;td>메모리 할당자, 스택 추적&lt;/td>
-&lt;td>운영체제 커널, 네트워크 스택&lt;/td>
-&lt;/tr>
-&lt;/tbody>
-&lt;/table>
-&lt;hr>
-&lt;h2>참고 및 출처&lt;/h2></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>RCU-List on hyunyoun&#39;s Blog</title>
+    <link>https://buenhyden.github.io/tags/rcu-list/</link>
+    <description>Recent content in RCU-List on hyunyoun&#39;s Blog</description>
+    <image>
+      <title>hyunyoun&#39;s Blog</title>
+      <url>https://buenhyden.github.io/images</url>
+      <link>https://buenhyden.github.io/images</link>
+    </image>
+    <generator>Hugo -- 0.141.0</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 06 Jan 2025 12:55:00 +0000</lastBuildDate>
+    <atom:link href="https://buenhyden.github.io/tags/rcu-list/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Concurrent Data Structure</title>
+      <link>https://buenhyden.github.io/til/2025/01/concurrent-data-structure/</link>
+      <pubDate>Mon, 06 Jan 2025 12:55:00 +0000</pubDate>
+      <guid>https://buenhyden.github.io/til/2025/01/concurrent-data-structure/</guid>
+      <description>Concurrent Data Structure는 여러 스레드가 동시에 안전하게 접근하고 조작할 수 있도록 설계된 데이터 구조로, 전통적인 데이터 구조와 달리, 동시성을 고려하여 데이터의 일관성과 무결성을 보장하면서도 높은 성능을 제공하는 것이 특징이다.</description>
+    </item>
+  </channel>
+</rss>

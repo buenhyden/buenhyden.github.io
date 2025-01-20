@@ -1,111 +1,24 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>hyunyoun's Blog – Fenwick-Tree</title><link>https://buenhyden.github.io/tags/fenwick-tree/</link><description>Recent content in Fenwick-Tree on hyunyoun's Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Tue, 07 Jan 2025 12:56:00 +0000</lastBuildDate><atom:link href="https://buenhyden.github.io/tags/fenwick-tree/index.xml" rel="self" type="application/rss+xml"/><item><title>Fenwick Tree</title><link>https://buenhyden.github.io/posts/data-structure-and-algorithm/data-structure/non-primitive/non-linear/tree/range-query/fenwick-tree/</link><pubDate>Tue, 07 Jan 2025 12:56:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/data-structure-and-algorithm/data-structure/non-primitive/non-linear/tree/range-query/fenwick-tree/</guid><description>
-&lt;h2>Fenwick Tree (Binary Indexed Tree, BIT)&lt;/h2>&lt;p>Fenwick Tree는 구간 합을 효율적으로 계산하고 업데이트하기 위해 설계된 특수한 트리 구조로, 데이터베이스, 알고리즘 문제 해결, 그리고 다양한 응용 프로그램에서 사용된다.&lt;br>
-1994년 Peter M. Fenwick에 의해 제안되었다.&lt;br>
-데이터를 저장하고 조작하는 방식을 정의하며, 특정 연산을 효율적으로 수행할 수 있게 해줍니다.&lt;/p>
-&lt;p>
-&lt;figure class="image-figure">
-&lt;img src="https://buenhyden.github.io/posts/Data%20Structure%20and%20Algorithm/Data%20Structure/Non-Primitive/Non-Linear/Tree/Range%20Query/640px-16-node_Fenwick_tree.svg.png"
-alt="Depiction of a 16-node Fenwick tree, with nodes containing range sums of a 15-node array A"
-loading="lazy" />
-&lt;/figure>&lt;br>
-_Source: &lt;a href="https://en.wikipedia.org/wiki/Fenwick_tree#/media/File:16-node_Fenwick_tree.svg" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Fenwick_tree#/media/File:16-node_Fenwick_tree.svg&lt;/a> _&lt;/p>
-&lt;p>일반적인 트리와 달리, 배열을 사용하여 이진 트리를 암시적으로 표현한다.&lt;br>
-각 인덱스는 이진수 표현에서 마지막 1의 위치에 따라 관리하는 구간의 크기가 결정된다.&lt;/p>
-&lt;h3>특징&lt;/h3>&lt;ol>
-&lt;li>공간 효율성: 세그먼트 트리보다 메모리 사용이 적다.&lt;/li>
-&lt;li>동적 구조: 데이터의 변경을 효율적으로 처리할 수 있다.&lt;/li>
-&lt;li>이진 표현 활용: 인덱스의 이진 표현을 사용하여 누적 빈도를 저장하고 조작한다.&lt;/li>
-&lt;li>로그 시간 복잡도: 쿼리와 업데이트 연산이 O(log n) 시간에 수행된다.&lt;/li>
-&lt;/ol>
-&lt;h3>장점&lt;/h3>&lt;ol>
-&lt;li>효율적인 시간 복잡도: 구간 합 계산과 업데이트 모두 O(log n)이다.&lt;/li>
-&lt;li>메모리 효율성: 세그먼트 트리에 비해 메모리 사용량이 적다.&lt;/li>
-&lt;li>구현의 용이성: 세그먼트 트리보다 구현이 간단하다.&lt;/li>
-&lt;li>다차원으로의 확장 가능성: 2차원 이상의 배열에도 적용할 수 있다.&lt;/li>
-&lt;/ol>
-&lt;h3>단점&lt;/h3>&lt;ol>
-&lt;li>구현 복잡성: 세그먼트 트리에 비해 구현이 약간 더 복잡할 수 있다.&lt;/li>
-&lt;li>제한된 연산: 일부 복잡한 연산은 직접 지원하지 않는다.&lt;/li>
-&lt;/ol>
-&lt;h3>응용&lt;/h3>&lt;ol>
-&lt;li>데이터베이스 시스템의 구간 합 쿼리&lt;/li>
-&lt;li>알고리즘 대회 문제 해결&lt;/li>
-&lt;li>실시간 데이터 분석 시스템&lt;/li>
-&lt;li>금융 데이터의 누적 합 계산&lt;/li>
-&lt;/ol>
-&lt;h3>동작 원리&lt;/h3>&lt;ol>
-&lt;li>구축: 원본 배열의 각 요소에 대해 트리를 업데이트합니다.&lt;/li>
-&lt;li>쿼리: 이진 표현을 이용해 필요한 부분합들을 효율적으로 더합니다.&lt;/li>
-&lt;li>업데이트: 해당 인덱스와 그 조상 노드들을 갱신합니다.&lt;/li>
-&lt;/ol>
-&lt;h3>구성 요소&lt;/h3>&lt;ol>
-&lt;li>배열: 부분합을 저장하는 기본 구조&lt;/li>
-&lt;li>인덱스: 이진 표현을 이용해 트리 구조를 암시적으로 표현&lt;/li>
-&lt;li>LSB(Least Significant Bit): 업데이트와 쿼리 연산에서 중요한 역할을 한다.&lt;/li>
-&lt;/ol>
-&lt;h3>구현 방식&lt;/h3>&lt;p>Fenwick Tree는 주로 다음과 같은 방식으로 구현된다:&lt;/p>
-&lt;ol>
-&lt;li>1차원 배열을 사용하여 트리 구조를 표현한다.&lt;/li>
-&lt;li>비트 연산을 활용하여 부모 노드와 자식 노드 간의 관계를 정의한다.&lt;/li>
-&lt;li>업데이트와 쿼리 함수를 구현하여 데이터 조작과 조회를 수행한다.&lt;/li>
-&lt;/ol>
-&lt;h2>예시 코드&lt;/h2>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
-&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-cpp" data-lang="cpp">&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">FenwickTree&lt;/span>&lt;span class="o">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">def&lt;/span> &lt;span class="n">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">n&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="o">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">self&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">size&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">n&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">self&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">tree&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">n&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="err">#&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="o">-&lt;/span>&lt;span class="n">based&lt;/span> &lt;span class="n">indexing&lt;/span> &lt;span class="err">사용&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">def&lt;/span> &lt;span class="n">update&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">index&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">delta&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="o">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s">&amp;#34;&amp;#34;&amp;#34;특정 인덱스의 값을 delta만큼 증가시킵니다&amp;#34;&amp;#34;&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">while&lt;/span> &lt;span class="n">index&lt;/span> &lt;span class="o">&amp;lt;=&lt;/span> &lt;span class="n">self&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nl">size&lt;/span>&lt;span class="p">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">self&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">tree&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">index&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">+=&lt;/span> &lt;span class="n">delta&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="cp"># 다음 담당 구간으로 이동 (마지막 1비트를 더함)
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span> &lt;span class="n">index&lt;/span> &lt;span class="o">+=&lt;/span> &lt;span class="n">index&lt;/span> &lt;span class="o">&amp;amp;&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="o">-&lt;/span>&lt;span class="n">index&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">def&lt;/span> &lt;span class="n">prefix_sum&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">index&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="o">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s">&amp;#34;&amp;#34;&amp;#34;1부터 index까지의 구간 합을 반환합니다&amp;#34;&amp;#34;&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">total&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">while&lt;/span> &lt;span class="n">index&lt;/span> &lt;span class="o">&amp;gt;&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="o">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">total&lt;/span> &lt;span class="o">+=&lt;/span> &lt;span class="n">self&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">tree&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">index&lt;/span>&lt;span class="p">]&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="cp"># 이전 담당 구간으로 이동 (마지막 1비트를 뺌)
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span> &lt;span class="n">index&lt;/span> &lt;span class="o">-=&lt;/span> &lt;span class="n">index&lt;/span> &lt;span class="o">&amp;amp;&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="o">-&lt;/span>&lt;span class="n">index&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">total&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">def&lt;/span> &lt;span class="n">range_sum&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">left&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">right&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="o">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s">&amp;#34;&amp;#34;&amp;#34;left부터 right까지의 구간 합을 반환합니다&amp;#34;&amp;#34;&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">self&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">prefix_sum&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">right&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">-&lt;/span> &lt;span class="n">self&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">prefix_sum&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">left&lt;/span> &lt;span class="o">-&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">)&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
-&lt;button
-class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
-title="Copy code"
->
-&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;/button>
-&lt;/div>
-&lt;/div>
-&lt;h3>실제 사용 예시&lt;/h3>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
-&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Fenwick Tree 사용 예시&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">ft&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">FenwickTree&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">10&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 배열 [3, 2, 4, 5, 1, 1, 2, 3, 4, 1]을 표현&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">initial_array&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">4&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">5&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">4&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">]&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">for&lt;/span> &lt;span class="n">i&lt;/span> &lt;span class="ow">in&lt;/span> &lt;span class="nb">range&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">len&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">initial_array&lt;/span>&lt;span class="p">)):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ft&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">update&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">i&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">initial_array&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">])&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 구간 합 계산 예시&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ft&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">range_sum&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">5&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="c1"># 인덱스 1~5의 합: 3+2+4+5+1 = 15&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ft&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">range_sum&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">7&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="c1"># 인덱스 3~7의 합: 4+5+1+1+2 = 13&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 값 업데이트 예시&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">ft&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">update&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">4&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">2&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="c1"># 인덱스 4의 값을 2만큼 증가&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
-&lt;button
-class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
-title="Copy code"
->
-&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;/button>
-&lt;/div>
-&lt;/div>
-&lt;hr>
-&lt;h2>참고 및 출처&lt;/h2></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Fenwick-Tree on hyunyoun&#39;s Blog</title>
+    <link>https://buenhyden.github.io/tags/fenwick-tree/</link>
+    <description>Recent content in Fenwick-Tree on hyunyoun&#39;s Blog</description>
+    <image>
+      <title>hyunyoun&#39;s Blog</title>
+      <url>https://buenhyden.github.io/images</url>
+      <link>https://buenhyden.github.io/images</link>
+    </image>
+    <generator>Hugo -- 0.141.0</generator>
+    <language>en</language>
+    <lastBuildDate>Tue, 07 Jan 2025 12:56:00 +0000</lastBuildDate>
+    <atom:link href="https://buenhyden.github.io/tags/fenwick-tree/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Fenwick Tree</title>
+      <link>https://buenhyden.github.io/posts/data-structure-and-algorithm/data-structure/non-primitive/non-linear/tree/range-query/fenwick-tree/</link>
+      <pubDate>Tue, 07 Jan 2025 12:56:00 +0000</pubDate>
+      <guid>https://buenhyden.github.io/posts/data-structure-and-algorithm/data-structure/non-primitive/non-linear/tree/range-query/fenwick-tree/</guid>
+      <description>Fenwick Tree는 구간 합을 효율적으로 계산하고 업데이트하기 위해 설계된 특수한 트리 구조로, 데이터베이스, 알고리즘 문제 해결, 그리고 다양한 응용 프로그램에서 사용된다.</description>
+    </item>
+  </channel>
+</rss>

@@ -1,251 +1,31 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>hyunyoun's Blog – Suffix-Array</title><link>https://buenhyden.github.io/tags/suffix-array/</link><description>Recent content in Suffix-Array on hyunyoun's Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Wed, 08 Jan 2025 15:40:00 +0000</lastBuildDate><atom:link href="https://buenhyden.github.io/tags/suffix-array/index.xml" rel="self" type="application/rss+xml"/><item><title>Suffix Array vs Suffix Tree vs Trie</title><link>https://buenhyden.github.io/til/2025/01/suffix-array-vs-suffix-tree-vs-trie/</link><pubDate>Wed, 08 Jan 2025 15:40:00 +0000</pubDate><guid>https://buenhyden.github.io/til/2025/01/suffix-array-vs-suffix-tree-vs-trie/</guid><description>
-&lt;h2>Suffix Array Vs Suffix Tree Vs Trie&lt;/h2>&lt;p>Suffix Array, Suffix Tree, 그리고 Trie는 모두 문자열 처리와 패턴 매칭을 위한 데이터 구조로, 각각 고유한 특성과 용도를 가지고 있다.&lt;/p>
-&lt;table>
-&lt;thead>
-&lt;tr>
-&lt;th>특성&lt;/th>
-&lt;th>Suffix Array&lt;/th>
-&lt;th>Suffix Tree&lt;/th>
-&lt;th>Trie&lt;/th>
-&lt;/tr>
-&lt;/thead>
-&lt;tbody>
-&lt;tr>
-&lt;td>&lt;strong>기본 구조&lt;/strong>&lt;/td>
-&lt;td>모든 접미사를 정렬하여 저장하는 1차원 배열&lt;/td>
-&lt;td>모든 접미사를 트리 형태로 저장하는 압축된 트리 구조&lt;/td>
-&lt;td>문자열을 문자 단위로 저장하는 트리 구조&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>&lt;strong>메모리 효율성&lt;/strong>&lt;/td>
-&lt;td>O(n), 매우 효율적&lt;/td>
-&lt;td>O(n), 하지만 실제로는 4n 정도로 큼&lt;/td>
-&lt;td>O(ALPHABET_SIZE &lt;em>key_length&lt;/em> n), 매우 큼&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>&lt;strong>구축 시간&lt;/strong>&lt;/td>
-&lt;td>O(n log n)&lt;/td>
-&lt;td>O(n) (Ukkonen&amp;rsquo;s Algorithm 사용 시)&lt;/td>
-&lt;td>O(n * key_length)&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>&lt;strong>검색 시간&lt;/strong>&lt;/td>
-&lt;td>O(m log n + occ), m은 패턴 길이&lt;/td>
-&lt;td>O(m + occ), m은 패턴 길이&lt;/td>
-&lt;td>O(m), m은 검색할 문자열 길이&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>&lt;strong>구현 난이도&lt;/strong>&lt;/td>
-&lt;td>비교적 간단&lt;/td>
-&lt;td>매우 복잡&lt;/td>
-&lt;td>비교적 간단&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>&lt;strong>LCP 계산&lt;/strong>&lt;/td>
-&lt;td>추가 배열 필요&lt;/td>
-&lt;td>트리 구조에서 직접 계산 가능&lt;/td>
-&lt;td>해당 없음&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>&lt;strong>패턴 매칭&lt;/strong>&lt;/td>
-&lt;td>이진 검색 이용&lt;/td>
-&lt;td>트리 순회로 직접 검색&lt;/td>
-&lt;td>트리 순회로 직접 검색&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>&lt;strong>공간 지역성&lt;/strong>&lt;/td>
-&lt;td>매우 좋음 (연속된 메모리)&lt;/td>
-&lt;td>보통 (포인터로 인한 흩어짐)&lt;/td>
-&lt;td>나쁨 (노드가 메모리에 흩어짐)&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>&lt;strong>주요 응용&lt;/strong>&lt;/td>
-&lt;td>텍스트 검색, DNA 분석&lt;/td>
-&lt;td>문자열 처리, 바이오인포매틱스&lt;/td>
-&lt;td>사전 구현, 자동 완성&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>&lt;strong>동적 업데이트&lt;/strong>&lt;/td>
-&lt;td>어려움&lt;/td>
-&lt;td>가능하나 복잡&lt;/td>
-&lt;td>쉬움&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>&lt;strong>접두사 검색&lt;/strong>&lt;/td>
-&lt;td>어려움&lt;/td>
-&lt;td>가능하나 비효율적&lt;/td>
-&lt;td>매우 효율적&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>&lt;strong>최장 공통 접두사&lt;/strong>&lt;/td>
-&lt;td>추가 작업 필요&lt;/td>
-&lt;td>직접 계산 가능&lt;/td>
-&lt;td>직접 계산 가능&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>&lt;strong>최장 공통 부분 문자열&lt;/strong>&lt;/td>
-&lt;td>LCP 배열 필요&lt;/td>
-&lt;td>직접 계산 가능&lt;/td>
-&lt;td>부적합&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>&lt;strong>압축 가능성&lt;/strong>&lt;/td>
-&lt;td>제한적&lt;/td>
-&lt;td>매우 좋음&lt;/td>
-&lt;td>있음 (압축 트라이)&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>&lt;strong>캐시 성능&lt;/strong>&lt;/td>
-&lt;td>매우 좋음&lt;/td>
-&lt;td>보통&lt;/td>
-&lt;td>나쁨&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>&lt;strong>실제 사용 사례&lt;/strong>&lt;/td>
-&lt;td>대용량 문자열 검색 시스템&lt;/td>
-&lt;td>생물정보학, 문자열 처리&lt;/td>
-&lt;td>자동 완성, 사전 검색&lt;/td>
-&lt;/tr>
-&lt;/tbody>
-&lt;/table>
-&lt;p>추가적인 중요 고려사항:&lt;/p>
-&lt;ol>
-&lt;li>
-&lt;p>메모리 사용 패턴:&lt;/p>
-&lt;ul>
-&lt;li>Suffix Array: 연속된 메모리 공간 사용으로 캐시 효율성 높음&lt;/li>
-&lt;li>Suffix Tree: 포인터 기반 구조로 메모리 사용이 분산됨&lt;/li>
-&lt;li>Trie: 노드별 메모리 할당으로 가장 분산된 사용 패턴&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;p>성능 트레이드오프:&lt;/p>
-&lt;ul>
-&lt;li>Suffix Array: 공간 효율성 vs 검색 속도&lt;/li>
-&lt;li>Suffix Tree: 구현 복잡성 vs 기능성&lt;/li>
-&lt;li>Trie: 메모리 사용량 vs 검색 단순성&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;p>적합한 사용 시나리오:&lt;/p>
-&lt;ul>
-&lt;li>Suffix Array: 메모리 제약이 있는 대규모 문자열 처리&lt;/li>
-&lt;li>Suffix Tree: 복잡한 문자열 처리가 필요한 고성능 응용&lt;/li>
-&lt;li>Trie: 접두사 기반 검색이 중요한 응용&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ol>
-&lt;hr>
-&lt;h2>참고 및 출처&lt;/h2></description></item><item><title>Suffix Array</title><link>https://buenhyden.github.io/posts/data-structure-and-algorithm/data-structure/non-primitive/linear/array/suffix-array/</link><pubDate>Sun, 10 Nov 2024 13:01:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/data-structure-and-algorithm/data-structure/non-primitive/linear/array/suffix-array/</guid><description>
-&lt;h2>Suffix Array&lt;/h2>&lt;p>Suffix Array는 주어진 문자열의 모든 접미사(suffix)를 사전순으로 정렬한 배열로, 각 요소는 접미사의 시작 위치를 나타내는 정수이다.&lt;/p>
-&lt;p>
-&lt;figure class="image-figure">
-&lt;img src="https://buenhyden.github.io/posts/Data%20Structure%20and%20Algorithm/Data%20Structure/Non-Primitive/Linear/Array/Construction-Of-LCP-array.jpg"
-alt="Suffix Array"
-loading="lazy" />
-&lt;/figure>&lt;br>
-_Source: &lt;a href="https://www.geeksforgeeks.org/suffix-arrays-for-competitive-programming/" target="_blank" rel="noopener">https://www.geeksforgeeks.org/suffix-arrays-for-competitive-programming/&lt;/a> _&lt;/p>
-&lt;p>
-&lt;figure class="image-figure">
-&lt;img src="https://buenhyden.github.io/posts/Data%20Structure%20and%20Algorithm/Data%20Structure/Non-Primitive/Linear/Array/suffix-array.jpg"
-alt="Suffix Array"
-loading="lazy" />
-&lt;/figure>&lt;br>
-_Source: &lt;a href="https://www.geeksforgeeks.org/suffix-arrays-for-competitive-programming/" target="_blank" rel="noopener">https://www.geeksforgeeks.org/suffix-arrays-for-competitive-programming/&lt;/a> _&lt;/p>
-&lt;h3>특징&lt;/h3>&lt;ol>
-&lt;li>모든 접미사를 사전순으로 정렬하여 저장한다.&lt;/li>
-&lt;li>공간 효율적인 구조를 가진다.&lt;/li>
-&lt;li>빠른 문자열 검색을 가능하게 한다.&lt;/li>
-&lt;/ol>
-&lt;h3>장점&lt;/h3>&lt;ol>
-&lt;li>효율적인 문자열 검색과 패턴 매칭이 가능하다.&lt;/li>
-&lt;li>공간 복잡도가 O(n)으로 효율적이다.&lt;/li>
-&lt;li>다양한 문자열 관련 문제 해결에 활용될 수 있다.&lt;/li>
-&lt;/ol>
-&lt;h3>단점&lt;/h3>&lt;ol>
-&lt;li>구축 과정이 복잡할 수 있다.&lt;/li>
-&lt;li>기본 구현의 시간 복잡도가 O(n^2 log n)으로 높다.&lt;/li>
-&lt;/ol>
-&lt;h3>응용&lt;/h3>&lt;ol>
-&lt;li>문자열 검색 및 패턴 매칭&lt;/li>
-&lt;li>생물정보학에서의 DNA 시퀀싱 분석&lt;/li>
-&lt;li>데이터 압축 알고리즘&lt;/li>
-&lt;li>텍스트 인덱싱 및 전체 텍스트 검색&lt;/li>
-&lt;/ol>
-&lt;h3>동작 원리&lt;/h3>&lt;ol>
-&lt;li>문자열의 모든 접미사를 생성한다.&lt;/li>
-&lt;li>생성된 접미사들을 사전순으로 정렬한다.&lt;/li>
-&lt;li>정렬된 접미사의 시작 위치를 배열에 저장한다.&lt;/li>
-&lt;/ol>
-&lt;h3>구성 요소&lt;/h3>&lt;ol>
-&lt;li>원본 문자열&lt;/li>
-&lt;li>정수 배열 (접미사의 시작 위치를 저장)&lt;/li>
-&lt;li>(선택적으로) LCP(Longest Common Prefix) 배열&lt;/li>
-&lt;/ol>
-&lt;h3>구현 방식&lt;/h3>&lt;p>일반적으로 다음과 같은 방식으로 구현된다:&lt;/p>
-&lt;ol>
-&lt;li>나이브한 방법: O(n^2 log n) 시간 복잡도&lt;/li>
-&lt;li>맨버-마이어스 알고리즘: O(n log^2 n) 시간 복잡도&lt;/li>
-&lt;li>SA-IS 알고리즘: O(n) 시간 복잡도 (고급 구현)&lt;/li>
-&lt;/ol>
-&lt;h3>주요 연산들의 동작 과정&lt;/h3>&lt;ol>
-&lt;li>
-&lt;p>구축 (Build):&lt;/p>
-&lt;ul>
-&lt;li>모든 접미사를 생성하고 정렬한다.&lt;/li>
-&lt;li>정렬된 접미사의 시작 위치를 배열에 저장한다.&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;p>검색 (Search):&lt;/p>
-&lt;ul>
-&lt;li>이진 검색을 사용하여 패턴을 찾는다.&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;p>LCP 계산:&lt;/p>
-&lt;ul>
-&lt;li>인접한 접미사들 간의 최장 공통 접두사 길이를 계산한다.&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ol>
-&lt;p>
-&lt;figure class="image-figure">
-&lt;img src="https://buenhyden.github.io/posts/Data%20Structure%20and%20Algorithm/Data%20Structure/Non-Primitive/Linear/Array/calculating.jpg"
-alt="Calculating total number of distinct substring for string banana"
-loading="lazy" />
-&lt;/figure>&lt;br>
-_Source: &lt;a href="https://www.geeksforgeeks.org/suffix-arrays-for-competitive-programming/" target="_blank" rel="noopener">https://www.geeksforgeeks.org/suffix-arrays-for-competitive-programming/&lt;/a> _&lt;/p>
-&lt;h3>예시 코드&lt;/h3>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
-&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">SuffixArray&lt;/span>&lt;span class="p">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">text&lt;/span>&lt;span class="p">):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">text&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">text&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">suffixes&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nb">sorted&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">range&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">len&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">text&lt;/span>&lt;span class="p">)),&lt;/span> &lt;span class="n">key&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">lambda&lt;/span> &lt;span class="n">i&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="n">text&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">:])&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">search&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">pattern&lt;/span>&lt;span class="p">):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">left&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">right&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nb">len&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">suffixes&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">while&lt;/span> &lt;span class="n">left&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="n">right&lt;/span>&lt;span class="p">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">mid&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">left&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">right&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">//&lt;/span> &lt;span class="mi">2&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">suffix&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">text&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">suffixes&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">mid&lt;/span>&lt;span class="p">]:]&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="n">pattern&lt;/span> &lt;span class="o">&amp;gt;&lt;/span> &lt;span class="n">suffix&lt;/span>&lt;span class="p">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">left&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">mid&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">1&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">elif&lt;/span> &lt;span class="n">pattern&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="n">suffix&lt;/span>&lt;span class="p">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">right&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">mid&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">else&lt;/span>&lt;span class="p">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">suffixes&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">mid&lt;/span>&lt;span class="p">]&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="o">-&lt;/span>&lt;span class="mi">1&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 사용 예&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">sa&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">SuffixArray&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;banana&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sa&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">search&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;ana&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="c1"># 출력: 1&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
-&lt;button
-class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
-title="Copy code"
->
-&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;/button>
-&lt;/div>
-&lt;/div>
-&lt;hr>
-&lt;h2>참고 및 출처&lt;/h2></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Suffix-Array on hyunyoun&#39;s Blog</title>
+    <link>https://buenhyden.github.io/tags/suffix-array/</link>
+    <description>Recent content in Suffix-Array on hyunyoun&#39;s Blog</description>
+    <image>
+      <title>hyunyoun&#39;s Blog</title>
+      <url>https://buenhyden.github.io/images</url>
+      <link>https://buenhyden.github.io/images</link>
+    </image>
+    <generator>Hugo -- 0.141.0</generator>
+    <language>en</language>
+    <lastBuildDate>Wed, 08 Jan 2025 15:40:00 +0000</lastBuildDate>
+    <atom:link href="https://buenhyden.github.io/tags/suffix-array/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Suffix Array vs Suffix Tree vs Trie</title>
+      <link>https://buenhyden.github.io/til/2025/01/suffix-array-vs-suffix-tree-vs-trie/</link>
+      <pubDate>Wed, 08 Jan 2025 15:40:00 +0000</pubDate>
+      <guid>https://buenhyden.github.io/til/2025/01/suffix-array-vs-suffix-tree-vs-trie/</guid>
+      <description>Suffix Array, Suffix Tree, 그리고 Trie는 모두 문자열 처리와 패턴 매칭을 위한 데이터 구조로, 각각 고유한 특성과 용도를 가지고 있다.</description>
+    </item>
+    <item>
+      <title>Suffix Array</title>
+      <link>https://buenhyden.github.io/posts/data-structure-and-algorithm/data-structure/non-primitive/linear/array/suffix-array/</link>
+      <pubDate>Sun, 10 Nov 2024 13:01:00 +0000</pubDate>
+      <guid>https://buenhyden.github.io/posts/data-structure-and-algorithm/data-structure/non-primitive/linear/array/suffix-array/</guid>
+      <description>Suffix Array는 문자열의 모든 접미사를 효율적으로 저장하고 관리하는 특수한 배열 구조로, 문자열 처리와 패턴 매칭을 위해 사용되는 고급 데이터 구조이다.</description>
+    </item>
+  </channel>
+</rss>

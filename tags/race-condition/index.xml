@@ -1,129 +1,24 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>hyunyoun's Blog – Race-Condition</title><link>https://buenhyden.github.io/tags/race-condition/</link><description>Recent content in Race-Condition on hyunyoun's Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Sat, 23 Nov 2024 23:11:00 +0000</lastBuildDate><atom:link href="https://buenhyden.github.io/tags/race-condition/index.xml" rel="self" type="application/rss+xml"/><item><title>Race Condition</title><link>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/critical-section/race-condition/</link><pubDate>Sat, 23 Nov 2024 23:11:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/critical-section/race-condition/</guid><description>
-&lt;h2>경쟁 상태 (Race Condition)&lt;/h2>&lt;p>여러 프로세스나 스레드가 공유 자원에 동시에 접근할 때, 접근의 타이밍이나 순서에 따라 결과가 달라질 수 있는 상황.&lt;br>
-이는 프로그램의 실행 결과가 프로세스/스레드의 실행 순서에 따라 예측할 수 없게 달라지는 현상을 초래한다.&lt;/p>
-&lt;p>
-&lt;figure class="image-figure">
-&lt;img src="https://buenhyden.github.io/posts/Computer%20System/Operating%20System/Synchronization%20and%20Concurrency%20Control/Critical%20Section/race_conditions.jpg"
-alt="Race Condition"
-loading="lazy" />
-&lt;/figure>&lt;br>
-_Source: &lt;a href="https://www.rapitasystems.com/blog/race-condition-testing" target="_blank" rel="noopener">https://www.rapitasystems.com/blog/race-condition-testing&lt;/a> _&lt;/p>
-&lt;h3>발생 조건&lt;/h3>&lt;p>경쟁 상태가 발생하기 위한 조건은 다음과 같다:&lt;/p>
-&lt;ol>
-&lt;li>두 개 이상의 포인터가 동시에 같은 데이터에 접근.&lt;/li>
-&lt;li>최소한 하나의 포인터가 데이터를 쓰기 위해 사용됨.&lt;/li>
-&lt;li>데이터 접근을 동기화하는 메커니즘이 없음.&lt;/li>
-&lt;/ol>
-&lt;h3>해결책 및 방지책&lt;/h3>&lt;ol>
-&lt;li>&lt;strong>동기화 메커니즘 사용&lt;/strong>: 뮤텍스(mutex), 세마포어, 락(lock) 등을 사용하여 공유 자원에 대한 접근을 제어한다.&lt;/li>
-&lt;li>&lt;strong>원자적 연산 사용&lt;/strong>: 분할할 수 없는 단일 연산으로 처리하여 중간 상태를 방지한다.&lt;/li>
-&lt;li>&lt;strong>스레드 안전 프로그래밍&lt;/strong>: 모든 함수를 스레드 안전하게 설계한다.&lt;/li>
-&lt;li>&lt;strong>락프리 알고리즘&lt;/strong>: 고급 기법으로, 특정 동시성 작업을 최적화하는 데 사용된다.&lt;/li>
-&lt;li>&lt;strong>트랜잭션 격리 수준 조정&lt;/strong>: 데이터베이스에서는 직렬화 가능한 트랜잭션 격리 수준을 사용하여 경쟁 상태를 방지할 수 있다.&lt;/li>
-&lt;/ol>
-&lt;h3>실제 시스템에서의 예방책&lt;/h3>&lt;ol>
-&lt;li>&lt;strong>정적 분석 도구 사용&lt;/strong>: 소스 코드나 컴파일된 바이너리를 분석하여 잠재적인 경쟁 상태를 탐지한다.&lt;/li>
-&lt;li>&lt;strong>로그 분석 및 모니터링&lt;/strong>: 시스템 로그를 분석하여 경쟁 상태의 징후를 감지한다.&lt;/li>
-&lt;li>&lt;strong>분산 추적 시스템&lt;/strong>: 분산 시스템에서 요청과 메시지의 흐름을 추적하여 타이밍 의존성을 식별한다.&lt;/li>
-&lt;li>&lt;strong>일관성 검사 도구&lt;/strong>: 분산 노드 간의 데이터 일관성을 확인하여 경쟁 상태로 인한 이상을 탐지한다.&lt;/li>
-&lt;/ol>
-&lt;h3>고려사항 및 주의사항&lt;/h3>&lt;ol>
-&lt;li>&lt;strong>비결정적 특성&lt;/strong>: 경쟁 상태로 인한 버그는 재현하기 어려우므로 철저한 테스트가 필요하다.&lt;/li>
-&lt;li>&lt;strong>성능 영향&lt;/strong>: 동기화 메커니즘의 과도한 사용은 성능 저하를 초래할 수 있으므로 균형이 필요하다.&lt;/li>
-&lt;li>&lt;strong>데드락 주의&lt;/strong>: 락을 사용할 때는 데드락 발생 가능성에 주의해야 한다.&lt;/li>
-&lt;li>&lt;strong>확장성 고려&lt;/strong>: 분산 시스템에서는 경쟁 상태 관리가 시스템의 확장성에 영향을 미칠 수 있다.&lt;/li>
-&lt;/ol>
-&lt;h3>모범 사례&lt;/h3>&lt;ol>
-&lt;li>&lt;strong>최소한의 임계 영역&lt;/strong>: 락으로 보호되는 코드 영역을 최소화하여 성능 저하를 방지한다.&lt;/li>
-&lt;li>&lt;strong>세분화된 락&lt;/strong>: 전역 락 대신 세분화된 락을 사용하여 병렬성을 높인다.&lt;/li>
-&lt;li>&lt;strong>불변성 활용&lt;/strong>: 가능한 경우 불변 객체를 사용하여 동시성 문제를 원천적으로 방지한다.&lt;/li>
-&lt;li>&lt;strong>스레드 안전한 라이브러리 사용&lt;/strong>: 검증된 스레드 안전 라이브러리를 활용한다.&lt;/li>
-&lt;/ol>
-&lt;h3>실제 시스템에서의 해결 전략&lt;/h3>&lt;ol>
-&lt;li>&lt;strong>데이터베이스 트랜잭션&lt;/strong>: 데이터베이스 시스템에서는 ACID 속성을 갖는 트랜잭션을 사용하여 경쟁 상태를 관리한다.&lt;/li>
-&lt;li>&lt;strong>분산 락&lt;/strong>: 분산 시스템에서는 Zookeeper나 etcd와 같은 도구를 사용하여 분산 락을 구현한다.&lt;/li>
-&lt;li>&lt;strong>버전 관리&lt;/strong>: 낙관적 동시성 제어를 위해 데이터 버전을 관리하여 충돌을 감지하고 해결한다.&lt;/li>
-&lt;li>&lt;strong>이벤트 소싱&lt;/strong>: 상태 변경을 이벤트로 기록하여 일관성을 유지하고 경쟁 상태를 해결한다.&lt;/li>
-&lt;/ol>
-&lt;h3>경쟁 상태를 시연하고 해결하는 예제&lt;/h3>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
-&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">threading&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">time&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 경쟁 상태가 발생하는 예제&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">BankAccount&lt;/span>&lt;span class="p">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">balance&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span> &lt;span class="c1"># 공유 자원&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">deposit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">amount&lt;/span>&lt;span class="p">):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 현재 잔액 읽기&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">current&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">balance&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 시간 지연을 통한 경쟁 상태 시뮬레이션&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">time&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">sleep&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mf">0.1&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 잔액 업데이트&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">balance&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">current&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">amount&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">get_balance&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">balance&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 경쟁 상태가 해결된 버전&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">SafeBankAccount&lt;/span>&lt;span class="p">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">balance&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">lock&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">Lock&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="c1"># 상호 배제를 위한 락&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">deposit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">amount&lt;/span>&lt;span class="p">):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">with&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">lock&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="c1"># 임계 영역 보호&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">current&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">balance&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">time&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">sleep&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mf">0.1&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">balance&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">current&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">amount&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">get_balance&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">with&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">lock&lt;/span>&lt;span class="p">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">balance&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 테스트 함수&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">def&lt;/span> &lt;span class="nf">test_race_condition&lt;/span>&lt;span class="p">():&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 경쟁 상태가 있는 계좌&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">account&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">BankAccount&lt;/span>&lt;span class="p">()&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 여러 스레드가 동시에 입금&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">threads&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">[]&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">for&lt;/span> &lt;span class="n">_&lt;/span> &lt;span class="ow">in&lt;/span> &lt;span class="nb">range&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">10&lt;/span>&lt;span class="p">):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">t&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">Thread&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">target&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="n">account&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">deposit&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">args&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">100&lt;/span>&lt;span class="p">,))&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">threads&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">append&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">t&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">t&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">start&lt;/span>&lt;span class="p">()&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 모든 스레드 완료 대기&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">for&lt;/span> &lt;span class="n">t&lt;/span> &lt;span class="ow">in&lt;/span> &lt;span class="n">threads&lt;/span>&lt;span class="p">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">t&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">join&lt;/span>&lt;span class="p">()&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sa">f&lt;/span>&lt;span class="s2">&amp;#34;예상 잔액: 1000, 실제 잔액: &lt;/span>&lt;span class="si">{&lt;/span>&lt;span class="n">account&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">get_balance&lt;/span>&lt;span class="p">()&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 안전한 계좌로 테스트&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">safe_account&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">SafeBankAccount&lt;/span>&lt;span class="p">()&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 동일한 테스트 수행&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">threads&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">[]&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">for&lt;/span> &lt;span class="n">_&lt;/span> &lt;span class="ow">in&lt;/span> &lt;span class="nb">range&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">10&lt;/span>&lt;span class="p">):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">t&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">threading&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">Thread&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">target&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="n">safe_account&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">deposit&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">args&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">100&lt;/span>&lt;span class="p">,))&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">threads&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">append&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">t&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">t&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">start&lt;/span>&lt;span class="p">()&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">for&lt;/span> &lt;span class="n">t&lt;/span> &lt;span class="ow">in&lt;/span> &lt;span class="n">threads&lt;/span>&lt;span class="p">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">t&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">join&lt;/span>&lt;span class="p">()&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sa">f&lt;/span>&lt;span class="s2">&amp;#34;안전한 계좌 잔액: &lt;/span>&lt;span class="si">{&lt;/span>&lt;span class="n">safe_account&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">get_balance&lt;/span>&lt;span class="p">()&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">if&lt;/span> &lt;span class="vm">__name__&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="s2">&amp;#34;__main__&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">test_race_condition&lt;/span>&lt;span class="p">()&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
-&lt;button
-class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
-title="Copy code"
->
-&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;/button>
-&lt;/div>
-&lt;/div>
-&lt;hr>
-&lt;h2>참고 및 출처&lt;/h2></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Race-Condition on hyunyoun&#39;s Blog</title>
+    <link>https://buenhyden.github.io/tags/race-condition/</link>
+    <description>Recent content in Race-Condition on hyunyoun&#39;s Blog</description>
+    <image>
+      <title>hyunyoun&#39;s Blog</title>
+      <url>https://buenhyden.github.io/images</url>
+      <link>https://buenhyden.github.io/images</link>
+    </image>
+    <generator>Hugo -- 0.141.0</generator>
+    <language>en</language>
+    <lastBuildDate>Sat, 23 Nov 2024 23:11:00 +0000</lastBuildDate>
+    <atom:link href="https://buenhyden.github.io/tags/race-condition/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Race Condition</title>
+      <link>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/critical-section/race-condition/</link>
+      <pubDate>Sat, 23 Nov 2024 23:11:00 +0000</pubDate>
+      <guid>https://buenhyden.github.io/posts/computer-system/operating-system/synchronization-and-concurrency-control/critical-section/race-condition/</guid>
+      <description>여러 프로세스나 스레드가 공유 자원에 동시에 접근할 때, 접근의 타이밍이나 순서에 따라 결과가 달라질 수 있는 상황</description>
+    </item>
+  </channel>
+</rss>

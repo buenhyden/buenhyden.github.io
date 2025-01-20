@@ -1,726 +1,145 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>hyunyoun's Blog – Memory Architecture</title><link>https://buenhyden.github.io/categories/memory-architecture/</link><description>Recent content in Memory Architecture on hyunyoun's Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Thu, 19 Dec 2024 11:38:00 +0000</lastBuildDate><atom:link href="https://buenhyden.github.io/categories/memory-architecture/index.xml" rel="self" type="application/rss+xml"/><item><title>Byte Addressable Memory vs Word Addressable Memory</title><link>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/byte-addressable-memory-vs-word-addressable-memory/</link><pubDate>Thu, 19 Dec 2024 11:38:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/byte-addressable-memory-vs-word-addressable-memory/</guid><description>
-&lt;h2>Byte Addressable Memory Vs Word Addressable Memory&lt;/h2>&lt;p>Byte Addressable Memory와 Word Addressable Memory는 컴퓨터 메모리의 주소 지정 방식을 설명하는 개념이다.&lt;br>
-이 두 가지 방식은 메모리의 구조와 데이터 접근 방법에 중요한 차이를 나타낸다.&lt;/p>
-&lt;p>
-&lt;figure class="image-figure">
-&lt;img src="https://buenhyden.github.io/posts/Computer%20System/Computer%20Architecture/Memory%20Architecture/fig_a.jpg.webp"
-alt="Byte Addressable Memory Vs Word Addressable Memory"
-loading="lazy" />
-&lt;/figure>&lt;br>
-_Sourece: &lt;a href="https://examradar.com/memory-organisation/" target="_blank" rel="noopener">https://examradar.com/memory-organisation/&lt;/a> _&lt;/p>
-&lt;h3>Byte Addressable Memory&lt;/h3>&lt;p>Byte Addressable Memory는 각 바이트(8비트)마다 고유한 주소가 할당되어 개별적으로 접근할 수 있는 메모리 구조이다.&lt;/p>
-&lt;p>가장 작은 주소 지정 단위(smallest addressable unit)는 1바이트(8비트)이며, 이를 통해 메모리의 각 바이트에 직접 접근할 수 있다.&lt;br>
-CPU는 개별 바이트 단위로 메모리에 접근할 수 있으며, 워드(일반적으로 4바이트 또는 8바이트) 단위의 접근도 가능하다.&lt;br>
-32비트 시스템에서는 2^32개의 주소를 가질 수 있어 최대 4GB의 메모리를 지원하며, 64비트 시스템에서는 훨씬 더 큰 주소 공간을 제공한다.&lt;/p>
-&lt;p>세밀한 메모리 조작이 가능하며 다양한 데이터 타입을 효율적으로 저장할 수 있으며, 문자열 처리 등 바이트 단위 연산에 유리하다.&lt;/p>
-&lt;blockquote>
-&lt;p>엔디안(Endianness)&lt;/p>
-&lt;ul>
-&lt;li>메모리에 다중 바이트 데이터를 저장하는 순서를 나타낸다.&lt;/li>
-&lt;li>주요 엔디안(Endianness)는 다음과 같다.
-&lt;ul>
-&lt;li>빅 엔디안(Big Endian):
-&lt;ul>
-&lt;li>가장 중요한 바이트(Most Significant Byte, MSB)가 가장 낮은 메모리 주소에 저장된다.&lt;/li>
-&lt;li>사람이 숫자를 읽는 방식과 유사하여 직관적이다.&lt;/li>
-&lt;li>주로 네트워크 프로토콜에서 사용되며, &amp;ldquo;네트워크 바이트 순서&amp;quot;라고도 한다.&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>리틀 엔디안(Little Endian):
-&lt;ul>
-&lt;li>가장 덜 중요한 바이트(Least Significant Byte, LSB)가 가장 낮은 메모리 주소에 저장된다.&lt;/li>
-&lt;li>Intel x86, x64 프로세서 등 많은 현대 컴퓨터 시스템에서 사용된다.&lt;/li>
-&lt;li>일부 수학적 연산에서 효율적일 수 있다.&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>예를 들어, 32비트 정수 0x11223344를 메모리에 저장할 때:
-&lt;ul>
-&lt;li>빅 엔디안: 11 22 33 44&lt;/li>
-&lt;li>리틀 엔디안: 44 33 22 11&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>엔디안은 다중 바이트 데이터 처리에만 영향을 미치며, 단일 바이트 데이터(예: ASCII 문자)는 영향을 받지 않는다.&lt;/li>
-&lt;/ul>
-&lt;/blockquote>
-&lt;h3>Word Addressable Memory&lt;/h3>&lt;p>Word Addressable Memory는 메모리의 각 워드(word)마다 고유한 주소가 할당되는 메모리 구조로, 여기서 워드는 프로세서가 한 번에 처리할 수 있는 데이터의 기본 단위를 의미한다. 일반적으로 워드 크기는 32비트(4바이트) 또는 64비트(8바이트)이다.&lt;br>
-워드 단위로만 메모리에 접근할 수 있으며, 개별 바이트에 직접 접근할 수 없다.&lt;br>
-바이트 주소 지정 방식에 비해 더 적은 주소로 더 큰 메모리 공간을 관리할 수 있으며, 워드 크기의 데이터 처리에 효율적이다. 또한, 작은 크기의 데이터 처리에는 비효율적일 수 있다.&lt;/p>
-&lt;p>워드 크기에 따라 주소 지정 가능한 메모리 용량이 달라진다.&lt;br>
-예를 들어:&lt;/p>
-&lt;ul>
-&lt;li>16비트 주소와 32비트 워드 시스템: 2^16 * 4바이트 = 256KB&lt;/li>
-&lt;li>32비트 주소와 64비트 워드 시스템: 2^32 * 8바이트 = 32GB&lt;/li>
-&lt;/ul>
-&lt;p>큰 데이터 처리에 효율적이며, 주소 공간을 효율적으로 사용할 수 있다.&lt;br>
-하지만, 작은 데이터 처리에 비효율적이며, 바이트 단위 조작이 어렵다.&lt;/p>
-&lt;h3>비교 분석 표&lt;/h3>&lt;table>
-&lt;thead>
-&lt;tr>
-&lt;th>특성&lt;/th>
-&lt;th>Byte Addressable Memory&lt;/th>
-&lt;th>Word Addressable Memory&lt;/th>
-&lt;/tr>
-&lt;/thead>
-&lt;tbody>
-&lt;tr>
-&lt;td>&lt;strong>주소 단위&lt;/strong>&lt;/td>
-&lt;td>1 바이트&lt;/td>
-&lt;td>1 워드 (보통 4바이트 또는 8바이트)&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>&lt;strong>메모리 접근&lt;/strong>&lt;/td>
-&lt;td>바이트 단위로 가능&lt;/td>
-&lt;td>워드 단위로만 가능&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>&lt;strong>주소 공간&lt;/strong>&lt;/td>
-&lt;td>더 많은 주소 필요&lt;/td>
-&lt;td>더 적은 주소 필요&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>&lt;strong>유연성&lt;/strong>&lt;/td>
-&lt;td>높음 (바이트 단위 조작 가능)&lt;/td>
-&lt;td>제한적 (워드 단위로만 조작)&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>&lt;strong>메모리 효율&lt;/strong>&lt;/td>
-&lt;td>세밀한 메모리 관리 가능&lt;/td>
-&lt;td>워드 크기 미만의 데이터도 워드 전체 사용&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>&lt;strong>구현 복잡도&lt;/strong>&lt;/td>
-&lt;td>상대적으로 복잡&lt;/td>
-&lt;td>상대적으로 단순&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>&lt;strong>주요 용도&lt;/strong>&lt;/td>
-&lt;td>범용 컴퓨팅 시스템&lt;/td>
-&lt;td>특수 목적 프로세서, 일부 임베디드 시스템&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>&lt;strong>데이터 정렬&lt;/strong>&lt;/td>
-&lt;td>바이트 단위 정렬 가능&lt;/td>
-&lt;td>워드 경계에 정렬 필요&lt;/td>
-&lt;/tr>
-&lt;/tbody>
-&lt;/table>
-&lt;h3>세부 특성 비교&lt;/h3>&lt;h4>메모리 접근 패턴&lt;/h4>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
-&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Byte Addressable&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">def&lt;/span> &lt;span class="nf">access_byte&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">address&lt;/span>&lt;span class="p">):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">memory&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">address&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="c1"># 직접 바이트 접근&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Word Addressable&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">def&lt;/span> &lt;span class="nf">access_word&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">address&lt;/span>&lt;span class="p">):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">word_address&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">address&lt;/span> &lt;span class="o">//&lt;/span> &lt;span class="n">WORD_SIZE&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">memory&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">word_address&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="c1"># 워드 단위 접근&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
-&lt;button
-class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
-title="Copy code"
->
-&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;/button>
-&lt;/div>
-&lt;/div>
-&lt;h4>메모리 사용 효율&lt;/h4>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
-&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Byte Addressable&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">char&lt;/span> &lt;span class="n">small_data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s1">&amp;#39;A&amp;#39;&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="c1"># 1바이트만 사용&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Word Addressable&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">word&lt;/span> &lt;span class="n">small_data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s1">&amp;#39;A&amp;#39;&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="c1"># 전체 워드(4바이트) 사용&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
-&lt;button
-class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
-title="Copy code"
->
-&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;/button>
-&lt;/div>
-&lt;/div>
-&lt;h4>주소 계산&lt;/h4>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
-&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Byte Addressable&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">byte_address&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">base_address&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">offset&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Word Addressable&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">word_address&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">base_address&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">offset&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">//&lt;/span> &lt;span class="n">WORD_SIZE&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
-&lt;button
-class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
-title="Copy code"
->
-&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;/button>
-&lt;/div>
-&lt;/div>
-&lt;h3>시스템 수준 영향&lt;/h3>&lt;table>
-&lt;thead>
-&lt;tr>
-&lt;th>영향 분야&lt;/th>
-&lt;th>Byte Addressable&lt;/th>
-&lt;th>Word Addressable&lt;/th>
-&lt;/tr>
-&lt;/thead>
-&lt;tbody>
-&lt;tr>
-&lt;td>&lt;strong>메모리 관리&lt;/strong>&lt;/td>
-&lt;td>더 복잡하지만 유연함&lt;/td>
-&lt;td>단순하지만 제한적&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>&lt;strong>캐시 구성&lt;/strong>&lt;/td>
-&lt;td>바이트 단위 접근 지원 필요&lt;/td>
-&lt;td>워드 단위로 단순화&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>&lt;strong>버스 대역폭&lt;/strong>&lt;/td>
-&lt;td>바이트 단위 전송 지원&lt;/td>
-&lt;td>워드 단위 전송에 최적화&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>&lt;strong>명령어 세트&lt;/strong>&lt;/td>
-&lt;td>바이트 조작 명령어 포함&lt;/td>
-&lt;td>워드 단위 명령어 중심&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>&lt;strong>성능 특성&lt;/strong>&lt;/td>
-&lt;td>세밀한 조작 가능하나 오버헤드 있음&lt;/td>
-&lt;td>단순하고 효율적이나 제한적&lt;/td>
-&lt;/tr>
-&lt;/tbody>
-&lt;/table>
-&lt;p>이러한 차이점들을 이해하는 것은 시스템 설계와 최적화에 중요합니다. 특히 저수준 프로그래밍이나 시스템 프로그래밍을 할 때 이러한 특성들을 고려해야 한다.&lt;/p>
-&lt;hr>
-&lt;h3>참고 및 출처&lt;/h3></description></item><item><title>메모리 접근 방법 (Memory Access Methods)</title><link>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/memory-access-methods/</link><pubDate>Wed, 18 Dec 2024 08:05:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/memory-access-methods/</guid><description>
-&lt;h2>메모리 접근 방식 (Memory Access Methods)&lt;/h2>&lt;p>컴퓨터 시스템에서 메모리에 접근하는 주요 방식은 다음과 같다:&lt;/p>
-&lt;ol>
-&lt;li>
-&lt;p>순차적 접근 (Sequential Access)&lt;/p>
-&lt;ul>
-&lt;li>메모리를 선형적인 순서로 접근하는 방식.&lt;/li>
-&lt;li>데이터를 처음부터 순서대로 읽거나 쓰며, 특정 위치에 접근하려면 그 앞의 모든 데이터를 거쳐야 한다.&lt;/li>
-&lt;li>주로 자기 테이프와 같은 저장 장치에서 사용된다.&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;p>직접 접근 (Direct Access)&lt;/p>
-&lt;ul>
-&lt;li>각 메모리 블록이 고유한 주소를 가지고 있어 직접 접근이 가능하다.&lt;/li>
-&lt;li>일반적인 위치로 직접 접근한 후, 순차적 검색을 통해 최종 목적지에 도달한다.&lt;/li>
-&lt;li>하드 디스크와 같은 저장 장치에서 주로 사용된다.&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;p>랜덤 접근 (Random Access)&lt;/p>
-&lt;ul>
-&lt;li>메모리의 어떤 위치든 동일한 시간 내에 직접 접근할 수 있는 방식.&lt;/li>
-&lt;li>물리적 위치에 관계없이 데이터에 빠르게 접근할 수 있다.&lt;/li>
-&lt;li>RAM(Random Access Memory)이 대표적인 예시.&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;p>연관 접근 (Associative Access)&lt;/p>
-&lt;ul>
-&lt;li>데이터의 내용을 기반으로 메모리에 접근하는 방식.&lt;/li>
-&lt;li>특정 패턴이나 값을 가진 데이터를 빠르게 찾을 수 있다.&lt;/li>
-&lt;li>캐시 메모리에서 주로 사용되며, 병렬 검색이 가능하다.&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ol>
-&lt;h3>기타 메모리 접근 방식&lt;/h3>&lt;p>기본적인 메모리 접근 방식(순차적, 직접, 랜덤, 연관)을 기반으로 하되, 특정 목적이나 최적화를 위해 확장되거나 변형된 형태의 메모리 접근 방식이 있다.&lt;br>
-이들은 메모리 접근 방식의 범주에 포함되며, 기본적인 접근 방식들과 밀접한 관련이 있다.&lt;/p>
-&lt;ol>
-&lt;li>
-&lt;p>가상 메모리 접근 (Virtual Memory Access):&lt;br>
-가상 메모리는 물리적 메모리의 한계를 극복하기 위한 기술로, 주로 페이징이나 세그멘테이션을 사용하여 구현된다.&lt;br>
-이는 랜덤 접근 방식을 기반으로 하지만, 추가적인 주소 변환 과정을 포함한다.&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>캐시 메모리 접근 (Cache Memory Access):&lt;br>
-캐시 메모리는 주로 랜덤 접근 방식을 사용하며, 데이터 지역성 원리를 활용하여 빠른 접근을 제공한다.&lt;br>
-이는 기본적인 랜덤 접근 방식을 최적화한 형태로 볼 수 있다.&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>메모리 매핑된 입출력 (Memory-Mapped I/O):&lt;br>
-이 방식은 입출력 장치를 메모리의 일부로 취급하여 접근한다.&lt;br>
-이는 직접 접근 방식의 확장으로 볼 수 있으며, 파일이나 장치에 대한 접근을 메모리 접근과 동일하게 처리한다.&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>세그먼트 기반 접근 (Segment-Based Access):&lt;br>
-세그멘테이션은 메모리를 논리적 단위로 나누어 관리하는 기법으로, 직접 접근과 랜덤 접근의 특성을 모두 가지고 있습다. 이는 기본적인 메모리 접근 방식을 프로그램의 논리적 구조에 맞게 확장한 것으로 볼 수 있다.&lt;/p>
-&lt;/li>
-&lt;/ol>
-&lt;hr>
-&lt;h2>참고 및 출처&lt;/h2></description></item><item><title>메모리 주소 지정 방식 (Memory Address Modes)</title><link>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/memory-address-modes/</link><pubDate>Wed, 18 Dec 2024 08:04:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/memory-address-modes/</guid><description>
-&lt;h2>메모리 주소 지정 방식 (Memory Address Modes)&lt;/h2>&lt;p>메모리 주소 지정 방식(Memory Address Modes)은 CPU가 메모리의 특정 위치에 어떻게 접근하는지를 나타내는 방법이다.&lt;/p>
-&lt;h3>유형&lt;/h3>&lt;ol>
-&lt;li>
-&lt;p>즉시 주소 지정 방식 (Immediate Addressing):&lt;/p>
-&lt;ul>
-&lt;li>데이터가 명령어 자체에 포함되어 있다.&lt;/li>
-&lt;li>예: &amp;ldquo;5를 더해라&amp;rdquo; 라고 직접 지시하는 것과 같다.&lt;/li>
-&lt;li>가장 빠르지만, 큰 데이터를 다루기 어렵다.&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;p>직접 주소 지정 방식 (Direct Addressing):&lt;/p>
-&lt;ul>
-&lt;li>명령어에 데이터가 있는 메모리 주소를 직접 지정한다.&lt;/li>
-&lt;li>예: &amp;ldquo;주소 100번에 있는 값을 가져와라&amp;rdquo; 라고 지시하는 것과 같다.&lt;/li>
-&lt;li>간단하고 이해하기 쉽다.&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;p>간접 주소 지정 방식 (Indirect Addressing):&lt;/p>
-&lt;ul>
-&lt;li>명령어에 주소를 담고 있는 메모리 위치를 지정한다.&lt;/li>
-&lt;li>예: &amp;ldquo;주소 100번에 적힌 주소로 가서 그 값을 가져와라&amp;rdquo; 라고 지시하는 것과 같다.&lt;/li>
-&lt;li>더 많은 메모리 위치에 접근할 수 있지만, 약간 복잡하다.&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;p>인덱스 주소 지정 방식 (Indexed Addressing):&lt;/p>
-&lt;ul>
-&lt;li>기본 주소에 인덱스를 더해 실제 주소를 계산한다.&lt;/li>
-&lt;li>예: &amp;ldquo;주소 100번부터 시작해서 3번째 위치의 값을 가져와라&amp;rdquo; 라고 지시하는 것과 같다.&lt;/li>
-&lt;li>배열이나 리스트 같은 데이터 구조를 다룰 때 유용하다.&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ol>
-&lt;hr>
-&lt;h2>참고 및 출처&lt;/h2></description></item><item><title>캐싱 (Caching)</title><link>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/caching/</link><pubDate>Sat, 19 Oct 2024 14:14:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/caching/</guid><description>
-&lt;h2>캐싱 (Caching)&lt;/h2>&lt;p>캐싱은 자주 사용되는 데이터나 계산 결과를 빠르게 접근할 수 있는 위치에 임시로 저장하는 기술이다.&lt;br>
-이는 데이터를 다시 계산하거나 원래 위치에서 다시 가져올 필요 없이 빠르게 접근할 수 있게 해준다.&lt;/p>
-&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
-&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 캐싱의 기본 프로세스를 보여주는 예제&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">CachingProcess&lt;/span>&lt;span class="p">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">storage&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{}&lt;/span> &lt;span class="c1"># 캐시 저장소&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">stats&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>&lt;span class="s1">&amp;#39;hits&amp;#39;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s1">&amp;#39;misses&amp;#39;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">}&lt;/span> &lt;span class="c1"># 캐싱 효율성 측정&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">get_data&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">key&lt;/span>&lt;span class="p">):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 1. 캐시 확인 단계&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="n">key&lt;/span> &lt;span class="ow">in&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">storage&lt;/span>&lt;span class="p">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">stats&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="s1">&amp;#39;hits&amp;#39;&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">+=&lt;/span> &lt;span class="mi">1&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_handle_cache_hit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 2. 캐시 미스 처리 단계&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">stats&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="s1">&amp;#39;misses&amp;#39;&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">+=&lt;/span> &lt;span class="mi">1&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_fetch_from_source&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 3. 캐시 저장 단계&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">_store_in_cache&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">data&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">_handle_cache_hit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">key&lt;/span>&lt;span class="p">):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 캐시 히트 시의 처리 로직&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">storage&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">]&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">_fetch_from_source&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">key&lt;/span>&lt;span class="p">):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 원본 소스에서 데이터를 가져오는 로직&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="sa">f&lt;/span>&lt;span class="s2">&amp;#34;Data for &lt;/span>&lt;span class="si">{&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">_store_in_cache&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">key&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data&lt;/span>&lt;span class="p">):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 캐시 저장 로직&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">storage&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">data&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
-&lt;button
-class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
-title="Copy code"
->
-&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;/button>
-&lt;/div>
-&lt;/div>
-&lt;h3>캐싱의 목적&lt;/h3>&lt;ol>
-&lt;li>성능 향상: 데이터 접근 속도를 높여 전체적인 시스템 성능을 개선한다.&lt;/li>
-&lt;li>서버 부하 감소: 반복적인 요청을 줄여 서버의 작업량을 감소시킨다.&lt;/li>
-&lt;li>네트워크 대역폭 절약: 데이터 전송량을 줄여 네트워크 리소스를 절약한다.&lt;/li>
-&lt;/ol>
-&lt;h3>캐싱(Caching)의 주요 요소&lt;/h3>&lt;ol>
-&lt;li>캐시(Cache): 데이터를 임시 저장하는 공간&lt;/li>
-&lt;li>캐시 정책(Cache Policy): 데이터를 저장하고 관리하는 규칙&lt;/li>
-&lt;li>캐시 전략(Cache Strategy): 캐시를 효율적으로 활용하는 방법&lt;/li>
-&lt;li>캐시 무효화(Cache Invalidation): 원본 데이터와 캐시된 데이터의 동기화&lt;/li>
-&lt;li>캐시 일관성(Cache Coherence)&lt;/li>
-&lt;/ol>
-&lt;h3>캐싱의 작동 원리&lt;/h3>&lt;ol>
-&lt;li>데이터 요청: 프로그램이 데이터를 요청한다.&lt;/li>
-&lt;li>캐시 확인: 시스템은 먼저 캐시에서 해당 데이터를 찾는다.&lt;/li>
-&lt;li>캐시 히트(Cache Hit): 데이터가 캐시에 있으면 즉시 반환한다.&lt;/li>
-&lt;li>캐시 미스(Cache Miss): 데이터가 캐시에 없으면 원본 소스에서 가져와 캐시에 저장한 후 반환한다.&lt;/li>
-&lt;/ol>
-&lt;h3>캐싱의 적용 분야&lt;/h3>&lt;ol>
-&lt;li>웹 페이지 캐싱: 정적 콘텐츠를 저장하여 빠르게 제공한다.&lt;/li>
-&lt;li>데이터베이스 캐싱: 쿼리 결과를 저장하여 반복적인 요청에 대한 응답 시간을 단축한다.&lt;/li>
-&lt;li>CDN(Content Delivery Network): 전 세계에 분산된 서버에 콘텐츠를 캐싱하여 빠른 로딩 속도를 제공한다.&lt;/li>
-&lt;/ol>
-&lt;h3>캐싱의 장점&lt;/h3>&lt;ol>
-&lt;li>빠른 응답 시간: 사용자 경험을 개선한다.&lt;/li>
-&lt;li>서버 부하 감소: 시스템의 확장성과 안정성을 향상시킨다.&lt;/li>
-&lt;li>비용 절감: 데이터 전송 및 처리 비용을 줄인다.&lt;/li>
-&lt;/ol>
-&lt;h3>캐싱 구현 시 고려사항&lt;/h3>&lt;ol>
-&lt;li>캐시 크기: 너무 작으면 효과가 적고, 너무 크면 메모리 낭비가 됩니다.&lt;/li>
-&lt;li>캐시 갱신 정책: 데이터 일관성을 유지하기 위해 적절한 갱신 전략이 필요합니다.&lt;/li>
-&lt;li>캐시 교체 알고리즘: LRU, LFU, FIFO 등 상황에 맞는 알고리즘을 선택해야 한다.&lt;/li>
-&lt;/ol>
-&lt;hr>
-&lt;h2>참고 및 출처&lt;/h2></description></item><item><title>캐시 (Cache)</title><link>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/caching/cache/</link><pubDate>Sat, 19 Oct 2024 13:25:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/caching/cache/</guid><description>
-&lt;h2>캐시 (Cache)&lt;/h2>&lt;p>캐시(Cache)는 컴퓨터 과학에서 데이터나 값을 미리 복사해 놓는 임시 저장소를 의미한다.&lt;br>
-데이터 접근 속도를 높이고 시스템 성능을 향상시킬 수 있다.&lt;br>
-자주 사용되는 데이터는 빠르게 접근할 수 있는 위치에 복사해두는데 이 위치를 캐시(Cache)라고 말한다.&lt;/p>
-&lt;h3>캐시의 특징&lt;/h3>&lt;ol>
-&lt;li>속도: 주 메모리나 디스크보다 훨씬 빠르다.&lt;/li>
-&lt;li>용량: 일반적으로 주 메모리보다 작다.&lt;/li>
-&lt;li>비용: 고속이기 때문에 상대적으로 비싸다.&lt;/li>
-&lt;/ol>
-&lt;h3>캐시의 장점&lt;/h3>&lt;ol>
-&lt;li>빠른 데이터 접근: 자주 사용되는 데이터에 빠르게 접근할 수 있다.&lt;/li>
-&lt;li>시스템 성능 향상: 전체적인 시스템 응답 시간을 줄인다.&lt;/li>
-&lt;li>리소스 절약: 반복적인 데이터 요청을 줄여 서버 부하를 감소시킨다.&lt;/li>
-&lt;/ol>
-&lt;h3>캐시 사용 시 주의점&lt;/h3>&lt;ol>
-&lt;li>일관성 유지: 원본 데이터가 변경될 때 캐시도 업데이트해야 한다.&lt;/li>
-&lt;li>캐시 크기 관리: 너무 크면 메모리 낭비, 너무 작으면 효율이 떨어진다.&lt;/li>
-&lt;li>캐시 교체 정책: 캐시가 가득 찼을 때 어떤 데이터를 제거할지 결정해야 한다.&lt;/li>
-&lt;/ol>
-&lt;h3>캐시의 동작 과정&lt;/h3>&lt;ol>
-&lt;li>데이터 요청: 프로그램이 데이터를 요청한다.&lt;/li>
-&lt;li>캐시 확인: 시스템은 먼저 캐시에서 데이터를 찾는다.&lt;/li>
-&lt;li>캐시 히트(Cache Hit): 데이터가 캐시에 있으면 즉시 반환한다.&lt;/li>
-&lt;li>캐시 미스(Cache Miss): 데이터가 캐시에 없으면 주 메모리나 디스크에서 가져와 캐시에 저장한 후 반환한다.&lt;/li>
-&lt;/ol>
-&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
-&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 캐시의 기본 작동 원리를 보여주는 예제&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">SimpleCache&lt;/span>&lt;span class="p">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">cache&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{}&lt;/span> &lt;span class="c1"># 데이터를 저장할 공간&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">get_data&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">key&lt;/span>&lt;span class="p">):&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 1. 캐시에서 먼저 찾아봅니다&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="n">key&lt;/span> &lt;span class="ow">in&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">cache&lt;/span>&lt;span class="p">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;캐시에서 데이터를 찾았습니다!&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">cache&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">]&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 2. 캐시에 없다면 원본 소스에서 가져옵니다&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;캐시에 없어서 원본에서 가져옵니다…&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">fetch_from_source&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 3. 다음 사용을 위해 캐시에 저장합니다&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">cache&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">data&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">data&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
-&lt;button
-class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
-title="Copy code"
->
-&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;/button>
-&lt;/div>
-&lt;/div>
-&lt;h3>캐시의 종류&lt;/h3>&lt;ol>
-&lt;li>
-&lt;p>CPU 캐시: CPU와 주 메모리 사이에 위치한 고속의 소용량 메모리&lt;br>
-역할:&lt;/p>
-&lt;ul>
-&lt;li>자주 사용되는 데이터와 명령어를 저장&lt;/li>
-&lt;li>CPU와 주 메모리 간의 속도 차이를 완화&lt;br>
-특징:&lt;/li>
-&lt;li>L1, L2, L3 등 여러 레벨로 구성&lt;/li>
-&lt;li>L1이 가장 빠르고 용량이 작으며, 레벨이 올라갈수록 용량은 증가하고 속도는 감소&lt;/li>
-&lt;li>CPU에 직접 통합되어 있음&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;p>메모리 캐시: 주 메모리(RAM)의 일부를 캐시로 사용하는 기술&lt;br>
-역할:&lt;/p>
-&lt;ul>
-&lt;li>자주 접근하는 데이터를 임시 저장&lt;/li>
-&lt;li>메모리 접근 시간 단축&lt;br>
-특징:&lt;/li>
-&lt;li>운영체제에 의해 관리됨&lt;/li>
-&lt;li>페이지 캐시 등의 형태로 구현&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;p>디스크 캐시: 하드 디스크의 데이터를 임시로 저장하는 메모리 영역&lt;br>
-역할:&lt;/p>
-&lt;ul>
-&lt;li>디스크 접근 횟수를 줄여 I/O 성능 향상&lt;/li>
-&lt;li>읽기/쓰기 작업 속도 개선&lt;br>
-특징:&lt;/li>
-&lt;li>하드 디스크 컨트롤러에 내장되거나 운영체제에 의해 관리됨&lt;/li>
-&lt;li>읽기 캐시와 쓰기 캐시로 구분될 수 있음&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;p>웹 캐시: 웹 페이지, 이미지 등의 웹 콘텐츠를 임시 저장하는 기술&lt;br>
-역할:&lt;/p>
-&lt;ul>
-&lt;li>웹 페이지 로딩 속도 향상&lt;/li>
-&lt;li>서버 부하 및 네트워크 트래픽 감소&lt;br>
-특징:&lt;/li>
-&lt;li>브라우저 캐시, 프록시 캐시, CDN 등 다양한 형태로 구현&lt;/li>
-&lt;li>HTTP 헤더를 통해 캐시 정책 제어 가능&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;p>데이터베이스 캐시: 데이터베이스 쿼리 결과를 임시 저장하는 메모리 영역&lt;br>
-역할:&lt;/p>
-&lt;ul>
-&lt;li>반복적인 쿼리 실행 시간 단축&lt;/li>
-&lt;li>데이터베이스 서버 부하 감소&lt;br>
-특징:&lt;/li>
-&lt;li>인메모리 데이터베이스나 별도의 캐시 서버로 구현 가능&lt;/li>
-&lt;li>쿼리 결과 또는 자주 사용되는 데이터 세트를 저장&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;p>애플리케이션 캐시: 애플리케이션 레벨에서 구현되는 캐시 메커니즘&lt;br>
-역할:&lt;/p>
-&lt;ul>
-&lt;li>애플리케이션 성능 향상&lt;/li>
-&lt;li>반복적인 연산이나 데이터 접근 최소화&lt;br>
-특징:&lt;/li>
-&lt;li>개발자가 직접 구현하거나 프레임워크에서 제공하는 기능 활용&lt;/li>
-&lt;li>메모이제이션, 객체 캐싱 등 다양한 기법 적용 가능&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ol>
-&lt;p>이러한 다양한 캐시 유형들은 각각의 특성에 맞게 시스템의 여러 계층에서 활용되어 전반적인 성능 향상에 기여한다.&lt;/p>
-&lt;h3>캐시의 지역성&lt;/h3>&lt;p>캐시의 지역성(Locality)은 프로그램이 메모리에 접근하는 패턴에 관한 중요한 개념이다.&lt;br>
-이는 캐시의 효율성을 극대화하기 위해 사용되는 원리로, 크게 두 가지 유형으로 나눌 수 있다:&lt;/p>
-&lt;ol>
-&lt;li>시간 지역성 (Temporal Locality)&lt;br>
-시간 지역성은 최근에 참조된 데이터가 가까운 미래에 다시 참조될 가능성이 높다는 원리이다.
-&lt;ul>
-&lt;li>예시: 반복문에서 같은 변수를 여러 번 사용하는 경우&lt;/li>
-&lt;li>장점: 자주 사용되는 데이터를 캐시에 유지함으로써 접근 속도를 향상시킨다.&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>공간 지역성 (Spatial Locality)&lt;br>
-공간 지역성은 최근 참조된 데이터의 주변 데이터도 곧 참조될 가능성이 높다는 원리이다.
-&lt;ul>
-&lt;li>예시: 배열의 요소를 순차적으로 접근하는 경우&lt;/li>
-&lt;li>장점: 연속된 메모리 주소의 데이터를 미리 캐시에 로드하여 성능을 개선한다.&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ol>
-&lt;p>캐시의 지역성 개념은 다른 메모리 구조와 비교했을 때 다음과 같은 주요 차이점이 있다:&lt;/p>
-&lt;ol>
-&lt;li>
-&lt;p>데이터 접근 패턴:&lt;br>
-캐시는 시간적, 공간적 지역성을 활용하여 자주 사용되는 데이터를 빠르게 접근할 수 있도록 하지만, 다른 메모리 구조는 일반적으로 순차적이거나 무작위적인 접근 패턴을 가진다.&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>메모리 레이아웃:&lt;br>
-캐시는 연속된 메모리 주소의 데이터를 캐시 라인 단위로 저장하여 공간적 지역성을 극대화하며, 다른 메모리 구조는 데이터가 연속적으로 저장되지 않을 수 있어 접근 속도가 상대적으로 느리다.&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>성능 최적화:&lt;br>
-캐시는 지역성을 활용하여 캐시 히트율을 높이고 전체 시스템 성능을 향상시며, 다른 메모리 구조는 지역성 개념을 적용하기 어려워 성능 최적화에 제한이 있을 수 있다.&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>데이터 구조 선택:&lt;br>
-캐시는 배열과 같이 연속된 메모리를 사용하는 구조가 캐시 지역성을 잘 활용하며, 다른 메모리 구조는 링크드 리스트와 같이 비연속적인 메모리를 사용하는 구조는 캐시 효율성이 떨어질 수 있다.&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>프로그래밍 방식:&lt;br>
-캐시: 지역성을 고려한 코드 작성이 성능 향상에 중요하며, 다른 메모리 구조는 지역성에 대한 고려 없이 코드를 작성할 수 있지만, 성능 최적화에 제한이 있을 수 있다.&lt;/p>
-&lt;/li>
-&lt;/ol>
-&lt;p>캐시의 지역성은 다음과 같은 요인으로 중요하게 여겨진다.&lt;/p>
-&lt;ol>
-&lt;li>캐시 효율성 향상: 지역성은 캐시의 적중률(hit-rate)을 극대화하여 캐시의 효율성을 크게 높인다.&lt;/li>
-&lt;li>시스템 성능 개선: 높은 캐시 적중률은 CPU와 주 메모리 간의 속도 차이로 인한 병목 현상을 줄여 전체 시스템 성능을 향상시킨다.&lt;/li>
-&lt;li>예측 가능성: 지역성 원리를 통해 CPU가 다음에 필요로 할 데이터를 예측할 수 있어, 효율적인 데이터 pre-fetching이 가능해진다.&lt;/li>
-&lt;li>리소스 절약: 시간적, 공간적 지역성을 활용하면 상대적으로 작은 크기의 캐시로도 높은 효율성을 얻을 수 있다.&lt;/li>
-&lt;li>프로그램 최적화: 개발자가 지역성 원리를 이해하고 활용하면, 더 효율적인 코드 작성이 가능해진다.&lt;/li>
-&lt;/ol>
-&lt;p>캐시의 지역성을 고려한 프로그래밍은 성능 최적화에 중요하다.&lt;/p>
-&lt;ol>
-&lt;li>데이터 구조 설계: 연관된 데이터를 메모리상에서 가깝게 배치한다.&lt;/li>
-&lt;li>루프 최적화: 데이터 접근 패턴을 개선하여 캐시 효율성을 높인다.&lt;/li>
-&lt;li>함수 호출 최소화: 불필요한 컨텍스트 전환을 줄여 캐시 오염을 방지한다.&lt;br>
-캐시의 지역성을 활용함으로써, 제한된 캐시 용량으로도 시스템의 전반적인 성능을 크게 향상시킬 수 있다.&lt;/li>
-&lt;/ol>
-&lt;hr>
-&lt;h3>참고 및 출처&lt;/h3></description></item><item><title>Cache Memory</title><link>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/cache-memory/</link><pubDate>Sat, 19 Oct 2024 11:36:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/cache-memory/</guid><description>
-&lt;h2>Cache Memory&lt;/h2>&lt;p>캐시 메모리(Cache Memory)는 컴퓨터 아키텍처에서 중요한 역할을 하는 CPU와 주 메모리(RAM) 사이에 위치한 소규모의 고속 메모리이다.&lt;br>
-주요 목적은 자주 사용되는 데이터와 명령어를 CPU 가까이에 저장하여 접근 시간을 줄이고 전체 시스템 성능을 향상시키는 것이다.&lt;/p>
-&lt;h3>특징&lt;/h3>&lt;ol>
-&lt;li>속도: RAM보다 10-100배 빠르며, 응답 시간은 몇 나노초에 불과하다.&lt;/li>
-&lt;li>용량: RAM보다 작지만 더 빠른 SRAM을 사용한다.&lt;/li>
-&lt;li>비용: 단위 용량당 RAM보다 비싸지만 성능이 월등히 높다.&lt;/li>
-&lt;li>위치: CPU 칩 내부 또는 매우 가까운 곳에 위치한다.&lt;/li>
-&lt;/ol>
-&lt;h3>작동 원리&lt;/h3>&lt;ol>
-&lt;li>지역성 원리: 최근 접근한 데이터나 명령어는 가까운 미래에 다시 사용될 가능성이 높다는 원리를 활용한다.&lt;/li>
-&lt;li>캐시 히트와 미스: CPU가 데이터를 요청할 때 캐시에서 찾으면 &amp;lsquo;캐시 히트&amp;rsquo;, 찾지 못하면 &amp;lsquo;캐시 미스&amp;rsquo;가 발생한다.&lt;/li>
-&lt;li>캐시 정책: 어떤 데이터를 캐시에 유지할지 결정하는 정책으로, LRU(Least Recently Used)나 MRU(Most Recently Used) 등이 있다.&lt;/li>
-&lt;/ol>
-&lt;h3>캐시 레벨&lt;/h3>&lt;ol>
-&lt;li>L1 캐시: CPU에 가장 가까운 최소, 최고속 캐시로, 보통 명령어용(L1i)과 데이터용(L1d)으로 나뉜다.&lt;/li>
-&lt;li>L2 캐시: L1보다 크고 느리지만 여전히 고속인 캐시이다.&lt;/li>
-&lt;li>L3 캐시: 더 큰 용량을 제공하며, 여러 코어가 공유할 수 있다.&lt;/li>
-&lt;/ol>
-&lt;h3>캐시 매핑 기법&lt;/h3>&lt;ol>
-&lt;li>직접 매핑: 각 메모리 블록이 특정 캐시 라인에 매핑된다.&lt;/li>
-&lt;li>완전 연관 매핑: 메모리 블록이 어느 캐시 라인에나 로드될 수 있다.&lt;/li>
-&lt;li>집합 연관 매핑: 직접과 완전 연관의 절충안으로, 메모리 블록이 특정 집합 내 어느 라인에나 로드될 수 있다.&lt;/li>
-&lt;/ol>
-&lt;hr>
-&lt;h2>참고 및 출처&lt;/h2></description></item><item><title>Cache Coherence</title><link>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/caching/cache-coherence/</link><pubDate>Sat, 19 Oct 2024 03:30:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/caching/cache-coherence/</guid><description>
-&lt;h2>Cache Coherence&lt;/h2>&lt;hr>
-&lt;h2>참고 및 출처&lt;/h2></description></item><item><title>Cache Invalidation</title><link>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/caching/cache-invalidation/</link><pubDate>Sat, 19 Oct 2024 03:30:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/caching/cache-invalidation/</guid><description>
-&lt;h2>Cache Invalidation&lt;/h2>&lt;hr>
-&lt;h2>참고 및 출처&lt;/h2></description></item><item><title>Cache Policy</title><link>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/caching/cache-policy/</link><pubDate>Sat, 19 Oct 2024 03:30:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/caching/cache-policy/</guid><description>
-&lt;h2>Cache Policy&lt;/h2>&lt;h3>Cache Consistent Policies&lt;/h3>&lt;h3>Cache Replacement Policies&lt;/h3>&lt;p>LRU (Least Recently Used), LFU (Least Frequently Used), FIFO (First In First Out) 캐시 전략은 각각 다른 방식으로 캐시 공간을 관리합니다. 이들의 주요 차이점은 다음과 같습니다&lt;/p>
-&lt;p>LRU (Least Recently Used)&lt;br>
-LFU (Least Frequently Used)&lt;br>
-FIFO (First In First Out)&lt;br>
-MRU (Most Recently Used)&lt;br>
-Random Replacement&lt;/p>
-&lt;h3>LRU (Least Recently Used)&lt;/h3>&lt;ul>
-&lt;li>가장 오랫동안 사용되지 않은 항목을 제거합니다.&lt;/li>
-&lt;li>최근 접근 시간을 기준으로 항목을 관리합니다.&lt;/li>
-&lt;li>시간적 지역성(temporal locality)이 있는 워크로드에 효과적입니다.&lt;/li>
-&lt;li>구현이 비교적 간단하고 적응성이 좋습니다.&lt;/li>
-&lt;/ul>
-&lt;h3>LFU (Least Frequently Used)&lt;/h3>&lt;ul>
-&lt;li>가장 적게 사용된 항목을 제거합니다.&lt;/li>
-&lt;li>각 항목의 접근 빈도를 추적하여 관리합니다.&lt;/li>
-&lt;li>장기적인 인기도를 반영하는 데 효과적입니다.&lt;/li>
-&lt;li>구현이 복잡하고 변화하는 접근 패턴에 적응하는 데 시간이 걸릴 수 있습니다.&lt;/li>
-&lt;/ul>
-&lt;h3>FIFO (First In First Out)&lt;/h3>&lt;ul>
-&lt;li>가장 먼저 추가된 항목을 제거합니다.&lt;/li>
-&lt;li>항목이 추가된 순서만을 고려합니다.&lt;/li>
-&lt;li>구현이 매우 간단하고 오버헤드가 낮습니다.&lt;/li>
-&lt;li>접근 빈도나 최근 사용을 고려하지 않아 성능이 떨어질 수 있습니다.&lt;/li>
-&lt;/ul>
-&lt;p>각 전략의 특성을 비교하면:&lt;/p>
-&lt;ul>
-&lt;li>복잡성: FIFO &amp;lt; LRU &amp;lt; LFU&lt;/li>
-&lt;li>적응성: FIFO &amp;lt; LFU &amp;lt; LRU&lt;/li>
-&lt;li>시간적 지역성 성능: FIFO &amp;lt; LFU &amp;lt; LRU&lt;/li>
-&lt;li>빈도 기반 패턴 성능: FIFO &amp;lt; LRU &amp;lt; LFU&lt;br>
-M&lt;br>
-캐시 전략 선택 시에는 애플리케이션의 특성, 데이터 접근 패턴, 그리고 구현의 복잡성을 고려해야 합니다.&lt;/li>
-&lt;/ul>
-&lt;hr>
-&lt;h2>참고 및 출처&lt;/h2></description></item><item><title>Cache Strategy</title><link>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/caching/cache-strategy/</link><pubDate>Sat, 19 Oct 2024 03:30:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/caching/cache-strategy/</guid><description>
-&lt;h2>Cache Strategy&lt;/h2>&lt;hr>
-&lt;h2>참고 및 출처&lt;/h2></description></item><item><title>Caching Techniques</title><link>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/caching/caching-techniques/</link><pubDate>Sat, 19 Oct 2024 02:37:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/caching/caching-techniques/</guid><description>
-&lt;h2>Caching Techniques&lt;/h2>&lt;p>캐싱 기법
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Memory Architecture on hyunyoun&#39;s Blog</title>
+    <link>https://buenhyden.github.io/categories/memory-architecture/</link>
+    <description>Recent content in Memory Architecture on hyunyoun&#39;s Blog</description>
+    <image>
+      <title>hyunyoun&#39;s Blog</title>
+      <url>https://buenhyden.github.io/images</url>
+      <link>https://buenhyden.github.io/images</link>
+    </image>
+    <generator>Hugo -- 0.141.0</generator>
+    <language>en</language>
+    <lastBuildDate>Thu, 19 Dec 2024 11:38:00 +0000</lastBuildDate>
+    <atom:link href="https://buenhyden.github.io/categories/memory-architecture/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Byte Addressable Memory vs Word Addressable Memory</title>
+      <link>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/byte-addressable-memory-vs-word-addressable-memory/</link>
+      <pubDate>Thu, 19 Dec 2024 11:38:00 +0000</pubDate>
+      <guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/byte-addressable-memory-vs-word-addressable-memory/</guid>
+      <description>컴퓨터 메모리의 주소 지정 방식을 설명하는 개념</description>
+    </item>
+    <item>
+      <title>메모리 접근 방법 (Memory Access Methods)</title>
+      <link>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/memory-access-methods/</link>
+      <pubDate>Wed, 18 Dec 2024 08:05:00 +0000</pubDate>
+      <guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/memory-access-methods/</guid>
+      <description>메모리 접근 방식 (Memory Access Methods)은 컴퓨터 시스템에서 메모리에 접근하는 방식을 말한다.</description>
+    </item>
+    <item>
+      <title>메모리 주소 지정 방식 (Memory Address Modes)</title>
+      <link>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/memory-address-modes/</link>
+      <pubDate>Wed, 18 Dec 2024 08:04:00 +0000</pubDate>
+      <guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/memory-address-modes/</guid>
+      <description>메모리 주소 지정 방식(Memory Address Modes)은 CPU가 메모리의 특정 위치에 어떻게 접근하는지를 나타내는 방법이다.</description>
+    </item>
+    <item>
+      <title>캐싱 (Caching)</title>
+      <link>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/caching/</link>
+      <pubDate>Sat, 19 Oct 2024 14:14:00 +0000</pubDate>
+      <guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/caching/</guid>
+      <description>캐싱은 자주 사용되는 데이터나 계산 결과를 빠르게 접근할 수 있는 위치에 임시로 저장하는 기술</description>
+    </item>
+    <item>
+      <title>캐시 (Cache)</title>
+      <link>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/caching/cache/</link>
+      <pubDate>Sat, 19 Oct 2024 13:25:00 +0000</pubDate>
+      <guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/caching/cache/</guid>
+      <description>캐시(Cache)는 컴퓨터 과학에서 데이터나 값을 미리 복사해 놓는 임시 저장소를 의미한다.</description>
+    </item>
+    <item>
+      <title>Cache Memory</title>
+      <link>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/cache-memory/</link>
+      <pubDate>Sat, 19 Oct 2024 11:36:00 +0000</pubDate>
+      <guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/cache-memory/</guid>
+      <description>캐시 메모리(Cache Memory)는 컴퓨터 아키텍처에서 중요한 역할을 하는 CPU와 주 메모리(RAM) 사이에 위치한 소규모의 고속 메모리이다.</description>
+    </item>
+    <item>
+      <title>Cache Coherence</title>
+      <link>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/caching/cache-coherence/</link>
+      <pubDate>Sat, 19 Oct 2024 03:30:00 +0000</pubDate>
+      <guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/caching/cache-coherence/</guid>
+      <description>&lt;h2 id=&#34;cache-coherence&#34;&gt;Cache Coherence&lt;/h2&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;참고-및-출처&#34;&gt;참고 및 출처&lt;/h2&gt;</description>
+    </item>
+    <item>
+      <title>Cache Invalidation</title>
+      <link>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/caching/cache-invalidation/</link>
+      <pubDate>Sat, 19 Oct 2024 03:30:00 +0000</pubDate>
+      <guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/caching/cache-invalidation/</guid>
+      <description>&lt;h2 id=&#34;cache-invalidation&#34;&gt;Cache Invalidation&lt;/h2&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;참고-및-출처&#34;&gt;참고 및 출처&lt;/h2&gt;</description>
+    </item>
+    <item>
+      <title>Cache Policy</title>
+      <link>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/caching/cache-policy/</link>
+      <pubDate>Sat, 19 Oct 2024 03:30:00 +0000</pubDate>
+      <guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/caching/cache-policy/</guid>
+      <description>&lt;h2 id=&#34;cache-policy&#34;&gt;Cache Policy&lt;/h2&gt;
+&lt;h3 id=&#34;cache-consistent-policies&#34;&gt;Cache Consistent Policies&lt;/h3&gt;
+&lt;h3 id=&#34;cache-replacement-policies&#34;&gt;Cache Replacement Policies&lt;/h3&gt;
+&lt;p&gt;LRU (Least Recently Used), LFU (Least Frequently Used), FIFO (First In First Out) 캐시 전략은 각각 다른 방식으로 캐시 공간을 관리합니다. 이들의 주요 차이점은 다음과 같습니다&lt;/p&gt;
+&lt;p&gt;LRU (Least Recently Used)&lt;br&gt;
+LFU (Least Frequently Used)&lt;br&gt;
+FIFO (First In First Out)&lt;br&gt;
+MRU (Most Recently Used)&lt;br&gt;
+Random Replacement&lt;/p&gt;
+&lt;h3 id=&#34;lru-least-recently-used&#34;&gt;LRU (Least Recently Used)&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;가장 오랫동안 사용되지 않은 항목을 제거합니다.&lt;/li&gt;
+&lt;li&gt;최근 접근 시간을 기준으로 항목을 관리합니다.&lt;/li&gt;
+&lt;li&gt;시간적 지역성(temporal locality)이 있는 워크로드에 효과적입니다.&lt;/li&gt;
+&lt;li&gt;구현이 비교적 간단하고 적응성이 좋습니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;lfu-least-frequently-used&#34;&gt;LFU (Least Frequently Used)&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;가장 적게 사용된 항목을 제거합니다.&lt;/li&gt;
+&lt;li&gt;각 항목의 접근 빈도를 추적하여 관리합니다.&lt;/li&gt;
+&lt;li&gt;장기적인 인기도를 반영하는 데 효과적입니다.&lt;/li&gt;
+&lt;li&gt;구현이 복잡하고 변화하는 접근 패턴에 적응하는 데 시간이 걸릴 수 있습니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;fifo-first-in-first-out&#34;&gt;FIFO (First In First Out)&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;가장 먼저 추가된 항목을 제거합니다.&lt;/li&gt;
+&lt;li&gt;항목이 추가된 순서만을 고려합니다.&lt;/li&gt;
+&lt;li&gt;구현이 매우 간단하고 오버헤드가 낮습니다.&lt;/li&gt;
+&lt;li&gt;접근 빈도나 최근 사용을 고려하지 않아 성능이 떨어질 수 있습니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;각 전략의 특성을 비교하면:&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Cache Strategy</title>
+      <link>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/caching/cache-strategy/</link>
+      <pubDate>Sat, 19 Oct 2024 03:30:00 +0000</pubDate>
+      <guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/caching/cache-strategy/</guid>
+      <description>&lt;h2 id=&#34;cache-strategy&#34;&gt;Cache Strategy&lt;/h2&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;참고-및-출처&#34;&gt;참고 및 출처&lt;/h2&gt;</description>
+    </item>
+    <item>
+      <title>Caching Techniques</title>
+      <link>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/caching/caching-techniques/</link>
+      <pubDate>Sat, 19 Oct 2024 02:37:00 +0000</pubDate>
+      <guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/caching/caching-techniques/</guid>
+      <description>&lt;h2 id=&#34;caching-techniques&#34;&gt;Caching Techniques&lt;/h2&gt;
+&lt;p&gt;캐싱 기법
 Memoization (함수 결과 캐싱)
 Write-Through Caching
 Write-Back Caching
 Write-Around Caching
-Read-Through Caching&lt;/p>
-&lt;hr>
-&lt;h2>참고 및 출처&lt;/h2></description></item><item><title>메모리의 계층 구조 (Memory Hierarchy)</title><link>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/memory-hierarchy/</link><pubDate>Mon, 23 Sep 2024 03:33:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/memory-hierarchy/</guid><description>
-&lt;h2>메모리의 계층 구조 (Memory Hierarchy)&lt;/h2>&lt;p>메모리 계층 구조는 컴퓨터 시스템에서 데이터 접근의 효율성을 극대화하고 전체 시스템 성능을 향상시키기 위해 설계된 구조.&lt;br>
-이 구조는 속도, 용량, 비용 간의 균형을 고려하여 여러 종류의 메모리를 계층적으로 배치한다.&lt;/p>
-&lt;p>메모리 계층 구조의 각 레벨은 위로 올라갈수록 다음과 같은 특성을 가진다.&lt;/p>
-&lt;ul>
-&lt;li>접근 속도가 빨라짐&lt;/li>
-&lt;li>용량이 작아짐&lt;/li>
-&lt;li>비트당 가격이 높아짐&lt;/li>
-&lt;li>CPU에 의한 접근 빈도가 증가함&lt;/li>
-&lt;/ul>
-&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
-&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-plaintext" data-lang="plaintext">&lt;span class="line">&lt;span class="cl">계층 구조 (위에서 아래로):
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">레지스터
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ↓
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">캐시 (L1 → L2 → L3)
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ↓
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">메인 메모리 (RAM)
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ↓
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">보조 기억 장치 (SSD/HDD)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
-&lt;button
-class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
-title="Copy code"
->
-&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;/button>
-&lt;/div>
-&lt;/div>
-&lt;p>이러한 계층 구조는 &amp;lsquo;참조 지역성(Locality of Reference)&amp;rsquo; 원리를 활용하여 전체 시스템의 성능을 최적화한다.&lt;br>
-자주 사용되는 데이터를 빠른 상위 계층에 유지함으로써, 평균 데이터 접근 시간을 줄이고 전체적인 시스템 성능을 향상시킨다.&lt;/p>
-&lt;blockquote>
-&lt;p>참조 지역성(Locality of Reference)&lt;br>
-컴퓨터 프로그램이 메모리에 접근하는 패턴에 관한 원리로, 프로그램이 일정 기간 동안 특정한 메모리 위치 집합에 집중적으로 접근하는 경향.&lt;/p>
-&lt;ul>
-&lt;li>중요성
-&lt;ul>
-&lt;li>캐시 메모리 최적화: 참조 지역성 원리를 활용하여 캐시 메모리에 자주 사용되는 데이터를 저장함으로써 캐시 적중률(hit rate)을 높일 수 있다&lt;/li>
-&lt;li>시스템 성능 향상: 캐시 적중률이 높아지면 메모리 접근 시간이 줄어들어 전체적인 시스템 성능이 향상된다.&lt;/li>
-&lt;li>프로그램 최적화: 개발자가 참조 지역성을 고려하여 코드를 작성하면 프로그램의 실행 속도를 크게 개선할 수 있다.&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>유형
-&lt;ul>
-&lt;li>시간적 지역성 (Temporal Locality): 최근에 참조된 메모리 위치가 가까운 미래에 다시 참조될 가능성이 높다.
-&lt;ul>
-&lt;li>반복문에서 같은 변수를 여러 번 사용하는 경우&lt;/li>
-&lt;li>자주 호출되는 함수나 서브루틴&lt;/li>
-&lt;li>스택에 저장된 지역 변수에 대한 반복적인 접근&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>공간적 지역성 (Spatial Locality): 특정 메모리 위치가 참조되면, 그 주변의 메모리 위치들도 곧 참조될 가능성이 높다.
-&lt;ul>
-&lt;li>배열의 요소를 순차적으로 접근하는 경우&lt;/li>
-&lt;li>구조체의 멤버 변수들에 연속적으로 접근하는 경우&lt;/li>
-&lt;li>명령어들이 메모리에 연속적으로 저장되어 있는 경우&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ul>
-&lt;/blockquote>
-&lt;p>
-&lt;figure class="image-figure">
-&lt;img src="https://buenhyden.github.io/posts/Computer%20System/Computer%20Architecture/Memory%20Architecture/memory-hierarchy-design.webp"
-alt="Memory Hierarchy Design"
-loading="lazy" />
-&lt;/figure>&lt;br>
-_Source: &lt;a href="https://www.scaler.com/topics/memory-hierarchy/" target="_blank" rel="noopener">https://www.scaler.com/topics/memory-hierarchy/&lt;/a> _&lt;/p>
-&lt;h3>레지스터 (Register)&lt;/h3>&lt;p>레지스터는 메모리 계층 구조의 최상위에 위치하며, CPU 내부에 존재한다.&lt;/p>
-&lt;p>특징:&lt;/p>
-&lt;ul>
-&lt;li>가장 빠른 접근 속도를 제공&lt;/li>
-&lt;li>매우 작은 용량 (일반적으로 32비트 또는 64비트)&lt;/li>
-&lt;li>CPU가 직접 사용할 수 있는 데이터를 저장&lt;/li>
-&lt;li>비용이 가장 높음&lt;/li>
-&lt;/ul>
-&lt;h3>캐시 메모리 (Cache Memory)&lt;/h3>&lt;p>캐시 메모리는 CPU와 주 메모리 사이에 위치하며, 자주 사용되는 데이터와 명령어를 저장한다.&lt;/p>
-&lt;p>종류:&lt;/p>
-&lt;ul>
-&lt;li>L1 캐시: CPU 코어에 가장 가까이 위치, 가장 빠르지만 용량이 작음 (보통 8~64KB)&lt;/li>
-&lt;li>L2 캐시: L1보다 느리지만 더 큰 용량 (64KB~4MB)&lt;/li>
-&lt;li>L3 캐시: 일부 프로세서에서 사용, L2보다 더 큰 용량&lt;/li>
-&lt;/ul>
-&lt;p>캐시 메모리는 SRAM(Static RAM)으로 구성되며, 빠른 접근 속도를 제공한다.&lt;/p>
-&lt;h3>주 메모리 (Main Memory)&lt;/h3>&lt;p>주 메모리는 일반적으로 RAM(Random Access Memory)을 의미한다.&lt;/p>
-&lt;p>특징:&lt;/p>
-&lt;ul>
-&lt;li>CPU가 직접 접근할 수 있는 가장 큰 메모리&lt;/li>
-&lt;li>주로 DRAM(Dynamic RAM)으로 구성&lt;/li>
-&lt;li>캐시보다 느리지만 더 큰 용량 제공&lt;/li>
-&lt;li>휘발성 메모리 (전원이 꺼지면 데이터 손실)&lt;/li>
-&lt;/ul>
-&lt;h3>보조 기억 장치 (Secondary Storage)&lt;/h3>&lt;p>보조 기억 장치는 메모리 계층 구조의 가장 하위에 위치한다.&lt;/p>
-&lt;p>특징:&lt;/p>
-&lt;ul>
-&lt;li>하드 디스크 드라이브(HDD)나 솔리드 스테이트 드라이브(SSD) 등이 포함&lt;/li>
-&lt;li>가장 큰 용량을 제공&lt;/li>
-&lt;li>비휘발성 (전원이 꺼져도 데이터 유지)&lt;/li>
-&lt;li>접근 속도가 가장 느림&lt;/li>
-&lt;/ul>
-&lt;hr>
-&lt;h2>참고 및 출처&lt;/h2></description></item></channel></rss>
+Read-Through Caching&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;참고-및-출처&#34;&gt;참고 및 출처&lt;/h2&gt;</description>
+    </item>
+    <item>
+      <title>메모리의 계층 구조 (Memory Hierarchy)</title>
+      <link>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/memory-hierarchy/</link>
+      <pubDate>Mon, 23 Sep 2024 03:33:00 +0000</pubDate>
+      <guid>https://buenhyden.github.io/posts/computer-system/computer-architecture/memory-architecture/memory-hierarchy/</guid>
+      <description>컴퓨터 시스템에서 데이터 접근의 효율성을 극대화하고 전체 시스템 성능을 향상시키기 위해 설계된 구조</description>
+    </item>
+  </channel>
+</rss>

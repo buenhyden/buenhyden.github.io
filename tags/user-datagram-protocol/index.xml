@@ -1,112 +1,24 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>hyunyoun's Blog – User-Datagram-Protocol</title><link>https://buenhyden.github.io/tags/user-datagram-protocol/</link><description>Recent content in User-Datagram-Protocol on hyunyoun's Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Wed, 02 Oct 2024 04:21:00 +0000</lastBuildDate><atom:link href="https://buenhyden.github.io/tags/user-datagram-protocol/index.xml" rel="self" type="application/rss+xml"/><item><title>UDP</title><link>https://buenhyden.github.io/posts/networking-and-communications/protocol/udp/</link><pubDate>Wed, 02 Oct 2024 04:21:00 +0000</pubDate><guid>https://buenhyden.github.io/posts/networking-and-communications/protocol/udp/</guid><description>
-&lt;h2>UDP (User Datagram Protocol)&lt;/h2>&lt;p>인터넷 프로토콜 스위트의 핵심 전송 계층 프로토콜 중 하나로, 비연결형 통신 방식을 통해 데이터를 빠르고 효율적으로 전송한다.&lt;br>
-TCP와 달리 연결 설정 과정 없이 데이터그램 단위로 전송하며, 신뢰성보다는 속도와 실시간 처리가 중요한 애플리케이션에서 주로 사용한다.&lt;/p>
-&lt;p>OSI 7계층의 전송 계층(4계층)에 속하며, TCP/IP 4계층에서도 전송 계층에 속한다.&lt;/p>
-&lt;p>추가적으로 알아야 할 내용:&lt;/p>
-&lt;ol>
-&lt;li>포트 번호: UDP도 TCP와 마찬가지로 16비트 포트 번호를 사용하여 애플리케이션을 구분합니다.&lt;/li>
-&lt;li>체크섬: UDP는 선택적으로 체크섬을 사용하여 데이터 무결성을 확인할 수 있습니다.&lt;/li>
-&lt;li>MTU(Maximum Transmission Unit): UDP 데이터그램의 크기가 네트워크의 MTU를 초과하면 IP 계층에서 단편화가 발생할 수 있습니다.&lt;/li>
-&lt;li>애플리케이션 레벨 신뢰성: UDP를 사용하는 애플리케이션은 필요한 경우 자체적으로 신뢰성 메커니즘을 구현해야 합니다.&lt;/li>
-&lt;li>NAT 통과: UDP는 TCP에 비해 NAT(Network Address Translation) 통과가 더 쉬울 수 있습니다.&lt;/li>
-&lt;li>실시간 애플리케이션: 음성 통화, 비디오 스트리밍, 온라인 게임 등 실시간 애플리케이션에서 자주 사용됩니다.&lt;/li>
-&lt;li>DNS: 도메인 네임 시스템(DNS)은 주로 UDP를 사용하여 쿼리를 처리합니다.&lt;/li>
-&lt;li>QUIC(Quick UDP Internet Connections): Google이 개발한 프로토콜로, UDP 위에서 동작하며 TCP의 일부 특성을 구현합니다.&lt;/li>
-&lt;/ol>
-&lt;h3>주요 특징&lt;/h3>&lt;ol>
-&lt;li>&lt;strong>비연결성&lt;/strong>: UDP는 연결을 설정하지 않고 바로 데이터를 전송한다.&lt;br>
-TCP의 3-way handshake와 같은 연결 설정 과정이 없다.&lt;/li>
-&lt;li>&lt;strong>신속성&lt;/strong>: 연결 설정 과정이 없어 TCP보다 빠른 전송이 가능하다.&lt;/li>
-&lt;li>&lt;strong>비신뢰성&lt;/strong>: 데이터 전달의 보증이나 순서를 보장하지 않는다. 패킷 손실이 발생할 수 있다.&lt;/li>
-&lt;li>&lt;strong>효율성&lt;/strong>: 헤더가 단순하여 오버헤드가 적고, 네트워크 부하가 적다.&lt;/li>
-&lt;/ol>
-&lt;h3>장점&lt;/h3>&lt;ol>
-&lt;li>빠른 데이터 전송&lt;/li>
-&lt;li>적은 지연 시간&lt;/li>
-&lt;li>간단한 구현&lt;/li>
-&lt;li>작은 헤더 크기로 인한 효율적인 대역폭 사용&lt;/li>
-&lt;li>브로드캐스트 및 멀티캐스트에 적합&lt;/li>
-&lt;/ol>
-&lt;h3>동작 방식&lt;/h3>&lt;ol>
-&lt;li>애플리케이션이 데이터를 UDP에 전달&lt;/li>
-&lt;li>UDP가 데이터를 데이터그램으로 패키징&lt;/li>
-&lt;li>IP 계층을 통해 데이터그램 전송&lt;/li>
-&lt;li>수신측 UDP가 데이터그램을 받아 애플리케이션에 전달&lt;/li>
-&lt;/ol>
-&lt;h4>데이터그램&lt;/h4>&lt;p>UDP는 데이터를 데이터그램이라는 단위로 전송한다.&lt;br>
-데이터그램은 독립적인 관계를 지니는 패킷을 의미한다.&lt;/p>
-&lt;p>특징:&lt;/p>
-&lt;ol>
-&lt;li>독립성: 각 데이터그램은 독립적으로 처리되며, 다른 데이터그램과의 관계나 순서에 상관없이 전송된다.&lt;/li>
-&lt;li>비연결성: 데이터그램은 연결 설정 없이 바로 전송됩니다. 이는 TCP의 연결 지향적 특성과 대조된다.&lt;/li>
-&lt;li>신뢰성 부족: UDP는 데이터그램의 전달을 보장하지 않으며, 수신 여부를 확인하지 않는다.&lt;/li>
-&lt;li>순서 보장 없음: 데이터그램의 전송 순서가 바뀔 수 있으며, UDP는 이를 재정렬하지 않는다.&lt;/li>
-&lt;/ol>
-&lt;p>구조:&lt;br>
-UDP 데이터그램은 헤더와 데이터 부분으로 구성된다:&lt;/p>
-&lt;ol>
-&lt;li>UDP 헤더 (8바이트):
-&lt;ul>
-&lt;li>송신지 포트 번호 (2바이트)&lt;/li>
-&lt;li>목적지 포트 번호 (2바이트)&lt;/li>
-&lt;li>데이터그램 길이 (2바이트)&lt;/li>
-&lt;li>체크섬 (2바이트)&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>데이터 부분:
-&lt;ul>
-&lt;li>실제 전송할 애플리케이션 데이터&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ol>
-&lt;p>특성:&lt;/p>
-&lt;ol>
-&lt;li>크기 제한: UDP 데이터그램의 최대 크기는 65,535바이트(헤더 포함)이다.&lt;/li>
-&lt;li>효율성: 헤더가 작아(8바이트) TCP에 비해 오버헤드가 적고 통신 효율이 높다.&lt;/li>
-&lt;li>분할 기능 없음: UDP는 큰 데이터를 자동으로 분할하지 않는다. 필요한 경우 애플리케이션에서 데이터를 적절한 크기로 나눠야 한다.&lt;/li>
-&lt;/ol>
-&lt;h3>UDP의 사용 사례&lt;/h3>&lt;p>UDP는 다음과 같은 상황에서 주로 사용된다.:&lt;/p>
-&lt;ol>
-&lt;li>&lt;strong>실시간 스트리밍&lt;/strong>: 영상 통화, 온라인 게임 등&lt;/li>
-&lt;li>&lt;strong>DNS(Domain Name System)&lt;/strong>: 도메인 이름을 IP 주소로 변환&lt;/li>
-&lt;li>&lt;strong>SNMP(Simple Network Management Protocol)&lt;/strong>: 네트워크 관리&lt;/li>
-&lt;/ol>
-&lt;h3>UDP를 실제 개발에 활용할 때의 코드 예시&lt;/h3>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
-&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">socket&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># UDP 서버 예시&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">def&lt;/span> &lt;span class="nf">udp_server&lt;/span>&lt;span class="p">():&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># UDP 소켓 생성&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">server_socket&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">socket&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">socket&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">socket&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">AF_INET&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">socket&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">SOCK_DGRAM&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">server_socket&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">bind&lt;/span>&lt;span class="p">((&lt;/span>&lt;span class="s1">&amp;#39;localhost&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">12345&lt;/span>&lt;span class="p">))&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">while&lt;/span> &lt;span class="kc">True&lt;/span>&lt;span class="p">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 데이터 수신&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">data&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">addr&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">server_socket&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">recvfrom&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">1024&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sa">f&lt;/span>&lt;span class="s2">&amp;#34;Received message: &lt;/span>&lt;span class="si">{&lt;/span>&lt;span class="n">data&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">decode&lt;/span>&lt;span class="p">()&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2"> from &lt;/span>&lt;span class="si">{&lt;/span>&lt;span class="n">addr&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 응답 전송&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">server_socket&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">sendto&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sa">b&lt;/span>&lt;span class="s2">&amp;#34;Message received&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">addr&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># UDP 클라이언트 예시&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">def&lt;/span> &lt;span class="nf">udp_client&lt;/span>&lt;span class="p">():&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">client_socket&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">socket&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">socket&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">socket&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">AF_INET&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">socket&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">SOCK_DGRAM&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 데이터 전송&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">message&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;Hello, UDP Server!&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">client_socket&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">sendto&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">message&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">encode&lt;/span>&lt;span class="p">(),&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;localhost&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">12345&lt;/span>&lt;span class="p">))&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 응답 수신&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">data&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">addr&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">client_socket&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">recvfrom&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">1024&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sa">f&lt;/span>&lt;span class="s2">&amp;#34;Server response: &lt;/span>&lt;span class="si">{&lt;/span>&lt;span class="n">data&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">decode&lt;/span>&lt;span class="p">()&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
-&lt;button
-class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
-title="Copy code"
->
-&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
-&lt;/button>
-&lt;/div>
-&lt;/div>
-&lt;hr>
-&lt;h2>참고 및 출처&lt;/h2></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>User-Datagram-Protocol on hyunyoun&#39;s Blog</title>
+    <link>https://buenhyden.github.io/tags/user-datagram-protocol/</link>
+    <description>Recent content in User-Datagram-Protocol on hyunyoun&#39;s Blog</description>
+    <image>
+      <title>hyunyoun&#39;s Blog</title>
+      <url>https://buenhyden.github.io/images</url>
+      <link>https://buenhyden.github.io/images</link>
+    </image>
+    <generator>Hugo -- 0.141.0</generator>
+    <language>en</language>
+    <lastBuildDate>Wed, 02 Oct 2024 04:21:00 +0000</lastBuildDate>
+    <atom:link href="https://buenhyden.github.io/tags/user-datagram-protocol/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>UDP</title>
+      <link>https://buenhyden.github.io/posts/networking-and-communications/protocol/udp/</link>
+      <pubDate>Wed, 02 Oct 2024 04:21:00 +0000</pubDate>
+      <guid>https://buenhyden.github.io/posts/networking-and-communications/protocol/udp/</guid>
+      <description>연결 설정 과정 없이 데이터그램 단위로 전송하며, 신뢰성보다는 속도와 실시간 처리가 중요한 애플리케이션에서 주로 사용한다</description>
+    </item>
+  </channel>
+</rss>
