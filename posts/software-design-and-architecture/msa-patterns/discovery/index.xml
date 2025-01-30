@@ -25,17 +25,185 @@
       <link>https://buenhyden.github.io/posts/software-design-and-architecture/msa-patterns/discovery/self-registration/</link>
       <pubDate>Wed, 02 Oct 2024 11:47:00 +0000</pubDate>
       <guid>https://buenhyden.github.io/posts/software-design-and-architecture/msa-patterns/discovery/self-registration/</guid>
-      <description>&lt;h2 id=&#34;self-registration&#34;&gt;Self registration&lt;/h2&gt;
-&lt;hr&gt;
-&lt;h2 id=&#34;참고-및-출처&#34;&gt;참고 및 출처&lt;/h2&gt;</description>
+      <description>&lt;h2 id=&#34;self-registration&#34;&gt;Self Registration&lt;/h2&gt;
+&lt;p&gt;Self Registration은 각 마이크로서비스 인스턴스가 자신의 정보를 서비스 레지스트리에 직접 등록하고 관리하는 패턴이다. 서비스가 시작될 때 자동으로 등록되고, 종료될 때 해제되는 방식으로 동작한다.&lt;/p&gt;
+&lt;p&gt;Self Registration 패턴은 마이크로서비스 환경에서 동적으로 변화하는 서비스 인스턴스를 효과적으로 관리할 수 있게 해주는 중요한 패턴이다. 하지만 구현의 복잡성과 유지보수 측면에서 주의가 필요하며, 프로젝트의 규모와 요구사항에 따라 적절히 선택해야 한다.&lt;/p&gt;
+&lt;h3 id=&#34;주요-특징&#34;&gt;주요 특징&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;자동 등록&lt;/strong&gt;: 서비스 인스턴스가 시작될 때 자신의 정보(호스트, IP 주소, 포트 등)를 레지스트리에 등록한다.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;자동 해제&lt;/strong&gt;: 서비스가 종료될 때 레지스트리에서 자신의 정보를 제거한다.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;헬스체크&lt;/strong&gt;: 주기적으로 레지스트리에 헬스체크 신호를 보내 자신이 살아있음을 알린다.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;상태 관리&lt;/strong&gt;: 서비스 인스턴스가 자신의 상태를 가장 잘 알기 때문에, UP/DOWN 외에도 STARTING, AVAILABLE 등 더 복잡한 상태 모델을 구현할 수 있다.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;구현-방법&#34;&gt;구현 방법&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;서비스 레지스트리 설정: Eureka, Consul, ZooKeeper 등의 도구를 사용하여 중앙 레지스트리를 구축한다.&lt;/li&gt;
+&lt;li&gt;서비스 등록 코드 구현: 각 마이크로서비스에 자신을 레지스트리에 등록하는 코드를 추가한다.&lt;/li&gt;
+&lt;li&gt;헬스체크 메커니즘 구현: 주기적으로 레지스트리에 헬스체크 신호를 보내는 로직을 구현한다.&lt;/li&gt;
+&lt;li&gt;서비스 디스커버리 클라이언트 구현: 다른 서비스들이 등록된 서비스를 찾고 통신할 수 있도록 한다.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;장점&#34;&gt;장점&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;구현이 비교적 간단하다.&lt;/li&gt;
+&lt;li&gt;추가적인 시스템 컴포넌트가 필요하지 않다.&lt;/li&gt;
+&lt;li&gt;서비스가 자신의 상태를 가장 잘 알기 때문에 정확한 정보를 제공할 수 있다.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;단점&#34;&gt;단점&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;서비스와 레지스트리 간의 결합도가 높아진다.&lt;/li&gt;
+&lt;li&gt;각 프로그래밍 언어와 프레임워크마다 등록 로직을 구현해야 한다.&lt;/li&gt;
+&lt;li&gt;서비스가 비정상적으로 종료될 경우 레지스트리에서 자동으로 제거되지 않을 수 있다.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;구현-예시&#34;&gt;구현 예시&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;Netflix Eureka&lt;/strong&gt;는 셀프 등록 패턴의 대표적인 예시이다.&lt;br&gt;
+Eureka 클라이언트는 다음과 같은 방식으로 동작한다:&lt;/p&gt;</description>
     </item>
     <item>
       <title>Server-side discovery</title>
       <link>https://buenhyden.github.io/posts/software-design-and-architecture/msa-patterns/discovery/server-side-discovery/</link>
       <pubDate>Wed, 02 Oct 2024 11:47:00 +0000</pubDate>
       <guid>https://buenhyden.github.io/posts/software-design-and-architecture/msa-patterns/discovery/server-side-discovery/</guid>
-      <description>&lt;h2 id=&#34;server-side-discovery&#34;&gt;Server-side discovery&lt;/h2&gt;
-&lt;hr&gt;
+      <description>&lt;h2 id=&#34;server-side-discovery&#34;&gt;Server-side Discovery&lt;/h2&gt;
+&lt;p&gt;Server-side Discovery는 클라이언트가 서비스의 위치를 직접 찾지 않고, 중간에 위치한 로드 밸런서나 프록시 서버가 서비스 위치를 찾아 요청을 라우팅하는 방식이다.&lt;/p&gt;
+&lt;p&gt;Server-side Discovery는 클라이언트를 단순화하고 중앙 집중식 관리를 가능하게 하는 장점이 있지만, 추가 인프라와 관리가 필요한 단점도 있다. 프로젝트의 요구사항과 팀의 역량을 고려하여 적절히 선택해야 한다.&lt;/p&gt;
+&lt;h3 id=&#34;작동-원리&#34;&gt;작동 원리&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;서비스 등록: 각 서비스 인스턴스는 시작 시 자신의 정보를 서비스 레지스트리에 등록한다.&lt;/li&gt;
+&lt;li&gt;클라이언트 요청: 클라이언트는 서비스의 실제 위치를 모르고, 로드 밸런서에 요청을 보낸다.&lt;/li&gt;
+&lt;li&gt;서비스 조회: 로드 밸런서는 서비스 레지스트리에서 해당 서비스의 가용한 인스턴스 정보를 조회한다.&lt;/li&gt;
+&lt;li&gt;요청 라우팅: 로드 밸런서는 적절한 서비스 인스턴스를 선택하여 요청을 전달한다.&lt;/li&gt;
+&lt;li&gt;응답 반환: 서비스의 응답은 로드 밸런서를 통해 클라이언트에게 전달된다.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;장점&#34;&gt;장점&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;클라이언트 단순화: 클라이언트는 서비스 디스커버리 로직을 구현할 필요가 없어 단순해진다.&lt;/li&gt;
+&lt;li&gt;언어 중립성: 클라이언트 측 구현이 필요 없어 다양한 프로그래밍 언어로 개발된 서비스들을 쉽게 통합할 수 있다.&lt;/li&gt;
+&lt;li&gt;보안 강화: 로드 밸런서 수준에서 추가적인 보안 계층을 구현할 수 있다.&lt;/li&gt;
+&lt;li&gt;중앙 집중식 관리: 서비스 디스커버리와 로드 밸런싱을 중앙에서 관리할 수 있다.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;단점&#34;&gt;단점&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;추가 인프라 필요: 로드 밸런서나 프록시 서버와 같은 추가 인프라가 필요하다.&lt;/li&gt;
+&lt;li&gt;단일 실패 지점: 로드 밸런서가 단일 실패 지점이 될 수 있어 고가용성 설계가 중요하다.&lt;/li&gt;
+&lt;li&gt;복잡성 증가: 전체 시스템의 복잡성이 증가할 수 있다.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;구현-예시&#34;&gt;구현 예시&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;AWS Elastic Load Balancer (ELB)&lt;/strong&gt;: 클라이언트는 ELB의 DNS 이름을 통해 요청을 보내며, ELB는 등록된 EC2 인스턴스나 ECS 컨테이너 사이에서 부하를 분산한다.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Kubernetes의 kube-proxy&lt;/strong&gt;: Kubernetes에서는 각 노드에서 실행되는 kube-proxy가 서비스 디스커버리와 로드 밸런싱을 담당하며, 클러스터 내의 서비스 요청을 적절한 파드(Pod)로 전달한다.&lt;/li&gt;
+&lt;li&gt;Node.js를 사용한 Server-side Discovery 구현 예시&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-1&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-1&#34;&gt; 1&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-2&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-2&#34;&gt; 2&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-3&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-3&#34;&gt; 3&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-4&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-4&#34;&gt; 4&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-5&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-5&#34;&gt; 5&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-6&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-6&#34;&gt; 6&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-7&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-7&#34;&gt; 7&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-8&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-8&#34;&gt; 8&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-9&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-9&#34;&gt; 9&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-10&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-10&#34;&gt;10&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-11&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-11&#34;&gt;11&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-12&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-12&#34;&gt;12&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-13&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-13&#34;&gt;13&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-14&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-14&#34;&gt;14&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-15&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-15&#34;&gt;15&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-16&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-16&#34;&gt;16&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-17&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-17&#34;&gt;17&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-18&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-18&#34;&gt;18&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-19&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-19&#34;&gt;19&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-20&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-20&#34;&gt;20&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-21&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-21&#34;&gt;21&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-22&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-22&#34;&gt;22&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-23&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-23&#34;&gt;23&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-24&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-24&#34;&gt;24&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-25&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-25&#34;&gt;25&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-26&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-26&#34;&gt;26&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-27&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-27&#34;&gt;27&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-28&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-28&#34;&gt;28&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-29&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-29&#34;&gt;29&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-30&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-30&#34;&gt;30&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-31&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-31&#34;&gt;31&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-32&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-32&#34;&gt;32&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-33&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-33&#34;&gt;33&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-34&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-34&#34;&gt;34&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-35&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-35&#34;&gt;35&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-36&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-36&#34;&gt;36&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-37&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-37&#34;&gt;37&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-38&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-38&#34;&gt;38&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-39&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-39&#34;&gt;39&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-40&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-40&#34;&gt;40&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-41&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-41&#34;&gt;41&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-42&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-42&#34;&gt;42&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-43&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-43&#34;&gt;43&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-44&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-44&#34;&gt;44&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-45&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-45&#34;&gt;45&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-46&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-46&#34;&gt;46&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-47&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-47&#34;&gt;47&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-48&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-48&#34;&gt;48&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-49&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-49&#34;&gt;49&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-50&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-50&#34;&gt;50&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-51&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-51&#34;&gt;51&lt;/a&gt;
+&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-52&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-52&#34;&gt;52&lt;/a&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-javascript&#34; data-lang=&#34;javascript&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;// 서버 사이드 디스커버리 라우터 구현
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;kr&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;ServiceRouter&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;nx&#34;&gt;constructor&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;options&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{})&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;k&#34;&gt;this&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;registryUrl&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;options&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;registryUrl&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;||&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;http://service-registry:8500&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;k&#34;&gt;this&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;serviceCache&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;Map&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;k&#34;&gt;this&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;cacheTimeout&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;options&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;cacheTimeout&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;||&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;30000&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;// 30초
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;        &lt;span class=&#34;k&#34;&gt;this&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;loadBalancer&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;LoadBalancer&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;kr&#34;&gt;async&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;handleRequest&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;req&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;res&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;kr&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;serviceName&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;this&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;extractServiceName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;req&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;k&#34;&gt;try&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;            &lt;span class=&#34;c1&#34;&gt;// 서비스 인스턴스 찾기
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;            &lt;span class=&#34;kr&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;serviceInstance&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;kr&#34;&gt;await&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;this&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;findServiceInstance&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;serviceName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;            
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;            &lt;span class=&#34;c1&#34;&gt;// 요청 전달
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;            &lt;span class=&#34;kr&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;response&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;kr&#34;&gt;await&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;this&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;forwardRequest&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;req&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;serviceInstance&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;            
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;            &lt;span class=&#34;c1&#34;&gt;// 응답 전달
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;            &lt;span class=&#34;k&#34;&gt;this&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;sendResponse&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;res&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;response&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;            
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;catch&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;error&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;            &lt;span class=&#34;k&#34;&gt;this&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;handleError&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;res&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;error&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;kr&#34;&gt;async&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;findServiceInstance&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;serviceName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;c1&#34;&gt;// 캐시된 서비스 확인
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;        &lt;span class=&#34;kr&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;cachedInstances&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;this&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;getCachedInstances&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;serviceName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;cachedInstances&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;cachedInstances&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;length&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;            &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;this&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;loadBalancer&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;selectInstance&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;cachedInstances&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;c1&#34;&gt;// 서비스 레지스트리 조회
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;        &lt;span class=&#34;kr&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;instances&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;kr&#34;&gt;await&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;this&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;queryRegistry&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;serviceName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;k&#34;&gt;this&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;updateCache&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;serviceName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;instances&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;this&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;loadBalancer&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;selectInstance&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;instances&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;kr&#34;&gt;async&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;forwardRequest&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;req&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;serviceInstance&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;kr&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;targetUrl&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;this&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;buildTargetUrl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;serviceInstance&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;req&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;path&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;kr&#34;&gt;await&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;fetch&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;targetUrl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;            &lt;span class=&#34;nx&#34;&gt;method&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;req&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;method&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;            &lt;span class=&#34;nx&#34;&gt;headers&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;req&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;headers&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;            &lt;span class=&#34;nx&#34;&gt;body&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;req&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;body&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;            &lt;span class=&#34;nx&#34;&gt;timeout&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;5000&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;p&#34;&gt;});&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;hr&gt;
 &lt;h2 id=&#34;참고-및-출처&#34;&gt;참고 및 출처&lt;/h2&gt;</description>
     </item>
     <item>
@@ -43,18 +211,26 @@
       <link>https://buenhyden.github.io/posts/software-design-and-architecture/msa-patterns/discovery/service-registry/</link>
       <pubDate>Wed, 02 Oct 2024 11:47:00 +0000</pubDate>
       <guid>https://buenhyden.github.io/posts/software-design-and-architecture/msa-patterns/discovery/service-registry/</guid>
-      <description>&lt;h2 id=&#34;service-registry&#34;&gt;Service registry&lt;/h2&gt;
-&lt;hr&gt;
-&lt;h2 id=&#34;참고-및-출처&#34;&gt;참고 및 출처&lt;/h2&gt;</description>
+      <description>&lt;h2 id=&#34;service-registry&#34;&gt;Service Registry&lt;/h2&gt;
+&lt;p&gt;Service Registry는 마이크로서비스 환경에서 각 서비스 인스턴스의 네트워크 위치(IP 주소와 포트)를 저장하고 관리하는 중앙화된 데이터베이스이다.&lt;br&gt;
+이는 동적으로 변화하는 마이크로서비스 환경에서 서비스 디스커버리를 가능하게 하는 핵심 요소이다.&lt;/p&gt;
+&lt;p&gt;Service Registry는 MSA 환경에서 서비스 디스커버리를 가능하게 하는 핵심 컴포넌트이다. 이를 통해 동적이고 확장 가능한 마이크로서비스 아키텍처를 구현할 수 있다.&lt;/p&gt;
+&lt;h3 id=&#34;서비스-레지스트리의-중요성&#34;&gt;서비스 레지스트리의 중요성&lt;/h3&gt;
+&lt;p&gt;MSA 환경에서는 서비스 인스턴스가 자동 확장, 장애 복구, 배포 등의 이유로 동적으로 생성되고 소멸되며, 이에 따라 네트워크 위치가 변경된다.&lt;br&gt;
+이러한 동적인 특성으로 인해, 서비스 레지스트리는 다음과 같은 역할을 수행한다:&lt;/p&gt;</description>
     </item>
     <item>
       <title>Client-side discovery</title>
       <link>https://buenhyden.github.io/posts/software-design-and-architecture/msa-patterns/discovery/client-side-discovery/</link>
       <pubDate>Wed, 02 Oct 2024 11:46:00 +0000</pubDate>
       <guid>https://buenhyden.github.io/posts/software-design-and-architecture/msa-patterns/discovery/client-side-discovery/</guid>
-      <description>&lt;h2 id=&#34;client-side-discovery&#34;&gt;Client-side discovery&lt;/h2&gt;
-&lt;hr&gt;
-&lt;h2 id=&#34;참고-및-출처&#34;&gt;참고 및 출처&lt;/h2&gt;</description>
+      <description>&lt;h2 id=&#34;client-side-discovery&#34;&gt;Client-side Discovery&lt;/h2&gt;
+&lt;p&gt;Client-side Discovery는 서비스 클라이언트가 직접 서비스 레지스트리에 질의하여 필요한 서비스의 위치 정보를 얻고, 그 정보를 바탕으로 서비스를 호출하는 방식이다.&lt;/p&gt;
+&lt;p&gt;Client-side Discovery는 마이크로서비스 환경에서 유연하고 확장 가능한 서비스 디스커버리 방식을 제공한다. 그러나 클라이언트의 복잡도가 증가하는 단점이 있으므로, 프로젝트의 요구사항과 팀의 기술 스택을 고려하여 적절히 선택해야 한다.&lt;/p&gt;
+&lt;h3 id=&#34;주요-구성-요소&#34;&gt;주요 구성 요소&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;서비스 레지스트리(Service Registry)&lt;/strong&gt;: 각 서비스 인스턴스의 네트워크 위치(예: IP 주소, 포트)를 저장하고 관리하는 데이터베이스이다. 서비스 인스턴스는 시작 시 자신의 정보를 레지스트리에 등록하고, 종료 시 등록을 해제한다.&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>
