@@ -28,6 +28,13 @@
       <description>데이터 파이프라인 패턴은 데이터를 원천에서 목적지로 이동시키는 과정을 자동화하고 최적화하는 아키텍처 패턴이다.</description>
     </item>
     <item>
+      <title>MVC pattern vs MVVC pattern vs MVP pattern</title>
+      <link>https://buenhyden.github.io/til/2024/09/27/mvc-pattern-vs-mvvc-pattern-vs-mvp-pattern/</link>
+      <pubDate>Fri, 27 Sep 2024 01:28:00 +0000</pubDate>
+      <guid>https://buenhyden.github.io/til/2024/09/27/mvc-pattern-vs-mvvc-pattern-vs-mvp-pattern/</guid>
+      <description>MVC, MVP, MVVM 아키텍처 패턴은 모두 **관심사 분리(SoC)** 원칙에 기반하며, 각기 다른 방식으로 UI 로직과 비즈니스 로직을 분리한다.</description>
+    </item>
+    <item>
       <title>Software Architecture Principles</title>
       <link>https://buenhyden.github.io/posts/software-design-and-architecture/software-design-principles/</link>
       <pubDate>Mon, 23 Sep 2024 05:27:00 +0000</pubDate>
@@ -88,202 +95,7 @@
       <link>https://buenhyden.github.io/til/2024/11/12/shared-database-vs-shared-database-per-service/</link>
       <pubDate>Tue, 12 Nov 2024 08:02:00 +0000</pubDate>
       <guid>https://buenhyden.github.io/til/2024/11/12/shared-database-vs-shared-database-per-service/</guid>
-      <description>&lt;h2 id=&#34;shared-database-vs-shared-database-per-service&#34;&gt;Shared Database Vs Shared Database Per Service&lt;/h2&gt;
-&lt;p&gt;MSA(Microservices Architecture)에서 &lt;strong&gt;Shared Database&lt;/strong&gt;와 &lt;strong&gt;Shared Database Per Service&lt;/strong&gt; 패턴은 데이터 관리 전략의 일환으로 활용되며, 각각의 특징과 적용 시나리오가 뚜렷하게 구분된다.&lt;/p&gt;
-&lt;p&gt;두 패턴 모두 &lt;strong&gt;단일 데이터베이스 의존성&lt;/strong&gt;으로 인한 리스크가 존재하므로, 장기적 관점에서는 &lt;strong&gt;Database Per Service&lt;/strong&gt;로의 전환을 고려해야 한다. 특히 클라우드 환경(AWS RDS, Aurora)에서는 논리적 분리가 용이하나, &lt;strong&gt;트랜잭션 격리&lt;/strong&gt;와 &lt;strong&gt;확장성&lt;/strong&gt; 측면에서 trade-off를 신중히 평가해야 한다.&lt;/p&gt;
-&lt;h3 id=&#34;shared-database-패턴&#34;&gt;Shared Database 패턴&lt;/h3&gt;
-&lt;h4 id=&#34;정의-및-특징&#34;&gt;정의 및 특징&lt;/h4&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;여러 마이크로서비스가 단일 데이터베이스를 공유&lt;/strong&gt;하며, 서비스 간 자유로운 테이블 접근 허용.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;직접적인 ACID 트랜잭션&lt;/strong&gt;을 통해 데이터 일관성 유지.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;간단한 아키텍처&lt;/strong&gt;로 시작 단계에서 빠른 개발 가능.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h4 id=&#34;동작-방식&#34;&gt;동작 방식&lt;/h4&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
-&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
-&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-1&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-1&#34;&gt;1&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-2&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-2&#34;&gt;2&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-3&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-3&#34;&gt;3&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-4&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-4&#34;&gt;4&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-5&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-5&#34;&gt;5&lt;/a&gt;
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
-&lt;td class=&#34;lntd&#34;&gt;
-&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;-- OrderService가 CustomerService의 테이블 직접 접근 예시
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;BEGIN&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;k&#34;&gt;TRANSACTION&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;w&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;SELECT&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;n&#34;&gt;CREDIT_LIMIT&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;k&#34;&gt;FROM&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;n&#34;&gt;CUSTOMERS&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;k&#34;&gt;WHERE&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;n&#34;&gt;CUSTOMER_ID&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;123&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;w&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;INSERT&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;k&#34;&gt;INTO&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;n&#34;&gt;ORDERS&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;CUSTOMER_ID&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;n&#34;&gt;AMOUNT&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;k&#34;&gt;VALUES&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;123&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;50000&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;w&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;COMMIT&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
-&lt;/div&gt;
-&lt;/div&gt;&lt;ul&gt;
-&lt;li&gt;서비스 간 &lt;strong&gt;스키마 변경 시 협업 필요&lt;/strong&gt; (예: &lt;code&gt;Customer&lt;/code&gt; 테이블 컬럼 추가 → &lt;code&gt;OrderService&lt;/code&gt; 코드 수정).&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h4 id=&#34;장단점&#34;&gt;장단점&lt;/h4&gt;
-&lt;table&gt;
-  &lt;thead&gt;
-      &lt;tr&gt;
-          &lt;th&gt;&lt;strong&gt;장점&lt;/strong&gt;&lt;/th&gt;
-          &lt;th&gt;&lt;strong&gt;단점&lt;/strong&gt;&lt;/th&gt;
-      &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-      &lt;tr&gt;
-          &lt;td&gt;- 복잡한 분산 트랜잭션 불필요&lt;/td&gt;
-          &lt;td&gt;- 서비스 간 &lt;strong&gt;강한 결합성&lt;/strong&gt; 발생&lt;/td&gt;
-      &lt;/tr&gt;
-      &lt;tr&gt;
-          &lt;td&gt;- 데이터 조인 및 통합 쿼리 용이&lt;/td&gt;
-          &lt;td&gt;- 단일 데이터베이스 병목 현상 (SPOF)&lt;/td&gt;
-      &lt;/tr&gt;
-      &lt;tr&gt;
-          &lt;td&gt;- 기존 모놀리식 시스템 전환 용이&lt;/td&gt;
-          &lt;td&gt;- 스키마 변경 시 전체 서비스 영향도 검토 필요&lt;/td&gt;
-      &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-&lt;h4 id=&#34;적합한-시나리오&#34;&gt;적합한 시나리오&lt;/h4&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;소규모 팀&lt;/strong&gt;에서 신속한 프로토타이핑 필요 시.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;레거시 시스템&lt;/strong&gt;을 MSA로 점진적 전환하는 과정에서 임시 활용.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;강한 ACID 트랜잭션&lt;/strong&gt; 요구사항이 있는 금융/결제 시스템.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3 id=&#34;shared-database-per-service-패턴&#34;&gt;Shared Database Per Service 패턴&lt;/h3&gt;
-&lt;h4 id=&#34;정의-및-특징-1&#34;&gt;정의 및 특징&lt;/h4&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;단일 물리적 데이터베이스 인스턴스를 공유&lt;/strong&gt;하지만, &lt;strong&gt;서비스별 논리적 분리&lt;/strong&gt; (스키마/테이블 격리).&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;핫 테이블(Hot Table) 방지&lt;/strong&gt;를 통해 성능 저하 최소화.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;하위 호환성 유지&lt;/strong&gt;가 필수적이며, 스키마 변경 시 모든 서비스 영향도 검토.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h4 id=&#34;동작-방식-1&#34;&gt;동작 방식&lt;/h4&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
-&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
-&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-1-1&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-1-1&#34;&gt;1&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-1-2&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-1-2&#34;&gt;2&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-1-3&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-1-3&#34;&gt;3&lt;/a&gt;
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
-&lt;td class=&#34;lntd&#34;&gt;
-&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;-- Sales 서비스: sales_db.sales_table
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;-- Customer 서비스: sales_db.customer_table (논리적 분리)
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;GRANT&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;k&#34;&gt;SELECT&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;k&#34;&gt;INSERT&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;k&#34;&gt;ON&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sales_db&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;customer_table&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;k&#34;&gt;TO&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;customer_service&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;@&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;%&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
-&lt;/div&gt;
-&lt;/div&gt;&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;IAM 정책&lt;/strong&gt; 또는 &lt;strong&gt;DB 권한 제어&lt;/strong&gt;를 통해 서비스별 접근 범위 제한.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h4 id=&#34;장단점-1&#34;&gt;&lt;strong&gt;장단점&lt;/strong&gt;&lt;/h4&gt;
-&lt;table&gt;
-  &lt;thead&gt;
-      &lt;tr&gt;
-          &lt;th&gt;&lt;strong&gt;장점&lt;/strong&gt;&lt;/th&gt;
-          &lt;th&gt;&lt;strong&gt;단점&lt;/strong&gt;&lt;/th&gt;
-      &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-      &lt;tr&gt;
-          &lt;td&gt;- 물리적 인프라 비용 절감&lt;/td&gt;
-          &lt;td&gt;- 여전히 &lt;strong&gt;런타임 결합성&lt;/strong&gt; 존재&lt;/td&gt;
-      &lt;/tr&gt;
-      &lt;tr&gt;
-          &lt;td&gt;- 부분적 스키마 독립성 보장&lt;/td&gt;
-          &lt;td&gt;- 장기적 유지보수 복잡성 증가&lt;/td&gt;
-      &lt;/tr&gt;
-      &lt;tr&gt;
-          &lt;td&gt;- 데이터 중복 최소화&lt;/td&gt;
-          &lt;td&gt;- 확장성 제약 (CPU/IO 리소스 경쟁)&lt;/td&gt;
-      &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-&lt;h4 id=&#34;적합한-시나리오-1&#34;&gt;&lt;strong&gt;적합한 시나리오&lt;/strong&gt;&lt;/h4&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;제한된 리소스&lt;/strong&gt; 환경에서 다중 서비스 운영 필요 시.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;기존 데이터 레이어&lt;/strong&gt; 재설계 없이 MSA 도입 시.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;규제 준수&lt;/strong&gt; 요구사항으로 단일 데이터베이스 유지해야 하는 경우.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3 id=&#34;비교-분석표&#34;&gt;비교 분석표&lt;/h3&gt;
-&lt;table&gt;
-  &lt;thead&gt;
-      &lt;tr&gt;
-          &lt;th&gt;항목&lt;/th&gt;
-          &lt;th&gt;공유 데이터베이스 (Shared Database)&lt;/th&gt;
-          &lt;th&gt;서비스별 전용 데이터베이스 (Database per Service)&lt;/th&gt;
-      &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-      &lt;tr&gt;
-          &lt;td&gt;&lt;strong&gt;데이터 격리 수준&lt;/strong&gt;&lt;/td&gt;
-          &lt;td&gt;테이블 수준 공유&lt;/td&gt;
-          &lt;td&gt;스키마/테이블 논리적 분리&lt;/td&gt;
-      &lt;/tr&gt;
-      &lt;tr&gt;
-          &lt;td&gt;&lt;strong&gt;데이터 일관성 유지&lt;/strong&gt;&lt;/td&gt;
-          &lt;td&gt;ACID 트랜잭션을 통해 데이터 일관성을 쉽게 유지할 수 있습니다.&lt;/td&gt;
-          &lt;td&gt;분산된 데이터로 인해 데이터 일관성 유지가 복잡해질 수 있으며, 이를 위해 사가(Saga) 패턴 등의 사용이 필요할 수 있습니다.&lt;/td&gt;
-      &lt;/tr&gt;
-      &lt;tr&gt;
-          &lt;td&gt;&lt;strong&gt;스키마 변경 영향도&lt;/strong&gt;&lt;/td&gt;
-          &lt;td&gt;모든 서비스 영향&lt;/td&gt;
-          &lt;td&gt;관련 서비스만 영향&lt;/td&gt;
-      &lt;/tr&gt;
-      &lt;tr&gt;
-          &lt;td&gt;&lt;strong&gt;결합도&lt;/strong&gt;&lt;/td&gt;
-          &lt;td&gt;높음 (직접 테이블 접근)&lt;/td&gt;
-          &lt;td&gt;중간 (권한 제어를 통한 제한적 접근)&lt;/td&gt;
-      &lt;/tr&gt;
-      &lt;tr&gt;
-          &lt;td&gt;&lt;strong&gt;서비스 독립성&lt;/strong&gt;&lt;/td&gt;
-          &lt;td&gt;데이터베이스 스키마 변경 시 여러 서비스 간 조율이 필요하여 서비스 간 결합도가 높아집니다.&lt;/td&gt;
-          &lt;td&gt;각 서비스가 독립적인 데이터베이스를 소유하므로 서비스 간 결합도가 낮아 독립적인 개발, 배포, 확장이 가능합니다.&lt;/td&gt;
-      &lt;/tr&gt;
-      &lt;tr&gt;
-          &lt;td&gt;&lt;strong&gt;데이터베이스 선택&lt;/strong&gt;&lt;/td&gt;
-          &lt;td&gt;모든 서비스가 동일한 데이터베이스를 사용하므로 개별 서비스의 특수한 데이터 저장 요구 사항을 충족하기 어렵습니다.&lt;/td&gt;
-          &lt;td&gt;각 서비스는 자신의 요구에 맞는 데이터베이스 유형을 선택할 수 있어 폴리글랏 퍼시스턴스(Polyglot Persistence)를 구현할 수 있습니다.&lt;/td&gt;
-      &lt;/tr&gt;
-      &lt;tr&gt;
-          &lt;td&gt;&lt;strong&gt;운영 복잡성&lt;/strong&gt;&lt;/td&gt;
-          &lt;td&gt;단일 데이터베이스를 관리하므로 운영이 단순합니다.&lt;/td&gt;
-          &lt;td&gt;여러 개의 데이터베이스를 관리해야 하므로 운영 복잡성이 증가합니다.&lt;/td&gt;
-      &lt;/tr&gt;
-      &lt;tr&gt;
-          &lt;td&gt;&lt;strong&gt;트랜잭션 관리&lt;/strong&gt;&lt;/td&gt;
-          &lt;td&gt;로컬 ACID 트랜잭션 가능.&lt;br&gt;단일 데이터베이스 내에서 트랜잭션을 관리하므로 구현이 용이합니다.&lt;/td&gt;
-          &lt;td&gt;로컬 ACID 트랜잭션 가능.&lt;br&gt;분산 트랜잭션 관리가 필요할 수 있으며, 이는 구현의 복잡성을 증가시킵니다.&lt;/td&gt;
-      &lt;/tr&gt;
-      &lt;tr&gt;
-          &lt;td&gt;&lt;strong&gt;확장성&lt;/strong&gt;&lt;/td&gt;
-          &lt;td&gt;단일 데이터베이스의 확장에 한계가 있을 수 있으며, 특정 서비스의 확장이 다른 서비스에 영향을 미칠 수 있습니다.&lt;/td&gt;
-          &lt;td&gt;각 서비스가 독립적으로 확장 가능하므로 시스템 전체의 확장성이 향상됩니다.&lt;/td&gt;
-      &lt;/tr&gt;
-      &lt;tr&gt;
-          &lt;td&gt;&lt;strong&gt;보안&lt;/strong&gt;&lt;/td&gt;
-          &lt;td&gt;모든 서비스가 전체 데이터 접근 가능&lt;/td&gt;
-          &lt;td&gt;권한 제어로 접근 범위 제한&lt;/td&gt;
-      &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-&lt;h3 id=&#34;패턴-선택-가이드&#34;&gt;패턴 선택 가이드&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Shared Database 선택 시&lt;/strong&gt;:
-&lt;ul&gt;
-&lt;li&gt;개발 초기 단계에서 빠른 출시를 목표로 할 때.&lt;/li&gt;
-&lt;li&gt;팀 규모가 작고 데이터 복잡도가 낮은 경우.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Shared Database Per Service 선택 시&lt;/strong&gt;:
-&lt;ul&gt;
-&lt;li&gt;기존 모놀리식 DB를 유지하며 MSA를 도입해야 할 때.&lt;/li&gt;
-&lt;li&gt;데이터 중복을 최소화해야 하지만 완전 분리가 어려운 경우.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Database Per Service 권장 시&lt;/strong&gt;:
-&lt;ul&gt;
-&lt;li&gt;대규모 시스템에서 &lt;strong&gt;완전한 독립성&lt;/strong&gt;과 &lt;strong&gt;확장성&lt;/strong&gt;이 필요할 때.&lt;/li&gt;
-&lt;li&gt;서비스별 &lt;strong&gt;폴리글랏 퍼시스턴스&lt;/strong&gt; 적용이 필요한 경우.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;hr&gt;
-&lt;h2 id=&#34;참고-및-출처&#34;&gt;참고 및 출처&lt;/h2&gt;</description>
+      <description>MSA(Microservices Architecture)에서 **Shared Database**와 **Shared Database Per Service** 패턴은 데이터 관리 전략의 일환으로 활용되며, 각각의 특징과 적용 시나리오가 뚜렷하게 구분된다.</description>
     </item>
     <item>
       <title>Software Architecture pattern vs Software Design Pattern</title>
@@ -291,6 +103,13 @@
       <pubDate>Fri, 27 Sep 2024 08:19:00 +0000</pubDate>
       <guid>https://buenhyden.github.io/til/2024/09/27/software-architecture-pattern-vs-software-design-pattern/</guid>
       <description>Software Architecture Pattern과 Software Design Pattern은 소프트웨어 개발에서 반복적으로 발생하는 문제들에 대한 검증된 해결책을 제공하는 개념이다. 이 두 패턴은 서로 다른 수준의 추상화와 범위를 다루고 있다.</description>
+    </item>
+    <item>
+      <title>Mediator Pattern vs Observer Pattern</title>
+      <link>https://buenhyden.github.io/til/2024/09/24/mediator-pattern-vs-observer-pattern/</link>
+      <pubDate>Tue, 24 Sep 2024 00:49:00 +0000</pubDate>
+      <guid>https://buenhyden.github.io/til/2024/09/24/mediator-pattern-vs-observer-pattern/</guid>
+      <description>Mediator 패턴과 Observer 패턴은 객체 간 통신을 관리하는 디자인 패턴이지만, 그 접근 방식과 용도에 차이가 있다.</description>
     </item>
     <item>
       <title>Behavioral Design Patterns vs Creational Design Patterns vs Structural Design Patterns</title>
@@ -2287,10 +2106,7 @@ Messaging은 서비스 간 비동기 통신을 가능하게 하며, 시스템의
       <link>https://buenhyden.github.io/posts/software-design-and-architecture/software-architecture-patterns/serverless-architecture/</link>
       <pubDate>Fri, 27 Sep 2024 11:41:00 +0000</pubDate>
       <guid>https://buenhyden.github.io/posts/software-design-and-architecture/software-architecture-patterns/serverless-architecture/</guid>
-      <description>&lt;h2 id=&#34;serverless-architecture&#34;&gt;Serverless Architecture&lt;/h2&gt;
-&lt;p&gt;&lt;strong&gt;Serverless Architecture&lt;/strong&gt;는 개발자가 서버 관리 없이 애플리케이션 로직에 집중할 수 있도록 설계된 클라우드 컴퓨팅 모델로, &lt;strong&gt;이벤트 기반의 자동 확장성&lt;/strong&gt;과 &lt;strong&gt;사용한 만큼만 비용을 지불&lt;/strong&gt;하는 구조가 핵심이다.&lt;/p&gt;
-&lt;p&gt;Serverless Architecture는 &lt;strong&gt;빠른 개발 속도&lt;/strong&gt;와 &lt;strong&gt;비용 효율성&lt;/strong&gt;으로 스타트업 및 이벤트 기반 애플리케이션에 적합하나, 장기 실행 작업이나 높은 제어력이 필요한 경우에는 EC2 등의 전통적 아키텍처와의 조합이 필요하다.&lt;br&gt;
-AWS Lambda + API Gateway + DynamoDB 조합이 가장 널리 사용되며, Serverless Framework를 통해 멀티 클라우드 환경 구축이 가능하다.&lt;/p&gt;</description>
+      <description>Serverless Architecture는 개발자가 서버 관리 없이 애플리케이션 로직에 집중할 수 있도록 설계된 클라우드 컴퓨팅 모델로, 이벤트 기반의 자동 확장성과 사용한 만큼만 비용을 지불하는 구조가 핵심이다.</description>
     </item>
     <item>
       <title>Publisher-Subscriber Pattern</title>
@@ -2325,35 +2141,7 @@ AWS Lambda + API Gateway + DynamoDB 조합이 가장 널리 사용되며, Server
       <link>https://buenhyden.github.io/posts/software-design-and-architecture/software-architecture-patterns/model-view-viewmodel-pattern/</link>
       <pubDate>Fri, 27 Sep 2024 11:26:00 +0000</pubDate>
       <guid>https://buenhyden.github.io/posts/software-design-and-architecture/software-architecture-patterns/model-view-viewmodel-pattern/</guid>
-      <description>&lt;h2 id=&#34;model-view-viewmodel-pattern&#34;&gt;Model-View-ViewModel Pattern&lt;/h2&gt;
-&lt;p&gt;MVVM(Model-View-ViewModel) 패턴은 소프트웨어 아키텍처 패턴 중 하나로, 사용자 인터페이스(UI)와 비즈니스 로직을 효과적으로 분리하여 코드의 유지보수성과 재사용성을 향상시키는 데 중점을 둔다.&lt;br&gt;
-이 패턴은 MVC(Model-View-Controller) 패턴의 발전된 형태로 볼 수 있다.&lt;/p&gt;
-&lt;p&gt;MVVM 패턴은 복잡한 UI 애플리케이션 개발에 특히 유용하며, 대규모 프로젝트에서 코드의 구조화와 관리를 용이하게 한다.&lt;/p&gt;
-&lt;p&gt;&lt;figure&gt;
-  &lt;img alt=&#34;Model-View-ViewModel Pattern&#34; loading=&#34;lazy&#34; src=&#34;https://buenhyden.github.io/img/mvvm-pattern.png&#34;&gt;&lt;figcaption&gt;https://learn.microsoft.com/ko-kr/dotnet/architecture/maui/mvvm&lt;/figcaption&gt;&lt;/figure&gt;&lt;/p&gt;
-&lt;h3 id=&#34;mvvm의-구성-요소&#34;&gt;MVVM의 구성 요소&lt;/h3&gt;
-&lt;p&gt;MVVM 패턴은 세 가지 주요 구성 요소로 이루어져 있다:&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;&lt;strong&gt;모델(Model)&lt;/strong&gt;: 데이터와 비즈니스 로직을 담당한다. 데이터베이스나 웹 서비스와의 통신을 통해 데이터를 가져오거나 저장하는 역할을 한다.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;뷰(View)&lt;/strong&gt;: 사용자 인터페이스(UI)를 담당한다. 데이터를 표시하고 사용자 입력을 받아 ViewModel에 전달한다. 버튼, 텍스트 박스 등 화면에 표시되는 모든 요소를 포함하며, 사용자와의 상호작용을 처리한다.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;뷰모델(ViewModel)&lt;/strong&gt;: 뷰와 모델 사이의 중재자 역할을 한다. 뷰에서 보여지는 데이터와 이를 조작하는 메서드, 상태를 포함한다.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h3 id=&#34;mvvm의-핵심-개념&#34;&gt;MVVM의 핵심 개념&lt;/h3&gt;
-&lt;ol&gt;
-&lt;li&gt;&lt;strong&gt;데이터 바인딩&lt;/strong&gt;: MVVM의 핵심 아이디어는 뷰와 뷰모델 사이에 양방향 데이터 바인딩을 통해 자동 업데이트를 가능하게 하는 것이다. 이를 통해 뷰와 뷰모델 사이의 데이터 동기화가 자동으로 이루어진다.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;명령(Command):&lt;/strong&gt; 버튼 클릭과 같은 사용자 액션을 뷰모델에서 처리하기 위한 메커니즘이다. 뷰모델은 ICommand 인터페이스를 구현하여 뷰에서 발생하는 이벤트를 처리한다.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;의존성 관리&lt;/strong&gt;: 뷰모델을 중재자로 사용하여 뷰와 모델 사이의 의존성을 해결한다. 이로 인해 뷰와 모델의 결합도가 낮아진다.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;테스트 용이성&lt;/strong&gt;: 뷰와 모델이 분리되어 있어 각 구성 요소를 독립적으로 테스트하기 쉽다.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h3 id=&#34;mvvm의-장점&#34;&gt;MVVM의 장점&lt;/h3&gt;
-&lt;ol start=&#34;5&#34;&gt;
-&lt;li&gt;&lt;strong&gt;유지보수성 향상&lt;/strong&gt;: UI와 비즈니스 로직이 분리되어 있어 코드의 유지보수가 용이하다.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;재사용성 증가&lt;/strong&gt;: 뷰모델은 여러 뷰에서 재사용될 수 있다.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;자동 업데이트&lt;/strong&gt;: 데이터 바인딩을 통해 뷰모델의 상태 변화가 자동으로 UI에 반영된다.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;개발 효율성&lt;/strong&gt;: 개발자는 데이터 변경에 직접 관여하지 않고, 뷰모델을 통해 데이터를 조작하고 업데이트할 수 있어 코드의 복잡성이 줄어든다.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h3 id=&#34;mvvm-구현-예시&#34;&gt;MVVM 구현 예시&lt;/h3&gt;
-&lt;p&gt;다음은 간단한 카운터 애플리케이션의 MVVM 구현 예시&lt;/p&gt;</description>
+      <description>MVVM(Model-View-ViewModel) 패턴은 소프트웨어 아키텍처 패턴 중 하나로, 사용자 인터페이스(UI)와 비즈니스 로직을 효과적으로 분리하여 코드의 유지보수성과 재사용성을 향상시키는 데 중점을 둔다.</description>
     </item>
     <item>
       <title>Monolithic Pattern</title>
@@ -2378,47 +2166,7 @@ AWS Lambda + API Gateway + DynamoDB 조합이 가장 널리 사용되며, Server
       <link>https://buenhyden.github.io/posts/software-design-and-architecture/software-architecture-patterns/modelviewpresenter-pattern/</link>
       <pubDate>Fri, 27 Sep 2024 09:10:00 +0000</pubDate>
       <guid>https://buenhyden.github.io/posts/software-design-and-architecture/software-architecture-patterns/modelviewpresenter-pattern/</guid>
-      <description>&lt;h2 id=&#34;modelviewpresenter-pattern&#34;&gt;Model–view–presenter Pattern&lt;/h2&gt;
-&lt;p&gt;Model-View-Presenter(MVP) 패턴은 사용자 인터페이스 개발을 위한 아키텍처 패턴으로, &lt;strong&gt;관심사 분리&lt;/strong&gt; 원칙에 기반해 UI 로직과 비즈니스 로직을 분리한다.&lt;br&gt;
-MVC 패턴에서 파생되었으며, 주로 Windows Forms, ASP.NET, Java Swing 애플리케이션에서 활용된다.&lt;/p&gt;
-&lt;p&gt;이 패턴은 1990년대 Taligent사에서 처음 도입되었으며, 현재까지 엔터프라이즈급 애플리케이션에서 구조적 안정성을 제공하는 핵심 아키텍처로 자리잡았다. UI 복잡도가 높은 프로젝트에서 체계적인 관리를 원한다면 MVP 구현을 적극 고려해볼 만하다.&lt;/p&gt;
-&lt;p&gt;&lt;figure&gt;
-  &lt;img alt=&#34;MVP pattern&#34; loading=&#34;lazy&#34; src=&#34;https://buenhyden.github.io/img/MVPSchema.png&#34;&gt;&lt;figcaption&gt;https://www.geeksforgeeks.org/mvp-model-view-presenter-architecture-pattern-in-android-with-example/&lt;/figcaption&gt;&lt;/figure&gt;&lt;/p&gt;
-&lt;h3 id=&#34;핵심-구성-요소&#34;&gt;핵심 구성 요소&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Model&lt;/strong&gt;:
-&lt;ul&gt;
-&lt;li&gt;데이터 저장/관리 및 비즈니스 로직 처리 담당.&lt;/li&gt;
-&lt;li&gt;데이터베이스 연동, API 통신, 캐싱 기능 수행.&lt;/li&gt;
-&lt;li&gt;UI와 독립적으로 동작하여 재사용성 향상.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;View&lt;/strong&gt;:
-&lt;ul&gt;
-&lt;li&gt;사용자 인터페이스 표시 및 입력 이벤트 전달.&lt;/li&gt;
-&lt;li&gt;수동적(passive)으로 Presenter에 이벤트 전송.&lt;/li&gt;
-&lt;li&gt;데이터 표시 형식만 관리(예: 텍스트 박스 값 표시).&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Presenter&lt;/strong&gt;:
-&lt;ul&gt;
-&lt;li&gt;Model과 View의 중재자 역할.&lt;/li&gt;
-&lt;li&gt;사용자 입력 처리 → Model 업데이트 → 변경 사항 View 반영.&lt;/li&gt;
-&lt;li&gt;복잡한 UI 로직 캡슐화로 테스트 용이성 증대.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3 id=&#34;작동-메커니즘&#34;&gt;작동 메커니즘&lt;/h3&gt;
-&lt;ol&gt;
-&lt;li&gt;사용자가 View와 상호작용하여 이벤트를 발생시킨다(예: 로그인).&lt;/li&gt;
-&lt;li&gt;View → Presenter에 이벤트 전달&lt;/li&gt;
-&lt;li&gt;Presenter가 Model에서 데이터 검증/처리&lt;/li&gt;
-&lt;li&gt;처리 결과를 View에 반영(예: &amp;ldquo;로그인 성공&amp;rdquo; 메시지 표시)&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h3 id=&#34;주요-장점&#34;&gt;주요 장점&lt;/h3&gt;
-&lt;ol&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;strong&gt;유지보수성 향상&lt;/strong&gt;:&lt;/p&gt;</description>
+      <description>Model-View-Presenter(MVP) 패턴은 사용자 인터페이스 개발을 위한 아키텍처 패턴으로, **관심사 분리** 원칙에 기반해 UI 로직과 비즈니스 로직을 분리한다.</description>
     </item>
     <item>
       <title>Message Queues and Streams</title>
@@ -2607,144 +2355,14 @@ MVC 패턴에서 파생되었으며, 주로 Windows Forms, ASP.NET, Java Swing �
       <link>https://buenhyden.github.io/posts/software-design-and-architecture/software-design-patterns/structural-design-patterns/flyweight-pattern/</link>
       <pubDate>Wed, 25 Sep 2024 08:25:00 +0000</pubDate>
       <guid>https://buenhyden.github.io/posts/software-design-and-architecture/software-design-patterns/structural-design-patterns/flyweight-pattern/</guid>
-      <description>&lt;h2 id=&#34;flyweight-pattern&#34;&gt;Flyweight Pattern&lt;/h2&gt;
-&lt;p&gt;Flyweight 패턴은 구조적 디자인 패턴 중 하나로, 객체를 공유하여 메모리 사용을 최소화하는 패턴이다.&lt;/p&gt;
-&lt;p&gt;플라이웨이트 패턴은 재사용 가능한 객체 인스턴스를 공유하여 메모리 사용량을 최소화하는 구조 패턴이다.&lt;br&gt;
-간단히 말하면 캐시(Cache) 개념을 코드로 패턴화한 것으로, 자주 변화하는 속성(extrinsic)과 변하지 않는 속성(intrinsic)을 분리하고 변하지 않는 속성을 캐시하여 재사용함으로써 메모리 사용을 줄이는 방식이다.&lt;/p&gt;
-&lt;h3 id=&#34;flyweight-패턴의-주요-구성-요소&#34;&gt;Flyweight 패턴의 주요 구성 요소&lt;/h3&gt;
-&lt;ol&gt;
-&lt;li&gt;Flyweight: 경량 객체를 묶는 인터페이스.&lt;/li&gt;
-&lt;li&gt;ConcreteFlyweight: 공유 가능하여 재사용되는 객체로, intrinsic state를 포함한다.&lt;/li&gt;
-&lt;li&gt;UnsahredConcreteFlyweight: 공유 불가능한 객체로, extrinsic state를 포함한다.&lt;/li&gt;
-&lt;li&gt;FlyweightFactory: 경량 객체를 만드는 공장 역할과 캐시 역할을 겸비하는 Flyweight 객체 관리 클래스.&lt;/li&gt;
-&lt;li&gt;Client: FlyweightFactory를 통해 Flyweight 타입의 객체를 얻어 사용한다.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h3 id=&#34;flyweight-패턴의-동작-방식&#34;&gt;Flyweight 패턴의 동작 방식&lt;/h3&gt;
-&lt;ol&gt;
-&lt;li&gt;FlyweightFactory는 Flyweight 객체들을 생성하고 관리한다.&lt;/li&gt;
-&lt;li&gt;GetFlyweight() 메서드는 팩토리 메서드 역할을 한다. 객체가 메모리에 존재하면 그대로 가져와 반환하고, 없다면 새로 생성해 반환한다.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h3 id=&#34;flyweight-패턴의-장점&#34;&gt;Flyweight 패턴의 장점&lt;/h3&gt;
-&lt;ol&gt;
-&lt;li&gt;많은 객체를 만들 때 성능을 향상시킬 수 있다.&lt;/li&gt;
-&lt;li&gt;많은 객체를 만들 때 메모리를 줄일 수 있다.&lt;/li&gt;
-&lt;li&gt;메모리 절약: 대규모 객체 시스템에서 상당한 메모리 절감 효과를 얻을 수 있다.&lt;/li&gt;
-&lt;li&gt;중복 최소화: 공유를 통해 객체의 중복 생성을 방지한다.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h3 id=&#34;flyweight-패턴의-단점&#34;&gt;Flyweight 패턴의 단점&lt;/h3&gt;
-&lt;ol&gt;
-&lt;li&gt;특정 인스턴스를 다르게 처리하는 것이 힘들어진다.&lt;/li&gt;
-&lt;li&gt;코드 복잡성 증가: 객체를 공유하는 방식은 구현을 복잡하게 만들 수 있다.&lt;/li&gt;
-&lt;li&gt;런타임 비용: 객체 상태를 관리하는 데 런타임 비용이 발생할 수 있다.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h3 id=&#34;flyweight-패턴의-사용-시기&#34;&gt;Flyweight 패턴의 사용 시기&lt;/h3&gt;
-&lt;ol&gt;
-&lt;li&gt;대량의 작은 객체를 생성해야 할 때 유용하다.&lt;/li&gt;
-&lt;li&gt;객체의 상태를 자주 변하는 속성(Extrinsic)과 변하지 않는 속성(Intrinsic)으로 분리할 수 있을 때 적합하다.&lt;/li&gt;
-&lt;li&gt;공통된 내재 상태를 공유함으로써 메모리 사용을 줄일 수 있을 때 사용한다.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h3 id=&#34;구현-예시&#34;&gt;구현 예시&lt;/h3&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
-&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
-&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-1&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-1&#34;&gt; 1&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-2&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-2&#34;&gt; 2&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-3&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-3&#34;&gt; 3&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-4&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-4&#34;&gt; 4&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-5&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-5&#34;&gt; 5&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-6&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-6&#34;&gt; 6&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-7&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-7&#34;&gt; 7&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-8&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-8&#34;&gt; 8&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-9&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-9&#34;&gt; 9&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-10&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-10&#34;&gt;10&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-11&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-11&#34;&gt;11&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-12&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-12&#34;&gt;12&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-13&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-13&#34;&gt;13&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-14&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-14&#34;&gt;14&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-15&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-15&#34;&gt;15&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-16&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-16&#34;&gt;16&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-17&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-17&#34;&gt;17&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-18&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-18&#34;&gt;18&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-19&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-19&#34;&gt;19&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-20&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-20&#34;&gt;20&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-21&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-21&#34;&gt;21&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-22&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-22&#34;&gt;22&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-23&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-23&#34;&gt;23&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-24&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-24&#34;&gt;24&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-25&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-25&#34;&gt;25&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-26&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-26&#34;&gt;26&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-27&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-27&#34;&gt;27&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-28&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-28&#34;&gt;28&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-29&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-29&#34;&gt;29&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-30&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-30&#34;&gt;30&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-31&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-31&#34;&gt;31&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-32&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-32&#34;&gt;32&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-33&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-33&#34;&gt;33&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-34&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-34&#34;&gt;34&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-35&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-35&#34;&gt;35&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-36&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-36&#34;&gt;36&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-37&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-37&#34;&gt;37&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-38&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-38&#34;&gt;38&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-39&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-39&#34;&gt;39&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-40&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-40&#34;&gt;40&lt;/a&gt;
-&lt;/span&gt;&lt;span class=&#34;lnt&#34; id=&#34;hl-0-41&#34;&gt;&lt;a class=&#34;lnlinks&#34; href=&#34;#hl-0-41&#34;&gt;41&lt;/a&gt;
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
-&lt;td class=&#34;lntd&#34;&gt;
-&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;typing&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Dict&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# Flyweight 클래스: 공유될 객체의 내부 상태를 정의&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;CharacterStyle&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;fm&#34;&gt;__init__&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;font_name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;str&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;font_size&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;bold&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;bool&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;font_name&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;font_name&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;font_size&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;font_size&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;bold&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;bold&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;char&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;str&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;position&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;tuple&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;None&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;nb&#34;&gt;print&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;sa&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;Rendering &amp;#39;&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;char&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#39; at &lt;/span&gt;&lt;span class=&#34;si&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;position&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; with &lt;/span&gt;&lt;span class=&#34;si&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;font_name&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;, &amp;#34;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;              &lt;span class=&#34;sa&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;size &lt;/span&gt;&lt;span class=&#34;si&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;font_size&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;, &lt;/span&gt;&lt;span class=&#34;si&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;bold&amp;#39;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;bold&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;normal&amp;#39;&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# Flyweight 팩토리: Flyweight 객체들을 관리하고 공유&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;CharacterStyleFactory&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;fm&#34;&gt;__init__&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;_styles&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Dict&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;str&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;CharacterStyle&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{}&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;get_style&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;font_name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;str&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;font_size&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;bold&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;bool&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;CharacterStyle&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;c1&#34;&gt;# 스타일을 식별하기 위한 키 생성&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;n&#34;&gt;key&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;sa&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;font_name&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;font_size&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;bold&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;c1&#34;&gt;# 스타일이 존재하지 않으면 새로 생성&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;key&lt;/span&gt; &lt;span class=&#34;ow&#34;&gt;not&lt;/span&gt; &lt;span class=&#34;ow&#34;&gt;in&lt;/span&gt; &lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;_styles&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;            &lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;_styles&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;key&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;CharacterStyle&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;font_name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;font_size&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;bold&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;            &lt;span class=&#34;nb&#34;&gt;print&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;sa&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;Creating new style: &lt;/span&gt;&lt;span class=&#34;si&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;key&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;_styles&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;key&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;get_style_count&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;len&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;_styles&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 문자 객체: Flyweight를 사용하는 클래스&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;Character&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;fm&#34;&gt;__init__&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;char&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;str&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;style&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;CharacterStyle&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;position&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;tuple&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;char&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;char&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;# 외부 상태 (extrinsic state)&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;style&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;style&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;# 공유 상태 (intrinsic state)&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;position&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;position&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;# 외부 상태&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;None&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;style&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;render&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;char&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;position&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
-&lt;/div&gt;
-&lt;/div&gt;&lt;p&gt;실제 사용 예시&lt;/p&gt;</description>
+      <description>플라이웨이트 패턴은 재사용 가능한 객체 인스턴스를 공유하여 메모리 사용량을 최소화하는 구조 패턴이다.  간단히 말하면 캐시(Cache) 개념을 코드로 패턴화한 것으로, 자주 변화하는 속성(extrinsic)과 변하지 않는 속성(intrinsic)을 분리하고 변하지 않는 속성을 캐시하여 재사용함으로써 메모리 사용을 줄이는 방식이다.</description>
     </item>
     <item>
       <title>Composite Pattern</title>
       <link>https://buenhyden.github.io/posts/software-design-and-architecture/software-design-patterns/structural-design-patterns/composite-pattern/</link>
       <pubDate>Wed, 25 Sep 2024 08:24:00 +0000</pubDate>
       <guid>https://buenhyden.github.io/posts/software-design-and-architecture/software-design-patterns/structural-design-patterns/composite-pattern/</guid>
-      <description>&lt;h2 id=&#34;composite-pattern&#34;&gt;Composite Pattern&lt;/h2&gt;
-&lt;p&gt;Composite Pattern은 구조적 디자인 패턴 중 하나로, 객체들을 트리 구조로 구성하여 부분-전체 계층을 표현하는 패턴이다.&lt;/p&gt;
-&lt;p&gt;Composite Pattern은 객체들을 트리 구조로 구성하여 부분과 전체를 나타내는 계층 구조를 만든다. 이 패턴을 사용하면 클라이언트가 개별 객체와 복합 객체를 동일하게 다룰 수 있다.&lt;/p&gt;
-&lt;p&gt;Composite Pattern은 복잡한 트리 구조를 간단하게 다룰 수 있게 해주는 강력한 도구이다. 하지만 모든 상황에 적합한 것은 아니므로, 프로젝트의 요구사항과 구조를 고려하여 적절히 사용해야 한다.&lt;/p&gt;
-&lt;h3 id=&#34;주요-구성-요소&#34;&gt;주요 구성 요소&lt;/h3&gt;
-&lt;p&gt;Composite Pattern은 다음과 같은 주요 구성 요소로 이루어진다:&lt;/p&gt;</description>
+      <description>Composite Pattern은 구조적 디자인 패턴 중 하나로, 객체들을 트리 구조로 구성하여 부분-전체 계층을 표현하는 패턴이다.</description>
     </item>
     <item>
       <title>Bridge Pattern</title>
@@ -2821,20 +2439,7 @@ MVC 패턴에서 파생되었으며, 주로 Windows Forms, ASP.NET, Java Swing �
       <link>https://buenhyden.github.io/posts/software-design-and-architecture/software-design-patterns/behavioral-design-patterns/</link>
       <pubDate>Tue, 24 Sep 2024 08:26:00 +0000</pubDate>
       <guid>https://buenhyden.github.io/posts/software-design-and-architecture/software-design-patterns/behavioral-design-patterns/</guid>
-      <description>&lt;h2 id=&#34;behavioral-design-patterns&#34;&gt;Behavioral Design Patterns&lt;/h2&gt;
-&lt;p&gt;행동 디자인 패턴(Behavioral Design Pattern)은 객체들 사이의 알고리즘과 책임 할당에 관한 패턴이다. 이 패턴들은 객체나 클래스 사이의 상호작용과 책임 분배 방법을 정의한다.
-행동 패턴의 주요 목적은 객체 간의 효율적인 통신과 책임 분배를 통해 시스템의 유연성과 확장성을 높이는 것이다.&lt;/p&gt;
-&lt;h3 id=&#34;행동-디자인-패턴의-주요-특징&#34;&gt;행동 디자인 패턴의 주요 특징&lt;/h3&gt;
-&lt;ol&gt;
-&lt;li&gt;객체 간 통신 패턴 정의: 객체들이 서로 어떻게 상호작용하고 통신할지에 대한 패턴을 제공한다.&lt;/li&gt;
-&lt;li&gt;복잡한 제어 흐름 관리: 런타임에 따라가기 어려운 복잡한 제어 흐름을 관리한다.&lt;/li&gt;
-&lt;li&gt;알고리즘의 캡슐화: 특정 행동을 캡슐화하여 객체 간에 교환 가능하게 만든다.&lt;/li&gt;
-&lt;li&gt;객체 결합도 감소: 객체 간의 직접적인 의존성을 줄여 시스템의 유연성을 높인다.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h3 id=&#34;주요-행동-디자인-패턴&#34;&gt;주요 행동 디자인 패턴&lt;/h3&gt;
-&lt;ol&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;strong&gt;책임 연쇄 패턴(Chain of Responsibility)&lt;/strong&gt;&lt;/p&gt;</description>
+      <description>행동 디자인 패턴(Behavioral Design Pattern)은 객체들 사이의 알고리즘과 책임 할당에 관한 패턴이다. 이 패턴들은 객체나 클래스 사이의 상호작용과 책임 분배 방법을 정의한다.</description>
     </item>
     <item>
       <title>Chain of Responsibility</title>
@@ -2848,27 +2453,7 @@ MVC 패턴에서 파생되었으며, 주로 Windows Forms, ASP.NET, Java Swing �
       <link>https://buenhyden.github.io/posts/software-design-and-architecture/software-design-patterns/behavioral-design-patterns/mediator-pattern/</link>
       <pubDate>Tue, 24 Sep 2024 08:26:00 +0000</pubDate>
       <guid>https://buenhyden.github.io/posts/software-design-and-architecture/software-design-patterns/behavioral-design-patterns/mediator-pattern/</guid>
-      <description>&lt;h2 id=&#34;mediator-pattern&#34;&gt;Mediator Pattern&lt;/h2&gt;
-&lt;p&gt;&lt;strong&gt;Mediator Pattern&lt;/strong&gt;(중재자 패턴)은 소프트웨어 디자인 패턴 중 하나로, 객체 간의 상호작용을 캡슐화하여 서로 직접 통신하지 않고 중재자 객체를 통해서만 소통하도록 설계된 행동 패턴이다.&lt;br&gt;
-이 패턴은 객체 간의 복잡한 의존성을 줄이고, 시스템의 유연성과 재사용성을 향상시키는 데 도움을 준다.&lt;/p&gt;
-&lt;h3 id=&#34;주요-개념&#34;&gt;주요 개념&lt;/h3&gt;
-&lt;ol&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;strong&gt;Mediator (중재자)&lt;/strong&gt;:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;객체 간의 상호작용을 조정하는 역할을 하며, 서로 다른 객체들이 직접 통신하는 대신 중재자를 통해 소통하게 한다.&lt;/li&gt;
-&lt;li&gt;Mediator는 Colleague 객체들의 통신을 관리하고 조정한다.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;strong&gt;Colleague (동료)&lt;/strong&gt;:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Mediator와 상호작용하는 객체들로, 각 동료 객체는 Mediator를 통해 다른 동료와 통신한다.&lt;/li&gt;
-&lt;li&gt;Colleague 객체는 Mediator에 대한 참조를 가지고 있어야 한다.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;strong&gt;ConcreteMediator (구체적인 중재자)&lt;/strong&gt;:&lt;/p&gt;</description>
+      <description>Mediator Pattern(중재자 패턴)은 소프트웨어 디자인 패턴 중 하나로, 객체 간의 상호작용을 캡슐화하여 서로 직접 통신하지 않고 중재자 객체를 통해서만 소통하도록 설계된 행동 패턴이다.</description>
     </item>
     <item>
       <title>Memento Pattern</title>
