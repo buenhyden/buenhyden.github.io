@@ -1,0 +1,1024 @@
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>연결 리스트 (Linked List) | hyunyoun's Blog</title>
+<meta name=keywords content="Data-Structures-and-Algorithms,Data-Structures,Linked-List"><meta name=description content="각 노드가 데이터와 다음 노드에 대한 참조(포인터)를 가지고 있는 선형 데이터 구조"><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/data-structures-and-algorithms/data-structures/linked-list/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.9a2bbe2d8b5afa9d4df22976abb7b72f1f7f1c467d2b30f03090108f9496ae6c.css integrity="sha256-miu+LYta+p1N8il2q7e3Lx9/HEZ9KzDwMJAQj5SWrmw=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate type=application/rss+xml href=https://buenhyden.github.io/posts/data-structures-and-algorithms/data-structures/linked-list/index.xml><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/data-structures-and-algorithms/data-structures/linked-list/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/data-structures-and-algorithms/data-structures/linked-list/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="연결 리스트 (Linked List)"><meta property="og:description" content="각 노드가 데이터와 다음 노드에 대한 참조(포인터)를 가지고 있는 선형 데이터 구조"><meta property="og:locale" content="en"><meta property="og:type" content="website"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="연결 리스트 (Linked List)"><meta name=twitter:description content="각 노드가 데이터와 다음 노드에 대한 참조(포인터)를 가지고 있는 선형 데이터 구조"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"posts","item":"https://buenhyden.github.io/posts/"},{"@type":"ListItem","position":2,"name":"Data Structure and Algorithm","item":"https://buenhyden.github.io/posts/data-structures-and-algorithms/"},{"@type":"ListItem","position":3,"name":"Data Structures","item":"https://buenhyden.github.io/posts/data-structures-and-algorithms/data-structures/"},{"@type":"ListItem","position":4,"name":"연결 리스트 (Linked List)","item":"https://buenhyden.github.io/posts/data-structures-and-algorithms/data-structures/linked-list/"}]}</script></head><body class=list id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><header class=page-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/>posts</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/data-structures-and-algorithms/>Data Structure and Algorithm</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/data-structures-and-algorithms/data-structures/>Data Structures</a></div><h1>연결 리스트 (Linked List)</h1><div class=post-description>각 노드가 데이터와 다음 노드에 대한 참조(포인터)를 가지고 있는 선형 데이터 구조</div></header><div class=post-content><h2 id=연결-리스트-linked-list>연결 리스트 (Linked List)<a hidden class=anchor aria-hidden=true href=#연결-리스트-linked-list>#</a></h2><p>연결 리스트(Linked List)는 <strong>노드(Node)들의 연결을 통해 데이터를 저장하는 동적 자료구조</strong>이다.<br>각 노드는 데이터(Data)와 다음 노드를 가리키는 포인터(Next)로 구성되며, 필요에 따라 동적으로 크기를 조절할 수 있다.<br>배열과 달리 메모리의 연속적인 공간을 요구하지 않으며, 삽입/삭제 연산이 효율적이다.</p><p>연결 리스트는 유연한 메모리 관리와 효율적인 삽입/삭제 연산으로 인해 다양한 응용 분야에서 활용되는 중요한 데이터 구조이다. 배열에 비해 특정 위치 접근이 느리지만, 동적 크기 조정과 삽입/삭제 연산의 효율성은 큰 장점이다.</p><p>다양한 형태(단일, 이중, 원형)와 최적화 기법(센티넬 노드, 런너 기법 등)을 적절히, 활용하면 복잡한 문제도 효율적으로 해결할 수 있다. 특히 스택, 큐, 해시 테이블, 그래프 등 다른 자료구조의 구현에도 널리 사용되어 알고리즘과 데이터 구조를 이해하는 데 필수적인 개념이다.</p><p><figure><img alt="Linked List Data Structure" loading=lazy src=/img/linked-list.webp><figcaption>https://www.geeksforgeeks.org/introduction-to-linked-list-data-structure/?ref=ghm</figcaption></figure></p><h3 id=연결-리스트의-기본-개념>연결 리스트의 기본 개념<a hidden class=anchor aria-hidden=true href=#연결-리스트의-기본-개념>#</a></h3><p>연결 리스트는 여러 노드들이 연결된 형태로 구성된다.<br>각 노드는 두 부분으로 나뉜다:</p><ul><li><strong>데이터 필드</strong>: 저장하고자 하는 실제 값</li><li><strong>링크 필드</strong>: 다음 노드의 주소를 가리키는 포인터<br>가장 첫 번째 노드를 &lsquo;헤드(Head)&lsquo;라고 부르며, 마지막 노드의 링크 필드는 보통 NULL을 가리켜 리스트의 끝을 표시한다.</li></ul><h3 id=연결-리스트의-장점>연결 리스트의 장점<a hidden class=anchor aria-hidden=true href=#연결-리스트의-장점>#</a></h3><ul><li>동적 메모리 할당을 통해 자료의 크기가 실행 시간에 맞춰 유연하게 조절된다.</li><li>삽입 및 삭제 시 배열과 달리 전체 데이터를 재배열하지 않아도 되므로 연산 효율이 높다.</li><li>메모리의 연속적인 할당이 필요 없기 때문에, 메모리 단편화 문제를 줄일 수 있다.</li></ul><h3 id=연결-리스트의-단점>연결 리스트의 단점<a hidden class=anchor aria-hidden=true href=#연결-리스트의-단점>#</a></h3><ul><li>각 노드에 추가적인 포인터가 필요하므로, 메모리 오버헤드가 발생한다.</li><li>데이터가 메모리상에 흩어져 있어 캐시 인접성(cache locality)이 떨어지고, 이로 인해 캐시 히트율이 낮아 성능 저하가 나타날 수 있다.</li><li>임의의 데이터 접근을 위해 전체 노드를 순회해야 하므로 검색 속도가 느리다.</li></ul><h3 id=연결-리스트의-종류>연결 리스트의 종류<a hidden class=anchor aria-hidden=true href=#연결-리스트의-종류>#</a></h3><h4 id=단일-연결-리스트singly-linked-list>단일 연결 리스트(Singly Linked List)<a hidden class=anchor aria-hidden=true href=#단일-연결-리스트singly-linked-list>#</a></h4><p>각 노드가 다음 노드만을 가리키는 가장 기본적인 형태이다.<br>한 방향으로만 탐색이 가능하다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-0-1><a class=lnlinks href=#hl-0-1>1</a>
+</span><span class=lnt id=hl-0-2><a class=lnlinks href=#hl-0-2>2</a>
+</span><span class=lnt id=hl-0-3><a class=lnlinks href=#hl-0-3>3</a>
+</span><span class=lnt id=hl-0-4><a class=lnlinks href=#hl-0-4>4</a>
+</span><span class=lnt id=hl-0-5><a class=lnlinks href=#hl-0-5>5</a>
+</span><span class=lnt id=hl-0-6><a class=lnlinks href=#hl-0-6>6</a>
+</span><span class=lnt id=hl-0-7><a class=lnlinks href=#hl-0-7>7</a>
+</span><span class=lnt id=hl-0-8><a class=lnlinks href=#hl-0-8>8</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>Node</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>data</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>data</span> <span class=o>=</span> <span class=n>data</span>  <span class=c1># 데이터 필드</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=kc>None</span>  <span class=c1># 다음 노드를 가리키는 링크 필드</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>SinglyLinkedList</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>head</span> <span class=o>=</span> <span class=kc>None</span>  <span class=c1># 헤드 노드 초기화</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=이중-연결-리스트doubly-linked-list>이중 연결 리스트(Doubly Linked List)<a hidden class=anchor aria-hidden=true href=#이중-연결-리스트doubly-linked-list>#</a></h4><p>각 노드가 이전 노드와 다음 노드를 모두 가리키는 형태로, 양방향 탐색이 가능하다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-1-1><a class=lnlinks href=#hl-1-1> 1</a>
+</span><span class=lnt id=hl-1-2><a class=lnlinks href=#hl-1-2> 2</a>
+</span><span class=lnt id=hl-1-3><a class=lnlinks href=#hl-1-3> 3</a>
+</span><span class=lnt id=hl-1-4><a class=lnlinks href=#hl-1-4> 4</a>
+</span><span class=lnt id=hl-1-5><a class=lnlinks href=#hl-1-5> 5</a>
+</span><span class=lnt id=hl-1-6><a class=lnlinks href=#hl-1-6> 6</a>
+</span><span class=lnt id=hl-1-7><a class=lnlinks href=#hl-1-7> 7</a>
+</span><span class=lnt id=hl-1-8><a class=lnlinks href=#hl-1-8> 8</a>
+</span><span class=lnt id=hl-1-9><a class=lnlinks href=#hl-1-9> 9</a>
+</span><span class=lnt id=hl-1-10><a class=lnlinks href=#hl-1-10>10</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>Node</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>data</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>data</span> <span class=o>=</span> <span class=n>data</span>    <span class=c1># 데이터 필드</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>prev</span> <span class=o>=</span> <span class=kc>None</span>    <span class=c1># 이전 노드를 가리키는 링크 필드</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=kc>None</span>    <span class=c1># 다음 노드를 가리키는 링크 필드</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>DoublyLinkedList</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>head</span> <span class=o>=</span> <span class=kc>None</span>    <span class=c1># 헤드 노드 초기화</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>tail</span> <span class=o>=</span> <span class=kc>None</span>    <span class=c1># 테일 노드 초기화</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=원형-연결-리스트circular-linked-list>원형 연결 리스트(Circular Linked List)<a hidden class=anchor aria-hidden=true href=#원형-연결-리스트circular-linked-list>#</a></h4><p>마지막 노드가 첫 번째 노드를 가리키는 형태로, 리스트의 끝이 없다.<br>단일 또는 이중 연결 리스트 모두 원형으로 구현할 수 있다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-2-1><a class=lnlinks href=#hl-2-1> 1</a>
+</span><span class=lnt id=hl-2-2><a class=lnlinks href=#hl-2-2> 2</a>
+</span><span class=lnt id=hl-2-3><a class=lnlinks href=#hl-2-3> 3</a>
+</span><span class=lnt id=hl-2-4><a class=lnlinks href=#hl-2-4> 4</a>
+</span><span class=lnt id=hl-2-5><a class=lnlinks href=#hl-2-5> 5</a>
+</span><span class=lnt id=hl-2-6><a class=lnlinks href=#hl-2-6> 6</a>
+</span><span class=lnt id=hl-2-7><a class=lnlinks href=#hl-2-7> 7</a>
+</span><span class=lnt id=hl-2-8><a class=lnlinks href=#hl-2-8> 8</a>
+</span><span class=lnt id=hl-2-9><a class=lnlinks href=#hl-2-9> 9</a>
+</span><span class=lnt id=hl-2-10><a class=lnlinks href=#hl-2-10>10</a>
+</span><span class=lnt id=hl-2-11><a class=lnlinks href=#hl-2-11>11</a>
+</span><span class=lnt id=hl-2-12><a class=lnlinks href=#hl-2-12>12</a>
+</span><span class=lnt id=hl-2-13><a class=lnlinks href=#hl-2-13>13</a>
+</span><span class=lnt id=hl-2-14><a class=lnlinks href=#hl-2-14>14</a>
+</span><span class=lnt id=hl-2-15><a class=lnlinks href=#hl-2-15>15</a>
+</span><span class=lnt id=hl-2-16><a class=lnlinks href=#hl-2-16>16</a>
+</span><span class=lnt id=hl-2-17><a class=lnlinks href=#hl-2-17>17</a>
+</span><span class=lnt id=hl-2-18><a class=lnlinks href=#hl-2-18>18</a>
+</span><span class=lnt id=hl-2-19><a class=lnlinks href=#hl-2-19>19</a>
+</span><span class=lnt id=hl-2-20><a class=lnlinks href=#hl-2-20>20</a>
+</span><span class=lnt id=hl-2-21><a class=lnlinks href=#hl-2-21>21</a>
+</span><span class=lnt id=hl-2-22><a class=lnlinks href=#hl-2-22>22</a>
+</span><span class=lnt id=hl-2-23><a class=lnlinks href=#hl-2-23>23</a>
+</span><span class=lnt id=hl-2-24><a class=lnlinks href=#hl-2-24>24</a>
+</span><span class=lnt id=hl-2-25><a class=lnlinks href=#hl-2-25>25</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>Node</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>data</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>data</span> <span class=o>=</span> <span class=n>data</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>CircularLinkedList</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>head</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 노드 추가 예시 메서드</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>append</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>data</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>new_node</span> <span class=o>=</span> <span class=n>Node</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>head</span> <span class=o>=</span> <span class=n>new_node</span>
+</span></span><span class=line><span class=cl>            <span class=n>new_node</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span>  <span class=c1># 자기 자신을 가리킴</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>        <span class=n>current</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 마지막 노드 찾기</span>
+</span></span><span class=line><span class=cl>        <span class=k>while</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span> <span class=o>!=</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>current</span> <span class=o>=</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>        <span class=n>current</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=n>new_node</span>
+</span></span><span class=line><span class=cl>        <span class=n>new_node</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span>  <span class=c1># 새 노드가 헤드를 가리키도록 설정</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=연결-리스트의-주요-연산과-시간-복잡도>연결 리스트의 주요 연산과 시간 복잡도<a hidden class=anchor aria-hidden=true href=#연결-리스트의-주요-연산과-시간-복잡도>#</a></h3><table><thead><tr><th>연산</th><th>설명</th><th>시간 복잡도</th></tr></thead><tbody><tr><td>접근 (Access)</td><td>특정 노드에 접근하려면 순차 탐색이 필요 (O(n))</td><td>O(n)</td></tr><tr><td>탐색 (Search)</td><td>특정 값을 찾기 위해 노드를 순회해야 함 (O(n))</td><td>O(n)</td></tr><tr><td>삽입 (Insert)</td><td>처음 또는 중간에 삽입 시 포인터 조정만 필요 (O(1))</td><td>O(1)</td></tr><tr><td>삭제 (Delete)</td><td>특정 노드를 삭제 시 포인터 조정만 필요 (O(1))</td><td>O(1)</td></tr></tbody></table><ol><li><p>접근(Access)</p><ul><li>특정 인덱스의 요소에 접근: O(n)</li><li>연결 리스트는 인덱스를 통한 직접 접근이 불가능하여, 원하는 위치까지 순차적으로 탐색해야 한다.</li></ul></li><li><p>검색(Search)</p><ul><li>특정 값을 가진 노드 검색: O(n)</li><li>헤드부터 시작하여 원하는 값을 찾을 때까지 순차적으로 탐색한다.</li></ul></li><li><p>삽입(Insertion)</p><ul><li>리스트 시작 부분에 삽입(헤드 삽입): O(1)</li><li>리스트 끝 부분에 삽입(단일 연결 리스트): O(n) - 끝을 찾기 위해 전체 탐색 필요</li><li>리스트 끝 부분에 삽입(이중 연결 리스트, 테일 포인터 사용): O(1)</li><li>특정 위치에 삽입: O(n) - 위치 찾기 위한 탐색 필요</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-3-1><a class=lnlinks href=#hl-3-1>1</a>
+</span><span class=lnt id=hl-3-2><a class=lnlinks href=#hl-3-2>2</a>
+</span><span class=lnt id=hl-3-3><a class=lnlinks href=#hl-3-3>3</a>
+</span><span class=lnt id=hl-3-4><a class=lnlinks href=#hl-3-4>4</a>
+</span><span class=lnt id=hl-3-5><a class=lnlinks href=#hl-3-5>5</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 단일 연결 리스트의 시작 부분에 노드 삽입</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>insert_at_beginning</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>data</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>new_node</span> <span class=o>=</span> <span class=n>Node</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>new_node</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span>
+</span></span><span class=line><span class=cl>    <span class=bp>self</span><span class=o>.</span><span class=n>head</span> <span class=o>=</span> <span class=n>new_node</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>삭제(Deletion)</p><ul><li>리스트 시작 부분 삭제(헤드 삭제): O(1)</li><li>리스트 끝 부분 삭제(단일 연결 리스트): O(n)</li><li>리스트 끝 부분 삭제(이중 연결 리스트, 테일 포인터 사용): O(1)</li><li>특정 위치/값 삭제: O(n)</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-4-1><a class=lnlinks href=#hl-4-1> 1</a>
+</span><span class=lnt id=hl-4-2><a class=lnlinks href=#hl-4-2> 2</a>
+</span><span class=lnt id=hl-4-3><a class=lnlinks href=#hl-4-3> 3</a>
+</span><span class=lnt id=hl-4-4><a class=lnlinks href=#hl-4-4> 4</a>
+</span><span class=lnt id=hl-4-5><a class=lnlinks href=#hl-4-5> 5</a>
+</span><span class=lnt id=hl-4-6><a class=lnlinks href=#hl-4-6> 6</a>
+</span><span class=lnt id=hl-4-7><a class=lnlinks href=#hl-4-7> 7</a>
+</span><span class=lnt id=hl-4-8><a class=lnlinks href=#hl-4-8> 8</a>
+</span><span class=lnt id=hl-4-9><a class=lnlinks href=#hl-4-9> 9</a>
+</span><span class=lnt id=hl-4-10><a class=lnlinks href=#hl-4-10>10</a>
+</span><span class=lnt id=hl-4-11><a class=lnlinks href=#hl-4-11>11</a>
+</span><span class=lnt id=hl-4-12><a class=lnlinks href=#hl-4-12>12</a>
+</span><span class=lnt id=hl-4-13><a class=lnlinks href=#hl-4-13>13</a>
+</span><span class=lnt id=hl-4-14><a class=lnlinks href=#hl-4-14>14</a>
+</span><span class=lnt id=hl-4-15><a class=lnlinks href=#hl-4-15>15</a>
+</span><span class=lnt id=hl-4-16><a class=lnlinks href=#hl-4-16>16</a>
+</span><span class=lnt id=hl-4-17><a class=lnlinks href=#hl-4-17>17</a>
+</span><span class=lnt id=hl-4-18><a class=lnlinks href=#hl-4-18>18</a>
+</span><span class=lnt id=hl-4-19><a class=lnlinks href=#hl-4-19>19</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 단일 연결 리스트에서 특정 값을 가진 노드 삭제</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>delete_node</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>key</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 빈 리스트 체크</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 헤드 노드가 삭제할 값을 가지는 경우</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span><span class=o>.</span><span class=n>data</span> <span class=o>==</span> <span class=n>key</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>head</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span><span class=o>.</span><span class=n>next</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 삭제할 노드 탐색</span>
+</span></span><span class=line><span class=cl>    <span class=n>current</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span> <span class=ow>and</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span><span class=o>.</span><span class=n>data</span> <span class=o>!=</span> <span class=n>key</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>current</span> <span class=o>=</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 값을 찾은 경우</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>current</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span><span class=o>.</span><span class=n>next</span>
+</span></span></code></pre></td></tr></table></div></div></li></ol><h3 id=연결-리스트의-메모리-구조>연결 리스트의 메모리 구조<a hidden class=anchor aria-hidden=true href=#연결-리스트의-메모리-구조>#</a></h3><p>연결 리스트의 각 노드는 메모리 상에 불연속적으로 위치할 수 있다.<br>각 노드는 데이터와 포인터를 위한 공간을 필요로 하며, 이 포인터가 다음 노드의 메모리 주소를 가리킨다.</p><p>예를 들어, 4바이트 정수를 저장하는 단일 연결 리스트에서 각 노드는:</p><ul><li>4바이트: 데이터(정수)</li><li>4<del>8바이트: 다음 노드 포인터<br>총 8</del>12바이트의 메모리를 사용하는 반면 배열은 요소당 4바이트만 필요로 한다.</li></ul><h3 id=연결-리스트linked-list-vs-배열array-비교>연결 리스트(Linked List) Vs 배열(Array) 비교<a hidden class=anchor aria-hidden=true href=#연결-리스트linked-list-vs-배열array-비교>#</a></h3><table><thead><tr><th>비교 항목</th><th>배열 (Array)</th><th>연결 리스트 (Linked List)</th></tr></thead><tbody><tr><td>메모리 할당</td><td>연속된 공간에 할당</td><td>개별 노드가 동적 할당</td></tr><tr><td>접근 속도</td><td>O(1) (인덱스로 접근 가능)</td><td>O(n) (순차 접근)</td></tr><tr><td>삽입/삭제</td><td>O(n) (데이터 이동 필요)</td><td>O(1) (포인터 조정)</td></tr><tr><td>크기 변경</td><td>불가능 (고정 크기)</td><td>가능 (동적 크기)</td></tr><tr><td>메모리 사용량</td><td>효율적 (오버헤드 없음)</td><td>비효율적 (포인터 추가 필요)</td></tr></tbody></table><p><strong>📌 핵심 비교</strong></p><ul><li>배열은 <strong>빠른 접근</strong>이 가능하지만, <strong>크기 변경과 삽입/삭제가 어려움</strong>.</li><li>연결 리스트는 <strong>삽입/삭제가 빠르지만, 탐색이 느리고 추가적인 포인터 메모리 필요</strong>.</li></ul><h3 id=연결-리스트의-응용>연결 리스트의 응용<a hidden class=anchor aria-hidden=true href=#연결-리스트의-응용>#</a></h3><ol><li><p>스택 및 큐 구현<br>연결 리스트는 스택과 큐를 효율적으로 구현하는 데 사용될 수 있다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-5-1><a class=lnlinks href=#hl-5-1> 1</a>
+</span><span class=lnt id=hl-5-2><a class=lnlinks href=#hl-5-2> 2</a>
+</span><span class=lnt id=hl-5-3><a class=lnlinks href=#hl-5-3> 3</a>
+</span><span class=lnt id=hl-5-4><a class=lnlinks href=#hl-5-4> 4</a>
+</span><span class=lnt id=hl-5-5><a class=lnlinks href=#hl-5-5> 5</a>
+</span><span class=lnt id=hl-5-6><a class=lnlinks href=#hl-5-6> 6</a>
+</span><span class=lnt id=hl-5-7><a class=lnlinks href=#hl-5-7> 7</a>
+</span><span class=lnt id=hl-5-8><a class=lnlinks href=#hl-5-8> 8</a>
+</span><span class=lnt id=hl-5-9><a class=lnlinks href=#hl-5-9> 9</a>
+</span><span class=lnt id=hl-5-10><a class=lnlinks href=#hl-5-10>10</a>
+</span><span class=lnt id=hl-5-11><a class=lnlinks href=#hl-5-11>11</a>
+</span><span class=lnt id=hl-5-12><a class=lnlinks href=#hl-5-12>12</a>
+</span><span class=lnt id=hl-5-13><a class=lnlinks href=#hl-5-13>13</a>
+</span><span class=lnt id=hl-5-14><a class=lnlinks href=#hl-5-14>14</a>
+</span><span class=lnt id=hl-5-15><a class=lnlinks href=#hl-5-15>15</a>
+</span><span class=lnt id=hl-5-16><a class=lnlinks href=#hl-5-16>16</a>
+</span><span class=lnt id=hl-5-17><a class=lnlinks href=#hl-5-17>17</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 연결 리스트를 사용한 스택 구현</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>Stack</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>top</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>push</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>data</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>new_node</span> <span class=o>=</span> <span class=n>Node</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>new_node</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>top</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>top</span> <span class=o>=</span> <span class=n>new_node</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>pop</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>top</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=n>data</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>top</span><span class=o>.</span><span class=n>data</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>top</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>top</span><span class=o>.</span><span class=n>next</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>data</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>해시 테이블 충돌 해결<br>해시 테이블에서 충돌이 발생했을 때, 연결 리스트를 사용하여 체이닝(chaining) 방식으로 충돌을 해결할 수 있다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-6-1><a class=lnlinks href=#hl-6-1> 1</a>
+</span><span class=lnt id=hl-6-2><a class=lnlinks href=#hl-6-2> 2</a>
+</span><span class=lnt id=hl-6-3><a class=lnlinks href=#hl-6-3> 3</a>
+</span><span class=lnt id=hl-6-4><a class=lnlinks href=#hl-6-4> 4</a>
+</span><span class=lnt id=hl-6-5><a class=lnlinks href=#hl-6-5> 5</a>
+</span><span class=lnt id=hl-6-6><a class=lnlinks href=#hl-6-6> 6</a>
+</span><span class=lnt id=hl-6-7><a class=lnlinks href=#hl-6-7> 7</a>
+</span><span class=lnt id=hl-6-8><a class=lnlinks href=#hl-6-8> 8</a>
+</span><span class=lnt id=hl-6-9><a class=lnlinks href=#hl-6-9> 9</a>
+</span><span class=lnt id=hl-6-10><a class=lnlinks href=#hl-6-10>10</a>
+</span><span class=lnt id=hl-6-11><a class=lnlinks href=#hl-6-11>11</a>
+</span><span class=lnt id=hl-6-12><a class=lnlinks href=#hl-6-12>12</a>
+</span><span class=lnt id=hl-6-13><a class=lnlinks href=#hl-6-13>13</a>
+</span><span class=lnt id=hl-6-14><a class=lnlinks href=#hl-6-14>14</a>
+</span><span class=lnt id=hl-6-15><a class=lnlinks href=#hl-6-15>15</a>
+</span><span class=lnt id=hl-6-16><a class=lnlinks href=#hl-6-16>16</a>
+</span><span class=lnt id=hl-6-17><a class=lnlinks href=#hl-6-17>17</a>
+</span><span class=lnt id=hl-6-18><a class=lnlinks href=#hl-6-18>18</a>
+</span><span class=lnt id=hl-6-19><a class=lnlinks href=#hl-6-19>19</a>
+</span><span class=lnt id=hl-6-20><a class=lnlinks href=#hl-6-20>20</a>
+</span><span class=lnt id=hl-6-21><a class=lnlinks href=#hl-6-21>21</a>
+</span><span class=lnt id=hl-6-22><a class=lnlinks href=#hl-6-22>22</a>
+</span><span class=lnt id=hl-6-23><a class=lnlinks href=#hl-6-23>23</a>
+</span><span class=lnt id=hl-6-24><a class=lnlinks href=#hl-6-24>24</a>
+</span><span class=lnt id=hl-6-25><a class=lnlinks href=#hl-6-25>25</a>
+</span><span class=lnt id=hl-6-26><a class=lnlinks href=#hl-6-26>26</a>
+</span><span class=lnt id=hl-6-27><a class=lnlinks href=#hl-6-27>27</a>
+</span><span class=lnt id=hl-6-28><a class=lnlinks href=#hl-6-28>28</a>
+</span><span class=lnt id=hl-6-29><a class=lnlinks href=#hl-6-29>29</a>
+</span><span class=lnt id=hl-6-30><a class=lnlinks href=#hl-6-30>30</a>
+</span><span class=lnt id=hl-6-31><a class=lnlinks href=#hl-6-31>31</a>
+</span><span class=lnt id=hl-6-32><a class=lnlinks href=#hl-6-32>32</a>
+</span><span class=lnt id=hl-6-33><a class=lnlinks href=#hl-6-33>33</a>
+</span><span class=lnt id=hl-6-34><a class=lnlinks href=#hl-6-34>34</a>
+</span><span class=lnt id=hl-6-35><a class=lnlinks href=#hl-6-35>35</a>
+</span><span class=lnt id=hl-6-36><a class=lnlinks href=#hl-6-36>36</a>
+</span><span class=lnt id=hl-6-37><a class=lnlinks href=#hl-6-37>37</a>
+</span><span class=lnt id=hl-6-38><a class=lnlinks href=#hl-6-38>38</a>
+</span><span class=lnt id=hl-6-39><a class=lnlinks href=#hl-6-39>39</a>
+</span><span class=lnt id=hl-6-40><a class=lnlinks href=#hl-6-40>40</a>
+</span><span class=lnt id=hl-6-41><a class=lnlinks href=#hl-6-41>41</a>
+</span><span class=lnt id=hl-6-42><a class=lnlinks href=#hl-6-42>42</a>
+</span><span class=lnt id=hl-6-43><a class=lnlinks href=#hl-6-43>43</a>
+</span><span class=lnt id=hl-6-44><a class=lnlinks href=#hl-6-44>44</a>
+</span><span class=lnt id=hl-6-45><a class=lnlinks href=#hl-6-45>45</a>
+</span><span class=lnt id=hl-6-46><a class=lnlinks href=#hl-6-46>46</a>
+</span><span class=lnt id=hl-6-47><a class=lnlinks href=#hl-6-47>47</a>
+</span><span class=lnt id=hl-6-48><a class=lnlinks href=#hl-6-48>48</a>
+</span><span class=lnt id=hl-6-49><a class=lnlinks href=#hl-6-49>49</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>Node</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>key</span> <span class=o>=</span> <span class=n>key</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>value</span> <span class=o>=</span> <span class=n>value</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>HashTable</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>size</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>size</span> <span class=o>=</span> <span class=n>size</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>table</span> <span class=o>=</span> <span class=p>[</span><span class=kc>None</span><span class=p>]</span> <span class=o>*</span> <span class=n>size</span>  <span class=c1># 해시 테이블 배열</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>hash_function</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>key</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nb>hash</span><span class=p>(</span><span class=n>key</span><span class=p>)</span> <span class=o>%</span> <span class=bp>self</span><span class=o>.</span><span class=n>size</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>insert</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>index</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>hash_function</span><span class=p>(</span><span class=n>key</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>new_node</span> <span class=o>=</span> <span class=n>Node</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>  <span class=c1># 해당 버킷이 비어있으면 직접 삽입</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=o>=</span> <span class=n>new_node</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>current</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>]</span>  <span class=c1># 충돌 발생 -&gt; 연결 리스트 사용</span>
+</span></span><span class=line><span class=cl>            <span class=k>while</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=n>current</span><span class=o>.</span><span class=n>key</span> <span class=o>==</span> <span class=n>key</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                    <span class=n>current</span><span class=o>.</span><span class=n>value</span> <span class=o>=</span> <span class=n>value</span>  <span class=c1># 기존 키 업데이트</span>
+</span></span><span class=line><span class=cl>                    <span class=k>return</span>
+</span></span><span class=line><span class=cl>                <span class=n>current</span> <span class=o>=</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span>
+</span></span><span class=line><span class=cl>            <span class=n>current</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=n>new_node</span>  <span class=c1># 마지막 노드에 추가</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>search</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>key</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>index</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>hash_function</span><span class=p>(</span><span class=n>key</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>current</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>while</span> <span class=n>current</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=n>current</span><span class=o>.</span><span class=n>key</span> <span class=o>==</span> <span class=n>key</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=k>return</span> <span class=n>current</span><span class=o>.</span><span class=n>value</span>
+</span></span><span class=line><span class=cl>            <span class=n>current</span> <span class=o>=</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>None</span>  <span class=c1># 찾지 못하면 None 반환</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 해시 테이블 사용 예시</span>
+</span></span><span class=line><span class=cl><span class=n>hash_table</span> <span class=o>=</span> <span class=n>HashTable</span><span class=p>(</span><span class=mi>5</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>hash_table</span><span class=o>.</span><span class=n>insert</span><span class=p>(</span><span class=s2>&#34;apple&#34;</span><span class=p>,</span> <span class=mi>100</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>hash_table</span><span class=o>.</span><span class=n>insert</span><span class=p>(</span><span class=s2>&#34;banana&#34;</span><span class=p>,</span> <span class=mi>200</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>hash_table</span><span class=o>.</span><span class=n>insert</span><span class=p>(</span><span class=s2>&#34;cherry&#34;</span><span class=p>,</span> <span class=mi>300</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>hash_table</span><span class=o>.</span><span class=n>insert</span><span class=p>(</span><span class=s2>&#34;apple&#34;</span><span class=p>,</span> <span class=mi>150</span><span class=p>)</span>  <span class=c1># 업데이트</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>hash_table</span><span class=o>.</span><span class=n>search</span><span class=p>(</span><span class=s2>&#34;apple&#34;</span><span class=p>))</span>  <span class=c1># 150</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>hash_table</span><span class=o>.</span><span class=n>search</span><span class=p>(</span><span class=s2>&#34;banana&#34;</span><span class=p>))</span> <span class=c1># 200</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>hash_table</span><span class=o>.</span><span class=n>search</span><span class=p>(</span><span class=s2>&#34;grape&#34;</span><span class=p>))</span>  <span class=c1># None (없음)</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>그래프 표현<br>인접 리스트(adjacency list)를 통해 그래프를 표현할 때 연결 리스트가 사용된다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-7-1><a class=lnlinks href=#hl-7-1> 1</a>
+</span><span class=lnt id=hl-7-2><a class=lnlinks href=#hl-7-2> 2</a>
+</span><span class=lnt id=hl-7-3><a class=lnlinks href=#hl-7-3> 3</a>
+</span><span class=lnt id=hl-7-4><a class=lnlinks href=#hl-7-4> 4</a>
+</span><span class=lnt id=hl-7-5><a class=lnlinks href=#hl-7-5> 5</a>
+</span><span class=lnt id=hl-7-6><a class=lnlinks href=#hl-7-6> 6</a>
+</span><span class=lnt id=hl-7-7><a class=lnlinks href=#hl-7-7> 7</a>
+</span><span class=lnt id=hl-7-8><a class=lnlinks href=#hl-7-8> 8</a>
+</span><span class=lnt id=hl-7-9><a class=lnlinks href=#hl-7-9> 9</a>
+</span><span class=lnt id=hl-7-10><a class=lnlinks href=#hl-7-10>10</a>
+</span><span class=lnt id=hl-7-11><a class=lnlinks href=#hl-7-11>11</a>
+</span><span class=lnt id=hl-7-12><a class=lnlinks href=#hl-7-12>12</a>
+</span><span class=lnt id=hl-7-13><a class=lnlinks href=#hl-7-13>13</a>
+</span><span class=lnt id=hl-7-14><a class=lnlinks href=#hl-7-14>14</a>
+</span><span class=lnt id=hl-7-15><a class=lnlinks href=#hl-7-15>15</a>
+</span><span class=lnt id=hl-7-16><a class=lnlinks href=#hl-7-16>16</a>
+</span><span class=lnt id=hl-7-17><a class=lnlinks href=#hl-7-17>17</a>
+</span><span class=lnt id=hl-7-18><a class=lnlinks href=#hl-7-18>18</a>
+</span><span class=lnt id=hl-7-19><a class=lnlinks href=#hl-7-19>19</a>
+</span><span class=lnt id=hl-7-20><a class=lnlinks href=#hl-7-20>20</a>
+</span><span class=lnt id=hl-7-21><a class=lnlinks href=#hl-7-21>21</a>
+</span><span class=lnt id=hl-7-22><a class=lnlinks href=#hl-7-22>22</a>
+</span><span class=lnt id=hl-7-23><a class=lnlinks href=#hl-7-23>23</a>
+</span><span class=lnt id=hl-7-24><a class=lnlinks href=#hl-7-24>24</a>
+</span><span class=lnt id=hl-7-25><a class=lnlinks href=#hl-7-25>25</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>Graph</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>vertices</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>V</span> <span class=o>=</span> <span class=n>vertices</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>adj_list</span> <span class=o>=</span> <span class=p>{</span><span class=n>i</span><span class=p>:</span> <span class=p>[]</span> <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=n>vertices</span><span class=p>)}</span>  <span class=c1># 각 노드마다 연결 리스트 생성</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>add_edge</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>u</span><span class=p>,</span> <span class=n>v</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>adj_list</span><span class=p>[</span><span class=n>u</span><span class=p>]</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>v</span><span class=p>)</span>  <span class=c1># u -&gt; v 방향 간선 추가</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>adj_list</span><span class=p>[</span><span class=n>v</span><span class=p>]</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>u</span><span class=p>)</span>  <span class=c1># 무방향 그래프일 경우 v -&gt; u도 추가</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>display</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>vertex</span><span class=p>,</span> <span class=n>neighbors</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>adj_list</span><span class=o>.</span><span class=n>items</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>            <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>vertex</span><span class=si>}</span><span class=s2> -&gt; </span><span class=si>{</span><span class=n>neighbors</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 그래프 생성 및 간선 추가</span>
+</span></span><span class=line><span class=cl><span class=n>graph</span> <span class=o>=</span> <span class=n>Graph</span><span class=p>(</span><span class=mi>5</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>graph</span><span class=o>.</span><span class=n>add_edge</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>graph</span><span class=o>.</span><span class=n>add_edge</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mi>4</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>graph</span><span class=o>.</span><span class=n>add_edge</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mi>2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>graph</span><span class=o>.</span><span class=n>add_edge</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mi>3</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>graph</span><span class=o>.</span><span class=n>add_edge</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mi>4</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>graph</span><span class=o>.</span><span class=n>add_edge</span><span class=p>(</span><span class=mi>2</span><span class=p>,</span> <span class=mi>3</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>graph</span><span class=o>.</span><span class=n>add_edge</span><span class=p>(</span><span class=mi>3</span><span class=p>,</span> <span class=mi>4</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 그래프 출력</span>
+</span></span><span class=line><span class=cl><span class=n>graph</span><span class=o>.</span><span class=n>display</span><span class=p>()</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>다항식 표현<br>다항식의 각 항을 노드로 표현하여 다항식 연산을 효율적으로 수행할 수 있다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-8-1><a class=lnlinks href=#hl-8-1> 1</a>
+</span><span class=lnt id=hl-8-2><a class=lnlinks href=#hl-8-2> 2</a>
+</span><span class=lnt id=hl-8-3><a class=lnlinks href=#hl-8-3> 3</a>
+</span><span class=lnt id=hl-8-4><a class=lnlinks href=#hl-8-4> 4</a>
+</span><span class=lnt id=hl-8-5><a class=lnlinks href=#hl-8-5> 5</a>
+</span><span class=lnt id=hl-8-6><a class=lnlinks href=#hl-8-6> 6</a>
+</span><span class=lnt id=hl-8-7><a class=lnlinks href=#hl-8-7> 7</a>
+</span><span class=lnt id=hl-8-8><a class=lnlinks href=#hl-8-8> 8</a>
+</span><span class=lnt id=hl-8-9><a class=lnlinks href=#hl-8-9> 9</a>
+</span><span class=lnt id=hl-8-10><a class=lnlinks href=#hl-8-10>10</a>
+</span><span class=lnt id=hl-8-11><a class=lnlinks href=#hl-8-11>11</a>
+</span><span class=lnt id=hl-8-12><a class=lnlinks href=#hl-8-12>12</a>
+</span><span class=lnt id=hl-8-13><a class=lnlinks href=#hl-8-13>13</a>
+</span><span class=lnt id=hl-8-14><a class=lnlinks href=#hl-8-14>14</a>
+</span><span class=lnt id=hl-8-15><a class=lnlinks href=#hl-8-15>15</a>
+</span><span class=lnt id=hl-8-16><a class=lnlinks href=#hl-8-16>16</a>
+</span><span class=lnt id=hl-8-17><a class=lnlinks href=#hl-8-17>17</a>
+</span><span class=lnt id=hl-8-18><a class=lnlinks href=#hl-8-18>18</a>
+</span><span class=lnt id=hl-8-19><a class=lnlinks href=#hl-8-19>19</a>
+</span><span class=lnt id=hl-8-20><a class=lnlinks href=#hl-8-20>20</a>
+</span><span class=lnt id=hl-8-21><a class=lnlinks href=#hl-8-21>21</a>
+</span><span class=lnt id=hl-8-22><a class=lnlinks href=#hl-8-22>22</a>
+</span><span class=lnt id=hl-8-23><a class=lnlinks href=#hl-8-23>23</a>
+</span><span class=lnt id=hl-8-24><a class=lnlinks href=#hl-8-24>24</a>
+</span><span class=lnt id=hl-8-25><a class=lnlinks href=#hl-8-25>25</a>
+</span><span class=lnt id=hl-8-26><a class=lnlinks href=#hl-8-26>26</a>
+</span><span class=lnt id=hl-8-27><a class=lnlinks href=#hl-8-27>27</a>
+</span><span class=lnt id=hl-8-28><a class=lnlinks href=#hl-8-28>28</a>
+</span><span class=lnt id=hl-8-29><a class=lnlinks href=#hl-8-29>29</a>
+</span><span class=lnt id=hl-8-30><a class=lnlinks href=#hl-8-30>30</a>
+</span><span class=lnt id=hl-8-31><a class=lnlinks href=#hl-8-31>31</a>
+</span><span class=lnt id=hl-8-32><a class=lnlinks href=#hl-8-32>32</a>
+</span><span class=lnt id=hl-8-33><a class=lnlinks href=#hl-8-33>33</a>
+</span><span class=lnt id=hl-8-34><a class=lnlinks href=#hl-8-34>34</a>
+</span><span class=lnt id=hl-8-35><a class=lnlinks href=#hl-8-35>35</a>
+</span><span class=lnt id=hl-8-36><a class=lnlinks href=#hl-8-36>36</a>
+</span><span class=lnt id=hl-8-37><a class=lnlinks href=#hl-8-37>37</a>
+</span><span class=lnt id=hl-8-38><a class=lnlinks href=#hl-8-38>38</a>
+</span><span class=lnt id=hl-8-39><a class=lnlinks href=#hl-8-39>39</a>
+</span><span class=lnt id=hl-8-40><a class=lnlinks href=#hl-8-40>40</a>
+</span><span class=lnt id=hl-8-41><a class=lnlinks href=#hl-8-41>41</a>
+</span><span class=lnt id=hl-8-42><a class=lnlinks href=#hl-8-42>42</a>
+</span><span class=lnt id=hl-8-43><a class=lnlinks href=#hl-8-43>43</a>
+</span><span class=lnt id=hl-8-44><a class=lnlinks href=#hl-8-44>44</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>Term</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>coefficient</span><span class=p>,</span> <span class=n>exponent</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>coefficient</span> <span class=o>=</span> <span class=n>coefficient</span>  <span class=c1># 계수</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>exponent</span> <span class=o>=</span> <span class=n>exponent</span>  <span class=c1># 차수</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=kc>None</span>  <span class=c1># 다음 항을 가리키는 포인터</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>Polynomial</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>head</span> <span class=o>=</span> <span class=kc>None</span>  <span class=c1># 첫 번째 항</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>add_term</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>coefficient</span><span class=p>,</span> <span class=n>exponent</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>new_term</span> <span class=o>=</span> <span class=n>Term</span><span class=p>(</span><span class=n>coefficient</span><span class=p>,</span> <span class=n>exponent</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span> <span class=ow>or</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span><span class=o>.</span><span class=n>exponent</span> <span class=o>&lt;</span> <span class=n>exponent</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>new_term</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>head</span> <span class=o>=</span> <span class=n>new_term</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=n>current</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span>
+</span></span><span class=line><span class=cl>        <span class=k>while</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span> <span class=ow>and</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span><span class=o>.</span><span class=n>exponent</span> <span class=o>&gt;</span> <span class=n>exponent</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>current</span> <span class=o>=</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span> <span class=ow>and</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span><span class=o>.</span><span class=n>exponent</span> <span class=o>==</span> <span class=n>exponent</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>current</span><span class=o>.</span><span class=n>next</span><span class=o>.</span><span class=n>coefficient</span> <span class=o>+=</span> <span class=n>coefficient</span>  <span class=c1># 같은 차수 항이면 계수 더하기</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>new_term</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span>
+</span></span><span class=line><span class=cl>            <span class=n>current</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=n>new_term</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>display</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>current</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span>
+</span></span><span class=line><span class=cl>        <span class=n>result</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>        <span class=k>while</span> <span class=n>current</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>result</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>current</span><span class=o>.</span><span class=n>coefficient</span><span class=si>}</span><span class=s2>x^</span><span class=si>{</span><span class=n>current</span><span class=o>.</span><span class=n>exponent</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=n>current</span> <span class=o>=</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34; + &#34;</span><span class=o>.</span><span class=n>join</span><span class=p>(</span><span class=n>result</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 다항식 표현 예시</span>
+</span></span><span class=line><span class=cl><span class=n>poly1</span> <span class=o>=</span> <span class=n>Polynomial</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=n>poly1</span><span class=o>.</span><span class=n>add_term</span><span class=p>(</span><span class=mi>3</span><span class=p>,</span> <span class=mi>2</span><span class=p>)</span>  <span class=c1># 3x^2</span>
+</span></span><span class=line><span class=cl><span class=n>poly1</span><span class=o>.</span><span class=n>add_term</span><span class=p>(</span><span class=mi>5</span><span class=p>,</span> <span class=mi>3</span><span class=p>)</span>  <span class=c1># 5x^3</span>
+</span></span><span class=line><span class=cl><span class=n>poly1</span><span class=o>.</span><span class=n>add_term</span><span class=p>(</span><span class=mi>2</span><span class=p>,</span> <span class=mi>1</span><span class=p>)</span>  <span class=c1># 2x^1</span>
+</span></span><span class=line><span class=cl><span class=n>poly1</span><span class=o>.</span><span class=n>add_term</span><span class=p>(</span><span class=mi>4</span><span class=p>,</span> <span class=mi>3</span><span class=p>)</span>  <span class=c1># 기존 5x^3에 4 추가 -&gt; 9x^3</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>poly1</span><span class=o>.</span><span class=n>display</span><span class=p>()</span>  <span class=c1># 출력: 9x^3 + 3x^2 + 2x^1</span>
+</span></span></code></pre></td></tr></table></div></div></li></ol><h3 id=실제-연결-리스트-구현-예제>실제 연결 리스트 구현 예제<a hidden class=anchor aria-hidden=true href=#실제-연결-리스트-구현-예제>#</a></h3><ol><li><p>단일 연결 리스트 전체 구현</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-9-1><a class=lnlinks href=#hl-9-1>  1</a>
+</span><span class=lnt id=hl-9-2><a class=lnlinks href=#hl-9-2>  2</a>
+</span><span class=lnt id=hl-9-3><a class=lnlinks href=#hl-9-3>  3</a>
+</span><span class=lnt id=hl-9-4><a class=lnlinks href=#hl-9-4>  4</a>
+</span><span class=lnt id=hl-9-5><a class=lnlinks href=#hl-9-5>  5</a>
+</span><span class=lnt id=hl-9-6><a class=lnlinks href=#hl-9-6>  6</a>
+</span><span class=lnt id=hl-9-7><a class=lnlinks href=#hl-9-7>  7</a>
+</span><span class=lnt id=hl-9-8><a class=lnlinks href=#hl-9-8>  8</a>
+</span><span class=lnt id=hl-9-9><a class=lnlinks href=#hl-9-9>  9</a>
+</span><span class=lnt id=hl-9-10><a class=lnlinks href=#hl-9-10> 10</a>
+</span><span class=lnt id=hl-9-11><a class=lnlinks href=#hl-9-11> 11</a>
+</span><span class=lnt id=hl-9-12><a class=lnlinks href=#hl-9-12> 12</a>
+</span><span class=lnt id=hl-9-13><a class=lnlinks href=#hl-9-13> 13</a>
+</span><span class=lnt id=hl-9-14><a class=lnlinks href=#hl-9-14> 14</a>
+</span><span class=lnt id=hl-9-15><a class=lnlinks href=#hl-9-15> 15</a>
+</span><span class=lnt id=hl-9-16><a class=lnlinks href=#hl-9-16> 16</a>
+</span><span class=lnt id=hl-9-17><a class=lnlinks href=#hl-9-17> 17</a>
+</span><span class=lnt id=hl-9-18><a class=lnlinks href=#hl-9-18> 18</a>
+</span><span class=lnt id=hl-9-19><a class=lnlinks href=#hl-9-19> 19</a>
+</span><span class=lnt id=hl-9-20><a class=lnlinks href=#hl-9-20> 20</a>
+</span><span class=lnt id=hl-9-21><a class=lnlinks href=#hl-9-21> 21</a>
+</span><span class=lnt id=hl-9-22><a class=lnlinks href=#hl-9-22> 22</a>
+</span><span class=lnt id=hl-9-23><a class=lnlinks href=#hl-9-23> 23</a>
+</span><span class=lnt id=hl-9-24><a class=lnlinks href=#hl-9-24> 24</a>
+</span><span class=lnt id=hl-9-25><a class=lnlinks href=#hl-9-25> 25</a>
+</span><span class=lnt id=hl-9-26><a class=lnlinks href=#hl-9-26> 26</a>
+</span><span class=lnt id=hl-9-27><a class=lnlinks href=#hl-9-27> 27</a>
+</span><span class=lnt id=hl-9-28><a class=lnlinks href=#hl-9-28> 28</a>
+</span><span class=lnt id=hl-9-29><a class=lnlinks href=#hl-9-29> 29</a>
+</span><span class=lnt id=hl-9-30><a class=lnlinks href=#hl-9-30> 30</a>
+</span><span class=lnt id=hl-9-31><a class=lnlinks href=#hl-9-31> 31</a>
+</span><span class=lnt id=hl-9-32><a class=lnlinks href=#hl-9-32> 32</a>
+</span><span class=lnt id=hl-9-33><a class=lnlinks href=#hl-9-33> 33</a>
+</span><span class=lnt id=hl-9-34><a class=lnlinks href=#hl-9-34> 34</a>
+</span><span class=lnt id=hl-9-35><a class=lnlinks href=#hl-9-35> 35</a>
+</span><span class=lnt id=hl-9-36><a class=lnlinks href=#hl-9-36> 36</a>
+</span><span class=lnt id=hl-9-37><a class=lnlinks href=#hl-9-37> 37</a>
+</span><span class=lnt id=hl-9-38><a class=lnlinks href=#hl-9-38> 38</a>
+</span><span class=lnt id=hl-9-39><a class=lnlinks href=#hl-9-39> 39</a>
+</span><span class=lnt id=hl-9-40><a class=lnlinks href=#hl-9-40> 40</a>
+</span><span class=lnt id=hl-9-41><a class=lnlinks href=#hl-9-41> 41</a>
+</span><span class=lnt id=hl-9-42><a class=lnlinks href=#hl-9-42> 42</a>
+</span><span class=lnt id=hl-9-43><a class=lnlinks href=#hl-9-43> 43</a>
+</span><span class=lnt id=hl-9-44><a class=lnlinks href=#hl-9-44> 44</a>
+</span><span class=lnt id=hl-9-45><a class=lnlinks href=#hl-9-45> 45</a>
+</span><span class=lnt id=hl-9-46><a class=lnlinks href=#hl-9-46> 46</a>
+</span><span class=lnt id=hl-9-47><a class=lnlinks href=#hl-9-47> 47</a>
+</span><span class=lnt id=hl-9-48><a class=lnlinks href=#hl-9-48> 48</a>
+</span><span class=lnt id=hl-9-49><a class=lnlinks href=#hl-9-49> 49</a>
+</span><span class=lnt id=hl-9-50><a class=lnlinks href=#hl-9-50> 50</a>
+</span><span class=lnt id=hl-9-51><a class=lnlinks href=#hl-9-51> 51</a>
+</span><span class=lnt id=hl-9-52><a class=lnlinks href=#hl-9-52> 52</a>
+</span><span class=lnt id=hl-9-53><a class=lnlinks href=#hl-9-53> 53</a>
+</span><span class=lnt id=hl-9-54><a class=lnlinks href=#hl-9-54> 54</a>
+</span><span class=lnt id=hl-9-55><a class=lnlinks href=#hl-9-55> 55</a>
+</span><span class=lnt id=hl-9-56><a class=lnlinks href=#hl-9-56> 56</a>
+</span><span class=lnt id=hl-9-57><a class=lnlinks href=#hl-9-57> 57</a>
+</span><span class=lnt id=hl-9-58><a class=lnlinks href=#hl-9-58> 58</a>
+</span><span class=lnt id=hl-9-59><a class=lnlinks href=#hl-9-59> 59</a>
+</span><span class=lnt id=hl-9-60><a class=lnlinks href=#hl-9-60> 60</a>
+</span><span class=lnt id=hl-9-61><a class=lnlinks href=#hl-9-61> 61</a>
+</span><span class=lnt id=hl-9-62><a class=lnlinks href=#hl-9-62> 62</a>
+</span><span class=lnt id=hl-9-63><a class=lnlinks href=#hl-9-63> 63</a>
+</span><span class=lnt id=hl-9-64><a class=lnlinks href=#hl-9-64> 64</a>
+</span><span class=lnt id=hl-9-65><a class=lnlinks href=#hl-9-65> 65</a>
+</span><span class=lnt id=hl-9-66><a class=lnlinks href=#hl-9-66> 66</a>
+</span><span class=lnt id=hl-9-67><a class=lnlinks href=#hl-9-67> 67</a>
+</span><span class=lnt id=hl-9-68><a class=lnlinks href=#hl-9-68> 68</a>
+</span><span class=lnt id=hl-9-69><a class=lnlinks href=#hl-9-69> 69</a>
+</span><span class=lnt id=hl-9-70><a class=lnlinks href=#hl-9-70> 70</a>
+</span><span class=lnt id=hl-9-71><a class=lnlinks href=#hl-9-71> 71</a>
+</span><span class=lnt id=hl-9-72><a class=lnlinks href=#hl-9-72> 72</a>
+</span><span class=lnt id=hl-9-73><a class=lnlinks href=#hl-9-73> 73</a>
+</span><span class=lnt id=hl-9-74><a class=lnlinks href=#hl-9-74> 74</a>
+</span><span class=lnt id=hl-9-75><a class=lnlinks href=#hl-9-75> 75</a>
+</span><span class=lnt id=hl-9-76><a class=lnlinks href=#hl-9-76> 76</a>
+</span><span class=lnt id=hl-9-77><a class=lnlinks href=#hl-9-77> 77</a>
+</span><span class=lnt id=hl-9-78><a class=lnlinks href=#hl-9-78> 78</a>
+</span><span class=lnt id=hl-9-79><a class=lnlinks href=#hl-9-79> 79</a>
+</span><span class=lnt id=hl-9-80><a class=lnlinks href=#hl-9-80> 80</a>
+</span><span class=lnt id=hl-9-81><a class=lnlinks href=#hl-9-81> 81</a>
+</span><span class=lnt id=hl-9-82><a class=lnlinks href=#hl-9-82> 82</a>
+</span><span class=lnt id=hl-9-83><a class=lnlinks href=#hl-9-83> 83</a>
+</span><span class=lnt id=hl-9-84><a class=lnlinks href=#hl-9-84> 84</a>
+</span><span class=lnt id=hl-9-85><a class=lnlinks href=#hl-9-85> 85</a>
+</span><span class=lnt id=hl-9-86><a class=lnlinks href=#hl-9-86> 86</a>
+</span><span class=lnt id=hl-9-87><a class=lnlinks href=#hl-9-87> 87</a>
+</span><span class=lnt id=hl-9-88><a class=lnlinks href=#hl-9-88> 88</a>
+</span><span class=lnt id=hl-9-89><a class=lnlinks href=#hl-9-89> 89</a>
+</span><span class=lnt id=hl-9-90><a class=lnlinks href=#hl-9-90> 90</a>
+</span><span class=lnt id=hl-9-91><a class=lnlinks href=#hl-9-91> 91</a>
+</span><span class=lnt id=hl-9-92><a class=lnlinks href=#hl-9-92> 92</a>
+</span><span class=lnt id=hl-9-93><a class=lnlinks href=#hl-9-93> 93</a>
+</span><span class=lnt id=hl-9-94><a class=lnlinks href=#hl-9-94> 94</a>
+</span><span class=lnt id=hl-9-95><a class=lnlinks href=#hl-9-95> 95</a>
+</span><span class=lnt id=hl-9-96><a class=lnlinks href=#hl-9-96> 96</a>
+</span><span class=lnt id=hl-9-97><a class=lnlinks href=#hl-9-97> 97</a>
+</span><span class=lnt id=hl-9-98><a class=lnlinks href=#hl-9-98> 98</a>
+</span><span class=lnt id=hl-9-99><a class=lnlinks href=#hl-9-99> 99</a>
+</span><span class=lnt id=hl-9-100><a class=lnlinks href=#hl-9-100>100</a>
+</span><span class=lnt id=hl-9-101><a class=lnlinks href=#hl-9-101>101</a>
+</span><span class=lnt id=hl-9-102><a class=lnlinks href=#hl-9-102>102</a>
+</span><span class=lnt id=hl-9-103><a class=lnlinks href=#hl-9-103>103</a>
+</span><span class=lnt id=hl-9-104><a class=lnlinks href=#hl-9-104>104</a>
+</span><span class=lnt id=hl-9-105><a class=lnlinks href=#hl-9-105>105</a>
+</span><span class=lnt id=hl-9-106><a class=lnlinks href=#hl-9-106>106</a>
+</span><span class=lnt id=hl-9-107><a class=lnlinks href=#hl-9-107>107</a>
+</span><span class=lnt id=hl-9-108><a class=lnlinks href=#hl-9-108>108</a>
+</span><span class=lnt id=hl-9-109><a class=lnlinks href=#hl-9-109>109</a>
+</span><span class=lnt id=hl-9-110><a class=lnlinks href=#hl-9-110>110</a>
+</span><span class=lnt id=hl-9-111><a class=lnlinks href=#hl-9-111>111</a>
+</span><span class=lnt id=hl-9-112><a class=lnlinks href=#hl-9-112>112</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>Node</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>data</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>data</span> <span class=o>=</span> <span class=n>data</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>SinglyLinkedList</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>head</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 리스트 끝에 노드 추가</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>append</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>data</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>new_node</span> <span class=o>=</span> <span class=n>Node</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 리스트가 비어있는 경우</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>head</span> <span class=o>=</span> <span class=n>new_node</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 마지막 노드 찾기</span>
+</span></span><span class=line><span class=cl>        <span class=n>last</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span>
+</span></span><span class=line><span class=cl>        <span class=k>while</span> <span class=n>last</span><span class=o>.</span><span class=n>next</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>last</span> <span class=o>=</span> <span class=n>last</span><span class=o>.</span><span class=n>next</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 마지막 노드의 다음을 새 노드로 설정</span>
+</span></span><span class=line><span class=cl>        <span class=n>last</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=n>new_node</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 리스트 시작에 노드 추가</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>prepend</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>data</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>new_node</span> <span class=o>=</span> <span class=n>Node</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>new_node</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>head</span> <span class=o>=</span> <span class=n>new_node</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 특정 값 뒤에 노드 삽입</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>insert_after</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>prev_value</span><span class=p>,</span> <span class=n>data</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 리스트가 비어있는 경우</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 값 찾기</span>
+</span></span><span class=line><span class=cl>        <span class=n>current</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span>
+</span></span><span class=line><span class=cl>        <span class=k>while</span> <span class=n>current</span> <span class=ow>and</span> <span class=n>current</span><span class=o>.</span><span class=n>data</span> <span class=o>!=</span> <span class=n>prev_value</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>current</span> <span class=o>=</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 값을 찾지 못한 경우</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>current</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 새 노드 삽입</span>
+</span></span><span class=line><span class=cl>        <span class=n>new_node</span> <span class=o>=</span> <span class=n>Node</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>new_node</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span>
+</span></span><span class=line><span class=cl>        <span class=n>current</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=n>new_node</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 특정 값을 가진 노드 삭제</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>delete</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>value</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 빈 리스트 체크</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 헤드 노드가 삭제할 값을 가지는 경우</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span><span class=o>.</span><span class=n>data</span> <span class=o>==</span> <span class=n>value</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>head</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span><span class=o>.</span><span class=n>next</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 삭제할 노드 탐색</span>
+</span></span><span class=line><span class=cl>        <span class=n>current</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span>
+</span></span><span class=line><span class=cl>        <span class=k>while</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span> <span class=ow>and</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span><span class=o>.</span><span class=n>data</span> <span class=o>!=</span> <span class=n>value</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>current</span> <span class=o>=</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 값을 찾은 경우</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>current</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span><span class=o>.</span><span class=n>next</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 리스트 출력</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>print_list</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>current</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span>
+</span></span><span class=line><span class=cl>        <span class=k>while</span> <span class=n>current</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=nb>print</span><span class=p>(</span><span class=n>current</span><span class=o>.</span><span class=n>data</span><span class=p>,</span> <span class=n>end</span><span class=o>=</span><span class=s2>&#34; -&gt; &#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=n>current</span> <span class=o>=</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;None&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 리스트 길이 계산</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>length</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>count</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>        <span class=n>current</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span>
+</span></span><span class=line><span class=cl>        <span class=k>while</span> <span class=n>current</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>count</span> <span class=o>+=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>            <span class=n>current</span> <span class=o>=</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>count</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 리스트 검색</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>search</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>value</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>current</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span>
+</span></span><span class=line><span class=cl>        <span class=n>position</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>        <span class=k>while</span> <span class=n>current</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=n>current</span><span class=o>.</span><span class=n>data</span> <span class=o>==</span> <span class=n>value</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=k>return</span> <span class=n>position</span>
+</span></span><span class=line><span class=cl>            <span class=n>current</span> <span class=o>=</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span>
+</span></span><span class=line><span class=cl>            <span class=n>position</span> <span class=o>+=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=o>-</span><span class=mi>1</span>  <span class=c1># 값을 찾지 못함</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 리스트 뒤집기</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>reverse</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>prev</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>        <span class=n>current</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>while</span> <span class=n>current</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>next_node</span> <span class=o>=</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span>  <span class=c1># 다음 노드 저장</span>
+</span></span><span class=line><span class=cl>            <span class=n>current</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=n>prev</span>  <span class=c1># 현재 노드의 다음을 이전 노드로 변경</span>
+</span></span><span class=line><span class=cl>            <span class=n>prev</span> <span class=o>=</span> <span class=n>current</span>  <span class=c1># 이전 노드를 현재 노드로 업데이트</span>
+</span></span><span class=line><span class=cl>            <span class=n>current</span> <span class=o>=</span> <span class=n>next_node</span>  <span class=c1># 현재 노드를 다음 노드로 업데이트</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>head</span> <span class=o>=</span> <span class=n>prev</span>  <span class=c1># 헤드를 마지막 노드로 업데이트</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>이중 연결 리스트 기본 구현</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-10-1><a class=lnlinks href=#hl-10-1> 1</a>
+</span><span class=lnt id=hl-10-2><a class=lnlinks href=#hl-10-2> 2</a>
+</span><span class=lnt id=hl-10-3><a class=lnlinks href=#hl-10-3> 3</a>
+</span><span class=lnt id=hl-10-4><a class=lnlinks href=#hl-10-4> 4</a>
+</span><span class=lnt id=hl-10-5><a class=lnlinks href=#hl-10-5> 5</a>
+</span><span class=lnt id=hl-10-6><a class=lnlinks href=#hl-10-6> 6</a>
+</span><span class=lnt id=hl-10-7><a class=lnlinks href=#hl-10-7> 7</a>
+</span><span class=lnt id=hl-10-8><a class=lnlinks href=#hl-10-8> 8</a>
+</span><span class=lnt id=hl-10-9><a class=lnlinks href=#hl-10-9> 9</a>
+</span><span class=lnt id=hl-10-10><a class=lnlinks href=#hl-10-10>10</a>
+</span><span class=lnt id=hl-10-11><a class=lnlinks href=#hl-10-11>11</a>
+</span><span class=lnt id=hl-10-12><a class=lnlinks href=#hl-10-12>12</a>
+</span><span class=lnt id=hl-10-13><a class=lnlinks href=#hl-10-13>13</a>
+</span><span class=lnt id=hl-10-14><a class=lnlinks href=#hl-10-14>14</a>
+</span><span class=lnt id=hl-10-15><a class=lnlinks href=#hl-10-15>15</a>
+</span><span class=lnt id=hl-10-16><a class=lnlinks href=#hl-10-16>16</a>
+</span><span class=lnt id=hl-10-17><a class=lnlinks href=#hl-10-17>17</a>
+</span><span class=lnt id=hl-10-18><a class=lnlinks href=#hl-10-18>18</a>
+</span><span class=lnt id=hl-10-19><a class=lnlinks href=#hl-10-19>19</a>
+</span><span class=lnt id=hl-10-20><a class=lnlinks href=#hl-10-20>20</a>
+</span><span class=lnt id=hl-10-21><a class=lnlinks href=#hl-10-21>21</a>
+</span><span class=lnt id=hl-10-22><a class=lnlinks href=#hl-10-22>22</a>
+</span><span class=lnt id=hl-10-23><a class=lnlinks href=#hl-10-23>23</a>
+</span><span class=lnt id=hl-10-24><a class=lnlinks href=#hl-10-24>24</a>
+</span><span class=lnt id=hl-10-25><a class=lnlinks href=#hl-10-25>25</a>
+</span><span class=lnt id=hl-10-26><a class=lnlinks href=#hl-10-26>26</a>
+</span><span class=lnt id=hl-10-27><a class=lnlinks href=#hl-10-27>27</a>
+</span><span class=lnt id=hl-10-28><a class=lnlinks href=#hl-10-28>28</a>
+</span><span class=lnt id=hl-10-29><a class=lnlinks href=#hl-10-29>29</a>
+</span><span class=lnt id=hl-10-30><a class=lnlinks href=#hl-10-30>30</a>
+</span><span class=lnt id=hl-10-31><a class=lnlinks href=#hl-10-31>31</a>
+</span><span class=lnt id=hl-10-32><a class=lnlinks href=#hl-10-32>32</a>
+</span><span class=lnt id=hl-10-33><a class=lnlinks href=#hl-10-33>33</a>
+</span><span class=lnt id=hl-10-34><a class=lnlinks href=#hl-10-34>34</a>
+</span><span class=lnt id=hl-10-35><a class=lnlinks href=#hl-10-35>35</a>
+</span><span class=lnt id=hl-10-36><a class=lnlinks href=#hl-10-36>36</a>
+</span><span class=lnt id=hl-10-37><a class=lnlinks href=#hl-10-37>37</a>
+</span><span class=lnt id=hl-10-38><a class=lnlinks href=#hl-10-38>38</a>
+</span><span class=lnt id=hl-10-39><a class=lnlinks href=#hl-10-39>39</a>
+</span><span class=lnt id=hl-10-40><a class=lnlinks href=#hl-10-40>40</a>
+</span><span class=lnt id=hl-10-41><a class=lnlinks href=#hl-10-41>41</a>
+</span><span class=lnt id=hl-10-42><a class=lnlinks href=#hl-10-42>42</a>
+</span><span class=lnt id=hl-10-43><a class=lnlinks href=#hl-10-43>43</a>
+</span><span class=lnt id=hl-10-44><a class=lnlinks href=#hl-10-44>44</a>
+</span><span class=lnt id=hl-10-45><a class=lnlinks href=#hl-10-45>45</a>
+</span><span class=lnt id=hl-10-46><a class=lnlinks href=#hl-10-46>46</a>
+</span><span class=lnt id=hl-10-47><a class=lnlinks href=#hl-10-47>47</a>
+</span><span class=lnt id=hl-10-48><a class=lnlinks href=#hl-10-48>48</a>
+</span><span class=lnt id=hl-10-49><a class=lnlinks href=#hl-10-49>49</a>
+</span><span class=lnt id=hl-10-50><a class=lnlinks href=#hl-10-50>50</a>
+</span><span class=lnt id=hl-10-51><a class=lnlinks href=#hl-10-51>51</a>
+</span><span class=lnt id=hl-10-52><a class=lnlinks href=#hl-10-52>52</a>
+</span><span class=lnt id=hl-10-53><a class=lnlinks href=#hl-10-53>53</a>
+</span><span class=lnt id=hl-10-54><a class=lnlinks href=#hl-10-54>54</a>
+</span><span class=lnt id=hl-10-55><a class=lnlinks href=#hl-10-55>55</a>
+</span><span class=lnt id=hl-10-56><a class=lnlinks href=#hl-10-56>56</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>Node</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>data</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>data</span> <span class=o>=</span> <span class=n>data</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>prev</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>DoublyLinkedList</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>head</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>tail</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 리스트 끝에 노드 추가</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>append</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>data</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>new_node</span> <span class=o>=</span> <span class=n>Node</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 리스트가 비어있는 경우</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>head</span> <span class=o>=</span> <span class=n>new_node</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>tail</span> <span class=o>=</span> <span class=n>new_node</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 끝에 새 노드 추가</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>tail</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=n>new_node</span>
+</span></span><span class=line><span class=cl>        <span class=n>new_node</span><span class=o>.</span><span class=n>prev</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>tail</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>tail</span> <span class=o>=</span> <span class=n>new_node</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 리스트 시작에 노드 추가</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>prepend</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>data</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>new_node</span> <span class=o>=</span> <span class=n>Node</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 리스트가 비어있는 경우</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>head</span> <span class=o>=</span> <span class=n>new_node</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>tail</span> <span class=o>=</span> <span class=n>new_node</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 시작에 새 노드 추가</span>
+</span></span><span class=line><span class=cl>        <span class=n>new_node</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>head</span><span class=o>.</span><span class=n>prev</span> <span class=o>=</span> <span class=n>new_node</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>head</span> <span class=o>=</span> <span class=n>new_node</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 리스트 출력 (앞에서 뒤로)</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>print_forward</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>current</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span>
+</span></span><span class=line><span class=cl>        <span class=k>while</span> <span class=n>current</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=nb>print</span><span class=p>(</span><span class=n>current</span><span class=o>.</span><span class=n>data</span><span class=p>,</span> <span class=n>end</span><span class=o>=</span><span class=s2>&#34; &lt;-&gt; &#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=n>current</span> <span class=o>=</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;None&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 리스트 출력 (뒤에서 앞으로)</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>print_backward</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>current</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>tail</span>
+</span></span><span class=line><span class=cl>        <span class=k>while</span> <span class=n>current</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=nb>print</span><span class=p>(</span><span class=n>current</span><span class=o>.</span><span class=n>data</span><span class=p>,</span> <span class=n>end</span><span class=o>=</span><span class=s2>&#34; &lt;-&gt; &#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=n>current</span> <span class=o>=</span> <span class=n>current</span><span class=o>.</span><span class=n>prev</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;None&#34;</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div></li></ol><h3 id=고급-연결-리스트-기법과-최적화>고급 연결 리스트 기법과 최적화<a hidden class=anchor aria-hidden=true href=#고급-연결-리스트-기법과-최적화>#</a></h3><ol><li><p>센티넬 노드(Sentinel Node)<br>더미 노드를 사용하여 예외 케이스 처리를 단순화한다.<br>특히 빈 리스트를 처리할 때 유용하다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-11-1><a class=lnlinks href=#hl-11-1> 1</a>
+</span><span class=lnt id=hl-11-2><a class=lnlinks href=#hl-11-2> 2</a>
+</span><span class=lnt id=hl-11-3><a class=lnlinks href=#hl-11-3> 3</a>
+</span><span class=lnt id=hl-11-4><a class=lnlinks href=#hl-11-4> 4</a>
+</span><span class=lnt id=hl-11-5><a class=lnlinks href=#hl-11-5> 5</a>
+</span><span class=lnt id=hl-11-6><a class=lnlinks href=#hl-11-6> 6</a>
+</span><span class=lnt id=hl-11-7><a class=lnlinks href=#hl-11-7> 7</a>
+</span><span class=lnt id=hl-11-8><a class=lnlinks href=#hl-11-8> 8</a>
+</span><span class=lnt id=hl-11-9><a class=lnlinks href=#hl-11-9> 9</a>
+</span><span class=lnt id=hl-11-10><a class=lnlinks href=#hl-11-10>10</a>
+</span><span class=lnt id=hl-11-11><a class=lnlinks href=#hl-11-11>11</a>
+</span><span class=lnt id=hl-11-12><a class=lnlinks href=#hl-11-12>12</a>
+</span><span class=lnt id=hl-11-13><a class=lnlinks href=#hl-11-13>13</a>
+</span><span class=lnt id=hl-11-14><a class=lnlinks href=#hl-11-14>14</a>
+</span><span class=lnt id=hl-11-15><a class=lnlinks href=#hl-11-15>15</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>SinglyLinkedListWithSentinel</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>sentinel</span> <span class=o>=</span> <span class=n>Node</span><span class=p>(</span><span class=kc>None</span><span class=p>)</span>  <span class=c1># 센티넬 노드</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>size</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>append</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>data</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>new_node</span> <span class=o>=</span> <span class=n>Node</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>current</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>sentinel</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 마지막 노드 찾기</span>
+</span></span><span class=line><span class=cl>        <span class=k>while</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>current</span> <span class=o>=</span> <span class=n>current</span><span class=o>.</span><span class=n>next</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=n>current</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=n>new_node</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>size</span> <span class=o>+=</span> <span class=mi>1</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>런너 기법(Runner Technique)<br>두 개의 포인터(빠른 포인터와 느린 포인터)를 사용하여 리스트를 탐색하는 기법이다.<br>중간 노드 찾기, 사이클 감지 등에 유용합니다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-12-1><a class=lnlinks href=#hl-12-1> 1</a>
+</span><span class=lnt id=hl-12-2><a class=lnlinks href=#hl-12-2> 2</a>
+</span><span class=lnt id=hl-12-3><a class=lnlinks href=#hl-12-3> 3</a>
+</span><span class=lnt id=hl-12-4><a class=lnlinks href=#hl-12-4> 4</a>
+</span><span class=lnt id=hl-12-5><a class=lnlinks href=#hl-12-5> 5</a>
+</span><span class=lnt id=hl-12-6><a class=lnlinks href=#hl-12-6> 6</a>
+</span><span class=lnt id=hl-12-7><a class=lnlinks href=#hl-12-7> 7</a>
+</span><span class=lnt id=hl-12-8><a class=lnlinks href=#hl-12-8> 8</a>
+</span><span class=lnt id=hl-12-9><a class=lnlinks href=#hl-12-9> 9</a>
+</span><span class=lnt id=hl-12-10><a class=lnlinks href=#hl-12-10>10</a>
+</span><span class=lnt id=hl-12-11><a class=lnlinks href=#hl-12-11>11</a>
+</span><span class=lnt id=hl-12-12><a class=lnlinks href=#hl-12-12>12</a>
+</span><span class=lnt id=hl-12-13><a class=lnlinks href=#hl-12-13>13</a>
+</span><span class=lnt id=hl-12-14><a class=lnlinks href=#hl-12-14>14</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 연결 리스트의 중간 노드 찾기</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>find_middle</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>slow</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span>
+</span></span><span class=line><span class=cl>    <span class=n>fast</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 빠른 포인터가 끝에 도달하면 느린 포인터는 중간에 위치</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=n>fast</span> <span class=ow>and</span> <span class=n>fast</span><span class=o>.</span><span class=n>next</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>slow</span> <span class=o>=</span> <span class=n>slow</span><span class=o>.</span><span class=n>next</span>
+</span></span><span class=line><span class=cl>        <span class=n>fast</span> <span class=o>=</span> <span class=n>fast</span><span class=o>.</span><span class=n>next</span><span class=o>.</span><span class=n>next</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>slow</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>사이클 감지(Floyd&rsquo;s Cycle-Finding Algorithm)<br>런너 기법을 응용하여 연결 리스트의 사이클(순환)을 감지하는 알고리즘이다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-13-1><a class=lnlinks href=#hl-13-1> 1</a>
+</span><span class=lnt id=hl-13-2><a class=lnlinks href=#hl-13-2> 2</a>
+</span><span class=lnt id=hl-13-3><a class=lnlinks href=#hl-13-3> 3</a>
+</span><span class=lnt id=hl-13-4><a class=lnlinks href=#hl-13-4> 4</a>
+</span><span class=lnt id=hl-13-5><a class=lnlinks href=#hl-13-5> 5</a>
+</span><span class=lnt id=hl-13-6><a class=lnlinks href=#hl-13-6> 6</a>
+</span><span class=lnt id=hl-13-7><a class=lnlinks href=#hl-13-7> 7</a>
+</span><span class=lnt id=hl-13-8><a class=lnlinks href=#hl-13-8> 8</a>
+</span><span class=lnt id=hl-13-9><a class=lnlinks href=#hl-13-9> 9</a>
+</span><span class=lnt id=hl-13-10><a class=lnlinks href=#hl-13-10>10</a>
+</span><span class=lnt id=hl-13-11><a class=lnlinks href=#hl-13-11>11</a>
+</span><span class=lnt id=hl-13-12><a class=lnlinks href=#hl-13-12>12</a>
+</span><span class=lnt id=hl-13-13><a class=lnlinks href=#hl-13-13>13</a>
+</span><span class=lnt id=hl-13-14><a class=lnlinks href=#hl-13-14>14</a>
+</span><span class=lnt id=hl-13-15><a class=lnlinks href=#hl-13-15>15</a>
+</span><span class=lnt id=hl-13-16><a class=lnlinks href=#hl-13-16>16</a>
+</span><span class=lnt id=hl-13-17><a class=lnlinks href=#hl-13-17>17</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 연결 리스트의 사이클 감지</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>has_cycle</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>False</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>slow</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span>
+</span></span><span class=line><span class=cl>    <span class=n>fast</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>head</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=n>fast</span> <span class=ow>and</span> <span class=n>fast</span><span class=o>.</span><span class=n>next</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>slow</span> <span class=o>=</span> <span class=n>slow</span><span class=o>.</span><span class=n>next</span>
+</span></span><span class=line><span class=cl>        <span class=n>fast</span> <span class=o>=</span> <span class=n>fast</span><span class=o>.</span><span class=n>next</span><span class=o>.</span><span class=n>next</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 빠른 포인터가 느린 포인터를 따라잡으면 사이클 존재</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>slow</span> <span class=o>==</span> <span class=n>fast</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>True</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=kc>False</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>XOR 연결 리스트<br>메모리를 절약하기 위해 이중 연결 리스트에서 prev와 next 포인터 대신 XOR 연산을 사용하는 기법이다.<br>포인터 두 개 대신 하나로 양방향 탐색이 가능하다.</p></li></ol><h3 id=프로그래밍-언어별-연결-리스트-지원>프로그래밍 언어별 연결 리스트 지원<a hidden class=anchor aria-hidden=true href=#프로그래밍-언어별-연결-리스트-지원>#</a></h3><h4 id=c>C++<a hidden class=anchor aria-hidden=true href=#c>#</a></h4><p>STL에서 <code>std::list</code>와 <code>std::forward_list</code>를 제공합니다.</p><ul><li><code>std::list</code>: 이중 연결 리스트</li><li><code>std::forward_list</code>: 단일 연결 리스트</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-14-1><a class=lnlinks href=#hl-14-1> 1</a>
+</span><span class=lnt id=hl-14-2><a class=lnlinks href=#hl-14-2> 2</a>
+</span><span class=lnt id=hl-14-3><a class=lnlinks href=#hl-14-3> 3</a>
+</span><span class=lnt id=hl-14-4><a class=lnlinks href=#hl-14-4> 4</a>
+</span><span class=lnt id=hl-14-5><a class=lnlinks href=#hl-14-5> 5</a>
+</span><span class=lnt id=hl-14-6><a class=lnlinks href=#hl-14-6> 6</a>
+</span><span class=lnt id=hl-14-7><a class=lnlinks href=#hl-14-7> 7</a>
+</span><span class=lnt id=hl-14-8><a class=lnlinks href=#hl-14-8> 8</a>
+</span><span class=lnt id=hl-14-9><a class=lnlinks href=#hl-14-9> 9</a>
+</span><span class=lnt id=hl-14-10><a class=lnlinks href=#hl-14-10>10</a>
+</span><span class=lnt id=hl-14-11><a class=lnlinks href=#hl-14-11>11</a>
+</span><span class=lnt id=hl-14-12><a class=lnlinks href=#hl-14-12>12</a>
+</span><span class=lnt id=hl-14-13><a class=lnlinks href=#hl-14-13>13</a>
+</span><span class=lnt id=hl-14-14><a class=lnlinks href=#hl-14-14>14</a>
+</span><span class=lnt id=hl-14-15><a class=lnlinks href=#hl-14-15>15</a>
+</span><span class=lnt id=hl-14-16><a class=lnlinks href=#hl-14-16>16</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;list&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;iostream&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>std</span><span class=o>::</span><span class=n>list</span><span class=o>&lt;</span><span class=kt>int</span><span class=o>&gt;</span> <span class=n>myList</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=n>myList</span><span class=p>.</span><span class=n>push_back</span><span class=p>(</span><span class=mi>10</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>myList</span><span class=p>.</span><span class=n>push_back</span><span class=p>(</span><span class=mi>20</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>myList</span><span class=p>.</span><span class=n>push_front</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=p>(</span><span class=k>auto</span><span class=o>&amp;</span> <span class=nl>elem</span> <span class=p>:</span> <span class=n>myList</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>std</span><span class=o>::</span><span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=n>elem</span> <span class=o>&lt;&lt;</span> <span class=s>&#34; &#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=java>Java<a hidden class=anchor aria-hidden=true href=#java>#</a></h4><p><code>java.util</code> 패키지에서 <code>LinkedList</code> 클래스를 제공한다. 이중 연결 리스트로 구현되어 있다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-15-1><a class=lnlinks href=#hl-15-1> 1</a>
+</span><span class=lnt id=hl-15-2><a class=lnlinks href=#hl-15-2> 2</a>
+</span><span class=lnt id=hl-15-3><a class=lnlinks href=#hl-15-3> 3</a>
+</span><span class=lnt id=hl-15-4><a class=lnlinks href=#hl-15-4> 4</a>
+</span><span class=lnt id=hl-15-5><a class=lnlinks href=#hl-15-5> 5</a>
+</span><span class=lnt id=hl-15-6><a class=lnlinks href=#hl-15-6> 6</a>
+</span><span class=lnt id=hl-15-7><a class=lnlinks href=#hl-15-7> 7</a>
+</span><span class=lnt id=hl-15-8><a class=lnlinks href=#hl-15-8> 8</a>
+</span><span class=lnt id=hl-15-9><a class=lnlinks href=#hl-15-9> 9</a>
+</span><span class=lnt id=hl-15-10><a class=lnlinks href=#hl-15-10>10</a>
+</span><span class=lnt id=hl-15-11><a class=lnlinks href=#hl-15-11>11</a>
+</span><span class=lnt id=hl-15-12><a class=lnlinks href=#hl-15-12>12</a>
+</span><span class=lnt id=hl-15-13><a class=lnlinks href=#hl-15-13>13</a>
+</span><span class=lnt id=hl-15-14><a class=lnlinks href=#hl-15-14>14</a>
+</span><span class=lnt id=hl-15-15><a class=lnlinks href=#hl-15-15>15</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-java data-lang=java><span class=line><span class=cl><span class=kn>import</span><span class=w> </span><span class=nn>java.util.LinkedList</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=kd>public</span><span class=w> </span><span class=kd>class</span> <span class=nc>Main</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>public</span><span class=w> </span><span class=kd>static</span><span class=w> </span><span class=kt>void</span><span class=w> </span><span class=nf>main</span><span class=p>(</span><span class=n>String</span><span class=o>[]</span><span class=w> </span><span class=n>args</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>LinkedList</span><span class=o>&lt;</span><span class=n>Integer</span><span class=o>&gt;</span><span class=w> </span><span class=n>list</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=k>new</span><span class=w> </span><span class=n>LinkedList</span><span class=o>&lt;&gt;</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>list</span><span class=p>.</span><span class=na>add</span><span class=p>(</span><span class=n>10</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>list</span><span class=p>.</span><span class=na>add</span><span class=p>(</span><span class=n>20</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>list</span><span class=p>.</span><span class=na>addFirst</span><span class=p>(</span><span class=n>5</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>for</span><span class=w> </span><span class=p>(</span><span class=n>Integer</span><span class=w> </span><span class=n>item</span><span class=w> </span><span class=p>:</span><span class=w> </span><span class=n>list</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>System</span><span class=p>.</span><span class=na>out</span><span class=p>.</span><span class=na>print</span><span class=p>(</span><span class=n>item</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=s>&#34; &#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h4 id=javascript>JavaScript<a hidden class=anchor aria-hidden=true href=#javascript>#</a></h4><p>내장 지원은 없지만 직접 구현이 가능합니다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-16-1><a class=lnlinks href=#hl-16-1> 1</a>
+</span><span class=lnt id=hl-16-2><a class=lnlinks href=#hl-16-2> 2</a>
+</span><span class=lnt id=hl-16-3><a class=lnlinks href=#hl-16-3> 3</a>
+</span><span class=lnt id=hl-16-4><a class=lnlinks href=#hl-16-4> 4</a>
+</span><span class=lnt id=hl-16-5><a class=lnlinks href=#hl-16-5> 5</a>
+</span><span class=lnt id=hl-16-6><a class=lnlinks href=#hl-16-6> 6</a>
+</span><span class=lnt id=hl-16-7><a class=lnlinks href=#hl-16-7> 7</a>
+</span><span class=lnt id=hl-16-8><a class=lnlinks href=#hl-16-8> 8</a>
+</span><span class=lnt id=hl-16-9><a class=lnlinks href=#hl-16-9> 9</a>
+</span><span class=lnt id=hl-16-10><a class=lnlinks href=#hl-16-10>10</a>
+</span><span class=lnt id=hl-16-11><a class=lnlinks href=#hl-16-11>11</a>
+</span><span class=lnt id=hl-16-12><a class=lnlinks href=#hl-16-12>12</a>
+</span><span class=lnt id=hl-16-13><a class=lnlinks href=#hl-16-13>13</a>
+</span><span class=lnt id=hl-16-14><a class=lnlinks href=#hl-16-14>14</a>
+</span><span class=lnt id=hl-16-15><a class=lnlinks href=#hl-16-15>15</a>
+</span><span class=lnt id=hl-16-16><a class=lnlinks href=#hl-16-16>16</a>
+</span><span class=lnt id=hl-16-17><a class=lnlinks href=#hl-16-17>17</a>
+</span><span class=lnt id=hl-16-18><a class=lnlinks href=#hl-16-18>18</a>
+</span><span class=lnt id=hl-16-19><a class=lnlinks href=#hl-16-19>19</a>
+</span><span class=lnt id=hl-16-20><a class=lnlinks href=#hl-16-20>20</a>
+</span><span class=lnt id=hl-16-21><a class=lnlinks href=#hl-16-21>21</a>
+</span><span class=lnt id=hl-16-22><a class=lnlinks href=#hl-16-22>22</a>
+</span><span class=lnt id=hl-16-23><a class=lnlinks href=#hl-16-23>23</a>
+</span><span class=lnt id=hl-16-24><a class=lnlinks href=#hl-16-24>24</a>
+</span><span class=lnt id=hl-16-25><a class=lnlinks href=#hl-16-25>25</a>
+</span><span class=lnt id=hl-16-26><a class=lnlinks href=#hl-16-26>26</a>
+</span><span class=lnt id=hl-16-27><a class=lnlinks href=#hl-16-27>27</a>
+</span><span class=lnt id=hl-16-28><a class=lnlinks href=#hl-16-28>28</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=kr>class</span> <span class=nx>Node</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>constructor</span><span class=p>(</span><span class=nx>data</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=p>.</span><span class=nx>data</span> <span class=o>=</span> <span class=nx>data</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=p>.</span><span class=nx>next</span> <span class=o>=</span> <span class=kc>null</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kr>class</span> <span class=nx>LinkedList</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>constructor</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=p>.</span><span class=nx>head</span> <span class=o>=</span> <span class=kc>null</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=nx>append</span><span class=p>(</span><span class=nx>data</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kr>const</span> <span class=nx>newNode</span> <span class=o>=</span> <span class=k>new</span> <span class=nx>Node</span><span class=p>(</span><span class=nx>data</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=k>this</span><span class=p>.</span><span class=nx>head</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>this</span><span class=p>.</span><span class=nx>head</span> <span class=o>=</span> <span class=nx>newNode</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=kd>let</span> <span class=nx>current</span> <span class=o>=</span> <span class=k>this</span><span class=p>.</span><span class=nx>head</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>while</span> <span class=p>(</span><span class=nx>current</span><span class=p>.</span><span class=nx>next</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>current</span> <span class=o>=</span> <span class=nx>current</span><span class=p>.</span><span class=nx>next</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=nx>current</span><span class=p>.</span><span class=nx>next</span> <span class=o>=</span> <span class=nx>newNode</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=python>Python<a hidden class=anchor aria-hidden=true href=#python>#</a></h4><p>내장 지원은 없지만 <code>collections</code> 모듈의 <code>deque</code>가 이중 연결 리스트로 구현되어 있다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-17-1><a class=lnlinks href=#hl-17-1>1</a>
+</span><span class=lnt id=hl-17-2><a class=lnlinks href=#hl-17-2>2</a>
+</span><span class=lnt id=hl-17-3><a class=lnlinks href=#hl-17-3>3</a>
+</span><span class=lnt id=hl-17-4><a class=lnlinks href=#hl-17-4>4</a>
+</span><span class=lnt id=hl-17-5><a class=lnlinks href=#hl-17-5>5</a>
+</span><span class=lnt id=hl-17-6><a class=lnlinks href=#hl-17-6>6</a>
+</span><span class=lnt id=hl-17-7><a class=lnlinks href=#hl-17-7>7</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>collections</span> <span class=kn>import</span> <span class=n>deque</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># deque는 이중 연결 리스트 기반으로 구현됨</span>
+</span></span><span class=line><span class=cl><span class=n>d</span> <span class=o>=</span> <span class=n>deque</span><span class=p>([</span><span class=mi>1</span><span class=p>,</span> <span class=mi>2</span><span class=p>,</span> <span class=mi>3</span><span class=p>])</span>
+</span></span><span class=line><span class=cl><span class=n>d</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=mi>4</span><span class=p>)</span>        <span class=c1># 오른쪽 끝에 추가</span>
+</span></span><span class=line><span class=cl><span class=n>d</span><span class=o>.</span><span class=n>appendleft</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span>    <span class=c1># 왼쪽 끝에 추가</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>d</span><span class=p>)</span>           <span class=c1># deque([0, 1, 2, 3, 4])</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=연결-리스트-문제-해결-전략과-연습-문제>연결 리스트 문제 해결 전략과 연습 문제<a hidden class=anchor aria-hidden=true href=#연결-리스트-문제-해결-전략과-연습-문제>#</a></h3><h4 id=문제-해결-전략>문제 해결 전략<a hidden class=anchor aria-hidden=true href=#문제-해결-전략>#</a></h4><ol><li><strong>경계 조건 확인</strong>: 빈 리스트, 단일 노드 리스트, 다중 노드 리스트 등</li><li><strong>포인터 활용</strong>: 런너 기법, 여러 포인터 활용</li><li><strong>재귀적 접근</strong>: 일부 문제는 재귀를 통해 더 간결하게 해결 가능</li></ol><h4 id=대표적인-연습-문제>대표적인 연습 문제<a hidden class=anchor aria-hidden=true href=#대표적인-연습-문제>#</a></h4><ol><li><strong>두 연결 리스트 병합하기</strong>: 두 정렬된 연결 리스트를 병합하여 하나의 정렬된 리스트 만들기</li><li><strong>리스트 뒤집기</strong>: 연결 리스트의 노드 순서를 뒤집기</li><li><strong>k번째 노드 삭제</strong>: 끝에서 k번째 노드 찾아 삭제하기</li><li><strong>팰린드롬 확인</strong>: 연결 리스트가 팰린드롬인지 확인하기</li><li><strong>사이클 찾기</strong>: 연결 리스트 내 사이클 감지 및 시작점 찾기</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-18-1><a class=lnlinks href=#hl-18-1> 1</a>
+</span><span class=lnt id=hl-18-2><a class=lnlinks href=#hl-18-2> 2</a>
+</span><span class=lnt id=hl-18-3><a class=lnlinks href=#hl-18-3> 3</a>
+</span><span class=lnt id=hl-18-4><a class=lnlinks href=#hl-18-4> 4</a>
+</span><span class=lnt id=hl-18-5><a class=lnlinks href=#hl-18-5> 5</a>
+</span><span class=lnt id=hl-18-6><a class=lnlinks href=#hl-18-6> 6</a>
+</span><span class=lnt id=hl-18-7><a class=lnlinks href=#hl-18-7> 7</a>
+</span><span class=lnt id=hl-18-8><a class=lnlinks href=#hl-18-8> 8</a>
+</span><span class=lnt id=hl-18-9><a class=lnlinks href=#hl-18-9> 9</a>
+</span><span class=lnt id=hl-18-10><a class=lnlinks href=#hl-18-10>10</a>
+</span><span class=lnt id=hl-18-11><a class=lnlinks href=#hl-18-11>11</a>
+</span><span class=lnt id=hl-18-12><a class=lnlinks href=#hl-18-12>12</a>
+</span><span class=lnt id=hl-18-13><a class=lnlinks href=#hl-18-13>13</a>
+</span><span class=lnt id=hl-18-14><a class=lnlinks href=#hl-18-14>14</a>
+</span><span class=lnt id=hl-18-15><a class=lnlinks href=#hl-18-15>15</a>
+</span><span class=lnt id=hl-18-16><a class=lnlinks href=#hl-18-16>16</a>
+</span><span class=lnt id=hl-18-17><a class=lnlinks href=#hl-18-17>17</a>
+</span><span class=lnt id=hl-18-18><a class=lnlinks href=#hl-18-18>18</a>
+</span><span class=lnt id=hl-18-19><a class=lnlinks href=#hl-18-19>19</a>
+</span><span class=lnt id=hl-18-20><a class=lnlinks href=#hl-18-20>20</a>
+</span><span class=lnt id=hl-18-21><a class=lnlinks href=#hl-18-21>21</a>
+</span><span class=lnt id=hl-18-22><a class=lnlinks href=#hl-18-22>22</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 두 정렬된 연결 리스트 병합</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>merge_two_lists</span><span class=p>(</span><span class=n>l1</span><span class=p>,</span> <span class=n>l2</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 더미 헤드 노드 생성</span>
+</span></span><span class=line><span class=cl>    <span class=n>dummy</span> <span class=o>=</span> <span class=n>Node</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>tail</span> <span class=o>=</span> <span class=n>dummy</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=n>l1</span> <span class=ow>and</span> <span class=n>l2</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>l1</span><span class=o>.</span><span class=n>data</span> <span class=o>&lt;=</span> <span class=n>l2</span><span class=o>.</span><span class=n>data</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>tail</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=n>l1</span>
+</span></span><span class=line><span class=cl>            <span class=n>l1</span> <span class=o>=</span> <span class=n>l1</span><span class=o>.</span><span class=n>next</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>tail</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=n>l2</span>
+</span></span><span class=line><span class=cl>            <span class=n>l2</span> <span class=o>=</span> <span class=n>l2</span><span class=o>.</span><span class=n>next</span>
+</span></span><span class=line><span class=cl>        <span class=n>tail</span> <span class=o>=</span> <span class=n>tail</span><span class=o>.</span><span class=n>next</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 남은 노드 연결</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>l1</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>tail</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=n>l1</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>l2</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>tail</span><span class=o>.</span><span class=n>next</span> <span class=o>=</span> <span class=n>l2</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>dummy</span><span class=o>.</span><span class=n>next</span>
+</span></span></code></pre></td></tr></table></div></div><hr><h2 id=참고-및-출처>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처>#</a></h2></div><article class=post-entry><header class=entry-header><h2 class=entry-hint-parent>Circular Linked List</h2></header><div class=entry-content><p>Circular Linked List 이는 Linked List의 한 변형으로, 데이터를 저장하고 조직하는 특정한 방식을 제공한다.
+Circular Linked List(원형 연결 리스트)는 마지막 노드가 첫 번째 노드를 가리키는 연결 리스트의 변형이다.
+이 구조에서는 리스트의 끝이 존재하지 않으며, 모든 노드가 연결되어 원을 형성한다.
+https://www.geeksforgeeks.org/circular-linked-list/
+특징 마지막 노드의 next 포인터가 NULL이 아닌 첫 번째 노드를 가리킨다. 리스트의 어느 노드에서 시작하더라도 모든 노드를 순회할 수 있다. 리스트의 끝과 시작이 연결되어 있어 순환 구조를 가진다. 장점 리스트의 처음이나 마지막에 노드를 삽입하는 연산이 편리하다. 하나의 노드에서 다른 모든 노드로의 접근이 가능하다. 순환적인 데이터 구조를 표현하기에 적합하다. 메모리를 효율적으로 사용할 수 있다. 단점 구현이 단순 연결 리스트보다 복잡하다. 무한 루프에 빠질 가능성이 있어 순회 중단이 어려울 수 있다. 노드 삭제 시 이전 노드를 찾기 위해 전체 리스트를 순회해야 할 수 있다. 응용 Circular Linked List는 다음과 같은 상황에서 유용하게 사용된다:
+...</p></div><footer class=entry-footer><span title='2024-10-08 12:59:00 +0000 UTC'>October 8, 2024</span>&nbsp;·&nbsp;2 min&nbsp;·&nbsp;371 words&nbsp;·&nbsp;Me</footer><a class=entry-link aria-label="post link to Circular Linked List" href=https://buenhyden.github.io/posts/data-structures-and-algorithms/data-structures/linked-list/circular-linked-list/></a></article><article class=post-entry><header class=entry-header><h2 class=entry-hint-parent>Doubly Linked List</h2></header><div class=entry-content><p>Doubly Linked List Doubly Linked List는 노드들이 양방향으로 연결된 선형 데이터 구조로, 각 노드가 데이터와 이전 노드, 다음 노드를 가리키는 포인터를 포함하고 있다.
+Doubly Linked List는 각 노드가 데이터와 두 개의 링크 필드를 가지고 있는 있으며, 이 두 개의 링크는 이전 노드(previous node)와 다음 노드(next node)를 가리킨다.
+이러한 구조로 인해 리스트의 양방향 순회가 가능해진다.
+![Doubly Linked List](Insertion-at-the-End-in-Doubly-Linked-List-copy.webp “https://www.geeksforgeeks.org/doubly-linked-list/ _
+특징 양방향 연결: 각 노드는 이전 노드와 다음 노드를 모두 가리킨다. 헤드와 테일: 리스트의 시작(헤드)과 끝(테일)을 모두 가리키는 포인터를 유지한다. 순환 구조: 마지막 노드의 다음 노드는 첫 번째 노드를, 첫 번째 노드의 이전 노드는 마지막 노드를 가리킬 수 있다. 장점 양방향 탐색: 리스트를 앞뒤로 탐색할 수 있어 효율적인 검색이 가능하다. 삽입과 삭제의 효율성: 노드의 삽입과 삭제가 O(1) 시간 복잡도로 수행된다. 리스트 끝에서의 연산: 테일 포인터를 통해 리스트의 마지막 요소에 즉시 접근할 수 있다. 단점 메모리 사용량 증가: 각 노드가 두 개의 포인터를 저장해야 하므로 메모리 사용량이 증가한다. 구현의 복잡성: 단일 연결 리스트에 비해 구현이 더 복잡하다. 삽입과 삭제 시 포인터 조작: 노드 삽입과 삭제 시 여러 포인터를 조작해야 한다. 응용 웹 브라우저의 앞으로/뒤로 탐색 기능 음악 플레이어의 재생 목록 운영 체제의 작업 스케줄링 캐시 구현 복잡한 데이터 구조(예: 그래프)의 기본 구성 요소 동작 원리 삽입: 새 노드를 생성하고 이전 노드와 다음 노드의 포인터를 적절히 조정한다. 삭제: 삭제할 노드의 이전 노드와 다음 노드를 서로 연결하고 해당 노드를 메모리에서 해제한다. 탐색: 헤드나 테일에서 시작하여 원하는 노드를 찾을 때까지 포인터를 따라 이동한다. 구성 요소 노드: 데이터와 이전/다음 노드를 가리키는 두 개의 포인터로 구성된다. 헤드 포인터: 리스트의 첫 번째 노드를 가리킨다. 테일 포인터: 리스트의 마지막 노드를 가리킨다. 구현 방식 JavaScript를 사용한 Doubly Linked List 구현 예시:
+...</p></div><footer class=entry-footer><span title='2024-10-08 12:59:00 +0000 UTC'>October 8, 2024</span>&nbsp;·&nbsp;3 min&nbsp;·&nbsp;573 words&nbsp;·&nbsp;Me</footer><a class=entry-link aria-label="post link to Doubly Linked List" href=https://buenhyden.github.io/posts/data-structures-and-algorithms/data-structures/linked-list/doubly-linked-list/></a></article></main><footer class=footer><span>&copy; 2025 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>

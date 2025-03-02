@@ -1,0 +1,547 @@
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Bridge Pattern | hyunyoun's Blog</title>
+<meta name=keywords content="Software-Design-and-Architecture,Software-Design-Patterns,Structural-Design-Patterns,Bridge-Pattern"><meta name=description content="복잡한 시스템에서 추상화(abstraction)와 구현(implementation)을 분리하여 독립적으로 변형과 확장이 가능하도록 하는 구조 패턴"><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/software-design-and-architecture/software-design-patterns/gof/structural-design-patterns/bridge-pattern/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.9a2bbe2d8b5afa9d4df22976abb7b72f1f7f1c467d2b30f03090108f9496ae6c.css integrity="sha256-miu+LYta+p1N8il2q7e3Lx9/HEZ9KzDwMJAQj5SWrmw=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/software-design-and-architecture/software-design-patterns/gof/structural-design-patterns/bridge-pattern/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/software-design-and-architecture/software-design-patterns/gof/structural-design-patterns/bridge-pattern/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="Bridge Pattern"><meta property="og:description" content="복잡한 시스템에서 추상화(abstraction)와 구현(implementation)을 분리하여 독립적으로 변형과 확장이 가능하도록 하는 구조 패턴"><meta property="og:locale" content="en"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2024-09-25T06:14:00+00:00"><meta property="article:modified_time" content="2024-09-25T06:14:00+00:00"><meta property="article:tag" content="Software-Design-and-Architecture"><meta property="article:tag" content="Software-Design-Patterns"><meta property="article:tag" content="Structural-Design-Patterns"><meta property="article:tag" content="Bridge-Pattern"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="Bridge Pattern"><meta name=twitter:description content="복잡한 시스템에서 추상화(abstraction)와 구현(implementation)을 분리하여 독립적으로 변형과 확장이 가능하도록 하는 구조 패턴"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"posts","item":"https://buenhyden.github.io/posts/"},{"@type":"ListItem","position":2,"name":"Software Design and Architecture","item":"https://buenhyden.github.io/posts/software-design-and-architecture/"},{"@type":"ListItem","position":3,"name":"Software Design Patterns","item":"https://buenhyden.github.io/posts/software-design-and-architecture/software-design-patterns/"},{"@type":"ListItem","position":4,"name":"Software Design Patterns","item":"https://buenhyden.github.io/posts/software-design-and-architecture/software-design-patterns/gof/"},{"@type":"ListItem","position":5,"name":"Structural Design Patterns","item":"https://buenhyden.github.io/posts/software-design-and-architecture/software-design-patterns/gof/structural-design-patterns/"},{"@type":"ListItem","position":6,"name":"Bridge Pattern","item":"https://buenhyden.github.io/posts/software-design-and-architecture/software-design-patterns/gof/structural-design-patterns/bridge-pattern/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Bridge Pattern","name":"Bridge Pattern","description":"복잡한 시스템에서 추상화(abstraction)와 구현(implementation)을 분리하여 독립적으로 변형과 확장이 가능하도록 하는 구조 패턴","keywords":["Software-Design-and-Architecture","Software-Design-Patterns","Structural-Design-Patterns","Bridge-Pattern"],"articleBody":"Bridge Pattern 복잡한 시스템에서 추상화(abstraction)와 구현(implementation)을 분리하여 독립적으로 변형과 확장이 가능하도록 하는 구조 패턴\nTV 제조사가 다양하고(구현), 리모컨의 종류도 다양(추상화)하지만, 이들은 서로 독립적으로 발전하면서도 함께 잘 동작할 수 있다.\n특징 추상화와 구현을 두 개의 독립적인 클래스 계층으로 분리합니다. 구현부에 대한 참조를 통해 추상화와 구현을 연결합니다. 런타임에 구현을 교체할 수 있는 유연성을 제공합니다. 사용사례 그래픽 시스템에서 다양한 플랫폼(Windows, macOS, Linux)에서 동작하는 다양한 도형(원, 사각형, 삼각형)을 그려야 할 때 여러 데이터베이스 시스템과 연동되는 다양한 타입의 로깅 시스템을 구현할 때 다양한 디바이스에서 실행되는 여러 종류의 사용자 인터페이스를 개발할 때 여러 종류의 메시지(이메일, SMS, 푸시알림)를 다양한 포맷(HTML, 텍스트, JSON)으로 전송해야 할 때 장점 추상화와 구현의 분리로 인한 높은 유연성과 확장성을 제공합니다. 새로운 추상화나 구현을 추가할 때 기존 코드를 수정하지 않아도 됩니다. 각 계층이 독립적으로 발전할 수 있어 시스템의 진화가 용이합니다. 구현 세부사항을 클라이언트로부터 숨길 수 있습니다. 단점 추상화와 구현 사이에 간접 계층이 추가되어 복잡도가 증가할 수 있습니다. 설계 초기에 브리지 패턴을 적용하지 않으면 나중에 리팩터링하기 어려울 수 있습니다. 작은 규모의 시스템에서는 오버엔지니어링이 될 수 있습니다. 주의사항 및 고려사항 브리지 패턴을 적용하기 전에 시스템이 정말로 이러한 유연성을 필요로 하는지 검토해야 합니다. 추상화와 구현 계층 사이의 의존성을 최소화하도록 인터페이스를 설계해야 합니다. 각 계층의 책임 범위를 명확히 정의하고, 단일 책임 원칙을 지키도록 해야 합니다. 성능에 민감한 시스템에서는 추가되는 간접 계층으로 인한 오버헤드를 고려해야 합니다. 브리지 패턴은 초기 설계 단계에서 적용하는 것이 가장 효과적입니다. 예시 Python 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108 109 110 111 from abc import ABC, abstractmethod # Implementation interface class MessageSender(ABC): @abstractmethod def send(self, message: str, recipient: str) -\u003e bool: pass # Concrete implementations class EmailSender(MessageSender): def send(self, message: str, recipient: str) -\u003e bool: print(f\"Sending email to {recipient}\") print(f\"Email content: {message}\") return True class SMSSender(MessageSender): def send(self, message: str, recipient: str) -\u003e bool: print(f\"Sending SMS to {recipient}\") print(f\"SMS content: {message}\") return True class PushNotificationSender(MessageSender): def send(self, message: str, recipient: str) -\u003e bool: print(f\"Sending push notification to device {recipient}\") print(f\"Notification content: {message}\") return True # Abstraction class Message(ABC): def __init__(self, sender: MessageSender): self.sender = sender @abstractmethod def send(self, recipient: str) -\u003e bool: pass # Refined Abstractions class SimpleMessage(Message): def __init__(self, sender: MessageSender, content: str): super().__init__(sender) self.content = content def send(self, recipient: str) -\u003e bool: return self.sender.send(self.content, recipient) class HTMLMessage(Message): def __init__(self, sender: MessageSender, html_content: str): super().__init__(sender) self.html_content = html_content def send(self, recipient: str) -\u003e bool: formatted_content = f\"{self.html_content}\" return self.sender.send(formatted_content, recipient) class EncryptedMessage(Message): def __init__(self, sender: MessageSender, content: str, encryption_key: str): super().__init__(sender) self.content = content self.encryption_key = encryption_key def send(self, recipient: str) -\u003e bool: # Simulate encryption encrypted_content = f\"ENCRYPTED[{self.content}] WITH KEY {self.encryption_key}\" return self.sender.send(encrypted_content, recipient) # Message Factory for convenience class MessageFactory: @staticmethod def create_simple_message(sender: MessageSender, content: str) -\u003e SimpleMessage: return SimpleMessage(sender, content) @staticmethod def create_html_message(sender: MessageSender, html_content: str) -\u003e HTMLMessage: return HTMLMessage(sender, html_content) @staticmethod def create_encrypted_message( sender: MessageSender, content: str, key: str ) -\u003e EncryptedMessage: return EncryptedMessage(sender, content, key) # Usage example if __name__ == \"__main__\": # Create senders email_sender = EmailSender() sms_sender = SMSSender() push_sender = PushNotificationSender() # Create message factory factory = MessageFactory() # Create and send different types of messages using different senders simple_email = factory.create_simple_message( email_sender, \"Hello from Python!\" ) simple_email.send(\"user@example.com\") html_email = factory.create_html_message( email_sender, \"HelloThis is HTML email\n\" ) html_email.send(\"user@example.com\") encrypted_sms = factory.create_encrypted_message( sms_sender, \"Secret message\", \"encryption_key_123\" ) encrypted_sms.send(\"+1234567890\") simple_push = factory.create_simple_message( push_sender, \"New notification!\" ) simple_push.send(\"device_token_123\") Javascript 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108 109 110 111 112 113 114 115 116 117 118 119 120 121 122 123 124 125 126 127 128 129 130 131 132 133 134 135 136 137 138 139 140 141 142 143 144 145 146 147 148 149 150 151 152 153 154 155 156 157 158 159 // Implementation interface class LogStorage { save(logEntry) { throw new Error('save method must be implemented'); } retrieve(id) { throw new Error('retrieve method must be implemented'); } } // Concrete implementations class FileLogStorage extends LogStorage { constructor(filepath) { super(); this.filepath = filepath; this.logs = new Map(); console.log(`Initializing File Storage at ${filepath}`); } save(logEntry) { const id = Date.now().toString(); this.logs.set(id, logEntry); console.log(`Saving to file: ${this.filepath}`); console.log(`Log entry: ${JSON.stringify(logEntry)}`); return id; } retrieve(id) { return this.logs.get(id); } } class DatabaseLogStorage extends LogStorage { constructor(connectionString) { super(); this.connectionString = connectionString; this.logs = new Map(); console.log(`Connecting to database: ${connectionString}`); } save(logEntry) { const id = Date.now().toString(); this.logs.set(id, logEntry); console.log(`Saving to database: ${this.connectionString}`); console.log(`Log entry: ${JSON.stringify(logEntry)}`); return id; } retrieve(id) { return this.logs.get(id); } } class CloudLogStorage extends LogStorage { constructor(cloudProvider, region) { super(); this.cloudProvider = cloudProvider; this.region = region; this.logs = new Map(); console.log(`Connecting to ${cloudProvider} in ${region}`); } save(logEntry) { const id = Date.now().toString(); this.logs.set(id, logEntry); console.log(`Saving to ${this.cloudProvider} cloud storage in ${this.region}`); console.log(`Log entry: ${JSON.stringify(logEntry)}`); return id; } retrieve(id) { return this.logs.get(id); } } // Abstraction class Logger { constructor(storage) { this.storage = storage; } log(message) { throw new Error('log method must be implemented'); } getLog(id) { return this.storage.retrieve(id); } } // Refined Abstractions class SimpleLogger extends Logger { log(message) { const entry = { timestamp: new Date().toISOString(), message: message, level: 'INFO' }; return this.storage.save(entry); } } class DetailedLogger extends Logger { log(message) { const entry = { timestamp: new Date().toISOString(), message: message, level: 'INFO', processId: process.pid, hostname: require('os').hostname(), memory: process.memoryUsage() }; return this.storage.save(entry); } } class SecurityLogger extends Logger { constructor(storage, encryptionKey) { super(storage); this.encryptionKey = encryptionKey; } log(message) { const entry = { timestamp: new Date().toISOString(), message: this.encrypt(message), level: 'SECURE', encryptionVersion: '1.0' }; return this.storage.save(entry); } encrypt(message) { // Simulate encryption return `ENCRYPTED[${message}] WITH KEY ${this.encryptionKey}`; } } // Usage example // Create different storage implementations const fileStorage = new FileLogStorage('/var/log/app.log'); const dbStorage = new DatabaseLogStorage('mongodb://localhost:27017/logs'); const cloudStorage = new CloudLogStorage('AWS', 'us-east-1'); // Create different types of loggers with different storage backends const simpleFileLogger = new SimpleLogger(fileStorage); const detailedDbLogger = new DetailedLogger(dbStorage); const secureCloudLogger = new SecurityLogger(cloudStorage, 'secret-key-123'); // Use the loggers const fileLogId = simpleFileLogger.log('Simple file log message'); console.log('Retrieved file log:', simpleFileLogger.getLog(fileLogId)); const dbLogId = detailedDbLogger.log('Detailed database log message'); console.log('Retrieved database log:', detailedDbLogger.getLog(dbLogId)); const cloudLogId = secureCloudLogger.log('Secure cloud log message'); console.log('Retrieved cloud log:', secureCloudLogger.getLog(cloudLogId)); 참고 및 출처 ","wordCount":"1178","inLanguage":"en","image":"https://buenhyden.github.io/images","datePublished":"2024-09-25T06:14:00Z","dateModified":"2024-09-25T06:14:00Z","author":{"@type":"Person","name":"Me"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://buenhyden.github.io/posts/software-design-and-architecture/software-design-patterns/gof/structural-design-patterns/bridge-pattern/"},"publisher":{"@type":"Organization","name":"hyunyoun's Blog","logo":{"@type":"ImageObject","url":"https://buenhyden.github.io/favicons/favicon.ico"}}}</script></head><body id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/>posts</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/software-design-and-architecture/>Software Design and Architecture</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/software-design-and-architecture/software-design-patterns/>Software Design Patterns</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/software-design-and-architecture/software-design-patterns/gof/>Software Design Patterns</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/software-design-and-architecture/software-design-patterns/gof/structural-design-patterns/>Structural Design Patterns</a></div><h1 class="post-title entry-hint-parent">Bridge Pattern</h1><div class=post-description>복잡한 시스템에서 추상화(abstraction)와 구현(implementation)을 분리하여 독립적으로 변형과 확장이 가능하도록 하는 구조 패턴</div><div class=post-meta><span title='2024-09-25 06:14:00 +0000 UTC'>September 25, 2024</span>&nbsp;·&nbsp;6 min&nbsp;·&nbsp;1178 words&nbsp;·&nbsp;Me&nbsp;|&nbsp;<a href=https://github.com/buenhyden/blog-data/main/content/posts/Software%20Design%20and%20Architecture/Software%20Design%20Patterns/GoF/Structural%20Design%20Patterns/Bridge-Pattern.md rel="noopener noreferrer" target=_blank>Suggest Changes</a></div></header><div class=toc><details><summary accesskey=c title="(Alt + C)"><span class=details>Table of Contents</span></summary><div class=inner><nav id=TableOfContents><ul><li><a href=#bridge-pattern>Bridge Pattern</a><ul><li><a href=#특징>특징</a></li><li><a href=#사용사례>사용사례</a></li><li><a href=#장점>장점</a></li><li><a href=#단점>단점</a></li><li><a href=#주의사항-및-고려사항>주의사항 및 고려사항</a></li><li><a href=#예시>예시</a></li></ul></li><li><a href=#참고-및-출처>참고 및 출처</a></li></ul></nav></div></details></div><div class=post-content><h2 id=bridge-pattern>Bridge Pattern<a hidden class=anchor aria-hidden=true href=#bridge-pattern>#</a></h2><p>복잡한 시스템에서 추상화(abstraction)와 구현(implementation)을 분리하여 독립적으로 변형과 확장이 가능하도록 하는 구조 패턴<br>TV 제조사가 다양하고(구현), 리모컨의 종류도 다양(추상화)하지만, 이들은 서로 독립적으로 발전하면서도 함께 잘 동작할 수 있다.</p><h3 id=특징>특징<a hidden class=anchor aria-hidden=true href=#특징>#</a></h3><ul><li>추상화와 구현을 두 개의 독립적인 클래스 계층으로 분리합니다.</li><li>구현부에 대한 참조를 통해 추상화와 구현을 연결합니다.</li><li>런타임에 구현을 교체할 수 있는 유연성을 제공합니다.</li></ul><h3 id=사용사례>사용사례<a hidden class=anchor aria-hidden=true href=#사용사례>#</a></h3><ul><li>그래픽 시스템에서 다양한 플랫폼(Windows, macOS, Linux)에서 동작하는 다양한 도형(원, 사각형, 삼각형)을 그려야 할 때</li><li>여러 데이터베이스 시스템과 연동되는 다양한 타입의 로깅 시스템을 구현할 때</li><li>다양한 디바이스에서 실행되는 여러 종류의 사용자 인터페이스를 개발할 때</li><li>여러 종류의 메시지(이메일, SMS, 푸시알림)를 다양한 포맷(HTML, 텍스트, JSON)으로 전송해야 할 때</li></ul><h3 id=장점>장점<a hidden class=anchor aria-hidden=true href=#장점>#</a></h3><ul><li>추상화와 구현의 분리로 인한 높은 유연성과 확장성을 제공합니다.</li><li>새로운 추상화나 구현을 추가할 때 기존 코드를 수정하지 않아도 됩니다.</li><li>각 계층이 독립적으로 발전할 수 있어 시스템의 진화가 용이합니다.</li><li>구현 세부사항을 클라이언트로부터 숨길 수 있습니다.</li></ul><h3 id=단점>단점<a hidden class=anchor aria-hidden=true href=#단점>#</a></h3><ul><li>추상화와 구현 사이에 간접 계층이 추가되어 복잡도가 증가할 수 있습니다.</li><li>설계 초기에 브리지 패턴을 적용하지 않으면 나중에 리팩터링하기 어려울 수 있습니다.</li><li>작은 규모의 시스템에서는 오버엔지니어링이 될 수 있습니다.</li></ul><h3 id=주의사항-및-고려사항>주의사항 및 고려사항<a hidden class=anchor aria-hidden=true href=#주의사항-및-고려사항>#</a></h3><ul><li>브리지 패턴을 적용하기 전에 시스템이 정말로 이러한 유연성을 필요로 하는지 검토해야 합니다.</li><li>추상화와 구현 계층 사이의 의존성을 최소화하도록 인터페이스를 설계해야 합니다.</li><li>각 계층의 책임 범위를 명확히 정의하고, 단일 책임 원칙을 지키도록 해야 합니다.</li><li>성능에 민감한 시스템에서는 추가되는 간접 계층으로 인한 오버헤드를 고려해야 합니다.</li><li>브리지 패턴은 초기 설계 단계에서 적용하는 것이 가장 효과적입니다.</li></ul><h3 id=예시>예시<a hidden class=anchor aria-hidden=true href=#예시>#</a></h3><h4 id=python>Python<a hidden class=anchor aria-hidden=true href=#python>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-0-1><a class=lnlinks href=#hl-0-1>  1</a>
+</span><span class=lnt id=hl-0-2><a class=lnlinks href=#hl-0-2>  2</a>
+</span><span class=lnt id=hl-0-3><a class=lnlinks href=#hl-0-3>  3</a>
+</span><span class=lnt id=hl-0-4><a class=lnlinks href=#hl-0-4>  4</a>
+</span><span class=lnt id=hl-0-5><a class=lnlinks href=#hl-0-5>  5</a>
+</span><span class=lnt id=hl-0-6><a class=lnlinks href=#hl-0-6>  6</a>
+</span><span class=lnt id=hl-0-7><a class=lnlinks href=#hl-0-7>  7</a>
+</span><span class=lnt id=hl-0-8><a class=lnlinks href=#hl-0-8>  8</a>
+</span><span class=lnt id=hl-0-9><a class=lnlinks href=#hl-0-9>  9</a>
+</span><span class=lnt id=hl-0-10><a class=lnlinks href=#hl-0-10> 10</a>
+</span><span class=lnt id=hl-0-11><a class=lnlinks href=#hl-0-11> 11</a>
+</span><span class=lnt id=hl-0-12><a class=lnlinks href=#hl-0-12> 12</a>
+</span><span class=lnt id=hl-0-13><a class=lnlinks href=#hl-0-13> 13</a>
+</span><span class=lnt id=hl-0-14><a class=lnlinks href=#hl-0-14> 14</a>
+</span><span class=lnt id=hl-0-15><a class=lnlinks href=#hl-0-15> 15</a>
+</span><span class=lnt id=hl-0-16><a class=lnlinks href=#hl-0-16> 16</a>
+</span><span class=lnt id=hl-0-17><a class=lnlinks href=#hl-0-17> 17</a>
+</span><span class=lnt id=hl-0-18><a class=lnlinks href=#hl-0-18> 18</a>
+</span><span class=lnt id=hl-0-19><a class=lnlinks href=#hl-0-19> 19</a>
+</span><span class=lnt id=hl-0-20><a class=lnlinks href=#hl-0-20> 20</a>
+</span><span class=lnt id=hl-0-21><a class=lnlinks href=#hl-0-21> 21</a>
+</span><span class=lnt id=hl-0-22><a class=lnlinks href=#hl-0-22> 22</a>
+</span><span class=lnt id=hl-0-23><a class=lnlinks href=#hl-0-23> 23</a>
+</span><span class=lnt id=hl-0-24><a class=lnlinks href=#hl-0-24> 24</a>
+</span><span class=lnt id=hl-0-25><a class=lnlinks href=#hl-0-25> 25</a>
+</span><span class=lnt id=hl-0-26><a class=lnlinks href=#hl-0-26> 26</a>
+</span><span class=lnt id=hl-0-27><a class=lnlinks href=#hl-0-27> 27</a>
+</span><span class=lnt id=hl-0-28><a class=lnlinks href=#hl-0-28> 28</a>
+</span><span class=lnt id=hl-0-29><a class=lnlinks href=#hl-0-29> 29</a>
+</span><span class=lnt id=hl-0-30><a class=lnlinks href=#hl-0-30> 30</a>
+</span><span class=lnt id=hl-0-31><a class=lnlinks href=#hl-0-31> 31</a>
+</span><span class=lnt id=hl-0-32><a class=lnlinks href=#hl-0-32> 32</a>
+</span><span class=lnt id=hl-0-33><a class=lnlinks href=#hl-0-33> 33</a>
+</span><span class=lnt id=hl-0-34><a class=lnlinks href=#hl-0-34> 34</a>
+</span><span class=lnt id=hl-0-35><a class=lnlinks href=#hl-0-35> 35</a>
+</span><span class=lnt id=hl-0-36><a class=lnlinks href=#hl-0-36> 36</a>
+</span><span class=lnt id=hl-0-37><a class=lnlinks href=#hl-0-37> 37</a>
+</span><span class=lnt id=hl-0-38><a class=lnlinks href=#hl-0-38> 38</a>
+</span><span class=lnt id=hl-0-39><a class=lnlinks href=#hl-0-39> 39</a>
+</span><span class=lnt id=hl-0-40><a class=lnlinks href=#hl-0-40> 40</a>
+</span><span class=lnt id=hl-0-41><a class=lnlinks href=#hl-0-41> 41</a>
+</span><span class=lnt id=hl-0-42><a class=lnlinks href=#hl-0-42> 42</a>
+</span><span class=lnt id=hl-0-43><a class=lnlinks href=#hl-0-43> 43</a>
+</span><span class=lnt id=hl-0-44><a class=lnlinks href=#hl-0-44> 44</a>
+</span><span class=lnt id=hl-0-45><a class=lnlinks href=#hl-0-45> 45</a>
+</span><span class=lnt id=hl-0-46><a class=lnlinks href=#hl-0-46> 46</a>
+</span><span class=lnt id=hl-0-47><a class=lnlinks href=#hl-0-47> 47</a>
+</span><span class=lnt id=hl-0-48><a class=lnlinks href=#hl-0-48> 48</a>
+</span><span class=lnt id=hl-0-49><a class=lnlinks href=#hl-0-49> 49</a>
+</span><span class=lnt id=hl-0-50><a class=lnlinks href=#hl-0-50> 50</a>
+</span><span class=lnt id=hl-0-51><a class=lnlinks href=#hl-0-51> 51</a>
+</span><span class=lnt id=hl-0-52><a class=lnlinks href=#hl-0-52> 52</a>
+</span><span class=lnt id=hl-0-53><a class=lnlinks href=#hl-0-53> 53</a>
+</span><span class=lnt id=hl-0-54><a class=lnlinks href=#hl-0-54> 54</a>
+</span><span class=lnt id=hl-0-55><a class=lnlinks href=#hl-0-55> 55</a>
+</span><span class=lnt id=hl-0-56><a class=lnlinks href=#hl-0-56> 56</a>
+</span><span class=lnt id=hl-0-57><a class=lnlinks href=#hl-0-57> 57</a>
+</span><span class=lnt id=hl-0-58><a class=lnlinks href=#hl-0-58> 58</a>
+</span><span class=lnt id=hl-0-59><a class=lnlinks href=#hl-0-59> 59</a>
+</span><span class=lnt id=hl-0-60><a class=lnlinks href=#hl-0-60> 60</a>
+</span><span class=lnt id=hl-0-61><a class=lnlinks href=#hl-0-61> 61</a>
+</span><span class=lnt id=hl-0-62><a class=lnlinks href=#hl-0-62> 62</a>
+</span><span class=lnt id=hl-0-63><a class=lnlinks href=#hl-0-63> 63</a>
+</span><span class=lnt id=hl-0-64><a class=lnlinks href=#hl-0-64> 64</a>
+</span><span class=lnt id=hl-0-65><a class=lnlinks href=#hl-0-65> 65</a>
+</span><span class=lnt id=hl-0-66><a class=lnlinks href=#hl-0-66> 66</a>
+</span><span class=lnt id=hl-0-67><a class=lnlinks href=#hl-0-67> 67</a>
+</span><span class=lnt id=hl-0-68><a class=lnlinks href=#hl-0-68> 68</a>
+</span><span class=lnt id=hl-0-69><a class=lnlinks href=#hl-0-69> 69</a>
+</span><span class=lnt id=hl-0-70><a class=lnlinks href=#hl-0-70> 70</a>
+</span><span class=lnt id=hl-0-71><a class=lnlinks href=#hl-0-71> 71</a>
+</span><span class=lnt id=hl-0-72><a class=lnlinks href=#hl-0-72> 72</a>
+</span><span class=lnt id=hl-0-73><a class=lnlinks href=#hl-0-73> 73</a>
+</span><span class=lnt id=hl-0-74><a class=lnlinks href=#hl-0-74> 74</a>
+</span><span class=lnt id=hl-0-75><a class=lnlinks href=#hl-0-75> 75</a>
+</span><span class=lnt id=hl-0-76><a class=lnlinks href=#hl-0-76> 76</a>
+</span><span class=lnt id=hl-0-77><a class=lnlinks href=#hl-0-77> 77</a>
+</span><span class=lnt id=hl-0-78><a class=lnlinks href=#hl-0-78> 78</a>
+</span><span class=lnt id=hl-0-79><a class=lnlinks href=#hl-0-79> 79</a>
+</span><span class=lnt id=hl-0-80><a class=lnlinks href=#hl-0-80> 80</a>
+</span><span class=lnt id=hl-0-81><a class=lnlinks href=#hl-0-81> 81</a>
+</span><span class=lnt id=hl-0-82><a class=lnlinks href=#hl-0-82> 82</a>
+</span><span class=lnt id=hl-0-83><a class=lnlinks href=#hl-0-83> 83</a>
+</span><span class=lnt id=hl-0-84><a class=lnlinks href=#hl-0-84> 84</a>
+</span><span class=lnt id=hl-0-85><a class=lnlinks href=#hl-0-85> 85</a>
+</span><span class=lnt id=hl-0-86><a class=lnlinks href=#hl-0-86> 86</a>
+</span><span class=lnt id=hl-0-87><a class=lnlinks href=#hl-0-87> 87</a>
+</span><span class=lnt id=hl-0-88><a class=lnlinks href=#hl-0-88> 88</a>
+</span><span class=lnt id=hl-0-89><a class=lnlinks href=#hl-0-89> 89</a>
+</span><span class=lnt id=hl-0-90><a class=lnlinks href=#hl-0-90> 90</a>
+</span><span class=lnt id=hl-0-91><a class=lnlinks href=#hl-0-91> 91</a>
+</span><span class=lnt id=hl-0-92><a class=lnlinks href=#hl-0-92> 92</a>
+</span><span class=lnt id=hl-0-93><a class=lnlinks href=#hl-0-93> 93</a>
+</span><span class=lnt id=hl-0-94><a class=lnlinks href=#hl-0-94> 94</a>
+</span><span class=lnt id=hl-0-95><a class=lnlinks href=#hl-0-95> 95</a>
+</span><span class=lnt id=hl-0-96><a class=lnlinks href=#hl-0-96> 96</a>
+</span><span class=lnt id=hl-0-97><a class=lnlinks href=#hl-0-97> 97</a>
+</span><span class=lnt id=hl-0-98><a class=lnlinks href=#hl-0-98> 98</a>
+</span><span class=lnt id=hl-0-99><a class=lnlinks href=#hl-0-99> 99</a>
+</span><span class=lnt id=hl-0-100><a class=lnlinks href=#hl-0-100>100</a>
+</span><span class=lnt id=hl-0-101><a class=lnlinks href=#hl-0-101>101</a>
+</span><span class=lnt id=hl-0-102><a class=lnlinks href=#hl-0-102>102</a>
+</span><span class=lnt id=hl-0-103><a class=lnlinks href=#hl-0-103>103</a>
+</span><span class=lnt id=hl-0-104><a class=lnlinks href=#hl-0-104>104</a>
+</span><span class=lnt id=hl-0-105><a class=lnlinks href=#hl-0-105>105</a>
+</span><span class=lnt id=hl-0-106><a class=lnlinks href=#hl-0-106>106</a>
+</span><span class=lnt id=hl-0-107><a class=lnlinks href=#hl-0-107>107</a>
+</span><span class=lnt id=hl-0-108><a class=lnlinks href=#hl-0-108>108</a>
+</span><span class=lnt id=hl-0-109><a class=lnlinks href=#hl-0-109>109</a>
+</span><span class=lnt id=hl-0-110><a class=lnlinks href=#hl-0-110>110</a>
+</span><span class=lnt id=hl-0-111><a class=lnlinks href=#hl-0-111>111</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>abc</span> <span class=kn>import</span> <span class=n>ABC</span><span class=p>,</span> <span class=n>abstractmethod</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Implementation interface</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>MessageSender</span><span class=p>(</span><span class=n>ABC</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=nd>@abstractmethod</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>send</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>message</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>recipient</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bool</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>pass</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Concrete implementations</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>EmailSender</span><span class=p>(</span><span class=n>MessageSender</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>send</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>message</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>recipient</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bool</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Sending email to </span><span class=si>{</span><span class=n>recipient</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Email content: </span><span class=si>{</span><span class=n>message</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>True</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>SMSSender</span><span class=p>(</span><span class=n>MessageSender</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>send</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>message</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>recipient</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bool</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Sending SMS to </span><span class=si>{</span><span class=n>recipient</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;SMS content: </span><span class=si>{</span><span class=n>message</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>True</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>PushNotificationSender</span><span class=p>(</span><span class=n>MessageSender</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>send</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>message</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>recipient</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bool</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Sending push notification to device </span><span class=si>{</span><span class=n>recipient</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Notification content: </span><span class=si>{</span><span class=n>message</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>True</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Abstraction</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>Message</span><span class=p>(</span><span class=n>ABC</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>sender</span><span class=p>:</span> <span class=n>MessageSender</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>sender</span> <span class=o>=</span> <span class=n>sender</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nd>@abstractmethod</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>send</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>recipient</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bool</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>pass</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Refined Abstractions</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>SimpleMessage</span><span class=p>(</span><span class=n>Message</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>sender</span><span class=p>:</span> <span class=n>MessageSender</span><span class=p>,</span> <span class=n>content</span><span class=p>:</span> <span class=nb>str</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=nb>super</span><span class=p>()</span><span class=o>.</span><span class=fm>__init__</span><span class=p>(</span><span class=n>sender</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>content</span> <span class=o>=</span> <span class=n>content</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>send</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>recipient</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bool</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>sender</span><span class=o>.</span><span class=n>send</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>content</span><span class=p>,</span> <span class=n>recipient</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>HTMLMessage</span><span class=p>(</span><span class=n>Message</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>sender</span><span class=p>:</span> <span class=n>MessageSender</span><span class=p>,</span> <span class=n>html_content</span><span class=p>:</span> <span class=nb>str</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=nb>super</span><span class=p>()</span><span class=o>.</span><span class=fm>__init__</span><span class=p>(</span><span class=n>sender</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>html_content</span> <span class=o>=</span> <span class=n>html_content</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>send</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>recipient</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bool</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>formatted_content</span> <span class=o>=</span> <span class=sa>f</span><span class=s2>&#34;&lt;html&gt;&lt;body&gt;</span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>html_content</span><span class=si>}</span><span class=s2>&lt;/body&gt;&lt;/html&gt;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>sender</span><span class=o>.</span><span class=n>send</span><span class=p>(</span><span class=n>formatted_content</span><span class=p>,</span> <span class=n>recipient</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>EncryptedMessage</span><span class=p>(</span><span class=n>Message</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>sender</span><span class=p>:</span> <span class=n>MessageSender</span><span class=p>,</span> <span class=n>content</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>encryption_key</span><span class=p>:</span> <span class=nb>str</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=nb>super</span><span class=p>()</span><span class=o>.</span><span class=fm>__init__</span><span class=p>(</span><span class=n>sender</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>content</span> <span class=o>=</span> <span class=n>content</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>encryption_key</span> <span class=o>=</span> <span class=n>encryption_key</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>send</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>recipient</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bool</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=c1># Simulate encryption</span>
+</span></span><span class=line><span class=cl>        <span class=n>encrypted_content</span> <span class=o>=</span> <span class=sa>f</span><span class=s2>&#34;ENCRYPTED[</span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>content</span><span class=si>}</span><span class=s2>] WITH KEY </span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>encryption_key</span><span class=si>}</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>sender</span><span class=o>.</span><span class=n>send</span><span class=p>(</span><span class=n>encrypted_content</span><span class=p>,</span> <span class=n>recipient</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Message Factory for convenience</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>MessageFactory</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=nd>@staticmethod</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>create_simple_message</span><span class=p>(</span><span class=n>sender</span><span class=p>:</span> <span class=n>MessageSender</span><span class=p>,</span> <span class=n>content</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>SimpleMessage</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>SimpleMessage</span><span class=p>(</span><span class=n>sender</span><span class=p>,</span> <span class=n>content</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nd>@staticmethod</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>create_html_message</span><span class=p>(</span><span class=n>sender</span><span class=p>:</span> <span class=n>MessageSender</span><span class=p>,</span> <span class=n>html_content</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>HTMLMessage</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>HTMLMessage</span><span class=p>(</span><span class=n>sender</span><span class=p>,</span> <span class=n>html_content</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nd>@staticmethod</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>create_encrypted_message</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=n>sender</span><span class=p>:</span> <span class=n>MessageSender</span><span class=p>,</span> <span class=n>content</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>key</span><span class=p>:</span> <span class=nb>str</span>
+</span></span><span class=line><span class=cl>    <span class=p>)</span> <span class=o>-&gt;</span> <span class=n>EncryptedMessage</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>EncryptedMessage</span><span class=p>(</span><span class=n>sender</span><span class=p>,</span> <span class=n>content</span><span class=p>,</span> <span class=n>key</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Usage example</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=vm>__name__</span> <span class=o>==</span> <span class=s2>&#34;__main__&#34;</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=c1># Create senders</span>
+</span></span><span class=line><span class=cl>    <span class=n>email_sender</span> <span class=o>=</span> <span class=n>EmailSender</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>sms_sender</span> <span class=o>=</span> <span class=n>SMSSender</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>push_sender</span> <span class=o>=</span> <span class=n>PushNotificationSender</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Create message factory</span>
+</span></span><span class=line><span class=cl>    <span class=n>factory</span> <span class=o>=</span> <span class=n>MessageFactory</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Create and send different types of messages using different senders</span>
+</span></span><span class=line><span class=cl>    <span class=n>simple_email</span> <span class=o>=</span> <span class=n>factory</span><span class=o>.</span><span class=n>create_simple_message</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=n>email_sender</span><span class=p>,</span> <span class=s2>&#34;Hello from Python!&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>simple_email</span><span class=o>.</span><span class=n>send</span><span class=p>(</span><span class=s2>&#34;user@example.com&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>html_email</span> <span class=o>=</span> <span class=n>factory</span><span class=o>.</span><span class=n>create_html_message</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=n>email_sender</span><span class=p>,</span> <span class=s2>&#34;&lt;h1&gt;Hello&lt;/h1&gt;&lt;p&gt;This is HTML email&lt;/p&gt;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>html_email</span><span class=o>.</span><span class=n>send</span><span class=p>(</span><span class=s2>&#34;user@example.com&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>encrypted_sms</span> <span class=o>=</span> <span class=n>factory</span><span class=o>.</span><span class=n>create_encrypted_message</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=n>sms_sender</span><span class=p>,</span> <span class=s2>&#34;Secret message&#34;</span><span class=p>,</span> <span class=s2>&#34;encryption_key_123&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>encrypted_sms</span><span class=o>.</span><span class=n>send</span><span class=p>(</span><span class=s2>&#34;+1234567890&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>simple_push</span> <span class=o>=</span> <span class=n>factory</span><span class=o>.</span><span class=n>create_simple_message</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=n>push_sender</span><span class=p>,</span> <span class=s2>&#34;New notification!&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>simple_push</span><span class=o>.</span><span class=n>send</span><span class=p>(</span><span class=s2>&#34;device_token_123&#34;</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=javascript>Javascript<a hidden class=anchor aria-hidden=true href=#javascript>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-1-1><a class=lnlinks href=#hl-1-1>  1</a>
+</span><span class=lnt id=hl-1-2><a class=lnlinks href=#hl-1-2>  2</a>
+</span><span class=lnt id=hl-1-3><a class=lnlinks href=#hl-1-3>  3</a>
+</span><span class=lnt id=hl-1-4><a class=lnlinks href=#hl-1-4>  4</a>
+</span><span class=lnt id=hl-1-5><a class=lnlinks href=#hl-1-5>  5</a>
+</span><span class=lnt id=hl-1-6><a class=lnlinks href=#hl-1-6>  6</a>
+</span><span class=lnt id=hl-1-7><a class=lnlinks href=#hl-1-7>  7</a>
+</span><span class=lnt id=hl-1-8><a class=lnlinks href=#hl-1-8>  8</a>
+</span><span class=lnt id=hl-1-9><a class=lnlinks href=#hl-1-9>  9</a>
+</span><span class=lnt id=hl-1-10><a class=lnlinks href=#hl-1-10> 10</a>
+</span><span class=lnt id=hl-1-11><a class=lnlinks href=#hl-1-11> 11</a>
+</span><span class=lnt id=hl-1-12><a class=lnlinks href=#hl-1-12> 12</a>
+</span><span class=lnt id=hl-1-13><a class=lnlinks href=#hl-1-13> 13</a>
+</span><span class=lnt id=hl-1-14><a class=lnlinks href=#hl-1-14> 14</a>
+</span><span class=lnt id=hl-1-15><a class=lnlinks href=#hl-1-15> 15</a>
+</span><span class=lnt id=hl-1-16><a class=lnlinks href=#hl-1-16> 16</a>
+</span><span class=lnt id=hl-1-17><a class=lnlinks href=#hl-1-17> 17</a>
+</span><span class=lnt id=hl-1-18><a class=lnlinks href=#hl-1-18> 18</a>
+</span><span class=lnt id=hl-1-19><a class=lnlinks href=#hl-1-19> 19</a>
+</span><span class=lnt id=hl-1-20><a class=lnlinks href=#hl-1-20> 20</a>
+</span><span class=lnt id=hl-1-21><a class=lnlinks href=#hl-1-21> 21</a>
+</span><span class=lnt id=hl-1-22><a class=lnlinks href=#hl-1-22> 22</a>
+</span><span class=lnt id=hl-1-23><a class=lnlinks href=#hl-1-23> 23</a>
+</span><span class=lnt id=hl-1-24><a class=lnlinks href=#hl-1-24> 24</a>
+</span><span class=lnt id=hl-1-25><a class=lnlinks href=#hl-1-25> 25</a>
+</span><span class=lnt id=hl-1-26><a class=lnlinks href=#hl-1-26> 26</a>
+</span><span class=lnt id=hl-1-27><a class=lnlinks href=#hl-1-27> 27</a>
+</span><span class=lnt id=hl-1-28><a class=lnlinks href=#hl-1-28> 28</a>
+</span><span class=lnt id=hl-1-29><a class=lnlinks href=#hl-1-29> 29</a>
+</span><span class=lnt id=hl-1-30><a class=lnlinks href=#hl-1-30> 30</a>
+</span><span class=lnt id=hl-1-31><a class=lnlinks href=#hl-1-31> 31</a>
+</span><span class=lnt id=hl-1-32><a class=lnlinks href=#hl-1-32> 32</a>
+</span><span class=lnt id=hl-1-33><a class=lnlinks href=#hl-1-33> 33</a>
+</span><span class=lnt id=hl-1-34><a class=lnlinks href=#hl-1-34> 34</a>
+</span><span class=lnt id=hl-1-35><a class=lnlinks href=#hl-1-35> 35</a>
+</span><span class=lnt id=hl-1-36><a class=lnlinks href=#hl-1-36> 36</a>
+</span><span class=lnt id=hl-1-37><a class=lnlinks href=#hl-1-37> 37</a>
+</span><span class=lnt id=hl-1-38><a class=lnlinks href=#hl-1-38> 38</a>
+</span><span class=lnt id=hl-1-39><a class=lnlinks href=#hl-1-39> 39</a>
+</span><span class=lnt id=hl-1-40><a class=lnlinks href=#hl-1-40> 40</a>
+</span><span class=lnt id=hl-1-41><a class=lnlinks href=#hl-1-41> 41</a>
+</span><span class=lnt id=hl-1-42><a class=lnlinks href=#hl-1-42> 42</a>
+</span><span class=lnt id=hl-1-43><a class=lnlinks href=#hl-1-43> 43</a>
+</span><span class=lnt id=hl-1-44><a class=lnlinks href=#hl-1-44> 44</a>
+</span><span class=lnt id=hl-1-45><a class=lnlinks href=#hl-1-45> 45</a>
+</span><span class=lnt id=hl-1-46><a class=lnlinks href=#hl-1-46> 46</a>
+</span><span class=lnt id=hl-1-47><a class=lnlinks href=#hl-1-47> 47</a>
+</span><span class=lnt id=hl-1-48><a class=lnlinks href=#hl-1-48> 48</a>
+</span><span class=lnt id=hl-1-49><a class=lnlinks href=#hl-1-49> 49</a>
+</span><span class=lnt id=hl-1-50><a class=lnlinks href=#hl-1-50> 50</a>
+</span><span class=lnt id=hl-1-51><a class=lnlinks href=#hl-1-51> 51</a>
+</span><span class=lnt id=hl-1-52><a class=lnlinks href=#hl-1-52> 52</a>
+</span><span class=lnt id=hl-1-53><a class=lnlinks href=#hl-1-53> 53</a>
+</span><span class=lnt id=hl-1-54><a class=lnlinks href=#hl-1-54> 54</a>
+</span><span class=lnt id=hl-1-55><a class=lnlinks href=#hl-1-55> 55</a>
+</span><span class=lnt id=hl-1-56><a class=lnlinks href=#hl-1-56> 56</a>
+</span><span class=lnt id=hl-1-57><a class=lnlinks href=#hl-1-57> 57</a>
+</span><span class=lnt id=hl-1-58><a class=lnlinks href=#hl-1-58> 58</a>
+</span><span class=lnt id=hl-1-59><a class=lnlinks href=#hl-1-59> 59</a>
+</span><span class=lnt id=hl-1-60><a class=lnlinks href=#hl-1-60> 60</a>
+</span><span class=lnt id=hl-1-61><a class=lnlinks href=#hl-1-61> 61</a>
+</span><span class=lnt id=hl-1-62><a class=lnlinks href=#hl-1-62> 62</a>
+</span><span class=lnt id=hl-1-63><a class=lnlinks href=#hl-1-63> 63</a>
+</span><span class=lnt id=hl-1-64><a class=lnlinks href=#hl-1-64> 64</a>
+</span><span class=lnt id=hl-1-65><a class=lnlinks href=#hl-1-65> 65</a>
+</span><span class=lnt id=hl-1-66><a class=lnlinks href=#hl-1-66> 66</a>
+</span><span class=lnt id=hl-1-67><a class=lnlinks href=#hl-1-67> 67</a>
+</span><span class=lnt id=hl-1-68><a class=lnlinks href=#hl-1-68> 68</a>
+</span><span class=lnt id=hl-1-69><a class=lnlinks href=#hl-1-69> 69</a>
+</span><span class=lnt id=hl-1-70><a class=lnlinks href=#hl-1-70> 70</a>
+</span><span class=lnt id=hl-1-71><a class=lnlinks href=#hl-1-71> 71</a>
+</span><span class=lnt id=hl-1-72><a class=lnlinks href=#hl-1-72> 72</a>
+</span><span class=lnt id=hl-1-73><a class=lnlinks href=#hl-1-73> 73</a>
+</span><span class=lnt id=hl-1-74><a class=lnlinks href=#hl-1-74> 74</a>
+</span><span class=lnt id=hl-1-75><a class=lnlinks href=#hl-1-75> 75</a>
+</span><span class=lnt id=hl-1-76><a class=lnlinks href=#hl-1-76> 76</a>
+</span><span class=lnt id=hl-1-77><a class=lnlinks href=#hl-1-77> 77</a>
+</span><span class=lnt id=hl-1-78><a class=lnlinks href=#hl-1-78> 78</a>
+</span><span class=lnt id=hl-1-79><a class=lnlinks href=#hl-1-79> 79</a>
+</span><span class=lnt id=hl-1-80><a class=lnlinks href=#hl-1-80> 80</a>
+</span><span class=lnt id=hl-1-81><a class=lnlinks href=#hl-1-81> 81</a>
+</span><span class=lnt id=hl-1-82><a class=lnlinks href=#hl-1-82> 82</a>
+</span><span class=lnt id=hl-1-83><a class=lnlinks href=#hl-1-83> 83</a>
+</span><span class=lnt id=hl-1-84><a class=lnlinks href=#hl-1-84> 84</a>
+</span><span class=lnt id=hl-1-85><a class=lnlinks href=#hl-1-85> 85</a>
+</span><span class=lnt id=hl-1-86><a class=lnlinks href=#hl-1-86> 86</a>
+</span><span class=lnt id=hl-1-87><a class=lnlinks href=#hl-1-87> 87</a>
+</span><span class=lnt id=hl-1-88><a class=lnlinks href=#hl-1-88> 88</a>
+</span><span class=lnt id=hl-1-89><a class=lnlinks href=#hl-1-89> 89</a>
+</span><span class=lnt id=hl-1-90><a class=lnlinks href=#hl-1-90> 90</a>
+</span><span class=lnt id=hl-1-91><a class=lnlinks href=#hl-1-91> 91</a>
+</span><span class=lnt id=hl-1-92><a class=lnlinks href=#hl-1-92> 92</a>
+</span><span class=lnt id=hl-1-93><a class=lnlinks href=#hl-1-93> 93</a>
+</span><span class=lnt id=hl-1-94><a class=lnlinks href=#hl-1-94> 94</a>
+</span><span class=lnt id=hl-1-95><a class=lnlinks href=#hl-1-95> 95</a>
+</span><span class=lnt id=hl-1-96><a class=lnlinks href=#hl-1-96> 96</a>
+</span><span class=lnt id=hl-1-97><a class=lnlinks href=#hl-1-97> 97</a>
+</span><span class=lnt id=hl-1-98><a class=lnlinks href=#hl-1-98> 98</a>
+</span><span class=lnt id=hl-1-99><a class=lnlinks href=#hl-1-99> 99</a>
+</span><span class=lnt id=hl-1-100><a class=lnlinks href=#hl-1-100>100</a>
+</span><span class=lnt id=hl-1-101><a class=lnlinks href=#hl-1-101>101</a>
+</span><span class=lnt id=hl-1-102><a class=lnlinks href=#hl-1-102>102</a>
+</span><span class=lnt id=hl-1-103><a class=lnlinks href=#hl-1-103>103</a>
+</span><span class=lnt id=hl-1-104><a class=lnlinks href=#hl-1-104>104</a>
+</span><span class=lnt id=hl-1-105><a class=lnlinks href=#hl-1-105>105</a>
+</span><span class=lnt id=hl-1-106><a class=lnlinks href=#hl-1-106>106</a>
+</span><span class=lnt id=hl-1-107><a class=lnlinks href=#hl-1-107>107</a>
+</span><span class=lnt id=hl-1-108><a class=lnlinks href=#hl-1-108>108</a>
+</span><span class=lnt id=hl-1-109><a class=lnlinks href=#hl-1-109>109</a>
+</span><span class=lnt id=hl-1-110><a class=lnlinks href=#hl-1-110>110</a>
+</span><span class=lnt id=hl-1-111><a class=lnlinks href=#hl-1-111>111</a>
+</span><span class=lnt id=hl-1-112><a class=lnlinks href=#hl-1-112>112</a>
+</span><span class=lnt id=hl-1-113><a class=lnlinks href=#hl-1-113>113</a>
+</span><span class=lnt id=hl-1-114><a class=lnlinks href=#hl-1-114>114</a>
+</span><span class=lnt id=hl-1-115><a class=lnlinks href=#hl-1-115>115</a>
+</span><span class=lnt id=hl-1-116><a class=lnlinks href=#hl-1-116>116</a>
+</span><span class=lnt id=hl-1-117><a class=lnlinks href=#hl-1-117>117</a>
+</span><span class=lnt id=hl-1-118><a class=lnlinks href=#hl-1-118>118</a>
+</span><span class=lnt id=hl-1-119><a class=lnlinks href=#hl-1-119>119</a>
+</span><span class=lnt id=hl-1-120><a class=lnlinks href=#hl-1-120>120</a>
+</span><span class=lnt id=hl-1-121><a class=lnlinks href=#hl-1-121>121</a>
+</span><span class=lnt id=hl-1-122><a class=lnlinks href=#hl-1-122>122</a>
+</span><span class=lnt id=hl-1-123><a class=lnlinks href=#hl-1-123>123</a>
+</span><span class=lnt id=hl-1-124><a class=lnlinks href=#hl-1-124>124</a>
+</span><span class=lnt id=hl-1-125><a class=lnlinks href=#hl-1-125>125</a>
+</span><span class=lnt id=hl-1-126><a class=lnlinks href=#hl-1-126>126</a>
+</span><span class=lnt id=hl-1-127><a class=lnlinks href=#hl-1-127>127</a>
+</span><span class=lnt id=hl-1-128><a class=lnlinks href=#hl-1-128>128</a>
+</span><span class=lnt id=hl-1-129><a class=lnlinks href=#hl-1-129>129</a>
+</span><span class=lnt id=hl-1-130><a class=lnlinks href=#hl-1-130>130</a>
+</span><span class=lnt id=hl-1-131><a class=lnlinks href=#hl-1-131>131</a>
+</span><span class=lnt id=hl-1-132><a class=lnlinks href=#hl-1-132>132</a>
+</span><span class=lnt id=hl-1-133><a class=lnlinks href=#hl-1-133>133</a>
+</span><span class=lnt id=hl-1-134><a class=lnlinks href=#hl-1-134>134</a>
+</span><span class=lnt id=hl-1-135><a class=lnlinks href=#hl-1-135>135</a>
+</span><span class=lnt id=hl-1-136><a class=lnlinks href=#hl-1-136>136</a>
+</span><span class=lnt id=hl-1-137><a class=lnlinks href=#hl-1-137>137</a>
+</span><span class=lnt id=hl-1-138><a class=lnlinks href=#hl-1-138>138</a>
+</span><span class=lnt id=hl-1-139><a class=lnlinks href=#hl-1-139>139</a>
+</span><span class=lnt id=hl-1-140><a class=lnlinks href=#hl-1-140>140</a>
+</span><span class=lnt id=hl-1-141><a class=lnlinks href=#hl-1-141>141</a>
+</span><span class=lnt id=hl-1-142><a class=lnlinks href=#hl-1-142>142</a>
+</span><span class=lnt id=hl-1-143><a class=lnlinks href=#hl-1-143>143</a>
+</span><span class=lnt id=hl-1-144><a class=lnlinks href=#hl-1-144>144</a>
+</span><span class=lnt id=hl-1-145><a class=lnlinks href=#hl-1-145>145</a>
+</span><span class=lnt id=hl-1-146><a class=lnlinks href=#hl-1-146>146</a>
+</span><span class=lnt id=hl-1-147><a class=lnlinks href=#hl-1-147>147</a>
+</span><span class=lnt id=hl-1-148><a class=lnlinks href=#hl-1-148>148</a>
+</span><span class=lnt id=hl-1-149><a class=lnlinks href=#hl-1-149>149</a>
+</span><span class=lnt id=hl-1-150><a class=lnlinks href=#hl-1-150>150</a>
+</span><span class=lnt id=hl-1-151><a class=lnlinks href=#hl-1-151>151</a>
+</span><span class=lnt id=hl-1-152><a class=lnlinks href=#hl-1-152>152</a>
+</span><span class=lnt id=hl-1-153><a class=lnlinks href=#hl-1-153>153</a>
+</span><span class=lnt id=hl-1-154><a class=lnlinks href=#hl-1-154>154</a>
+</span><span class=lnt id=hl-1-155><a class=lnlinks href=#hl-1-155>155</a>
+</span><span class=lnt id=hl-1-156><a class=lnlinks href=#hl-1-156>156</a>
+</span><span class=lnt id=hl-1-157><a class=lnlinks href=#hl-1-157>157</a>
+</span><span class=lnt id=hl-1-158><a class=lnlinks href=#hl-1-158>158</a>
+</span><span class=lnt id=hl-1-159><a class=lnlinks href=#hl-1-159>159</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// Implementation interface
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>class</span> <span class=nx>LogStorage</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>save</span><span class=p>(</span><span class=nx>logEntry</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>throw</span> <span class=k>new</span> <span class=nb>Error</span><span class=p>(</span><span class=s1>&#39;save method must be implemented&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>retrieve</span><span class=p>(</span><span class=nx>id</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>throw</span> <span class=k>new</span> <span class=nb>Error</span><span class=p>(</span><span class=s1>&#39;retrieve method must be implemented&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Concrete implementations
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>class</span> <span class=nx>FileLogStorage</span> <span class=kr>extends</span> <span class=nx>LogStorage</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>constructor</span><span class=p>(</span><span class=nx>filepath</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kr>super</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=p>.</span><span class=nx>filepath</span> <span class=o>=</span> <span class=nx>filepath</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=p>.</span><span class=nx>logs</span> <span class=o>=</span> <span class=k>new</span> <span class=nx>Map</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>        <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=sb>`Initializing File Storage at </span><span class=si>${</span><span class=nx>filepath</span><span class=si>}</span><span class=sb>`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>save</span><span class=p>(</span><span class=nx>logEntry</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kr>const</span> <span class=nx>id</span> <span class=o>=</span> <span class=nb>Date</span><span class=p>.</span><span class=nx>now</span><span class=p>().</span><span class=nx>toString</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=p>.</span><span class=nx>logs</span><span class=p>.</span><span class=nx>set</span><span class=p>(</span><span class=nx>id</span><span class=p>,</span> <span class=nx>logEntry</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=sb>`Saving to file: </span><span class=si>${</span><span class=k>this</span><span class=p>.</span><span class=nx>filepath</span><span class=si>}</span><span class=sb>`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=sb>`Log entry: </span><span class=si>${</span><span class=nx>JSON</span><span class=p>.</span><span class=nx>stringify</span><span class=p>(</span><span class=nx>logEntry</span><span class=p>)</span><span class=si>}</span><span class=sb>`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>id</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>retrieve</span><span class=p>(</span><span class=nx>id</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=k>this</span><span class=p>.</span><span class=nx>logs</span><span class=p>.</span><span class=nx>get</span><span class=p>(</span><span class=nx>id</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kr>class</span> <span class=nx>DatabaseLogStorage</span> <span class=kr>extends</span> <span class=nx>LogStorage</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>constructor</span><span class=p>(</span><span class=nx>connectionString</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kr>super</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=p>.</span><span class=nx>connectionString</span> <span class=o>=</span> <span class=nx>connectionString</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=p>.</span><span class=nx>logs</span> <span class=o>=</span> <span class=k>new</span> <span class=nx>Map</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>        <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=sb>`Connecting to database: </span><span class=si>${</span><span class=nx>connectionString</span><span class=si>}</span><span class=sb>`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>save</span><span class=p>(</span><span class=nx>logEntry</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kr>const</span> <span class=nx>id</span> <span class=o>=</span> <span class=nb>Date</span><span class=p>.</span><span class=nx>now</span><span class=p>().</span><span class=nx>toString</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=p>.</span><span class=nx>logs</span><span class=p>.</span><span class=nx>set</span><span class=p>(</span><span class=nx>id</span><span class=p>,</span> <span class=nx>logEntry</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=sb>`Saving to database: </span><span class=si>${</span><span class=k>this</span><span class=p>.</span><span class=nx>connectionString</span><span class=si>}</span><span class=sb>`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=sb>`Log entry: </span><span class=si>${</span><span class=nx>JSON</span><span class=p>.</span><span class=nx>stringify</span><span class=p>(</span><span class=nx>logEntry</span><span class=p>)</span><span class=si>}</span><span class=sb>`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>id</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>retrieve</span><span class=p>(</span><span class=nx>id</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=k>this</span><span class=p>.</span><span class=nx>logs</span><span class=p>.</span><span class=nx>get</span><span class=p>(</span><span class=nx>id</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kr>class</span> <span class=nx>CloudLogStorage</span> <span class=kr>extends</span> <span class=nx>LogStorage</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>constructor</span><span class=p>(</span><span class=nx>cloudProvider</span><span class=p>,</span> <span class=nx>region</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kr>super</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=p>.</span><span class=nx>cloudProvider</span> <span class=o>=</span> <span class=nx>cloudProvider</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=p>.</span><span class=nx>region</span> <span class=o>=</span> <span class=nx>region</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=p>.</span><span class=nx>logs</span> <span class=o>=</span> <span class=k>new</span> <span class=nx>Map</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>        <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=sb>`Connecting to </span><span class=si>${</span><span class=nx>cloudProvider</span><span class=si>}</span><span class=sb> in </span><span class=si>${</span><span class=nx>region</span><span class=si>}</span><span class=sb>`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>save</span><span class=p>(</span><span class=nx>logEntry</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kr>const</span> <span class=nx>id</span> <span class=o>=</span> <span class=nb>Date</span><span class=p>.</span><span class=nx>now</span><span class=p>().</span><span class=nx>toString</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=p>.</span><span class=nx>logs</span><span class=p>.</span><span class=nx>set</span><span class=p>(</span><span class=nx>id</span><span class=p>,</span> <span class=nx>logEntry</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=sb>`Saving to </span><span class=si>${</span><span class=k>this</span><span class=p>.</span><span class=nx>cloudProvider</span><span class=si>}</span><span class=sb> cloud storage in </span><span class=si>${</span><span class=k>this</span><span class=p>.</span><span class=nx>region</span><span class=si>}</span><span class=sb>`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=sb>`Log entry: </span><span class=si>${</span><span class=nx>JSON</span><span class=p>.</span><span class=nx>stringify</span><span class=p>(</span><span class=nx>logEntry</span><span class=p>)</span><span class=si>}</span><span class=sb>`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>id</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>retrieve</span><span class=p>(</span><span class=nx>id</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=k>this</span><span class=p>.</span><span class=nx>logs</span><span class=p>.</span><span class=nx>get</span><span class=p>(</span><span class=nx>id</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Abstraction
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>class</span> <span class=nx>Logger</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>constructor</span><span class=p>(</span><span class=nx>storage</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=p>.</span><span class=nx>storage</span> <span class=o>=</span> <span class=nx>storage</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>log</span><span class=p>(</span><span class=nx>message</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>throw</span> <span class=k>new</span> <span class=nb>Error</span><span class=p>(</span><span class=s1>&#39;log method must be implemented&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>getLog</span><span class=p>(</span><span class=nx>id</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=k>this</span><span class=p>.</span><span class=nx>storage</span><span class=p>.</span><span class=nx>retrieve</span><span class=p>(</span><span class=nx>id</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Refined Abstractions
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>class</span> <span class=nx>SimpleLogger</span> <span class=kr>extends</span> <span class=nx>Logger</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>log</span><span class=p>(</span><span class=nx>message</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kr>const</span> <span class=nx>entry</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>            <span class=nx>message</span><span class=o>:</span> <span class=nx>message</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=nx>level</span><span class=o>:</span> <span class=s1>&#39;INFO&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=p>};</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=k>this</span><span class=p>.</span><span class=nx>storage</span><span class=p>.</span><span class=nx>save</span><span class=p>(</span><span class=nx>entry</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kr>class</span> <span class=nx>DetailedLogger</span> <span class=kr>extends</span> <span class=nx>Logger</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>log</span><span class=p>(</span><span class=nx>message</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kr>const</span> <span class=nx>entry</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>            <span class=nx>message</span><span class=o>:</span> <span class=nx>message</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=nx>level</span><span class=o>:</span> <span class=s1>&#39;INFO&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=nx>processId</span><span class=o>:</span> <span class=nx>process</span><span class=p>.</span><span class=nx>pid</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=nx>hostname</span><span class=o>:</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;os&#39;</span><span class=p>).</span><span class=nx>hostname</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>            <span class=nx>memory</span><span class=o>:</span> <span class=nx>process</span><span class=p>.</span><span class=nx>memoryUsage</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=p>};</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=k>this</span><span class=p>.</span><span class=nx>storage</span><span class=p>.</span><span class=nx>save</span><span class=p>(</span><span class=nx>entry</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kr>class</span> <span class=nx>SecurityLogger</span> <span class=kr>extends</span> <span class=nx>Logger</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>constructor</span><span class=p>(</span><span class=nx>storage</span><span class=p>,</span> <span class=nx>encryptionKey</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kr>super</span><span class=p>(</span><span class=nx>storage</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=p>.</span><span class=nx>encryptionKey</span> <span class=o>=</span> <span class=nx>encryptionKey</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>log</span><span class=p>(</span><span class=nx>message</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kr>const</span> <span class=nx>entry</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>            <span class=nx>message</span><span class=o>:</span> <span class=k>this</span><span class=p>.</span><span class=nx>encrypt</span><span class=p>(</span><span class=nx>message</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>            <span class=nx>level</span><span class=o>:</span> <span class=s1>&#39;SECURE&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=nx>encryptionVersion</span><span class=o>:</span> <span class=s1>&#39;1.0&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=p>};</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=k>this</span><span class=p>.</span><span class=nx>storage</span><span class=p>.</span><span class=nx>save</span><span class=p>(</span><span class=nx>entry</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>encrypt</span><span class=p>(</span><span class=nx>message</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// Simulate encryption
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=k>return</span> <span class=sb>`ENCRYPTED[</span><span class=si>${</span><span class=nx>message</span><span class=si>}</span><span class=sb>] WITH KEY </span><span class=si>${</span><span class=k>this</span><span class=p>.</span><span class=nx>encryptionKey</span><span class=si>}</span><span class=sb>`</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Usage example
+</span></span></span><span class=line><span class=cl><span class=c1>// Create different storage implementations
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>const</span> <span class=nx>fileStorage</span> <span class=o>=</span> <span class=k>new</span> <span class=nx>FileLogStorage</span><span class=p>(</span><span class=s1>&#39;/var/log/app.log&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kr>const</span> <span class=nx>dbStorage</span> <span class=o>=</span> <span class=k>new</span> <span class=nx>DatabaseLogStorage</span><span class=p>(</span><span class=s1>&#39;mongodb://localhost:27017/logs&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kr>const</span> <span class=nx>cloudStorage</span> <span class=o>=</span> <span class=k>new</span> <span class=nx>CloudLogStorage</span><span class=p>(</span><span class=s1>&#39;AWS&#39;</span><span class=p>,</span> <span class=s1>&#39;us-east-1&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Create different types of loggers with different storage backends
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>const</span> <span class=nx>simpleFileLogger</span> <span class=o>=</span> <span class=k>new</span> <span class=nx>SimpleLogger</span><span class=p>(</span><span class=nx>fileStorage</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kr>const</span> <span class=nx>detailedDbLogger</span> <span class=o>=</span> <span class=k>new</span> <span class=nx>DetailedLogger</span><span class=p>(</span><span class=nx>dbStorage</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kr>const</span> <span class=nx>secureCloudLogger</span> <span class=o>=</span> <span class=k>new</span> <span class=nx>SecurityLogger</span><span class=p>(</span><span class=nx>cloudStorage</span><span class=p>,</span> <span class=s1>&#39;secret-key-123&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Use the loggers
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>const</span> <span class=nx>fileLogId</span> <span class=o>=</span> <span class=nx>simpleFileLogger</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;Simple file log message&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;Retrieved file log:&#39;</span><span class=p>,</span> <span class=nx>simpleFileLogger</span><span class=p>.</span><span class=nx>getLog</span><span class=p>(</span><span class=nx>fileLogId</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kr>const</span> <span class=nx>dbLogId</span> <span class=o>=</span> <span class=nx>detailedDbLogger</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;Detailed database log message&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;Retrieved database log:&#39;</span><span class=p>,</span> <span class=nx>detailedDbLogger</span><span class=p>.</span><span class=nx>getLog</span><span class=p>(</span><span class=nx>dbLogId</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kr>const</span> <span class=nx>cloudLogId</span> <span class=o>=</span> <span class=nx>secureCloudLogger</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;Secure cloud log message&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;Retrieved cloud log:&#39;</span><span class=p>,</span> <span class=nx>secureCloudLogger</span><span class=p>.</span><span class=nx>getLog</span><span class=p>(</span><span class=nx>cloudLogId</span><span class=p>));</span>
+</span></span></code></pre></td></tr></table></div></div><hr><h2 id=참고-및-출처>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처>#</a></h2></div><footer class=post-footer><ul class=post-tags><li><a href=https://buenhyden.github.io/tags/software-design-and-architecture/>Software-Design-and-Architecture</a></li><li><a href=https://buenhyden.github.io/tags/software-design-patterns/>Software-Design-Patterns</a></li><li><a href=https://buenhyden.github.io/tags/structural-design-patterns/>Structural-Design-Patterns</a></li><li><a href=https://buenhyden.github.io/tags/bridge-pattern/>Bridge-Pattern</a></li></ul><nav class=paginav><a class=prev href=https://buenhyden.github.io/posts/software-design-and-architecture/software-design-patterns/gof/structural-design-patterns/composite-pattern/><span class=title>« Prev</span><br><span>Composite Pattern</span>
+</a><a class=next href=https://buenhyden.github.io/posts/software-design-and-architecture/software-design-patterns/gof/structural-design-patterns/decorator-pattern/><span class=title>Next »</span><br><span>Decorator Pattern</span></a></nav></footer><div class=comments><script>const getStoredTheme=()=>localStorage.getItem("pref-theme")==="dark"?"dark":"light",setGiscusTheme=()=>{const e=e=>{const t=document.querySelector("iframe.giscus-frame");t&&t.contentWindow.postMessage({giscus:e},"https://giscus.app")};e({setConfig:{theme:getStoredTheme()}})};document.addEventListener("DOMContentLoaded",()=>{const n={src:"https://giscus.app/client.js","data-repo":"buenhyden/buenhyden.github.io","data-repo-id":"R_kgDONsSnFQ","data-category":"General","data-category-id":"DIC_kwDONsSnFc4CmK-R","data-mapping":"pathname","data-strict":"0","data-reactions-enabled":"1","data-emit-metadata":"0","data-input-position":"bottom","data-theme":getStoredTheme(),"data-lang":"en","data-loading":"lazy",crossorigin:"anonymous",async:""},e=document.createElement("script");Object.entries(n).forEach(([t,n])=>e.setAttribute(t,n)),console.log(e),document.querySelector(".comments").appendChild(e);const t=document.querySelector("#theme-toggle");t&&t.addEventListener("click",setGiscusTheme)})</script></div></article></main><footer class=footer><span>&copy; 2025 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script><script>document.querySelectorAll("pre > code").forEach(e=>{const n=e.parentNode.parentNode,t=document.createElement("button");t.classList.add("copy-code"),t.innerHTML="copy";function s(){t.innerHTML="copied!",setTimeout(()=>{t.innerHTML="copy"},2e3)}t.addEventListener("click",t=>{if("clipboard"in navigator){navigator.clipboard.writeText(e.textContent),s();return}const n=document.createRange();n.selectNodeContents(e);const o=window.getSelection();o.removeAllRanges(),o.addRange(n);try{document.execCommand("copy"),s()}catch{}o.removeRange(n)}),n.classList.contains("highlight")?n.appendChild(t):n.parentNode.firstChild==n||(e.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName=="TABLE"?e.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(t):e.parentNode.appendChild(t))})</script></body></html>
