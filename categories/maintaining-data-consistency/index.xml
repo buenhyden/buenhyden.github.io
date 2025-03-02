@@ -40,47 +40,6 @@
       <description>Aggregate 패턴은 도메인 주도 설계(DDD)에서 유래한 개념으로, 관련된 객체들을 하나의 단위로 묶어 데이터 변경 시 일관성을 유지한다.</description>
     </item>
     <item>
-      <title>Event Sourcing</title>
-      <link>https://buenhyden.github.io/posts/software-design-and-architecture/msa-patterns/maintaining-data-consistency/event-sourcing/</link>
-      <pubDate>Fri, 15 Nov 2024 01:54:00 +0000</pubDate>
-      <guid>https://buenhyden.github.io/posts/software-design-and-architecture/msa-patterns/maintaining-data-consistency/event-sourcing/</guid>
-      <description>&lt;h2 id=&#34;event-sourcing&#34;&gt;Event Sourcing&lt;/h2&gt;
-&lt;p&gt;Event Sourcing은 마이크로서비스 아키텍처(MSA)에서 데이터 일관성을 유지하는 중요한 패턴 중 하나이다.&lt;br&gt;
-이 패턴은 시스템의 상태 변화를 일련의 이벤트로 저장하고 관리하는 방식을 말한다. 합니다.&lt;/p&gt;
-&lt;p&gt;Event Sourcing은 복잡한 도메인 모델을 가진 시스템이나 높은 감사 요구사항이 있는 금융, 의료 등의 분야에서 특히 유용하다. 하지만 구현의 복잡성과 초기 학습 곡선이 높다는 점을 고려해야 한다.&lt;/p&gt;
-&lt;h3 id=&#34;event-sourcing의-핵심-개념&#34;&gt;Event Sourcing의 핵심 개념&lt;/h3&gt;
-&lt;ol&gt;
-&lt;li&gt;&lt;strong&gt;이벤트 중심 저장&lt;/strong&gt;: 시스템의 모든 상태 변경을 이벤트로 저장한다.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;불변성&lt;/strong&gt;: 저장된 이벤트는 수정되거나 삭제되지 않고 항상 추가만 된다.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;시간 순서&lt;/strong&gt;: 이벤트는 발생한 순서대로 저장된다.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;상태 재구성&lt;/strong&gt;: 현재 상태는 저장된 이벤트를 순차적으로 적용하여 재구성한다.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h3 id=&#34;event-sourcing의-장점&#34;&gt;Event Sourcing의 장점&lt;/h3&gt;
-&lt;ol&gt;
-&lt;li&gt;&lt;strong&gt;완전한 감사 추적&lt;/strong&gt;: 모든 변경 사항이 이벤트로 저장되어 시스템의 전체 히스토리를 추적할 수 있다.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;시간 여행 가능&lt;/strong&gt;: 특정 시점의 상태를 재구성할 수 있어 디버깅과 분석에 유용하다.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;확장성&lt;/strong&gt;: 이벤트 저장소는 추가만 하므로 확장이 용이합니다.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;유연성&lt;/strong&gt;: 새로운 요구사항에 따라 이벤트를 재해석하여 새로운 뷰를 만들 수 있다.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h3 id=&#34;event-sourcing의-구현-방법&#34;&gt;Event Sourcing의 구현 방법&lt;/h3&gt;
-&lt;ol&gt;
-&lt;li&gt;&lt;strong&gt;이벤트 정의&lt;/strong&gt;: 시스템에서 발생할 수 있는 모든 이벤트 유형을 정의한다.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;이벤트 저장소&lt;/strong&gt;: 이벤트를 영구적으로 저장할 수 있는 저장소를 구현한다.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;이벤트 핸들러&lt;/strong&gt;: 각 이벤트 유형에 대한 처리 로직을 구현한다.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;상태 재구성 로직&lt;/strong&gt;: 저장된 이벤트를 기반으로 현재 상태를 재구성하는 로직을 구현한다.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h3 id=&#34;event-sourcing의-주의사항&#34;&gt;Event Sourcing의 주의사항&lt;/h3&gt;
-&lt;ol&gt;
-&lt;li&gt;&lt;strong&gt;성능 고려&lt;/strong&gt;: 이벤트가 많아질수록 상태 재구성에 시간이 걸릴 수 있다. 이를 위해 스냅샷을 주기적으로 저장하는 방법을 고려해야 한다.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;이벤트 버전 관리&lt;/strong&gt;: 시스템이 발전함에 따라 이벤트 스키마가 변경될 수 있으므로, 버전 관리가 필요하다.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;최종 일관성&lt;/strong&gt;: Event Sourcing은 일반적으로 최종 일관성 모델을 따르므로, 즉시 일관성이 필요한 경우 추가적인 메커니즘이 필요할 수 있다.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h3 id=&#34;이벤트-소싱의-구현-시-고려사항&#34;&gt;이벤트 소싱의 구현 시 고려사항&lt;/h3&gt;
-&lt;ol&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;strong&gt;이벤트 저장소(Event Store)&lt;/strong&gt;: 이벤트를 영구적으로 저장하고, 효율적으로 조회할 수 있는 저장소를 구축해야 한다. 이는 관계형 데이터베이스, NoSQL 데이터베이스, 또는 전문 이벤트 저장소를 사용할 수 있다.&lt;/p&gt;</description>
-    </item>
-    <item>
       <title>Maintaining Data Consistency</title>
       <link>https://buenhyden.github.io/posts/software-design-and-architecture/msa-patterns/maintaining-data-consistency/</link>
       <pubDate>Fri, 15 Nov 2024 01:20:00 +0000</pubDate>
