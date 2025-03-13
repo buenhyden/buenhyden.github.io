@@ -1,0 +1,344 @@
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Nginx | hyunyoun's Blog</title>
+<meta name=keywords content="Backend,Web-Servers,Tools,Nginx"><meta name=description content="Nginx는 고성능의 오픈 소스 웹 서버 소프트웨어로, 웹 서버, 리버스 프록시, 로드 밸런서 등 다양한 기능을 제공한다."><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/backend/web-servers/tools/nginx/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.9a2bbe2d8b5afa9d4df22976abb7b72f1f7f1c467d2b30f03090108f9496ae6c.css integrity="sha256-miu+LYta+p1N8il2q7e3Lx9/HEZ9KzDwMJAQj5SWrmw=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate type=application/rss+xml href=https://buenhyden.github.io/posts/backend/web-servers/tools/nginx/index.xml><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/backend/web-servers/tools/nginx/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/backend/web-servers/tools/nginx/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="Nginx"><meta property="og:description" content="Nginx는 고성능의 오픈 소스 웹 서버 소프트웨어로, 웹 서버, 리버스 프록시, 로드 밸런서 등 다양한 기능을 제공한다."><meta property="og:locale" content="en"><meta property="og:type" content="website"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="Nginx"><meta name=twitter:description content="Nginx는 고성능의 오픈 소스 웹 서버 소프트웨어로, 웹 서버, 리버스 프록시, 로드 밸런서 등 다양한 기능을 제공한다."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"posts","item":"https://buenhyden.github.io/posts/"},{"@type":"ListItem","position":2,"name":"Backend","item":"https://buenhyden.github.io/posts/backend/"},{"@type":"ListItem","position":3,"name":"Web Server","item":"https://buenhyden.github.io/posts/backend/web-servers/"},{"@type":"ListItem","position":4,"name":"Tools of Web Server","item":"https://buenhyden.github.io/posts/backend/web-servers/tools/"},{"@type":"ListItem","position":5,"name":"Nginx","item":"https://buenhyden.github.io/posts/backend/web-servers/tools/nginx/"}]}</script></head><body class=list id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><header class=page-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/>posts</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/backend/>Backend</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/backend/web-servers/>Web Server</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/backend/web-servers/tools/>Tools of Web Server</a></div><h1>Nginx</h1><div class=post-description>Nginx는 고성능의 오픈 소스 웹 서버 소프트웨어로, 웹 서버, 리버스 프록시, 로드 밸런서 등 다양한 기능을 제공한다.</div></header><div class=post-content><h2 id=nginx>Nginx<a hidden class=anchor aria-hidden=true href=#nginx>#</a></h2><p>Nginx는 고성능의 오픈 소스 웹 서버 소프트웨어로, 웹 서버, 리버스 프록시, 로드 밸런서 등 다양한 기능을 제공한다.<br>이벤트 기반 비동기 아키텍처를 사용하여 적은 리소스로도 많은 동시 연결을 처리할 수 있다.</p><p><figure><img alt="NGINX Architecture" loading=lazy src=/img/RooSvbKlAWsOjkz8JPactXH-GPf4Pe6DC3Ue.png><figcaption>Source: https://www.freecodecamp.org/news/an-introduction-to-nginx-for-developers-62179b6a458f/</figcaption></figure></p><h3 id=주요-특징>주요 특징<a hidden class=anchor aria-hidden=true href=#주요-특징>#</a></h3><ol><li>비동기 이벤트 기반 아키텍처로 높은 동시성 처리 능력</li><li>낮은 메모리 사용량</li><li>정적 파일 서빙에 최적화</li><li>리버스 프록시 및 로드 밸런싱 기능</li><li>HTTP/2 및 HTTPS 지원</li></ol><h4 id=nginx의-비동기-이벤트-기반-구조>Nginx의 비동기 이벤트 기반 구조<a hidden class=anchor aria-hidden=true href=#nginx의-비동기-이벤트-기반-구조>#</a></h4><ol><li>마스터 프로세스와 워커 프로세스로 구성된다. 마스터 프로세스는 워커 프로세스를 관리하고, 워커 프로세스는 실제 요청을 처리한다.</li><li>각 워커 프로세스는 단일 스레드로 동작하며, 이벤트 루프를 실행한다.</li><li>워커 프로세스는 비동기적으로 여러 연결을 동시에 처리할 수 있다. 새로운 연결이 들어오면 이벤트로 처리되어 워커 프로세스에 할당된다.</li><li>요청은 상태 머신(주로 HTTP 상태 머신)에 할당되어 처리된다. 이 상태 머신은 요청을 어떻게 처리할지 지시한다.</li><li>워커 프로세스는 요청을 차단하지 않고 비동기적으로 처리한다. 이를 통해 한 워커 프로세스가 수천 개의 연결을 동시에 처리할 수 있다.</li><li>이벤트 기반 모델을 사용하여 새로운 클라이언트 요청과 같은 이벤트가 발생할 때까지 대기하다가, 이벤트가 발생하면 처리한다.</li></ol><h3 id=설치-방법>설치 방법<a hidden class=anchor aria-hidden=true href=#설치-방법>#</a></h3><p>Ubuntu/Debian 기반:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-0-1><a class=lnlinks href=#hl-0-1>1</a>
+</span><span class=lnt id=hl-0-2><a class=lnlinks href=#hl-0-2>2</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>sudo apt update
+</span></span><span class=line><span class=cl>sudo apt install nginx
+</span></span></code></pre></td></tr></table></div></div><h3 id=기본-사용법>기본 사용법<a hidden class=anchor aria-hidden=true href=#기본-사용법>#</a></h3><ol><li>시작: <code>sudo systemctl start nginx</code></li><li>중지: <code>sudo systemctl stop nginx</code></li><li>재시작: <code>sudo systemctl restart nginx</code></li><li>설정 리로드: <code>sudo systemctl reload nginx</code></li></ol><h3 id=주요-설정-파일>주요 설정 파일<a hidden class=anchor aria-hidden=true href=#주요-설정-파일>#</a></h3><ul><li>메인 설정 파일: <code>/etc/nginx/nginx.conf</code></li><li>사이트 설정: <code>/etc/nginx/sites-available/</code> 및 <code>/etc/nginx/sites-enabled/</code></li></ul><h3 id=기본-설정-예시>기본 설정 예시<a hidden class=anchor aria-hidden=true href=#기본-설정-예시>#</a></h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-1-1><a class=lnlinks href=#hl-1-1> 1</a>
+</span><span class=lnt id=hl-1-2><a class=lnlinks href=#hl-1-2> 2</a>
+</span><span class=lnt id=hl-1-3><a class=lnlinks href=#hl-1-3> 3</a>
+</span><span class=lnt id=hl-1-4><a class=lnlinks href=#hl-1-4> 4</a>
+</span><span class=lnt id=hl-1-5><a class=lnlinks href=#hl-1-5> 5</a>
+</span><span class=lnt id=hl-1-6><a class=lnlinks href=#hl-1-6> 6</a>
+</span><span class=lnt id=hl-1-7><a class=lnlinks href=#hl-1-7> 7</a>
+</span><span class=lnt id=hl-1-8><a class=lnlinks href=#hl-1-8> 8</a>
+</span><span class=lnt id=hl-1-9><a class=lnlinks href=#hl-1-9> 9</a>
+</span><span class=lnt id=hl-1-10><a class=lnlinks href=#hl-1-10>10</a>
+</span><span class=lnt id=hl-1-11><a class=lnlinks href=#hl-1-11>11</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-nginx data-lang=nginx><span class=line><span class=cl><span class=k>http</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kn>server</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kn>listen</span> <span class=mi>80</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=kn>server_name</span> <span class=s>example.com</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=kn>root</span> <span class=s>/var/www/example.com</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=kn>location</span> <span class=s>/</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=kn>try_files</span> <span class=nv>$uri</span> <span class=nv>$uri/</span> <span class=p>=</span><span class=mi>404</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>이 설정은 example.com 도메인에 대해 80번 포트로 들어오는 요청을 처리하고, /var/www/example.com 디렉토리의 파일을 서빙한다.</p><h3 id=주요-설정-옵션>주요 설정 옵션<a hidden class=anchor aria-hidden=true href=#주요-설정-옵션>#</a></h3><h4 id=기본-설정-구조>기본 설정 구조<a hidden class=anchor aria-hidden=true href=#기본-설정-구조>#</a></h4><p>Nginx의 설정은 계층적인 구조를 가지고 있다.<br>주요 설정 파일은 /etc/nginx/nginx.conf이며, 개별 사이트 설정은 /etc/nginx/sites-available/ 디렉토리에 저장된다.</p><p>기본 설정 파일의 구조:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-2-1><a class=lnlinks href=#hl-2-1> 1</a>
+</span><span class=lnt id=hl-2-2><a class=lnlinks href=#hl-2-2> 2</a>
+</span><span class=lnt id=hl-2-3><a class=lnlinks href=#hl-2-3> 3</a>
+</span><span class=lnt id=hl-2-4><a class=lnlinks href=#hl-2-4> 4</a>
+</span><span class=lnt id=hl-2-5><a class=lnlinks href=#hl-2-5> 5</a>
+</span><span class=lnt id=hl-2-6><a class=lnlinks href=#hl-2-6> 6</a>
+</span><span class=lnt id=hl-2-7><a class=lnlinks href=#hl-2-7> 7</a>
+</span><span class=lnt id=hl-2-8><a class=lnlinks href=#hl-2-8> 8</a>
+</span><span class=lnt id=hl-2-9><a class=lnlinks href=#hl-2-9> 9</a>
+</span><span class=lnt id=hl-2-10><a class=lnlinks href=#hl-2-10>10</a>
+</span><span class=lnt id=hl-2-11><a class=lnlinks href=#hl-2-11>11</a>
+</span><span class=lnt id=hl-2-12><a class=lnlinks href=#hl-2-12>12</a>
+</span><span class=lnt id=hl-2-13><a class=lnlinks href=#hl-2-13>13</a>
+</span><span class=lnt id=hl-2-14><a class=lnlinks href=#hl-2-14>14</a>
+</span><span class=lnt id=hl-2-15><a class=lnlinks href=#hl-2-15>15</a>
+</span><span class=lnt id=hl-2-16><a class=lnlinks href=#hl-2-16>16</a>
+</span><span class=lnt id=hl-2-17><a class=lnlinks href=#hl-2-17>17</a>
+</span><span class=lnt id=hl-2-18><a class=lnlinks href=#hl-2-18>18</a>
+</span><span class=lnt id=hl-2-19><a class=lnlinks href=#hl-2-19>19</a>
+</span><span class=lnt id=hl-2-20><a class=lnlinks href=#hl-2-20>20</a>
+</span><span class=lnt id=hl-2-21><a class=lnlinks href=#hl-2-21>21</a>
+</span><span class=lnt id=hl-2-22><a class=lnlinks href=#hl-2-22>22</a>
+</span><span class=lnt id=hl-2-23><a class=lnlinks href=#hl-2-23>23</a>
+</span><span class=lnt id=hl-2-24><a class=lnlinks href=#hl-2-24>24</a>
+</span><span class=lnt id=hl-2-25><a class=lnlinks href=#hl-2-25>25</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-nginx data-lang=nginx><span class=line><span class=cl><span class=c1># 전역 설정
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>user</span> <span class=s>www-data</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=k>worker_processes</span> <span class=s>auto</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=k>pid</span> <span class=s>/run/nginx.pid</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=k>include</span> <span class=n>/etc/nginx/modules-enabled/*.conf</span>;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>events</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 연결 처리 설정
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kn>worker_connections</span> <span class=mi>1024</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>multi_accept</span> <span class=no>on</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>http</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1># HTTP 설정
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kn>include</span> <span class=s>/etc/nginx/mime.types</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>default_type</span> <span class=s>application/octet-stream</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 로깅 설정
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kn>access_log</span> <span class=s>/var/log/nginx/access.log</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>error_log</span> <span class=s>/var/log/nginx/error.log</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 기본 서버 설정
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kn>include</span> <span class=s>/etc/nginx/conf.d/*.conf</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>include</span> <span class=s>/etc/nginx/sites-enabled/*</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=가상-호스트-설정>가상 호스트 설정<a hidden class=anchor aria-hidden=true href=#가상-호스트-설정>#</a></h4><p>웹사이트 호스팅을 위한 가상 호스트 설정:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-3-1><a class=lnlinks href=#hl-3-1> 1</a>
+</span><span class=lnt id=hl-3-2><a class=lnlinks href=#hl-3-2> 2</a>
+</span><span class=lnt id=hl-3-3><a class=lnlinks href=#hl-3-3> 3</a>
+</span><span class=lnt id=hl-3-4><a class=lnlinks href=#hl-3-4> 4</a>
+</span><span class=lnt id=hl-3-5><a class=lnlinks href=#hl-3-5> 5</a>
+</span><span class=lnt id=hl-3-6><a class=lnlinks href=#hl-3-6> 6</a>
+</span><span class=lnt id=hl-3-7><a class=lnlinks href=#hl-3-7> 7</a>
+</span><span class=lnt id=hl-3-8><a class=lnlinks href=#hl-3-8> 8</a>
+</span><span class=lnt id=hl-3-9><a class=lnlinks href=#hl-3-9> 9</a>
+</span><span class=lnt id=hl-3-10><a class=lnlinks href=#hl-3-10>10</a>
+</span><span class=lnt id=hl-3-11><a class=lnlinks href=#hl-3-11>11</a>
+</span><span class=lnt id=hl-3-12><a class=lnlinks href=#hl-3-12>12</a>
+</span><span class=lnt id=hl-3-13><a class=lnlinks href=#hl-3-13>13</a>
+</span><span class=lnt id=hl-3-14><a class=lnlinks href=#hl-3-14>14</a>
+</span><span class=lnt id=hl-3-15><a class=lnlinks href=#hl-3-15>15</a>
+</span><span class=lnt id=hl-3-16><a class=lnlinks href=#hl-3-16>16</a>
+</span><span class=lnt id=hl-3-17><a class=lnlinks href=#hl-3-17>17</a>
+</span><span class=lnt id=hl-3-18><a class=lnlinks href=#hl-3-18>18</a>
+</span><span class=lnt id=hl-3-19><a class=lnlinks href=#hl-3-19>19</a>
+</span><span class=lnt id=hl-3-20><a class=lnlinks href=#hl-3-20>20</a>
+</span><span class=lnt id=hl-3-21><a class=lnlinks href=#hl-3-21>21</a>
+</span><span class=lnt id=hl-3-22><a class=lnlinks href=#hl-3-22>22</a>
+</span><span class=lnt id=hl-3-23><a class=lnlinks href=#hl-3-23>23</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-nginx data-lang=nginx><span class=line><span class=cl><span class=c1># /etc/nginx/sites-available/example.com
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>server</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kn>listen</span> <span class=mi>80</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>server_name</span> <span class=s>example.com</span> <span class=s>www.example.com</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>root</span> <span class=s>/var/www/example.com</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 로그 설정
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kn>access_log</span> <span class=s>/var/log/nginx/example.com-access.log</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>error_log</span> <span class=s>/var/log/nginx/example.com-error.log</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 기본 페이지 설정
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kn>index</span> <span class=s>index.html</span> <span class=s>index.php</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kn>location</span> <span class=s>/</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kn>try_files</span> <span class=nv>$uri</span> <span class=nv>$uri/</span> <span class=s>/index.php?</span><span class=nv>$query_string</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># PHP 처리 설정
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kn>location</span> <span class=p>~</span> <span class=sr>\.php$</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kn>include</span> <span class=s>snippets/fastcgi-php.conf</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=kn>fastcgi_pass</span> <span class=s>unix:/var/run/php/php7.4-fpm.sock</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=ssltls-설정>SSL/TLS 설정<a hidden class=anchor aria-hidden=true href=#ssltls-설정>#</a></h4><p>HTTPS를 위한 보안 설정:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-4-1><a class=lnlinks href=#hl-4-1> 1</a>
+</span><span class=lnt id=hl-4-2><a class=lnlinks href=#hl-4-2> 2</a>
+</span><span class=lnt id=hl-4-3><a class=lnlinks href=#hl-4-3> 3</a>
+</span><span class=lnt id=hl-4-4><a class=lnlinks href=#hl-4-4> 4</a>
+</span><span class=lnt id=hl-4-5><a class=lnlinks href=#hl-4-5> 5</a>
+</span><span class=lnt id=hl-4-6><a class=lnlinks href=#hl-4-6> 6</a>
+</span><span class=lnt id=hl-4-7><a class=lnlinks href=#hl-4-7> 7</a>
+</span><span class=lnt id=hl-4-8><a class=lnlinks href=#hl-4-8> 8</a>
+</span><span class=lnt id=hl-4-9><a class=lnlinks href=#hl-4-9> 9</a>
+</span><span class=lnt id=hl-4-10><a class=lnlinks href=#hl-4-10>10</a>
+</span><span class=lnt id=hl-4-11><a class=lnlinks href=#hl-4-11>11</a>
+</span><span class=lnt id=hl-4-12><a class=lnlinks href=#hl-4-12>12</a>
+</span><span class=lnt id=hl-4-13><a class=lnlinks href=#hl-4-13>13</a>
+</span><span class=lnt id=hl-4-14><a class=lnlinks href=#hl-4-14>14</a>
+</span><span class=lnt id=hl-4-15><a class=lnlinks href=#hl-4-15>15</a>
+</span><span class=lnt id=hl-4-16><a class=lnlinks href=#hl-4-16>16</a>
+</span><span class=lnt id=hl-4-17><a class=lnlinks href=#hl-4-17>17</a>
+</span><span class=lnt id=hl-4-18><a class=lnlinks href=#hl-4-18>18</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-nginx data-lang=nginx><span class=line><span class=cl><span class=k>server</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kn>listen</span> <span class=mi>443</span> <span class=s>ssl</span> <span class=s>http2</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>server_name</span> <span class=s>example.com</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kn>ssl_certificate</span> <span class=s>/etc/nginx/ssl/example.com.crt</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>ssl_certificate_key</span> <span class=s>/etc/nginx/ssl/example.com.key</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># SSL 프로토콜 설정
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kn>ssl_protocols</span> <span class=s>TLSv1.2</span> <span class=s>TLSv1.3</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>ssl_prefer_server_ciphers</span> <span class=no>off</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># SSL 세션 캐시
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kn>ssl_session_cache</span> <span class=s>shared:SSL:10m</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>ssl_session_timeout</span> <span class=mi>10m</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># HSTS 설정
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kn>add_header</span> <span class=s>Strict-Transport-Security</span> <span class=s>&#34;max-age=31536000&#34;</span> <span class=s>always</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=리버스-프록시-설정>리버스 프록시 설정<a hidden class=anchor aria-hidden=true href=#리버스-프록시-설정>#</a></h4><p>백엔드 서버로 요청을 전달하는 설정:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-5-1><a class=lnlinks href=#hl-5-1> 1</a>
+</span><span class=lnt id=hl-5-2><a class=lnlinks href=#hl-5-2> 2</a>
+</span><span class=lnt id=hl-5-3><a class=lnlinks href=#hl-5-3> 3</a>
+</span><span class=lnt id=hl-5-4><a class=lnlinks href=#hl-5-4> 4</a>
+</span><span class=lnt id=hl-5-5><a class=lnlinks href=#hl-5-5> 5</a>
+</span><span class=lnt id=hl-5-6><a class=lnlinks href=#hl-5-6> 6</a>
+</span><span class=lnt id=hl-5-7><a class=lnlinks href=#hl-5-7> 7</a>
+</span><span class=lnt id=hl-5-8><a class=lnlinks href=#hl-5-8> 8</a>
+</span><span class=lnt id=hl-5-9><a class=lnlinks href=#hl-5-9> 9</a>
+</span><span class=lnt id=hl-5-10><a class=lnlinks href=#hl-5-10>10</a>
+</span><span class=lnt id=hl-5-11><a class=lnlinks href=#hl-5-11>11</a>
+</span><span class=lnt id=hl-5-12><a class=lnlinks href=#hl-5-12>12</a>
+</span><span class=lnt id=hl-5-13><a class=lnlinks href=#hl-5-13>13</a>
+</span><span class=lnt id=hl-5-14><a class=lnlinks href=#hl-5-14>14</a>
+</span><span class=lnt id=hl-5-15><a class=lnlinks href=#hl-5-15>15</a>
+</span><span class=lnt id=hl-5-16><a class=lnlinks href=#hl-5-16>16</a>
+</span><span class=lnt id=hl-5-17><a class=lnlinks href=#hl-5-17>17</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-nginx data-lang=nginx><span class=line><span class=cl><span class=k>server</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kn>listen</span> <span class=mi>80</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>server_name</span> <span class=s>api.example.com</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kn>location</span> <span class=s>/</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kn>proxy_pass</span> <span class=s>http://localhost:3000</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=kn>proxy_set_header</span> <span class=s>Host</span> <span class=nv>$host</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=kn>proxy_set_header</span> <span class=s>X-Real-IP</span> <span class=nv>$remote_addr</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=kn>proxy_set_header</span> <span class=s>X-Forwarded-For</span> <span class=nv>$proxy_add_x_forwarded_for</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=kn>proxy_set_header</span> <span class=s>X-Forwarded-Proto</span> <span class=nv>$scheme</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># WebSocket 지원
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=kn>proxy_http_version</span> <span class=mi>1</span><span class=s>.1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=kn>proxy_set_header</span> <span class=s>Upgrade</span> <span class=nv>$http_upgrade</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=kn>proxy_set_header</span> <span class=s>Connection</span> <span class=s>&#39;upgrade&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=캐싱-설정>캐싱 설정<a hidden class=anchor aria-hidden=true href=#캐싱-설정>#</a></h4><p>성능 향상을 위한 캐시 설정:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-6-1><a class=lnlinks href=#hl-6-1> 1</a>
+</span><span class=lnt id=hl-6-2><a class=lnlinks href=#hl-6-2> 2</a>
+</span><span class=lnt id=hl-6-3><a class=lnlinks href=#hl-6-3> 3</a>
+</span><span class=lnt id=hl-6-4><a class=lnlinks href=#hl-6-4> 4</a>
+</span><span class=lnt id=hl-6-5><a class=lnlinks href=#hl-6-5> 5</a>
+</span><span class=lnt id=hl-6-6><a class=lnlinks href=#hl-6-6> 6</a>
+</span><span class=lnt id=hl-6-7><a class=lnlinks href=#hl-6-7> 7</a>
+</span><span class=lnt id=hl-6-8><a class=lnlinks href=#hl-6-8> 8</a>
+</span><span class=lnt id=hl-6-9><a class=lnlinks href=#hl-6-9> 9</a>
+</span><span class=lnt id=hl-6-10><a class=lnlinks href=#hl-6-10>10</a>
+</span><span class=lnt id=hl-6-11><a class=lnlinks href=#hl-6-11>11</a>
+</span><span class=lnt id=hl-6-12><a class=lnlinks href=#hl-6-12>12</a>
+</span><span class=lnt id=hl-6-13><a class=lnlinks href=#hl-6-13>13</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-nginx data-lang=nginx><span class=line><span class=cl><span class=k>http</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 캐시 영역 정의
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kn>proxy_cache_path</span> <span class=s>/var/cache/nginx</span> <span class=s>levels=1:2</span> <span class=s>keys_zone=my_cache:10m</span> <span class=s>max_size=10g</span> <span class=s>inactive=60m</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kn>server</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kn>location</span> <span class=s>/</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=kn>proxy_cache</span> <span class=s>my_cache</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>            <span class=kn>proxy_cache_use_stale</span> <span class=s>error</span> <span class=s>timeout</span> <span class=s>http_500</span> <span class=s>http_502</span> <span class=s>http_503</span> <span class=s>http_504</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>            <span class=kn>proxy_cache_valid</span> <span class=mi>200</span> <span class=mi>60m</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>            <span class=kn>add_header</span> <span class=s>X-Cache-Status</span> <span class=nv>$upstream_cache_status</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=로드-밸런싱-설정>로드 밸런싱 설정<a hidden class=anchor aria-hidden=true href=#로드-밸런싱-설정>#</a></h4><p>여러 서버로 부하 분산하는 설정:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-7-1><a class=lnlinks href=#hl-7-1> 1</a>
+</span><span class=lnt id=hl-7-2><a class=lnlinks href=#hl-7-2> 2</a>
+</span><span class=lnt id=hl-7-3><a class=lnlinks href=#hl-7-3> 3</a>
+</span><span class=lnt id=hl-7-4><a class=lnlinks href=#hl-7-4> 4</a>
+</span><span class=lnt id=hl-7-5><a class=lnlinks href=#hl-7-5> 5</a>
+</span><span class=lnt id=hl-7-6><a class=lnlinks href=#hl-7-6> 6</a>
+</span><span class=lnt id=hl-7-7><a class=lnlinks href=#hl-7-7> 7</a>
+</span><span class=lnt id=hl-7-8><a class=lnlinks href=#hl-7-8> 8</a>
+</span><span class=lnt id=hl-7-9><a class=lnlinks href=#hl-7-9> 9</a>
+</span><span class=lnt id=hl-7-10><a class=lnlinks href=#hl-7-10>10</a>
+</span><span class=lnt id=hl-7-11><a class=lnlinks href=#hl-7-11>11</a>
+</span><span class=lnt id=hl-7-12><a class=lnlinks href=#hl-7-12>12</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-nginx data-lang=nginx><span class=line><span class=cl><span class=k>upstream</span> <span class=s>backend</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kn>least_conn</span><span class=p>;</span>  <span class=c1># 최소 연결 수 기반 분산
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kn>server</span> <span class=n>backend1.example.com</span><span class=p>:</span><span class=mi>8080</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>server</span> <span class=n>backend2.example.com</span><span class=p>:</span><span class=mi>8080</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>server</span> <span class=n>backend3.example.com</span><span class=p>:</span><span class=mi>8080</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>server</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kn>location</span> <span class=s>/</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kn>proxy_pass</span> <span class=s>http://backend</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h5 id=로드밸런싱-기능>로드밸런싱 기능<a hidden class=anchor aria-hidden=true href=#로드밸런싱-기능>#</a></h5><p>Nginx의 로드 밸런싱 기능은 다음과 같이 작동한다:</p><ol><li><p>업스트림 정의:</p><ul><li>nginx.conf 파일에 &lsquo;upstream&rsquo; 블록을 정의하여 백엔드 서버들의 그룹을 지정한다.</li><li>각 서버는 IP 주소와 포트 또는 도메인 이름으로 정의된다.</li></ul></li><li><p>로드 밸런싱 알고리즘:</p><ul><li>기본적으로 라운드 로빈 방식을 사용한다.</li><li>least_conn (최소 연결), ip_hash, 가중치 기반 등 다양한 알고리즘을 선택할 수 있다.</li></ul></li><li><p>프록시 설정:</p><ul><li>&lsquo;server&rsquo; 블록 내에 &lsquo;proxy_pass&rsquo; 지시어를 사용하여 요청을 업스트림 그룹으로 전달한다.</li></ul></li><li><p>요청 분배:</p><ul><li>클라이언트 요청이 들어오면 선택된 알고리즘에 따라 적절한 백엔드 서버로 요청을 전달한다.</li></ul></li><li><p>헬스 체크:</p><ul><li>백엔드 서버의 상태를 모니터링하고, 문제가 있는 서버를 자동으로 제외할 수 있다.</li></ul></li><li><p>가중치 설정:</p><ul><li>서버마다 다른 가중치를 부여하여 트래픽 분배 비율을 조정할 수 있다.</li></ul></li></ol><h4 id=보안-설정>보안 설정<a hidden class=anchor aria-hidden=true href=#보안-설정>#</a></h4><p>웹 애플리케이션 보호를 위한 설정:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-8-1><a class=lnlinks href=#hl-8-1> 1</a>
+</span><span class=lnt id=hl-8-2><a class=lnlinks href=#hl-8-2> 2</a>
+</span><span class=lnt id=hl-8-3><a class=lnlinks href=#hl-8-3> 3</a>
+</span><span class=lnt id=hl-8-4><a class=lnlinks href=#hl-8-4> 4</a>
+</span><span class=lnt id=hl-8-5><a class=lnlinks href=#hl-8-5> 5</a>
+</span><span class=lnt id=hl-8-6><a class=lnlinks href=#hl-8-6> 6</a>
+</span><span class=lnt id=hl-8-7><a class=lnlinks href=#hl-8-7> 7</a>
+</span><span class=lnt id=hl-8-8><a class=lnlinks href=#hl-8-8> 8</a>
+</span><span class=lnt id=hl-8-9><a class=lnlinks href=#hl-8-9> 9</a>
+</span><span class=lnt id=hl-8-10><a class=lnlinks href=#hl-8-10>10</a>
+</span><span class=lnt id=hl-8-11><a class=lnlinks href=#hl-8-11>11</a>
+</span><span class=lnt id=hl-8-12><a class=lnlinks href=#hl-8-12>12</a>
+</span><span class=lnt id=hl-8-13><a class=lnlinks href=#hl-8-13>13</a>
+</span><span class=lnt id=hl-8-14><a class=lnlinks href=#hl-8-14>14</a>
+</span><span class=lnt id=hl-8-15><a class=lnlinks href=#hl-8-15>15</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-nginx data-lang=nginx><span class=line><span class=cl><span class=k>server</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 기본 보안 헤더
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kn>add_header</span> <span class=s>X-Frame-Options</span> <span class=s>&#34;SAMEORIGIN&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>add_header</span> <span class=s>X-XSS-Protection</span> <span class=s>&#34;1</span><span class=p>;</span> <span class=kn>mode=block&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>add_header</span> <span class=s>X-Content-Type-Options</span> <span class=s>&#34;nosniff&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>add_header</span> <span class=s>Referrer-Policy</span> <span class=s>&#34;no-referrer-when-downgrade&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 파일 업로드 제한
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kn>client_max_body_size</span> <span class=s>10M</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 민감한 파일 접근 제한
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kn>location</span> <span class=p>~</span> <span class=sr>/\.(?!well-known)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kn>deny</span> <span class=s>all</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=성능-최적화>성능 최적화<a hidden class=anchor aria-hidden=true href=#성능-최적화>#</a></h4><p>웹 서버 성능 향상을 위한 설정:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-9-1><a class=lnlinks href=#hl-9-1> 1</a>
+</span><span class=lnt id=hl-9-2><a class=lnlinks href=#hl-9-2> 2</a>
+</span><span class=lnt id=hl-9-3><a class=lnlinks href=#hl-9-3> 3</a>
+</span><span class=lnt id=hl-9-4><a class=lnlinks href=#hl-9-4> 4</a>
+</span><span class=lnt id=hl-9-5><a class=lnlinks href=#hl-9-5> 5</a>
+</span><span class=lnt id=hl-9-6><a class=lnlinks href=#hl-9-6> 6</a>
+</span><span class=lnt id=hl-9-7><a class=lnlinks href=#hl-9-7> 7</a>
+</span><span class=lnt id=hl-9-8><a class=lnlinks href=#hl-9-8> 8</a>
+</span><span class=lnt id=hl-9-9><a class=lnlinks href=#hl-9-9> 9</a>
+</span><span class=lnt id=hl-9-10><a class=lnlinks href=#hl-9-10>10</a>
+</span><span class=lnt id=hl-9-11><a class=lnlinks href=#hl-9-11>11</a>
+</span><span class=lnt id=hl-9-12><a class=lnlinks href=#hl-9-12>12</a>
+</span><span class=lnt id=hl-9-13><a class=lnlinks href=#hl-9-13>13</a>
+</span><span class=lnt id=hl-9-14><a class=lnlinks href=#hl-9-14>14</a>
+</span><span class=lnt id=hl-9-15><a class=lnlinks href=#hl-9-15>15</a>
+</span><span class=lnt id=hl-9-16><a class=lnlinks href=#hl-9-16>16</a>
+</span><span class=lnt id=hl-9-17><a class=lnlinks href=#hl-9-17>17</a>
+</span><span class=lnt id=hl-9-18><a class=lnlinks href=#hl-9-18>18</a>
+</span><span class=lnt id=hl-9-19><a class=lnlinks href=#hl-9-19>19</a>
+</span><span class=lnt id=hl-9-20><a class=lnlinks href=#hl-9-20>20</a>
+</span><span class=lnt id=hl-9-21><a class=lnlinks href=#hl-9-21>21</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-nginx data-lang=nginx><span class=line><span class=cl><span class=k>http</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1># Gzip 압축
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kn>gzip</span> <span class=no>on</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>gzip_vary</span> <span class=no>on</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>gzip_min_length</span> <span class=mi>10240</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>gzip_proxied</span> <span class=s>expired</span> <span class=s>no-cache</span> <span class=s>no-store</span> <span class=s>private</span> <span class=s>auth</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>gzip_types</span> <span class=s>text/plain</span> <span class=s>text/css</span> <span class=s>text/xml</span> <span class=s>application/json</span> <span class=s>application/javascript</span> <span class=s>application/xml</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>gzip_disable</span> <span class=s>&#34;MSIE</span> <span class=s>[1-6]\.&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 버퍼 설정
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kn>client_body_buffer_size</span> <span class=s>10K</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>client_header_buffer_size</span> <span class=mi>1k</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>client_max_body_size</span> <span class=mi>8m</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>large_client_header_buffers</span> <span class=mi>2</span> <span class=mi>1k</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 타임아웃 설정
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kn>client_body_timeout</span> <span class=mi>12</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>client_header_timeout</span> <span class=mi>12</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>keepalive_timeout</span> <span class=mi>15</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>send_timeout</span> <span class=mi>10</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=캐시-설정>캐시 설정<a hidden class=anchor aria-hidden=true href=#캐시-설정>#</a></h4><p>Nginx의 HTTP 캐시 설정 방법은 다음과 같다:</p><ol><li><p>proxy_cache_path 지시어 설정:<br>nginx.conf 파일에 캐시 저장 경로와 옵션을 지정한다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-10-1><a class=lnlinks href=#hl-10-1>1</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-nginx data-lang=nginx><span class=line><span class=cl><span class=k>proxy_cache_path</span> <span class=s>/var/cache/nginx</span> <span class=s>levels=1:2</span> <span class=s>keys_zone=my_cache:10m</span> <span class=s>max_size=10g</span> <span class=s>inactive=60m</span> <span class=s>use_temp_path=off</span><span class=p>;</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>server 블록 내 location 설정:</p><ul><li>proxy_cache 지시어로 사용할 캐시 영역 지정</li><li>proxy_cache_valid로 응답 코드별 캐시 유효 기간 설정</li><li>proxy_cache_use_stale로 오류 발생 시 캐시 사용 조건 지정</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-11-1><a class=lnlinks href=#hl-11-1>1</a>
+</span><span class=lnt id=hl-11-2><a class=lnlinks href=#hl-11-2>2</a>
+</span><span class=lnt id=hl-11-3><a class=lnlinks href=#hl-11-3>3</a>
+</span><span class=lnt id=hl-11-4><a class=lnlinks href=#hl-11-4>4</a>
+</span><span class=lnt id=hl-11-5><a class=lnlinks href=#hl-11-5>5</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-nginx data-lang=nginx><span class=line><span class=cl><span class=k>location</span> <span class=s>/</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=kn>proxy_cache</span> <span class=s>my_cache</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=kn>proxy_cache_valid</span> <span class=mi>200</span> <span class=s>1d</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=kn>proxy_cache_use_stale</span> <span class=s>error</span> <span class=s>timeout</span> <span class=s>updating</span> <span class=s>http_500</span> <span class=s>http_502</span> <span class=s>http_503</span> <span class=s>http_504</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>캐시 상태 확인을 위한 헤더 추가:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-12-1><a class=lnlinks href=#hl-12-1>1</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-nginx data-lang=nginx><span class=line><span class=cl><span class=k>add_header</span> <span class=s>X-Cache-Status</span> <span class=nv>$upstream_cache_status</span><span class=p>;</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>특정 파일 유형별 캐시 설정:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-13-1><a class=lnlinks href=#hl-13-1>1</a>
+</span><span class=lnt id=hl-13-2><a class=lnlinks href=#hl-13-2>2</a>
+</span><span class=lnt id=hl-13-3><a class=lnlinks href=#hl-13-3>3</a>
+</span><span class=lnt id=hl-13-4><a class=lnlinks href=#hl-13-4>4</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-nginx data-lang=nginx><span class=line><span class=cl><span class=k>location</span> <span class=p>~</span><span class=sr>*</span> <span class=s>\.(jpg|jpeg|png|gif)</span>$ <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=kn>expires</span> <span class=s>30d</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=kn>add_header</span> <span class=s>Cache-Control</span> <span class=s>&#34;public&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>캐시 우회 설정 (필요시):</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-14-1><a class=lnlinks href=#hl-14-1>1</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-nginx data-lang=nginx><span class=line><span class=cl><span class=k>proxy_cache_bypass</span> <span class=nv>$http_cache_control</span><span class=p>;</span>
+</span></span></code></pre></td></tr></table></div></div></li></ol><p>이러한 설정을 통해 Nginx의 HTTP 캐시를 효과적으로 구성하여 서버 성능을 향상시킬 수 있다.</p><hr><h2 id=참고-및-출처>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처>#</a></h2></div></main><footer class=footer><span>&copy; 2025 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>

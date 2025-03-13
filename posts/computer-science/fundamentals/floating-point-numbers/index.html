@@ -1,0 +1,420 @@
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Floating Point Numbers | hyunyoun's Blog</title>
+<meta name=keywords content="Computer-Science,Fundamentals,Floating-Point-Numbers"><meta name=description content="부동소수점 수는 컴퓨터에서 실수를 표현하는 핵심적인 방식"><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/computer-science/fundamentals/floating-point-numbers/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.9a2bbe2d8b5afa9d4df22976abb7b72f1f7f1c467d2b30f03090108f9496ae6c.css integrity="sha256-miu+LYta+p1N8il2q7e3Lx9/HEZ9KzDwMJAQj5SWrmw=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate type=application/rss+xml href=https://buenhyden.github.io/posts/computer-science/fundamentals/floating-point-numbers/index.xml><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/computer-science/fundamentals/floating-point-numbers/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/computer-science/fundamentals/floating-point-numbers/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="Floating Point Numbers"><meta property="og:description" content="부동소수점 수는 컴퓨터에서 실수를 표현하는 핵심적인 방식"><meta property="og:locale" content="en"><meta property="og:type" content="website"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="Floating Point Numbers"><meta name=twitter:description content="부동소수점 수는 컴퓨터에서 실수를 표현하는 핵심적인 방식"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"posts","item":"https://buenhyden.github.io/posts/"},{"@type":"ListItem","position":2,"name":"Computer Science and Engineering","item":"https://buenhyden.github.io/posts/computer-science/"},{"@type":"ListItem","position":3,"name":"Computer Science's Fundamentals","item":"https://buenhyden.github.io/posts/computer-science/fundamentals/"},{"@type":"ListItem","position":4,"name":"Floating Point Numbers","item":"https://buenhyden.github.io/posts/computer-science/fundamentals/floating-point-numbers/"}]}</script></head><body class=list id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><header class=page-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/>posts</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/computer-science/>Computer Science and Engineering</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/computer-science/fundamentals/>Computer Science's Fundamentals</a></div><h1>Floating Point Numbers</h1><div class=post-description>부동소수점 수는 컴퓨터에서 실수를 표현하는 핵심적인 방식</div></header><div class=post-content><h2 id=부동소수점-수floating-point-numbers>부동소수점 수(Floating Point Numbers)<a hidden class=anchor aria-hidden=true href=#부동소수점-수floating-point-numbers>#</a></h2><p>부동소수점 수는 컴퓨터에서 실수를 표현하는 핵심적인 방식으로, 프로그래밍에서 매우 중요한 개념이다.</p><p>부동소수점은 컴퓨터에서 실수를 표현하는 효율적인 방법이지만, 그 특성과 한계를 이해하는 것이 중요하다.<br>정밀도 문제, 반올림 오차, 비교 문제 등을 인식하고 적절히 대응하는 것이 안정적인 소프트웨어 개발의 핵심이다.</p><p>실용적인 측면에서는:</p><ol><li>정확한 산술이 필요한 영역에서는 Decimal 같은 정밀 타입 사용</li><li>부동소수점 비교 시 epsilon 값을 활용한 근사 비교 적용</li><li>부동소수점의 특수한 값들(NaN, Infinity 등)을 적절히 처리</li><li>필요에 따라 반올림 정책을 명확히 설정하고 일관되게 적용</li></ol><p>이러한 원칙을 따르면 부동소수점 관련 문제를 최소화하고 안정적인 시스템을 구축할 수 있다.</p><h3 id=부동소수점의-기본-개념>부동소수점의 기본 개념<a hidden class=anchor aria-hidden=true href=#부동소수점의-기본-개념>#</a></h3><p>부동소수점(Floating Point)은 실수를 컴퓨터에서 표현하기 위한 방식으로, 이름에서 알 수 있듯이 소수점의 위치가 &lsquo;부동(floating)&lsquo;하다. 이는 과학적 표기법과 유사한 방식으로, 숫자를 표현한다.</p><h4 id=과학적-표기법과의-유사성>과학적 표기법과의 유사성<a hidden class=anchor aria-hidden=true href=#과학적-표기법과의-유사성>#</a></h4><p>일반적인 과학적 표기법에서 실수는 다음과 같이 표현된다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-0-1><a class=lnlinks href=#hl-0-1>1</a>
+</span><span class=lnt id=hl-0-2><a class=lnlinks href=#hl-0-2>2</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>1.23456 × 10^5 = 123456
+</span></span><span class=line><span class=cl>5.67890 × 10^-2 = 0.0567890
+</span></span></code></pre></td></tr></table></div></div><p>부동소수점 수는 이와 유사하게 다음 형태로 표현된다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-1-1><a class=lnlinks href=#hl-1-1>1</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>significand × base^exponent
+</span></span></code></pre></td></tr></table></div></div><p>여기서:</p><ul><li><strong>significand(가수)</strong>: 숫자의 유효 자릿수 부분</li><li><strong>base(기수)</strong>: 기본이 되는 숫자 체계 (보통 2)</li><li><strong>exponent(지수)</strong>: 기수의 지수 부분</li></ul><p>컴퓨터에서는 이진수 체계를 사용하므로 기수는 2가 된다.</p><h3 id=ieee-754-표준>IEEE 754 표준<a hidden class=anchor aria-hidden=true href=#ieee-754-표준>#</a></h3><p>현대 컴퓨터에서 사용하는 부동소수점 표현 방식은 대부분 IEEE 754 표준을 따른다.<br>이 표준은 1985년에 처음 도입되어 2008년과 2019년에 개정되었다.</p><h4 id=ieee-754의-주요-형식>IEEE 754의 주요 형식<a hidden class=anchor aria-hidden=true href=#ieee-754의-주요-형식>#</a></h4><ol><li><strong>단정밀도(Single Precision, 32비트, float)</strong><ul><li>1비트: 부호(sign)</li><li>8비트: 지수(exponent)</li><li>23비트: 가수(fraction/mantissa)</li></ul></li><li><strong>배정밀도(Double Precision, 64비트, double)</strong><ul><li>1비트: 부호(sign)</li><li>11비트: 지수(exponent)</li><li>52비트: 가수(fraction/mantissa)</li></ul></li><li><strong>확장정밀도(Extended Precision, 80비트, long double)</strong><ul><li>일부 프로세서에서 지원 (x86 계열)</li></ul></li><li><strong>4배정밀도(Quadruple Precision, 128비트)</strong><ul><li>소프트웨어적으로 구현됨</li></ul></li></ol><h3 id=부동소수점의-내부-구조>부동소수점의 내부 구조<a hidden class=anchor aria-hidden=true href=#부동소수점의-내부-구조>#</a></h3><p>부동소수점 수의 내부 구조를 32비트 단정밀도(float) 타입을 예로 들어 설명해보면:</p><ol><li><p>내부 구조 (단정밀도, 32비트)</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-2-1><a class=lnlinks href=#hl-2-1>1</a>
+</span><span class=lnt id=hl-2-2><a class=lnlinks href=#hl-2-2>2</a>
+</span><span class=lnt id=hl-2-3><a class=lnlinks href=#hl-2-3>3</a>
+</span><span class=lnt id=hl-2-4><a class=lnlinks href=#hl-2-4>4</a>
+</span><span class=lnt id=hl-2-5><a class=lnlinks href=#hl-2-5>5</a>
+</span><span class=lnt id=hl-2-6><a class=lnlinks href=#hl-2-6>6</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl> s eeeeeeee fffffffffffffffffffffff
+</span></span><span class=line><span class=cl> ^ ^^^^^^^^ ^^^^^^^^^^^^^^^^^^^^^^^
+</span></span><span class=line><span class=cl> |    |               |
+</span></span><span class=line><span class=cl> |    |               +-- 가수(23비트)
+</span></span><span class=line><span class=cl> |    +------------------ 지수(8비트)
+</span></span><span class=line><span class=cl> +----------------------- 부호(1비트, 0=양수, 1=음수)
+</span></span></code></pre></td></tr></table></div></div></li><li><p>값 계산 방식<br>IEEE 754 표준에서 값은 다음과 같이 계산된다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-3-1><a class=lnlinks href=#hl-3-1>1</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>값 = (-1)^부호 × 2^(지수-편향값) × (1 + 가수)
+</span></span></code></pre></td></tr></table></div></div><p>여기서:</p><ul><li>부호 비트가 0이면 양수, 1이면 음수</li><li>지수는 편향(bias)된 형태로 저장됨 (단정밀도의 경우 편향값은 127)</li><li>가수부는 1.xxx 형태의 정규화된 형식을 가정함 (선행 1은 암시적)</li></ul><p>예를 들어, 단정밀도에서 십진수 10.5를 표현하면:</p><ul><li>이진수: 1010.1</li><li>정규화: 1.0101 × 2^3</li><li>부호 비트: 0 (양수)</li><li>지수: 3 + 127 = 130 (이진수로 10000010)</li><li>가수: 0101000.. (선행 1은 저장하지 않음)</li></ul><p>최종 표현: <code>0 10000010 01010000000000000000000</code><br>16진수로 표현하면,</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-4-1><a class=lnlinks href=#hl-4-1>1</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>0x41280000
+</span></span></code></pre></td></tr></table></div></div></li></ol><h3 id=특수한-값들>특수한 값들<a hidden class=anchor aria-hidden=true href=#특수한-값들>#</a></h3><p>IEEE 754는 몇 가지 특수한 값을 정의한다:</p><h4 id=특수값-표현>특수값 표현<a hidden class=anchor aria-hidden=true href=#특수값-표현>#</a></h4><ol><li><strong>±0</strong><ul><li>모든 비트가 0이고 부호 비트만 다름</li><li>표현: <code>s 00000000 00000000000000000000000</code></li></ul></li><li><strong>±무한대(Infinity)</strong><ul><li>지수 비트가 모두 1이고 가수 비트가 모두 0</li><li>표현: <code>s 11111111 00000000000000000000000</code></li></ul></li><li><strong>NaN(Not a Number)</strong><ul><li>지수 비트가 모두 1이고 가수 비트가 0이 아님</li><li>표현: <code>s 11111111 (가수 ≠ 0)</code></li></ul></li><li><strong>서브노멀 수(Subnormal/Denormalized Numbers)</strong><ul><li>지수 비트가 모두 0이고 가수가 0이 아님</li><li>표현: <code>s 00000000 (가수 ≠ 0)</code></li><li>암시적 선행 1이 없는 특수한 경우로, 0에 가까운 매우 작은 수를 표현할 때 사용됨</li></ul></li></ol><h3 id=부동소수점의-정밀도와-한계>부동소수점의 정밀도와 한계<a hidden class=anchor aria-hidden=true href=#부동소수점의-정밀도와-한계>#</a></h3><p>부동소수점은 실수를 완벽히 표현할 수 없다는 근본적인 한계가 있다.</p><h4 id=정밀도-문제>정밀도 문제<a hidden class=anchor aria-hidden=true href=#정밀도-문제>#</a></h4><ol><li><p><strong>제한된 정밀도</strong></p><ul><li>단정밀도: 약 7자리 십진 정밀도</li><li>배정밀도: 약 15-17자리 십진 정밀도</li></ul></li><li><p><strong>이진 표현의 문제</strong></p><ul><li>10진수로 정확히 표현되는 수(예: 0.1, 0.2)가 이진수로는 무한 소수가 될 수 있음</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-5-1><a class=lnlinks href=#hl-5-1>1</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>0.1(10) = 0.00011001100110011…(2) (무한 반복)
+</span></span></code></pre></td></tr></table></div></div></li><li><p><strong>반올림 오차</strong></p><ul><li>무한 소수는 유한한 비트로 표현될 때 반올림되어 오차 발생</li></ul></li></ol><h4 id=실제-예시-코드-python>실제 예시 코드 (Python)<a hidden class=anchor aria-hidden=true href=#실제-예시-코드-python>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-6-1><a class=lnlinks href=#hl-6-1> 1</a>
+</span><span class=lnt id=hl-6-2><a class=lnlinks href=#hl-6-2> 2</a>
+</span><span class=lnt id=hl-6-3><a class=lnlinks href=#hl-6-3> 3</a>
+</span><span class=lnt id=hl-6-4><a class=lnlinks href=#hl-6-4> 4</a>
+</span><span class=lnt id=hl-6-5><a class=lnlinks href=#hl-6-5> 5</a>
+</span><span class=lnt id=hl-6-6><a class=lnlinks href=#hl-6-6> 6</a>
+</span><span class=lnt id=hl-6-7><a class=lnlinks href=#hl-6-7> 7</a>
+</span><span class=lnt id=hl-6-8><a class=lnlinks href=#hl-6-8> 8</a>
+</span><span class=lnt id=hl-6-9><a class=lnlinks href=#hl-6-9> 9</a>
+</span><span class=lnt id=hl-6-10><a class=lnlinks href=#hl-6-10>10</a>
+</span><span class=lnt id=hl-6-11><a class=lnlinks href=#hl-6-11>11</a>
+</span><span class=lnt id=hl-6-12><a class=lnlinks href=#hl-6-12>12</a>
+</span><span class=lnt id=hl-6-13><a class=lnlinks href=#hl-6-13>13</a>
+</span><span class=lnt id=hl-6-14><a class=lnlinks href=#hl-6-14>14</a>
+</span><span class=lnt id=hl-6-15><a class=lnlinks href=#hl-6-15>15</a>
+</span><span class=lnt id=hl-6-16><a class=lnlinks href=#hl-6-16>16</a>
+</span><span class=lnt id=hl-6-17><a class=lnlinks href=#hl-6-17>17</a>
+</span><span class=lnt id=hl-6-18><a class=lnlinks href=#hl-6-18>18</a>
+</span><span class=lnt id=hl-6-19><a class=lnlinks href=#hl-6-19>19</a>
+</span><span class=lnt id=hl-6-20><a class=lnlinks href=#hl-6-20>20</a>
+</span><span class=lnt id=hl-6-21><a class=lnlinks href=#hl-6-21>21</a>
+</span><span class=lnt id=hl-6-22><a class=lnlinks href=#hl-6-22>22</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 부동소수점 정밀도 문제 예시</span>
+</span></span><span class=line><span class=cl><span class=n>x</span> <span class=o>=</span> <span class=mf>0.1</span> <span class=o>+</span> <span class=mf>0.2</span>
+</span></span><span class=line><span class=cl><span class=n>y</span> <span class=o>=</span> <span class=mf>0.3</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;x = </span><span class=si>{</span><span class=n>x</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>  <span class=c1># 출력: 0.30000000000000004</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;y = </span><span class=si>{</span><span class=n>y</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>  <span class=c1># 출력: 0.3</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;x == y: </span><span class=si>{</span><span class=n>x</span> <span class=o>==</span> <span class=n>y</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>  <span class=c1># 출력: False</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 매우 큰 수와 작은 수의 덧셈</span>
+</span></span><span class=line><span class=cl><span class=n>big</span> <span class=o>=</span> <span class=mf>1e16</span>
+</span></span><span class=line><span class=cl><span class=n>small</span> <span class=o>=</span> <span class=mf>1.0</span>
+</span></span><span class=line><span class=cl><span class=n>result</span> <span class=o>=</span> <span class=n>big</span> <span class=o>+</span> <span class=n>small</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;big = </span><span class=si>{</span><span class=n>big</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;small = </span><span class=si>{</span><span class=n>small</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;big + small = </span><span class=si>{</span><span class=n>result</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>  <span class=c1># small이 흡수됨</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;big + small - big = </span><span class=si>{</span><span class=n>result</span> <span class=o>-</span> <span class=n>big</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>  <span class=c1># 0.0 출력</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 누적 오차 예시</span>
+</span></span><span class=line><span class=cl><span class=n>sum_val</span> <span class=o>=</span> <span class=mf>0.0</span>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>1000</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>sum_val</span> <span class=o>+=</span> <span class=mf>0.001</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;0.001을 1000번 더한 결과: </span><span class=si>{</span><span class=n>sum_val</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>  <span class=c1># 1.0이 아닌 값 출력</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;예상값과의 차이: </span><span class=si>{</span><span class=n>sum_val</span> <span class=o>-</span> <span class=mf>1.0</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=개발-시-고려사항>개발 시 고려사항<a hidden class=anchor aria-hidden=true href=#개발-시-고려사항>#</a></h3><h4 id=정밀도-문제-해결-방법>정밀도 문제 해결 방법<a hidden class=anchor aria-hidden=true href=#정밀도-문제-해결-방법>#</a></h4><ol><li><p><strong>적절한 타입 사용</strong></p><ul><li>정확한 계산이 필요한 경우(금융 등) 부동소수점 대신 정수나 고정소수점, 혹은 Decimal 타입 사용</li></ul></li><li><p><strong>비교 방법</strong></p><ul><li>절대 오차(absolute error)나 상대 오차(relative error)를 사용하여 비교</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-7-1><a class=lnlinks href=#hl-7-1>1</a>
+</span><span class=lnt id=hl-7-2><a class=lnlinks href=#hl-7-2>2</a>
+</span><span class=lnt id=hl-7-3><a class=lnlinks href=#hl-7-3>3</a>
+</span><span class=lnt id=hl-7-4><a class=lnlinks href=#hl-7-4>4</a>
+</span><span class=lnt id=hl-7-5><a class=lnlinks href=#hl-7-5>5</a>
+</span><span class=lnt id=hl-7-6><a class=lnlinks href=#hl-7-6>6</a>
+</span><span class=lnt id=hl-7-7><a class=lnlinks href=#hl-7-7>7</a>
+</span><span class=lnt id=hl-7-8><a class=lnlinks href=#hl-7-8>8</a>
+</span><span class=lnt id=hl-7-9><a class=lnlinks href=#hl-7-9>9</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 절대 오차를 이용한 비교</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>is_equal</span><span class=p>(</span><span class=n>a</span><span class=p>,</span> <span class=n>b</span><span class=p>,</span> <span class=n>epsilon</span><span class=o>=</span><span class=mf>1e-9</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nb>abs</span><span class=p>(</span><span class=n>a</span> <span class=o>-</span> <span class=n>b</span><span class=p>)</span> <span class=o>&lt;</span> <span class=n>epsilon</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 상대 오차를 이용한 비교 (더 안전한 방법)</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>is_equal_relative</span><span class=p>(</span><span class=n>a</span><span class=p>,</span> <span class=n>b</span><span class=p>,</span> <span class=n>epsilon</span><span class=o>=</span><span class=mf>1e-9</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>a</span> <span class=o>==</span> <span class=mi>0</span> <span class=ow>or</span> <span class=n>b</span> <span class=o>==</span> <span class=mi>0</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nb>abs</span><span class=p>(</span><span class=n>a</span> <span class=o>-</span> <span class=n>b</span><span class=p>)</span> <span class=o>&lt;</span> <span class=n>epsilon</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nb>abs</span><span class=p>((</span><span class=n>a</span> <span class=o>-</span> <span class=n>b</span><span class=p>)</span> <span class=o>/</span> <span class=nb>max</span><span class=p>(</span><span class=nb>abs</span><span class=p>(</span><span class=n>a</span><span class=p>),</span> <span class=nb>abs</span><span class=p>(</span><span class=n>b</span><span class=p>)))</span> <span class=o>&lt;</span> <span class=n>epsilon</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p><strong>반올림 제어</strong></p><ul><li>필요에 따라 명시적으로 반올림 처리</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-8-1><a class=lnlinks href=#hl-8-1>1</a>
+</span><span class=lnt id=hl-8-2><a class=lnlinks href=#hl-8-2>2</a>
+</span><span class=lnt id=hl-8-3><a class=lnlinks href=#hl-8-3>3</a>
+</span><span class=lnt id=hl-8-4><a class=lnlinks href=#hl-8-4>4</a>
+</span><span class=lnt id=hl-8-5><a class=lnlinks href=#hl-8-5>5</a>
+</span><span class=lnt id=hl-8-6><a class=lnlinks href=#hl-8-6>6</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 반올림 제어</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>decimal</span> <span class=kn>import</span> <span class=n>Decimal</span><span class=p>,</span> <span class=n>ROUND_HALF_UP</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>value</span> <span class=o>=</span> <span class=n>Decimal</span><span class=p>(</span><span class=s1>&#39;1.345&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>rounded</span> <span class=o>=</span> <span class=n>value</span><span class=o>.</span><span class=n>quantize</span><span class=p>(</span><span class=n>Decimal</span><span class=p>(</span><span class=s1>&#39;0.01&#39;</span><span class=p>),</span> <span class=n>rounding</span><span class=o>=</span><span class=n>ROUND_HALF_UP</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>rounded</span><span class=p>)</span>  <span class=c1># 1.35 출력</span>
+</span></span></code></pre></td></tr></table></div></div></li></ol><h4 id=언어별-고정밀도-구현>언어별 고정밀도 구현<a hidden class=anchor aria-hidden=true href=#언어별-고정밀도-구현>#</a></h4><h5 id=python>Python<a hidden class=anchor aria-hidden=true href=#python>#</a></h5><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-9-1><a class=lnlinks href=#hl-9-1> 1</a>
+</span><span class=lnt id=hl-9-2><a class=lnlinks href=#hl-9-2> 2</a>
+</span><span class=lnt id=hl-9-3><a class=lnlinks href=#hl-9-3> 3</a>
+</span><span class=lnt id=hl-9-4><a class=lnlinks href=#hl-9-4> 4</a>
+</span><span class=lnt id=hl-9-5><a class=lnlinks href=#hl-9-5> 5</a>
+</span><span class=lnt id=hl-9-6><a class=lnlinks href=#hl-9-6> 6</a>
+</span><span class=lnt id=hl-9-7><a class=lnlinks href=#hl-9-7> 7</a>
+</span><span class=lnt id=hl-9-8><a class=lnlinks href=#hl-9-8> 8</a>
+</span><span class=lnt id=hl-9-9><a class=lnlinks href=#hl-9-9> 9</a>
+</span><span class=lnt id=hl-9-10><a class=lnlinks href=#hl-9-10>10</a>
+</span><span class=lnt id=hl-9-11><a class=lnlinks href=#hl-9-11>11</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>decimal</span> <span class=kn>import</span> <span class=n>Decimal</span><span class=p>,</span> <span class=n>getcontext</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 정밀도 설정</span>
+</span></span><span class=line><span class=cl><span class=n>getcontext</span><span class=p>()</span><span class=o>.</span><span class=n>prec</span> <span class=o>=</span> <span class=mi>28</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Decimal 타입 사용</span>
+</span></span><span class=line><span class=cl><span class=n>a</span> <span class=o>=</span> <span class=n>Decimal</span><span class=p>(</span><span class=s1>&#39;0.1&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>b</span> <span class=o>=</span> <span class=n>Decimal</span><span class=p>(</span><span class=s1>&#39;0.2&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>c</span> <span class=o>=</span> <span class=n>a</span> <span class=o>+</span> <span class=n>b</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>c</span><span class=p>)</span>  <span class=c1># 정확히 0.3 출력</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>c</span> <span class=o>==</span> <span class=n>Decimal</span><span class=p>(</span><span class=s1>&#39;0.3&#39;</span><span class=p>))</span>  <span class=c1># True 출력</span>
+</span></span></code></pre></td></tr></table></div></div><h5 id=java>Java<a hidden class=anchor aria-hidden=true href=#java>#</a></h5><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-10-1><a class=lnlinks href=#hl-10-1> 1</a>
+</span><span class=lnt id=hl-10-2><a class=lnlinks href=#hl-10-2> 2</a>
+</span><span class=lnt id=hl-10-3><a class=lnlinks href=#hl-10-3> 3</a>
+</span><span class=lnt id=hl-10-4><a class=lnlinks href=#hl-10-4> 4</a>
+</span><span class=lnt id=hl-10-5><a class=lnlinks href=#hl-10-5> 5</a>
+</span><span class=lnt id=hl-10-6><a class=lnlinks href=#hl-10-6> 6</a>
+</span><span class=lnt id=hl-10-7><a class=lnlinks href=#hl-10-7> 7</a>
+</span><span class=lnt id=hl-10-8><a class=lnlinks href=#hl-10-8> 8</a>
+</span><span class=lnt id=hl-10-9><a class=lnlinks href=#hl-10-9> 9</a>
+</span><span class=lnt id=hl-10-10><a class=lnlinks href=#hl-10-10>10</a>
+</span><span class=lnt id=hl-10-11><a class=lnlinks href=#hl-10-11>11</a>
+</span><span class=lnt id=hl-10-12><a class=lnlinks href=#hl-10-12>12</a>
+</span><span class=lnt id=hl-10-13><a class=lnlinks href=#hl-10-13>13</a>
+</span><span class=lnt id=hl-10-14><a class=lnlinks href=#hl-10-14>14</a>
+</span><span class=lnt id=hl-10-15><a class=lnlinks href=#hl-10-15>15</a>
+</span><span class=lnt id=hl-10-16><a class=lnlinks href=#hl-10-16>16</a>
+</span><span class=lnt id=hl-10-17><a class=lnlinks href=#hl-10-17>17</a>
+</span><span class=lnt id=hl-10-18><a class=lnlinks href=#hl-10-18>18</a>
+</span><span class=lnt id=hl-10-19><a class=lnlinks href=#hl-10-19>19</a>
+</span><span class=lnt id=hl-10-20><a class=lnlinks href=#hl-10-20>20</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-java data-lang=java><span class=line><span class=cl><span class=kn>import</span><span class=w> </span><span class=nn>java.math.BigDecimal</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=kn>import</span><span class=w> </span><span class=nn>java.math.RoundingMode</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=kd>public</span><span class=w> </span><span class=kd>class</span> <span class=nc>BigDecimalExample</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>public</span><span class=w> </span><span class=kd>static</span><span class=w> </span><span class=kt>void</span><span class=w> </span><span class=nf>main</span><span class=p>(</span><span class=n>String</span><span class=o>[]</span><span class=w> </span><span class=n>args</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// BigDecimal 사용</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>BigDecimal</span><span class=w> </span><span class=n>a</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=k>new</span><span class=w> </span><span class=n>BigDecimal</span><span class=p>(</span><span class=s>&#34;0.1&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>BigDecimal</span><span class=w> </span><span class=n>b</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=k>new</span><span class=w> </span><span class=n>BigDecimal</span><span class=p>(</span><span class=s>&#34;0.2&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>BigDecimal</span><span class=w> </span><span class=n>c</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>a</span><span class=p>.</span><span class=na>add</span><span class=p>(</span><span class=n>b</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>System</span><span class=p>.</span><span class=na>out</span><span class=p>.</span><span class=na>println</span><span class=p>(</span><span class=n>c</span><span class=p>);</span><span class=w>  </span><span class=c1>// 0.3 출력</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>System</span><span class=p>.</span><span class=na>out</span><span class=p>.</span><span class=na>println</span><span class=p>(</span><span class=n>c</span><span class=p>.</span><span class=na>equals</span><span class=p>(</span><span class=k>new</span><span class=w> </span><span class=n>BigDecimal</span><span class=p>(</span><span class=s>&#34;0.3&#34;</span><span class=p>)));</span><span class=w>  </span><span class=c1>// true 출력</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// 나눗셈 시 반올림 모드 지정</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>BigDecimal</span><span class=w> </span><span class=n>x</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=k>new</span><span class=w> </span><span class=n>BigDecimal</span><span class=p>(</span><span class=s>&#34;1&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>BigDecimal</span><span class=w> </span><span class=n>y</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=k>new</span><span class=w> </span><span class=n>BigDecimal</span><span class=p>(</span><span class=s>&#34;3&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>BigDecimal</span><span class=w> </span><span class=n>result</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>x</span><span class=p>.</span><span class=na>divide</span><span class=p>(</span><span class=n>y</span><span class=p>,</span><span class=w> </span><span class=n>10</span><span class=p>,</span><span class=w> </span><span class=n>RoundingMode</span><span class=p>.</span><span class=na>HALF_UP</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>System</span><span class=p>.</span><span class=na>out</span><span class=p>.</span><span class=na>println</span><span class=p>(</span><span class=n>result</span><span class=p>);</span><span class=w>  </span><span class=c1>// 0.3333333333 출력</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h5 id=javascript>JavaScript<a hidden class=anchor aria-hidden=true href=#javascript>#</a></h5><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-11-1><a class=lnlinks href=#hl-11-1> 1</a>
+</span><span class=lnt id=hl-11-2><a class=lnlinks href=#hl-11-2> 2</a>
+</span><span class=lnt id=hl-11-3><a class=lnlinks href=#hl-11-3> 3</a>
+</span><span class=lnt id=hl-11-4><a class=lnlinks href=#hl-11-4> 4</a>
+</span><span class=lnt id=hl-11-5><a class=lnlinks href=#hl-11-5> 5</a>
+</span><span class=lnt id=hl-11-6><a class=lnlinks href=#hl-11-6> 6</a>
+</span><span class=lnt id=hl-11-7><a class=lnlinks href=#hl-11-7> 7</a>
+</span><span class=lnt id=hl-11-8><a class=lnlinks href=#hl-11-8> 8</a>
+</span><span class=lnt id=hl-11-9><a class=lnlinks href=#hl-11-9> 9</a>
+</span><span class=lnt id=hl-11-10><a class=lnlinks href=#hl-11-10>10</a>
+</span><span class=lnt id=hl-11-11><a class=lnlinks href=#hl-11-11>11</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// JavaScript에서는 Decimal.js 라이브러리 사용 가능
+</span></span></span><span class=line><span class=cl><span class=c1>// npm install decimal.js
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl><span class=kr>const</span> <span class=nx>Decimal</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;decimal.js&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kr>const</span> <span class=nx>a</span> <span class=o>=</span> <span class=k>new</span> <span class=nx>Decimal</span><span class=p>(</span><span class=mf>0.1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kr>const</span> <span class=nx>b</span> <span class=o>=</span> <span class=k>new</span> <span class=nx>Decimal</span><span class=p>(</span><span class=mf>0.2</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kr>const</span> <span class=nx>c</span> <span class=o>=</span> <span class=nx>a</span><span class=p>.</span><span class=nx>plus</span><span class=p>(</span><span class=nx>b</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=nx>c</span><span class=p>.</span><span class=nx>toString</span><span class=p>());</span>  <span class=c1>// &#34;0.3&#34; 출력
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=nx>c</span><span class=p>.</span><span class=nx>equals</span><span class=p>(</span><span class=mf>0.3</span><span class=p>));</span>  <span class=c1>// true 출력
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=7-부동소수점-연산과-성능>7. 부동소수점 연산과 성능<a hidden class=anchor aria-hidden=true href=#7-부동소수점-연산과-성능>#</a></h3><h4 id=하드웨어-지원>하드웨어 지원<a hidden class=anchor aria-hidden=true href=#하드웨어-지원>#</a></h4><ol><li><strong>FPU(Floating-Point Unit)</strong><ul><li>현대 프로세서에는 부동소수점 연산을 위한 전용 하드웨어 내장</li><li>과거에는 별도의 코프로세서(예: x87)였지만 현재는 CPU에 통합됨</li></ul></li><li><strong>SIMD 명령어</strong><ul><li>SSE, AVX 등의 SIMD 명령어 세트로 병렬 부동소수점 연산 지원</li><li>과학 계산, 그래픽스, 머신러닝 등에서 성능 향상에 중요</li></ul></li></ol><h4 id=컴파일러-최적화>컴파일러 최적화<a hidden class=anchor aria-hidden=true href=#컴파일러-최적화>#</a></h4><p>컴파일러는 부동소수점 연산을 최적화할 수 있지만, 때로는 이로 인해 예상치 못한 결과 발생 가능:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-12-1><a class=lnlinks href=#hl-12-1> 1</a>
+</span><span class=lnt id=hl-12-2><a class=lnlinks href=#hl-12-2> 2</a>
+</span><span class=lnt id=hl-12-3><a class=lnlinks href=#hl-12-3> 3</a>
+</span><span class=lnt id=hl-12-4><a class=lnlinks href=#hl-12-4> 4</a>
+</span><span class=lnt id=hl-12-5><a class=lnlinks href=#hl-12-5> 5</a>
+</span><span class=lnt id=hl-12-6><a class=lnlinks href=#hl-12-6> 6</a>
+</span><span class=lnt id=hl-12-7><a class=lnlinks href=#hl-12-7> 7</a>
+</span><span class=lnt id=hl-12-8><a class=lnlinks href=#hl-12-8> 8</a>
+</span><span class=lnt id=hl-12-9><a class=lnlinks href=#hl-12-9> 9</a>
+</span><span class=lnt id=hl-12-10><a class=lnlinks href=#hl-12-10>10</a>
+</span><span class=lnt id=hl-12-11><a class=lnlinks href=#hl-12-11>11</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=c1>// 컴파일러 최적화로 인한 예상치 못한 결과
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kt>float</span> <span class=n>a</span> <span class=o>=</span> <span class=mf>0.1f</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=kt>float</span> <span class=n>b</span> <span class=o>=</span> <span class=mf>0.2f</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=kt>float</span> <span class=n>c</span> <span class=o>=</span> <span class=n>a</span> <span class=o>+</span> <span class=n>b</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 이 조건은 항상 참이 아닐 수 있음
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>if</span> <span class=p>(</span><span class=n>c</span> <span class=o>==</span> <span class=mf>0.3f</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;Equal</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>  <span class=c1>// 실행되지 않을 가능성 높음
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span> <span class=k>else</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;Not equal</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>  <span class=c1>// 대부분 이 부분이 실행됨
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=주요-함정과-최적-사례>주요 함정과 최적 사례<a hidden class=anchor aria-hidden=true href=#주요-함정과-최적-사례>#</a></h3><h4 id=일반적인-함정>일반적인 함정<a hidden class=anchor aria-hidden=true href=#일반적인-함정>#</a></h4><ol><li><p><strong>정확한 동등 비교</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-13-1><a class=lnlinks href=#hl-13-1>1</a>
+</span><span class=lnt id=hl-13-2><a class=lnlinks href=#hl-13-2>2</a>
+</span><span class=lnt id=hl-13-3><a class=lnlinks href=#hl-13-3>3</a>
+</span><span class=lnt id=hl-13-4><a class=lnlinks href=#hl-13-4>4</a>
+</span><span class=lnt id=hl-13-5><a class=lnlinks href=#hl-13-5>5</a>
+</span><span class=lnt id=hl-13-6><a class=lnlinks href=#hl-13-6>6</a>
+</span><span class=lnt id=hl-13-7><a class=lnlinks href=#hl-13-7>7</a>
+</span><span class=lnt id=hl-13-8><a class=lnlinks href=#hl-13-8>8</a>
+</span><span class=lnt id=hl-13-9><a class=lnlinks href=#hl-13-9>9</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 잘못된 방법
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>if</span> <span class=p>(</span><span class=mf>0.1</span> <span class=o>+</span> <span class=mf>0.2</span> <span class=o>===</span> <span class=mf>0.3</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s2>&#34;Equal&#34;</span><span class=p>);</span>  <span class=c1>// 실행되지 않음
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 올바른 방법
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>if</span> <span class=p>(</span><span class=nb>Math</span><span class=p>.</span><span class=nx>abs</span><span class=p>((</span><span class=mf>0.1</span> <span class=o>+</span> <span class=mf>0.2</span><span class=p>)</span> <span class=o>-</span> <span class=mf>0.3</span><span class=p>)</span> <span class=o>&lt;</span> <span class=mf>1e-10</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s2>&#34;Equal&#34;</span><span class=p>);</span>  <span class=c1>// 실행됨
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p><strong>누적 오차</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-14-1><a class=lnlinks href=#hl-14-1> 1</a>
+</span><span class=lnt id=hl-14-2><a class=lnlinks href=#hl-14-2> 2</a>
+</span><span class=lnt id=hl-14-3><a class=lnlinks href=#hl-14-3> 3</a>
+</span><span class=lnt id=hl-14-4><a class=lnlinks href=#hl-14-4> 4</a>
+</span><span class=lnt id=hl-14-5><a class=lnlinks href=#hl-14-5> 5</a>
+</span><span class=lnt id=hl-14-6><a class=lnlinks href=#hl-14-6> 6</a>
+</span><span class=lnt id=hl-14-7><a class=lnlinks href=#hl-14-7> 7</a>
+</span><span class=lnt id=hl-14-8><a class=lnlinks href=#hl-14-8> 8</a>
+</span><span class=lnt id=hl-14-9><a class=lnlinks href=#hl-14-9> 9</a>
+</span><span class=lnt id=hl-14-10><a class=lnlinks href=#hl-14-10>10</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 문제의 코드</span>
+</span></span><span class=line><span class=cl><span class=n>total</span> <span class=o>=</span> <span class=mf>0.0</span>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>1000</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>total</span> <span class=o>+=</span> <span class=mf>0.001</span>  <span class=c1># 누적 오차 발생</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 개선된 코드</span>
+</span></span><span class=line><span class=cl><span class=n>total</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>1000</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>total</span> <span class=o>+=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl><span class=n>total</span> <span class=o>=</span> <span class=n>total</span> <span class=o>/</span> <span class=mf>1000.0</span>  <span class=c1># 정수로 계산 후 변환</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p><strong>숫자 형식 변환 문제</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-15-1><a class=lnlinks href=#hl-15-1>1</a>
+</span><span class=lnt id=hl-15-2><a class=lnlinks href=#hl-15-2>2</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-java data-lang=java><span class=line><span class=cl><span class=kt>double</span><span class=w> </span><span class=n>d</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>0</span><span class=p>.</span><span class=na>1</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=kt>float</span><span class=w> </span><span class=n>f</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>(</span><span class=kt>float</span><span class=p>)</span><span class=w> </span><span class=n>d</span><span class=p>;</span><span class=w>  </span><span class=c1>// 정밀도 손실 발생</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div></li></ol><h4 id=최적-사례>최적 사례<a hidden class=anchor aria-hidden=true href=#최적-사례>#</a></h4><ol><li><p><strong>올바른 부동소수점 비교</strong></p><ul><li>절대적 동등 비교 대신 epsilon 값을 사용한 근사 비교 사용</li></ul></li><li><p><strong>정수 연산 활용</strong></p><ul><li>가능한 경우 정수 연산으로 전환 (예: 돈 계산 시 센트 단위로 정수 사용)</li></ul></li><li><p><strong>누적 오차 최소화</strong></p><ul><li>Kahan 합산 알고리즘 등 오차 보정 알고리즘 활용</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-16-1><a class=lnlinks href=#hl-16-1>1</a>
+</span><span class=lnt id=hl-16-2><a class=lnlinks href=#hl-16-2>2</a>
+</span><span class=lnt id=hl-16-3><a class=lnlinks href=#hl-16-3>3</a>
+</span><span class=lnt id=hl-16-4><a class=lnlinks href=#hl-16-4>4</a>
+</span><span class=lnt id=hl-16-5><a class=lnlinks href=#hl-16-5>5</a>
+</span><span class=lnt id=hl-16-6><a class=lnlinks href=#hl-16-6>6</a>
+</span><span class=lnt id=hl-16-7><a class=lnlinks href=#hl-16-7>7</a>
+</span><span class=lnt id=hl-16-8><a class=lnlinks href=#hl-16-8>8</a>
+</span><span class=lnt id=hl-16-9><a class=lnlinks href=#hl-16-9>9</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>kahan_sum</span><span class=p>(</span><span class=n>values</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>sum_val</span> <span class=o>=</span> <span class=mf>0.0</span>
+</span></span><span class=line><span class=cl>    <span class=n>compensation</span> <span class=o>=</span> <span class=mf>0.0</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>val</span> <span class=ow>in</span> <span class=n>values</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>y</span> <span class=o>=</span> <span class=n>val</span> <span class=o>-</span> <span class=n>compensation</span>
+</span></span><span class=line><span class=cl>        <span class=n>temp</span> <span class=o>=</span> <span class=n>sum_val</span> <span class=o>+</span> <span class=n>y</span>
+</span></span><span class=line><span class=cl>        <span class=n>compensation</span> <span class=o>=</span> <span class=p>(</span><span class=n>temp</span> <span class=o>-</span> <span class=n>sum_val</span><span class=p>)</span> <span class=o>-</span> <span class=n>y</span>
+</span></span><span class=line><span class=cl>        <span class=n>sum_val</span> <span class=o>=</span> <span class=n>temp</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>sum_val</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p><strong>연산 순서 고려</strong></p><ul><li>부동소수점 연산은 결합법칙이 성립하지 않을 수 있음</li><li>큰 수와 작은 수를 더할 때는 작은 수끼리 먼저 더하는 것이 정확도 향상에 도움</li></ul></li></ol><h3 id=부동소수점과-비즈니스-로직>부동소수점과 비즈니스 로직<a hidden class=anchor aria-hidden=true href=#부동소수점과-비즈니스-로직>#</a></h3><p>금융, 회계, 과금 시스템 등에서는 부동소수점 사용에 특히 주의해야 한다.</p><h4 id=금융-계산에서의-접근법>금융 계산에서의 접근법<a hidden class=anchor aria-hidden=true href=#금융-계산에서의-접근법>#</a></h4><ol><li><strong>고정소수점 사용</strong><ul><li>달러/센트, 원/전 등으로 분리하여 정수로 계산</li></ul></li><li><strong>Decimal 타입 사용</strong><ul><li>대부분의 언어에서 제공하는 Decimal 타입 활용</li></ul></li><li><strong>반올림 정책 명확화</strong><ul><li>반올림 방식(올림, 내림, 반올림 등)을 명확히 정의하고 일관되게 적용</li></ul></li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-17-1><a class=lnlinks href=#hl-17-1> 1</a>
+</span><span class=lnt id=hl-17-2><a class=lnlinks href=#hl-17-2> 2</a>
+</span><span class=lnt id=hl-17-3><a class=lnlinks href=#hl-17-3> 3</a>
+</span><span class=lnt id=hl-17-4><a class=lnlinks href=#hl-17-4> 4</a>
+</span><span class=lnt id=hl-17-5><a class=lnlinks href=#hl-17-5> 5</a>
+</span><span class=lnt id=hl-17-6><a class=lnlinks href=#hl-17-6> 6</a>
+</span><span class=lnt id=hl-17-7><a class=lnlinks href=#hl-17-7> 7</a>
+</span><span class=lnt id=hl-17-8><a class=lnlinks href=#hl-17-8> 8</a>
+</span><span class=lnt id=hl-17-9><a class=lnlinks href=#hl-17-9> 9</a>
+</span><span class=lnt id=hl-17-10><a class=lnlinks href=#hl-17-10>10</a>
+</span><span class=lnt id=hl-17-11><a class=lnlinks href=#hl-17-11>11</a>
+</span><span class=lnt id=hl-17-12><a class=lnlinks href=#hl-17-12>12</a>
+</span><span class=lnt id=hl-17-13><a class=lnlinks href=#hl-17-13>13</a>
+</span><span class=lnt id=hl-17-14><a class=lnlinks href=#hl-17-14>14</a>
+</span><span class=lnt id=hl-17-15><a class=lnlinks href=#hl-17-15>15</a>
+</span><span class=lnt id=hl-17-16><a class=lnlinks href=#hl-17-16>16</a>
+</span><span class=lnt id=hl-17-17><a class=lnlinks href=#hl-17-17>17</a>
+</span><span class=lnt id=hl-17-18><a class=lnlinks href=#hl-17-18>18</a>
+</span><span class=lnt id=hl-17-19><a class=lnlinks href=#hl-17-19>19</a>
+</span><span class=lnt id=hl-17-20><a class=lnlinks href=#hl-17-20>20</a>
+</span><span class=lnt id=hl-17-21><a class=lnlinks href=#hl-17-21>21</a>
+</span><span class=lnt id=hl-17-22><a class=lnlinks href=#hl-17-22>22</a>
+</span><span class=lnt id=hl-17-23><a class=lnlinks href=#hl-17-23>23</a>
+</span><span class=lnt id=hl-17-24><a class=lnlinks href=#hl-17-24>24</a>
+</span><span class=lnt id=hl-17-25><a class=lnlinks href=#hl-17-25>25</a>
+</span><span class=lnt id=hl-17-26><a class=lnlinks href=#hl-17-26>26</a>
+</span><span class=lnt id=hl-17-27><a class=lnlinks href=#hl-17-27>27</a>
+</span><span class=lnt id=hl-17-28><a class=lnlinks href=#hl-17-28>28</a>
+</span><span class=lnt id=hl-17-29><a class=lnlinks href=#hl-17-29>29</a>
+</span><span class=lnt id=hl-17-30><a class=lnlinks href=#hl-17-30>30</a>
+</span><span class=lnt id=hl-17-31><a class=lnlinks href=#hl-17-31>31</a>
+</span><span class=lnt id=hl-17-32><a class=lnlinks href=#hl-17-32>32</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-java data-lang=java><span class=line><span class=cl><span class=c1>// Java에서 금융 계산 예시</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=kn>import</span><span class=w> </span><span class=nn>java.math.BigDecimal</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=kn>import</span><span class=w> </span><span class=nn>java.math.RoundingMode</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=kd>public</span><span class=w> </span><span class=kd>class</span> <span class=nc>FinancialCalculation</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>public</span><span class=w> </span><span class=kd>static</span><span class=w> </span><span class=kt>void</span><span class=w> </span><span class=nf>main</span><span class=p>(</span><span class=n>String</span><span class=o>[]</span><span class=w> </span><span class=n>args</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// 이자 계산 예시</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>BigDecimal</span><span class=w> </span><span class=n>principal</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=k>new</span><span class=w> </span><span class=n>BigDecimal</span><span class=p>(</span><span class=s>&#34;1000.00&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>BigDecimal</span><span class=w> </span><span class=n>rate</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=k>new</span><span class=w> </span><span class=n>BigDecimal</span><span class=p>(</span><span class=s>&#34;0.05&#34;</span><span class=p>);</span><span class=w>  </span><span class=c1>// 5% 이자율</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>BigDecimal</span><span class=w> </span><span class=n>years</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=k>new</span><span class=w> </span><span class=n>BigDecimal</span><span class=p>(</span><span class=s>&#34;2&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// 단리 계산</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>BigDecimal</span><span class=w> </span><span class=n>interest</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>principal</span><span class=p>.</span><span class=na>multiply</span><span class=p>(</span><span class=n>rate</span><span class=p>).</span><span class=na>multiply</span><span class=p>(</span><span class=n>years</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>BigDecimal</span><span class=w> </span><span class=n>simpleTotal</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>principal</span><span class=p>.</span><span class=na>add</span><span class=p>(</span><span class=n>interest</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// 복리 계산 (연복리)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>BigDecimal</span><span class=w> </span><span class=n>compoundTotal</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>principal</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>for</span><span class=w> </span><span class=p>(</span><span class=kt>int</span><span class=w> </span><span class=n>i</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>0</span><span class=p>;</span><span class=w> </span><span class=n>i</span><span class=w> </span><span class=o>&lt;</span><span class=w> </span><span class=n>years</span><span class=p>.</span><span class=na>intValue</span><span class=p>();</span><span class=w> </span><span class=n>i</span><span class=o>++</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>compoundTotal</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>compoundTotal</span><span class=p>.</span><span class=na>multiply</span><span class=p>(</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=n>BigDecimal</span><span class=p>.</span><span class=na>ONE</span><span class=p>.</span><span class=na>add</span><span class=p>(</span><span class=n>rate</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// 반올림 처리 (소수점 2자리)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>simpleTotal</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>simpleTotal</span><span class=p>.</span><span class=na>setScale</span><span class=p>(</span><span class=n>2</span><span class=p>,</span><span class=w> </span><span class=n>RoundingMode</span><span class=p>.</span><span class=na>HALF_UP</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>compoundTotal</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>compoundTotal</span><span class=p>.</span><span class=na>setScale</span><span class=p>(</span><span class=n>2</span><span class=p>,</span><span class=w> </span><span class=n>RoundingMode</span><span class=p>.</span><span class=na>HALF_UP</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>System</span><span class=p>.</span><span class=na>out</span><span class=p>.</span><span class=na>println</span><span class=p>(</span><span class=s>&#34;원금: &#34;</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=n>principal</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>System</span><span class=p>.</span><span class=na>out</span><span class=p>.</span><span class=na>println</span><span class=p>(</span><span class=s>&#34;단리 총액: &#34;</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=n>simpleTotal</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>System</span><span class=p>.</span><span class=na>out</span><span class=p>.</span><span class=na>println</span><span class=p>(</span><span class=s>&#34;복리 총액: &#34;</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=n>compoundTotal</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=부동소수점-디버깅-팁>부동소수점 디버깅 팁<a hidden class=anchor aria-hidden=true href=#부동소수점-디버깅-팁>#</a></h3><ol><li><p><strong>값 확인 방법</strong></p><ul><li>단순 출력 대신 16진수 형태로 검사하여 내부 표현 확인</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-18-1><a class=lnlinks href=#hl-18-1>1</a>
+</span><span class=lnt id=hl-18-2><a class=lnlinks href=#hl-18-2>2</a>
+</span><span class=lnt id=hl-18-3><a class=lnlinks href=#hl-18-3>3</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=kt>float</span> <span class=n>f</span> <span class=o>=</span> <span class=mf>0.1f</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=nf>printf</span><span class=p>(</span><span class=s>&#34;Value: %f</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=n>f</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=nf>printf</span><span class=p>(</span><span class=s>&#34;Hex: 0x%X</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=o>*</span><span class=p>(</span><span class=kt>unsigned</span> <span class=kt>int</span><span class=o>*</span><span class=p>)</span><span class=o>&amp;</span><span class=n>f</span><span class=p>);</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p><strong>NaN 및 무한대 검사</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-19-1><a class=lnlinks href=#hl-19-1>1</a>
+</span><span class=lnt id=hl-19-2><a class=lnlinks href=#hl-19-2>2</a>
+</span><span class=lnt id=hl-19-3><a class=lnlinks href=#hl-19-3>3</a>
+</span><span class=lnt id=hl-19-4><a class=lnlinks href=#hl-19-4>4</a>
+</span><span class=lnt id=hl-19-5><a class=lnlinks href=#hl-19-5>5</a>
+</span><span class=lnt id=hl-19-6><a class=lnlinks href=#hl-19-6>6</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// JavaScript에서 NaN 및 무한대 검사
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>let</span> <span class=nx>value</span> <span class=o>=</span> <span class=mi>0</span> <span class=o>/</span> <span class=mi>0</span><span class=p>;</span>  <span class=c1>// NaN
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=nb>Number</span><span class=p>.</span><span class=nb>isNaN</span><span class=p>(</span><span class=nx>value</span><span class=p>));</span>  <span class=c1>// true
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl><span class=nx>value</span> <span class=o>=</span> <span class=mi>1</span> <span class=o>/</span> <span class=mi>0</span><span class=p>;</span>  <span class=c1>// Infinity
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=nb>Number</span><span class=p>.</span><span class=nb>isFinite</span><span class=p>(</span><span class=nx>value</span><span class=p>));</span>  <span class=c1>// false
+</span></span></span></code></pre></td></tr></table></div></div></li><li><p><strong>IEEE 754 비트 패턴 분석</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-20-1><a class=lnlinks href=#hl-20-1> 1</a>
+</span><span class=lnt id=hl-20-2><a class=lnlinks href=#hl-20-2> 2</a>
+</span><span class=lnt id=hl-20-3><a class=lnlinks href=#hl-20-3> 3</a>
+</span><span class=lnt id=hl-20-4><a class=lnlinks href=#hl-20-4> 4</a>
+</span><span class=lnt id=hl-20-5><a class=lnlinks href=#hl-20-5> 5</a>
+</span><span class=lnt id=hl-20-6><a class=lnlinks href=#hl-20-6> 6</a>
+</span><span class=lnt id=hl-20-7><a class=lnlinks href=#hl-20-7> 7</a>
+</span><span class=lnt id=hl-20-8><a class=lnlinks href=#hl-20-8> 8</a>
+</span><span class=lnt id=hl-20-9><a class=lnlinks href=#hl-20-9> 9</a>
+</span><span class=lnt id=hl-20-10><a class=lnlinks href=#hl-20-10>10</a>
+</span><span class=lnt id=hl-20-11><a class=lnlinks href=#hl-20-11>11</a>
+</span><span class=lnt id=hl-20-12><a class=lnlinks href=#hl-20-12>12</a>
+</span><span class=lnt id=hl-20-13><a class=lnlinks href=#hl-20-13>13</a>
+</span><span class=lnt id=hl-20-14><a class=lnlinks href=#hl-20-14>14</a>
+</span><span class=lnt id=hl-20-15><a class=lnlinks href=#hl-20-15>15</a>
+</span><span class=lnt id=hl-20-16><a class=lnlinks href=#hl-20-16>16</a>
+</span><span class=lnt id=hl-20-17><a class=lnlinks href=#hl-20-17>17</a>
+</span><span class=lnt id=hl-20-18><a class=lnlinks href=#hl-20-18>18</a>
+</span><span class=lnt id=hl-20-19><a class=lnlinks href=#hl-20-19>19</a>
+</span><span class=lnt id=hl-20-20><a class=lnlinks href=#hl-20-20>20</a>
+</span><span class=lnt id=hl-20-21><a class=lnlinks href=#hl-20-21>21</a>
+</span><span class=lnt id=hl-20-22><a class=lnlinks href=#hl-20-22>22</a>
+</span><span class=lnt id=hl-20-23><a class=lnlinks href=#hl-20-23>23</a>
+</span><span class=lnt id=hl-20-24><a class=lnlinks href=#hl-20-24>24</a>
+</span><span class=lnt id=hl-20-25><a class=lnlinks href=#hl-20-25>25</a>
+</span><span class=lnt id=hl-20-26><a class=lnlinks href=#hl-20-26>26</a>
+</span><span class=lnt id=hl-20-27><a class=lnlinks href=#hl-20-27>27</a>
+</span><span class=lnt id=hl-20-28><a class=lnlinks href=#hl-20-28>28</a>
+</span><span class=lnt id=hl-20-29><a class=lnlinks href=#hl-20-29>29</a>
+</span><span class=lnt id=hl-20-30><a class=lnlinks href=#hl-20-30>30</a>
+</span><span class=lnt id=hl-20-31><a class=lnlinks href=#hl-20-31>31</a>
+</span><span class=lnt id=hl-20-32><a class=lnlinks href=#hl-20-32>32</a>
+</span><span class=lnt id=hl-20-33><a class=lnlinks href=#hl-20-33>33</a>
+</span><span class=lnt id=hl-20-34><a class=lnlinks href=#hl-20-34>34</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>struct</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>analyze_float</span><span class=p>(</span><span class=n>value</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># float를 32비트 정수로 변환</span>
+</span></span><span class=line><span class=cl>    <span class=n>bits</span> <span class=o>=</span> <span class=n>struct</span><span class=o>.</span><span class=n>unpack</span><span class=p>(</span><span class=s1>&#39;!I&#39;</span><span class=p>,</span> <span class=n>struct</span><span class=o>.</span><span class=n>pack</span><span class=p>(</span><span class=s1>&#39;!f&#39;</span><span class=p>,</span> <span class=n>value</span><span class=p>))[</span><span class=mi>0</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 비트 추출</span>
+</span></span><span class=line><span class=cl>    <span class=n>sign</span> <span class=o>=</span> <span class=p>(</span><span class=n>bits</span> <span class=o>&gt;&gt;</span> <span class=mi>31</span><span class=p>)</span> <span class=o>&amp;</span> <span class=mh>0x1</span>
+</span></span><span class=line><span class=cl>    <span class=n>exponent</span> <span class=o>=</span> <span class=p>(</span><span class=n>bits</span> <span class=o>&gt;&gt;</span> <span class=mi>23</span><span class=p>)</span> <span class=o>&amp;</span> <span class=mh>0xFF</span>
+</span></span><span class=line><span class=cl>    <span class=n>fraction</span> <span class=o>=</span> <span class=n>bits</span> <span class=o>&amp;</span> <span class=mh>0x7FFFFF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 분석 결과 출력</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;값: </span><span class=si>{</span><span class=n>value</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;이진 표현: </span><span class=si>{</span><span class=n>bits</span><span class=si>:</span><span class=s2>032b</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;부호 비트: </span><span class=si>{</span><span class=n>sign</span><span class=si>}</span><span class=s2> (</span><span class=si>{</span><span class=s1>&#39;음수&#39;</span> <span class=k>if</span> <span class=n>sign</span> <span class=k>else</span> <span class=s1>&#39;양수&#39;</span><span class=si>}</span><span class=s2>)&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;지수 필드: </span><span class=si>{</span><span class=n>exponent</span><span class=si>:</span><span class=s2>08b</span><span class=si>}</span><span class=s2> (편향값: </span><span class=si>{</span><span class=n>exponent</span> <span class=o>-</span> <span class=mi>127</span><span class=si>}</span><span class=s2>)&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;가수 필드: </span><span class=si>{</span><span class=n>fraction</span><span class=si>:</span><span class=s2>023b</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 특수 케이스 확인</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>exponent</span> <span class=o>==</span> <span class=mi>0</span> <span class=ow>and</span> <span class=n>fraction</span> <span class=o>==</span> <span class=mi>0</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;이 값은 ±0 입니다.&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>elif</span> <span class=n>exponent</span> <span class=o>==</span> <span class=mh>0xff</span> <span class=ow>and</span> <span class=n>fraction</span> <span class=o>==</span> <span class=mi>0</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;이 값은 ±무한대 입니다.&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>elif</span> <span class=n>exponent</span> <span class=o>==</span> <span class=mh>0xff</span> <span class=ow>and</span> <span class=n>fraction</span> <span class=o>!=</span> <span class=mi>0</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;이 값은 NaN(Not a Number) 입니다.&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>elif</span> <span class=n>exponent</span> <span class=o>==</span> <span class=mi>0</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;이 값은 서브노멀 수입니다.&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 테스트</span>
+</span></span><span class=line><span class=cl><span class=n>analyze_float</span><span class=p>(</span><span class=mf>0.0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>analyze_float</span><span class=p>(</span><span class=mf>1.0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>analyze_float</span><span class=p>(</span><span class=nb>float</span><span class=p>(</span><span class=s1>&#39;inf&#39;</span><span class=p>))</span>
+</span></span><span class=line><span class=cl><span class=n>analyze_float</span><span class=p>(</span><span class=nb>float</span><span class=p>(</span><span class=s1>&#39;nan&#39;</span><span class=p>))</span>
+</span></span><span class=line><span class=cl><span class=n>analyze_float</span><span class=p>(</span><span class=mf>1.175494e-38</span><span class=p>)</span>  <span class=c1># 서브노멀 수에 가까운 값</span>
+</span></span></code></pre></td></tr></table></div></div></li></ol><hr><h3 id=참고-및-출처>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처>#</a></h3></div></main><footer class=footer><span>&copy; 2025 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>
