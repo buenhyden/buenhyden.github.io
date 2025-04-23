@@ -1,0 +1,163 @@
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Webhook | hyunyoun's Blog</title>
+<meta name=keywords content="Backend,API-Design,API-Integration-Patterns,Webhooks-vs-Polling,Webhook"><meta name=description content=" webhook은 특정 이벤트가 발생했을 때 서버가 미리 지정된 클라이언트의 URL로 데이터를 능동적으로 보내는 방식이다."><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/backend/api-design/api-styles/event-based-style/webhook/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.8762af4fa9ee176c57f72565b721f234162fc7a9c882a271e0a1f68c4e89fb34.css integrity="sha256-h2KvT6nuF2xX9yVltyHyNBYvx6nIgqJx4KH2jE6J+zQ=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate type=application/rss+xml href=https://buenhyden.github.io/posts/backend/api-design/api-styles/event-based-style/webhook/index.xml><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/backend/api-design/api-styles/event-based-style/webhook/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/backend/api-design/api-styles/event-based-style/webhook/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="Webhook"><meta property="og:description" content=" webhook은 특정 이벤트가 발생했을 때 서버가 미리 지정된 클라이언트의 URL로 데이터를 능동적으로 보내는 방식이다."><meta property="og:locale" content="en"><meta property="og:type" content="website"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="Webhook"><meta name=twitter:description content=" webhook은 특정 이벤트가 발생했을 때 서버가 미리 지정된 클라이언트의 URL로 데이터를 능동적으로 보내는 방식이다."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Webhook","item":"https://buenhyden.github.io/posts/backend/api-design/api-styles/event-based-style/webhook/"}]}</script></head><body class=list id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><header class=page-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a></div><h1>Webhook</h1><div class=post-description>webhook은 특정 이벤트가 발생했을 때 서버가 미리 지정된 클라이언트의 URL로 데이터를 능동적으로 보내는 방식이다.</div></header><div class=post-content><h2 id=webhook>Webhook<a hidden class=anchor aria-hidden=true href=#webhook>#</a></h2><p>Webhook은 API 통합 패턴 중 하나로, 실시간 데이터 전송과 시스템 간 효율적인 통신을 가능하게 하는 중요한 메커니즘이다.</p><p>Webhook은 현대 API 통합 패턴에서 핵심적인 요소로, 실시간 이벤트 기반 아키텍처를 구현하는 데 효과적인 방법이다. 적절한 설계, 구현, 보안 조치를 통해 시스템 간의 효율적이고 안전한 통신을 가능하게 한다.</p><p>하지만 복잡성, 보안 문제, 신뢰성 등의 문제를 고려해야 하므로, 사용 사례에 따라 폴링, WebSocket, SSE 등 다른 통합 패턴과 적절히 조합하여 사용하는 것이 중요하다.</p><h3 id=webhook의-기본-개념>Webhook의 기본 개념<a hidden class=anchor aria-hidden=true href=#webhook의-기본-개념>#</a></h3><p>Webhook은 &ldquo;역방향 API 호출&rdquo; 또는 &ldquo;HTTP 콜백"이라고도 불린다. 일반적인 API 호출이 클라이언트가 서버에 요청을 보내고 응답을 기다리는 방식이라면, webhook은 반대로 특정 이벤트가 발생했을 때 서버가 미리 지정된 클라이언트의 URL로 데이터를 능동적으로 보내는 방식이다.</p><p>쉽게 비유하자면, 일반 API는 우리가 매일 우체통을 확인하러 가는 것과 같고, webhook은 우편물이 도착했을 때 우체부가 직접 우리 집 문을 두드리는 것과 같다.</p><h3 id=webhook의-작동-원리>Webhook의 작동 원리<a hidden class=anchor aria-hidden=true href=#webhook의-작동-원리>#</a></h3><p>Webhook의 작동 과정은 다음과 같다:</p><ol><li><strong>등록 단계</strong>: 클라이언트가 서버에 자신의 URL을 등록한다. 이 URL은 이벤트 발생 시 데이터를 수신할 엔드포인트이다.</li><li><strong>이벤트 발생</strong>: 서버에서 특정 이벤트가 발생한다.</li><li><strong>알림 전송</strong>: 서버는 등록된 URL로 HTTP POST 요청을 보낸다. 이 요청에는 이벤트 관련 데이터가 포함된다.</li><li><strong>처리</strong>: 클라이언트는 이 데이터를 수신하고 처리한다.</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-0-1><a class=lnlinks href=#hl-0-1> 1</a>
+</span><span class=lnt id=hl-0-2><a class=lnlinks href=#hl-0-2> 2</a>
+</span><span class=lnt id=hl-0-3><a class=lnlinks href=#hl-0-3> 3</a>
+</span><span class=lnt id=hl-0-4><a class=lnlinks href=#hl-0-4> 4</a>
+</span><span class=lnt id=hl-0-5><a class=lnlinks href=#hl-0-5> 5</a>
+</span><span class=lnt id=hl-0-6><a class=lnlinks href=#hl-0-6> 6</a>
+</span><span class=lnt id=hl-0-7><a class=lnlinks href=#hl-0-7> 7</a>
+</span><span class=lnt id=hl-0-8><a class=lnlinks href=#hl-0-8> 8</a>
+</span><span class=lnt id=hl-0-9><a class=lnlinks href=#hl-0-9> 9</a>
+</span><span class=lnt id=hl-0-10><a class=lnlinks href=#hl-0-10>10</a>
+</span><span class=lnt id=hl-0-11><a class=lnlinks href=#hl-0-11>11</a>
+</span><span class=lnt id=hl-0-12><a class=lnlinks href=#hl-0-12>12</a>
+</span><span class=lnt id=hl-0-13><a class=lnlinks href=#hl-0-13>13</a>
+</span><span class=lnt id=hl-0-14><a class=lnlinks href=#hl-0-14>14</a>
+</span><span class=lnt id=hl-0-15><a class=lnlinks href=#hl-0-15>15</a>
+</span><span class=lnt id=hl-0-16><a class=lnlinks href=#hl-0-16>16</a>
+</span><span class=lnt id=hl-0-17><a class=lnlinks href=#hl-0-17>17</a>
+</span><span class=lnt id=hl-0-18><a class=lnlinks href=#hl-0-18>18</a>
+</span><span class=lnt id=hl-0-19><a class=lnlinks href=#hl-0-19>19</a>
+</span><span class=lnt id=hl-0-20><a class=lnlinks href=#hl-0-20>20</a>
+</span><span class=lnt id=hl-0-21><a class=lnlinks href=#hl-0-21>21</a>
+</span><span class=lnt id=hl-0-22><a class=lnlinks href=#hl-0-22>22</a>
+</span><span class=lnt id=hl-0-23><a class=lnlinks href=#hl-0-23>23</a>
+</span><span class=lnt id=hl-0-24><a class=lnlinks href=#hl-0-24>24</a>
+</span><span class=lnt id=hl-0-25><a class=lnlinks href=#hl-0-25>25</a>
+</span><span class=lnt id=hl-0-26><a class=lnlinks href=#hl-0-26>26</a>
+</span><span class=lnt id=hl-0-27><a class=lnlinks href=#hl-0-27>27</a>
+</span><span class=lnt id=hl-0-28><a class=lnlinks href=#hl-0-28>28</a>
+</span><span class=lnt id=hl-0-29><a class=lnlinks href=#hl-0-29>29</a>
+</span><span class=lnt id=hl-0-30><a class=lnlinks href=#hl-0-30>30</a>
+</span><span class=lnt id=hl-0-31><a class=lnlinks href=#hl-0-31>31</a>
+</span><span class=lnt id=hl-0-32><a class=lnlinks href=#hl-0-32>32</a>
+</span><span class=lnt id=hl-0-33><a class=lnlinks href=#hl-0-33>33</a>
+</span><span class=lnt id=hl-0-34><a class=lnlinks href=#hl-0-34>34</a>
+</span><span class=lnt id=hl-0-35><a class=lnlinks href=#hl-0-35>35</a>
+</span><span class=lnt id=hl-0-36><a class=lnlinks href=#hl-0-36>36</a>
+</span><span class=lnt id=hl-0-37><a class=lnlinks href=#hl-0-37>37</a>
+</span><span class=lnt id=hl-0-38><a class=lnlinks href=#hl-0-38>38</a>
+</span><span class=lnt id=hl-0-39><a class=lnlinks href=#hl-0-39>39</a>
+</span><span class=lnt id=hl-0-40><a class=lnlinks href=#hl-0-40>40</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// Webhook 수신 엔드포인트 예시 (Node.js/Express)
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>const</span> <span class=nx>express</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;express&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kr>const</span> <span class=nx>app</span> <span class=o>=</span> <span class=nx>express</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>app</span><span class=p>.</span><span class=nx>use</span><span class=p>(</span><span class=nx>express</span><span class=p>.</span><span class=nx>json</span><span class=p>());</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Webhook을 수신할 엔드포인트
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>app</span><span class=p>.</span><span class=nx>post</span><span class=p>(</span><span class=s1>&#39;/webhook&#39;</span><span class=p>,</span> <span class=p>(</span><span class=nx>req</span><span class=p>,</span> <span class=nx>res</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>eventData</span> <span class=o>=</span> <span class=nx>req</span><span class=p>.</span><span class=nx>body</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// 이벤트 데이터 처리
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;이벤트 수신:&#39;</span><span class=p>,</span> <span class=nx>eventData</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// 이벤트 유형에 따른 처리
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=k>switch</span><span class=p>(</span><span class=nx>eventData</span><span class=p>.</span><span class=nx>event_type</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>case</span> <span class=s1>&#39;payment_received&#39;</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>      <span class=nx>processPayment</span><span class=p>(</span><span class=nx>eventData</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>      <span class=k>break</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>case</span> <span class=s1>&#39;order_updated&#39;</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>      <span class=nx>updateOrderStatus</span><span class=p>(</span><span class=nx>eventData</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>      <span class=k>break</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 기타 이벤트 처리
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// 서버에 응답 전송 (중요: 항상 응답을 보내야 함)
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>res</span><span class=p>.</span><span class=nx>status</span><span class=p>(</span><span class=mi>200</span><span class=p>).</span><span class=nx>send</span><span class=p>(</span><span class=s1>&#39;이벤트 수신 완료&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 이벤트 처리 함수들
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>function</span> <span class=nx>processPayment</span><span class=p>(</span><span class=nx>data</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 결제 처리 로직
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>function</span> <span class=nx>updateOrderStatus</span><span class=p>(</span><span class=nx>data</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 주문 상태 업데이트 로직
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>app</span><span class=p>.</span><span class=nx>listen</span><span class=p>(</span><span class=mi>3000</span><span class=p>,</span> <span class=p>()</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;Webhook 서버가 포트 3000에서 실행 중입니다&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=webhook의-장단점>Webhook의 장단점<a hidden class=anchor aria-hidden=true href=#webhook의-장단점>#</a></h3><h4 id=장점>장점<a hidden class=anchor aria-hidden=true href=#장점>#</a></h4><ol><li><strong>실시간성</strong>: 폴링(주기적으로 확인)할 필요 없이 이벤트 발생 즉시 알림을 받을 수 있다.</li><li><strong>자원 효율성</strong>: 변경이 없을 때도 지속적으로 API를 호출하는 낭비가 없다.</li><li><strong>확장성</strong>: 다수의 클라이언트가 동일한 이벤트를 구독할 수 있다.</li><li><strong>비동기 처리</strong>: 이벤트를 비동기적으로 처리할 수 있어 시스템의 반응성이 향상된다.</li></ol><h4 id=단점-및-고려사항>단점 및 고려사항<a hidden class=anchor aria-hidden=true href=#단점-및-고려사항>#</a></h4><ol><li><strong>보안 위험</strong>: URL이 노출되면 악의적인 요청을 받을 가능성이 있다.</li><li><strong>신뢰성 문제</strong>: 클라이언트가 오프라인이거나 응답하지 않을 경우 데이터 손실이 발생할 수 있다.</li><li><strong>디버깅 어려움</strong>: 직접 트리거하기 어려운 이벤트의 경우 디버깅이 복잡해질 수 있다.</li><li><strong>재시도 메커니즘</strong>: 실패한 webhook 전송을 처리하기 위한 재시도 로직이 필요하다.</li></ol><h3 id=일반적인-사용-사례>일반적인 사용 사례<a hidden class=anchor aria-hidden=true href=#일반적인-사용-사례>#</a></h3><ol><li><strong>결제 시스템</strong>: 결제 완료, 실패, 환불 등의 이벤트를 알린다.</li><li><strong>소셜 미디어 통합</strong>: 새 게시물, 댓글, 태그 등의 알림을 받는다.</li><li><strong>IoT 장치</strong>: 센서 데이터 변경, 장치 상태 업데이트 등을 전송한다.</li><li><strong>CI/CD 파이프라인</strong>: 빌드 완료, 테스트 결과, 배포 상태 등을 알린다.</li><li><strong>CRM 시스템</strong>: 고객 상태 변경, 활동 추적 등을 통합한다.</li></ol><h3 id=webhook-보안-강화-방법>Webhook 보안 강화 방법<a hidden class=anchor aria-hidden=true href=#webhook-보안-강화-방법>#</a></h3><p>Webhook의 보안은 매우 중요하다.</p><p>다음과 같은 방법으로 보안을 강화할 수 있다:</p><ol><li><p><strong>서명 검증</strong>: 전송된 데이터에 HMAC 서명을 추가하고 수신 측에서 검증한다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-1-1><a class=lnlinks href=#hl-1-1> 1</a>
+</span><span class=lnt id=hl-1-2><a class=lnlinks href=#hl-1-2> 2</a>
+</span><span class=lnt id=hl-1-3><a class=lnlinks href=#hl-1-3> 3</a>
+</span><span class=lnt id=hl-1-4><a class=lnlinks href=#hl-1-4> 4</a>
+</span><span class=lnt id=hl-1-5><a class=lnlinks href=#hl-1-5> 5</a>
+</span><span class=lnt id=hl-1-6><a class=lnlinks href=#hl-1-6> 6</a>
+</span><span class=lnt id=hl-1-7><a class=lnlinks href=#hl-1-7> 7</a>
+</span><span class=lnt id=hl-1-8><a class=lnlinks href=#hl-1-8> 8</a>
+</span><span class=lnt id=hl-1-9><a class=lnlinks href=#hl-1-9> 9</a>
+</span><span class=lnt id=hl-1-10><a class=lnlinks href=#hl-1-10>10</a>
+</span><span class=lnt id=hl-1-11><a class=lnlinks href=#hl-1-11>11</a>
+</span><span class=lnt id=hl-1-12><a class=lnlinks href=#hl-1-12>12</a>
+</span><span class=lnt id=hl-1-13><a class=lnlinks href=#hl-1-13>13</a>
+</span><span class=lnt id=hl-1-14><a class=lnlinks href=#hl-1-14>14</a>
+</span><span class=lnt id=hl-1-15><a class=lnlinks href=#hl-1-15>15</a>
+</span><span class=lnt id=hl-1-16><a class=lnlinks href=#hl-1-16>16</a>
+</span><span class=lnt id=hl-1-17><a class=lnlinks href=#hl-1-17>17</a>
+</span><span class=lnt id=hl-1-18><a class=lnlinks href=#hl-1-18>18</a>
+</span><span class=lnt id=hl-1-19><a class=lnlinks href=#hl-1-19>19</a>
+</span><span class=lnt id=hl-1-20><a class=lnlinks href=#hl-1-20>20</a>
+</span><span class=lnt id=hl-1-21><a class=lnlinks href=#hl-1-21>21</a>
+</span><span class=lnt id=hl-1-22><a class=lnlinks href=#hl-1-22>22</a>
+</span><span class=lnt id=hl-1-23><a class=lnlinks href=#hl-1-23>23</a>
+</span><span class=lnt id=hl-1-24><a class=lnlinks href=#hl-1-24>24</a>
+</span><span class=lnt id=hl-1-25><a class=lnlinks href=#hl-1-25>25</a>
+</span><span class=lnt id=hl-1-26><a class=lnlinks href=#hl-1-26>26</a>
+</span><span class=lnt id=hl-1-27><a class=lnlinks href=#hl-1-27>27</a>
+</span><span class=lnt id=hl-1-28><a class=lnlinks href=#hl-1-28>28</a>
+</span><span class=lnt id=hl-1-29><a class=lnlinks href=#hl-1-29>29</a>
+</span><span class=lnt id=hl-1-30><a class=lnlinks href=#hl-1-30>30</a>
+</span><span class=lnt id=hl-1-31><a class=lnlinks href=#hl-1-31>31</a>
+</span><span class=lnt id=hl-1-32><a class=lnlinks href=#hl-1-32>32</a>
+</span><span class=lnt id=hl-1-33><a class=lnlinks href=#hl-1-33>33</a>
+</span><span class=lnt id=hl-1-34><a class=lnlinks href=#hl-1-34>34</a>
+</span><span class=lnt id=hl-1-35><a class=lnlinks href=#hl-1-35>35</a>
+</span><span class=lnt id=hl-1-36><a class=lnlinks href=#hl-1-36>36</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># Python을 사용한 Webhook 서명 검증 예시</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>hmac</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>hashlib</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>verify_webhook_signature</span><span class=p>(</span><span class=n>payload</span><span class=p>,</span> <span class=n>signature</span><span class=p>,</span> <span class=n>secret</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>    Webhook 서명을 검증하는 함수
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>    Args:
+</span></span></span><span class=line><span class=cl><span class=s2>        payload (str): 수신된 JSON 페이로드
+</span></span></span><span class=line><span class=cl><span class=s2>        signature (str): 요청 헤더에서 받은 서명
+</span></span></span><span class=line><span class=cl><span class=s2>        secret (str): 공유된 비밀 키
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>    Returns:
+</span></span></span><span class=line><span class=cl><span class=s2>        bool: 서명이 유효하면 True, 아니면 False
+</span></span></span><span class=line><span class=cl><span class=s2>    &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>computed_signature</span> <span class=o>=</span> <span class=n>hmac</span><span class=o>.</span><span class=n>new</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=n>secret</span><span class=o>.</span><span class=n>encode</span><span class=p>(</span><span class=s1>&#39;utf-8&#39;</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>        <span class=n>payload</span><span class=o>.</span><span class=n>encode</span><span class=p>(</span><span class=s1>&#39;utf-8&#39;</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>        <span class=n>hashlib</span><span class=o>.</span><span class=n>sha256</span>
+</span></span><span class=line><span class=cl>    <span class=p>)</span><span class=o>.</span><span class=n>hexdigest</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 상수 시간 비교를 사용하여 타이밍 공격 방지</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>hmac</span><span class=o>.</span><span class=n>compare_digest</span><span class=p>(</span><span class=n>computed_signature</span><span class=p>,</span> <span class=n>signature</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 사용 예시</span>
+</span></span><span class=line><span class=cl><span class=n>webhook_payload</span> <span class=o>=</span> <span class=s1>&#39;{&#34;event&#34;:&#34;payment_success&#34;,&#34;amount&#34;:100}&#39;</span>
+</span></span><span class=line><span class=cl><span class=n>received_signature</span> <span class=o>=</span> <span class=s1>&#39;abcdef123456&#39;</span>
+</span></span><span class=line><span class=cl><span class=n>webhook_secret</span> <span class=o>=</span> <span class=s1>&#39;your_webhook_secret_key&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=n>verify_webhook_signature</span><span class=p>(</span><span class=n>webhook_payload</span><span class=p>,</span> <span class=n>received_signature</span><span class=p>,</span> <span class=n>webhook_secret</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 서명이 유효한 경우 처리</span>
+</span></span><span class=line><span class=cl>    <span class=n>process_webhook</span><span class=p>(</span><span class=n>webhook_payload</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 서명이 유효하지 않은 경우 거부</span>
+</span></span><span class=line><span class=cl>    <span class=n>reject_webhook</span><span class=p>()</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p><strong>IP 제한</strong>: 알려진 IP 주소에서만 webhook 요청을 허용한다.</p></li><li><p><strong>HTTPS 사용</strong>: 모든 webhook 통신은 반드시 암호화된 HTTPS를 통해 이루어져야 한다.</p></li><li><p><strong>타임스탬프 검증</strong>: 요청에 타임스탬프를 포함시켜 재생 공격을 방지한다.</p></li><li><p><strong>속도 제한</strong>: 짧은 시간 내에 너무 많은 요청이 오는 경우를 차단한다.</p></li></ol><h3 id=webhook과-다른-통합-패턴-비교>Webhook과 다른 통합 패턴 비교<a hidden class=anchor aria-hidden=true href=#webhook과-다른-통합-패턴-비교>#</a></h3><h4 id=webhook-vs-폴링polling>Webhook vs. 폴링(Polling)<a hidden class=anchor aria-hidden=true href=#webhook-vs-폴링polling>#</a></h4><ul><li><strong>폴링</strong>: 클라이언트가 주기적으로 서버에 변경사항이 있는지 확인한다.</li><li><strong>Webhook</strong>: 변경사항이 있을 때만 서버가 클라이언트에게 알린다.</li></ul><p>폴링은 구현이 간단하지만 자원을 낭비하고, webhook은 효율적이지만 설정이 복잡하다.</p><h4 id=webhook-vs-websocket>Webhook vs. WebSocket<a hidden class=anchor aria-hidden=true href=#webhook-vs-websocket>#</a></h4><ul><li><strong>WebSocket</strong>: 지속적인 양방향 연결을 제공한다.</li><li><strong>Webhook</strong>: 단방향 통신으로, 이벤트 발생 시에만 연결한다.</li></ul><p>WebSocket은 실시간 양방향 통신이 필요한 채팅 애플리케이션에 적합하고, webhook은 산발적인 이벤트 알림에 더 적합하다.</p><h4 id=webhook-vs-server-sent-events-sse>Webhook vs. Server-Sent Events (SSE)<a hidden class=anchor aria-hidden=true href=#webhook-vs-server-sent-events-sse>#</a></h4><ul><li><strong>SSE</strong>: 서버에서 클라이언트로의 단방향 지속 연결이다.</li><li><strong>Webhook</strong>: 이벤트 발생 시에만 임시 연결을 설정한다.</li></ul><p>SSE는 지속적인 이벤트 스트림에 적합하고, webhook은 개별 이벤트 알림에 더 효율적이다.</p><h3 id=주요-서비스-제공업체의-webhook-구현>주요 서비스 제공업체의 Webhook 구현<a hidden class=anchor aria-hidden=true href=#주요-서비스-제공업체의-webhook-구현>#</a></h3><ol><li><strong>GitHub Webhooks</strong>: 리포지토리의 푸시, 풀 리퀘스트, 이슈 등의 이벤트를 알린다.</li><li><strong>Stripe Webhooks</strong>: 결제, 환불, 구독 상태 변경 등의 이벤트를 전달한다.</li><li><strong>Slack Webhooks</strong>: 외부 시스템에서 Slack 채널로 메시지를 보낸다.</li><li><strong>PayPal IPN (Instant Payment Notification)</strong>: 결제 관련 이벤트를 알린다.</li><li><strong>Shopify Webhooks</strong>: 주문, 제품, 고객 관련 이벤트를 통합한다.</li></ol><h3 id=webhook-구현-모범-사례>Webhook 구현 모범 사례<a hidden class=anchor aria-hidden=true href=#webhook-구현-모범-사례>#</a></h3><ol><li><strong>재시도 로직 구현</strong>: 지수 백오프와 같은 재시도 메커니즘을 사용한다.</li><li><strong>베타 엔드포인트 제공</strong>: 테스트를 위한 별도의 webhook 엔드포인트를 제공한다.</li><li><strong>이벤트 로깅</strong>: 모든 webhook 이벤트와 응답을 로깅한다.</li><li><strong>데드레터 큐</strong>: 실패한 webhook 이벤트를 저장하고 분석한다.</li><li><strong>문서화</strong>: 모든 webhook 이벤트와 페이로드 구조를 문서화한다.</li><li><strong>버전 관리</strong>: API 버전 관리와 유사하게 webhook 페이로드도 버전 관리한다.</li></ol><hr><h2 id=용어-정리>용어 정리<a hidden class=anchor aria-hidden=true href=#용어-정리>#</a></h2><table><thead><tr><th>용어</th><th>설명</th></tr></thead><tbody><tr><td></td><td></td></tr></tbody></table><hr><h2 id=참고-및-출처>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처>#</a></h2></div><article class=post-entry><header class=entry-header><h2 class=entry-hint-parent>Webhooks vs. Polling</h2></header><div class=entry-content><p>Webhooks vs. Polling 웹 애플리케이션에서 외부 시스템과 통신하거나 상태 변화를 감지하는 방식에는 대표적으로 웹훅(Webhooks)과 폴링(Polling)이 있다. 이 두 방식은 서로 다른 접근 방식을 가지고 있으며, 각각 고유한 장단점이 있다.
+웹훅(Webhooks) 정의와 작동 방식 웹훅은 “역방향 API” 또는 “사용자 정의 콜백"이라고도 불리며, 이벤트 기반 통신 방식이다.
+웹훅은 특정 이벤트가 발생했을 때 한 애플리케이션이 다른 애플리케이션에 HTTP POST 요청을 통해 실시간으로 데이터를 전송하는 방식이다.
+작동 과정:
+클라이언트(데이터를 수신하는 측)가 서버(데이터를 제공하는 측)에 콜백 URL을 등록한다. 서버에서 특정 이벤트가 발생하면 해당 URL로 HTTP POST 요청을 보낸다. 클라이언트는 이 요청을 수신하고 처리한다. 주요 사용 사례 결제 처리 알림(Stripe, PayPal) 소셜 미디어 업데이트 알림(Twitter, Facebook) 저장소 이벤트 알림(GitHub, GitLab) CRM 시스템 업데이트(Salesforce, HubSpot) IoT 장치 상태 변경 알림 장점 효율성: 변경이 있을 때만 통신이 발생하므로 리소스 사용이 효율적이다. 실시간성: 이벤트 발생 즉시 알림이 전송되어 실시간에 가까운 통신이 가능하다. 확장성: 폴링보다 서버 부하가 적어 대규모 시스템에서 더 확장성이 좋다. 푸시 기반: 데이터 제공자가 능동적으로 데이터를 푸시하므로 수신자는 수동적으로 대기만 하면 된다. 단점 구현 복잡성: 수신 엔드포인트 설정, 인증, 재시도 메커니즘 등 구현이 복잡할 수 있다. 보안 위험: 공개적으로 접근 가능한 엔드포인트를 노출해야 하므로 보안 위험이 있다. 신뢰성 문제: 네트워크 오류나 서버 다운으로 인해 웹훅 전송이 실패할 수 있다. 디버깅 어려움: 비동기적 특성으로 인해 디버깅이 어려울 수 있다. 구현 예시 GitHub 웹훅을 사용하여 저장소 이벤트를 수신하는 Node.js 서버:
+...</p></div><footer class=entry-footer><span title='2025-01-31 15:21:00 +0000 UTC'>January 31, 2025</span>&nbsp;·&nbsp;4 min&nbsp;·&nbsp;Me</footer><a class=entry-link aria-label="post link to Webhooks vs. Polling" href=https://buenhyden.github.io/posts/backend/api-design/api-styles/event-based-style/webhook/webhooks-vs-polling/></a></article></main><footer class=footer><span>&copy; 2025 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>
