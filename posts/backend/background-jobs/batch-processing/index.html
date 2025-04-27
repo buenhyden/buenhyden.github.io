@@ -141,15 +141,23 @@
 </span></span><span class=line><span class=cl>    <span class=k>throw</span> <span class=nx>error</span><span class=p>;</span>
 </span></span><span class=line><span class=cl>  <span class=p>}</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><h3 id=배치-처리-구현-패턴>배치 처리 구현 패턴<a hidden class=anchor aria-hidden=true href=#배치-처리-구현-패턴>#</a></h3><ol><li><p>단일 엔드포인트 패턴<br>모든 배치 작업을 처리하는 전용 엔드포인트를 제공한다:</p><pre class=mermaid>POST /api/batch
-</pre></li><li><p>리소스별 배치 패턴<br>각 리소스 유형에 대한 배치 엔드포인트를 제공한다:</p><pre class=mermaid>POST /api/users/batch
-POST /api/products/batch
-</pre></li><li><p>비동기 배치 패턴<br>큰 배치를 비동기적으로 처리하고 작업 ID를 반환한다:</p><pre class=mermaid>POST /api/batch
-→ 응답: { &#34;batchId&#34;: &#34;abc123&#34; }
-
-GET /api/batch/abc123
-→ 응답: { &#34;status&#34;: &#34;processing&#34;, &#34;completed&#34;: 45, &#34;total&#34;: 100 }
-</pre></li></ol><h3 id=실제-구현-사례>실제 구현 사례<a hidden class=anchor aria-hidden=true href=#실제-구현-사례>#</a></h3><h4 id=rest-api-배치-예시>REST API 배치 예시<a hidden class=anchor aria-hidden=true href=#rest-api-배치-예시>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-7-1><a class=lnlinks href=#hl-7-1> 1</a>
+</span></span></code></pre></td></tr></table></div></div><h3 id=배치-처리-구현-패턴>배치 처리 구현 패턴<a hidden class=anchor aria-hidden=true href=#배치-처리-구현-패턴>#</a></h3><ol><li><p>단일 엔드포인트 패턴<br>모든 배치 작업을 처리하는 전용 엔드포인트를 제공한다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-4-1><a class=lnlinks href=#hl-4-1>1</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>POST /api/batch
+</span></span></code></pre></td></tr></table></div></div></li><li><p>리소스별 배치 패턴<br>각 리소스 유형에 대한 배치 엔드포인트를 제공한다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-5-1><a class=lnlinks href=#hl-5-1>1</a>
+</span><span class=lnt id=hl-5-2><a class=lnlinks href=#hl-5-2>2</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>POST /api/users/batch
+</span></span><span class=line><span class=cl>POST /api/products/batch
+</span></span></code></pre></td></tr></table></div></div></li><li><p>비동기 배치 패턴<br>큰 배치를 비동기적으로 처리하고 작업 ID를 반환한다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-6-1><a class=lnlinks href=#hl-6-1>1</a>
+</span><span class=lnt id=hl-6-2><a class=lnlinks href=#hl-6-2>2</a>
+</span><span class=lnt id=hl-6-3><a class=lnlinks href=#hl-6-3>3</a>
+</span><span class=lnt id=hl-6-4><a class=lnlinks href=#hl-6-4>4</a>
+</span><span class=lnt id=hl-6-5><a class=lnlinks href=#hl-6-5>5</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>POST /api/batch
+</span></span><span class=line><span class=cl>→ 응답: { &#34;batchId&#34;: &#34;abc123&#34; }
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>GET /api/batch/abc123
+</span></span><span class=line><span class=cl>→ 응답: { &#34;status&#34;: &#34;processing&#34;, &#34;completed&#34;: 45, &#34;total&#34;: 100 }
+</span></span></code></pre></td></tr></table></div></div></li></ol><h3 id=실제-구현-사례>실제 구현 사례<a hidden class=anchor aria-hidden=true href=#실제-구현-사례>#</a></h3><h4 id=rest-api-배치-예시>REST API 배치 예시<a hidden class=anchor aria-hidden=true href=#rest-api-배치-예시>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-7-1><a class=lnlinks href=#hl-7-1> 1</a>
 </span><span class=lnt id=hl-7-2><a class=lnlinks href=#hl-7-2> 2</a>
 </span><span class=lnt id=hl-7-3><a class=lnlinks href=#hl-7-3> 3</a>
 </span><span class=lnt id=hl-7-4><a class=lnlinks href=#hl-7-4> 4</a>

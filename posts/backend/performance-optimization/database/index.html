@@ -81,9 +81,11 @@
 </span></span><span class=line><span class=cl><span class=p>}</span>
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl><span class=nx>module</span><span class=p>.</span><span class=nx>exports</span> <span class=o>=</span> <span class=p>{</span> <span class=nx>query</span> <span class=p>};</span>
-</span></span></code></pre></td></tr></table></div></div><h4 id=성능-향상-효과>성능 향상 효과<a hidden class=anchor aria-hidden=true href=#성능-향상-효과>#</a></h4><p>커넥션 풀링을 적용하면 다음과 같은 성능 향상을 기대할 수 있다:</p><ol><li><strong>응답 시간 감소</strong>: 연결 설정 시간을 절약하여 즉시 쿼리 실행 가능</li><li><strong>처리량 증가</strong>: 동일 시간 내 더 많은 요청 처리 가능</li><li><strong>서버 부하 감소</strong>: 빈번한 연결 생성/종료로 인한 CPU 및 메모리 사용량 감소</li><li><strong>안정성 향상</strong>: 연결 수 제한으로 데이터베이스 서버 과부하 방지</li></ol><p>실제 성능 테스트에서는 커넥션 풀링 적용 시 응답 시간이 50-80% 감소하는 사례가 많다.</p><h3 id=optimizing-connection-pool-settings>Optimizing Connection Pool Settings<a hidden class=anchor aria-hidden=true href=#optimizing-connection-pool-settings>#</a></h3><p>커넥션 풀을 단순히 구현하는 것뿐만 아니라, 애플리케이션 특성에 맞게 설정을 최적화하는 것이 중요하다.</p><h4 id=주요-최적화-매개변수>주요 최적화 매개변수<a hidden class=anchor aria-hidden=true href=#주요-최적화-매개변수>#</a></h4><ol><li><strong>최소/최대 연결 수(Min/Max Pool Size)</strong><ul><li>최소 연결 수: 풀에서 항상 유지되는 연결 수</li><li>최대 연결 수: 풀이 관리할 수 있는 최대 연결 수</li></ul></li><li><strong>연결 타임아웃(Connection Timeout)</strong><ul><li>새 연결을 얻기 위해 대기하는 최대 시간</li></ul></li><li><strong>유휴 타임아웃(Idle Timeout)</strong><ul><li>비활성 상태의 연결이 풀에서 제거되기 전에 유지되는 시간</li></ul></li><li><strong>연결 수명(Max Lifetime)</strong><ul><li>연결이 재사용되다가 종료되고 새로운 연결로 대체되는 최대 시간</li></ul></li></ol><h4 id=최적-설정-가이드라인>최적 설정 가이드라인<a hidden class=anchor aria-hidden=true href=#최적-설정-가이드라인>#</a></h4><ol><li><p><strong>최대 풀 크기 결정:</strong><br>최대 풀 크기는 다음 공식을 참고할 수 있다:</p><pre class=mermaid>최대 풀 크기 = (CPU 코어 수 * 2) + 유효 디스크 수
-</pre><p>예를 들어 8코어 CPU와 1개의 SSD가 있는 경우:</p><pre class=mermaid>최대 풀 크기 = (8 * 2) + 1 = 17
-</pre><p>그러나 이는 시작점일 뿐, 실제 워크로드에 따라 조정이 필요하다.</p></li><li><p><strong>최소 풀 크기 설정:</strong><br>일반적으로 최대 풀 크기의 25-50%로 설정하는 것이 좋다. 이는 초기 연결 생성 비용을 절약하면서 기본 부하를 처리할 수 있는 연결을 유지한다.</p></li><li><p><strong>타임아웃 설정:</strong></p><ul><li>연결 타임아웃: 일반적으로 5-30초 (워크로드에 따라 다름)</li><li>유휴 타임아웃: 일반적으로 5-10분</li><li>최대 수명: 일반적으로 30분-2시간 (데이터베이스 서버 설정에 따라 다름)</li></ul></li></ol><h4 id=모니터링-및-조정-전략>모니터링 및 조정 전략<a hidden class=anchor aria-hidden=true href=#모니터링-및-조정-전략>#</a></h4><p>커넥션 풀 성능을 지속적으로 모니터링하고 다음 지표를 추적해야 한다:</p><ol><li><strong>활성 연결 수</strong>: 현재 사용 중인 연결 수</li><li><strong>유휴 연결 수</strong>: 사용 가능한 연결 수</li><li><strong>대기 시간</strong>: 연결을 얻기 위해 대기한 시간</li><li><strong>타임아웃 발생 빈도</strong>: 연결을 얻지 못한 요청 수</li></ol><p>이러한 지표를 기반으로 풀 설정을 조정할 수 있다:</p><ul><li>대기 시간이 길거나 타임아웃이 자주 발생하면 최대 풀 크기를 늘림</li><li>유휴 연결이 많으면 최소 풀 크기를 줄임</li><li>데이터베이스 서버 부하가 높으면 최대 풀 크기를 줄임</li></ul><h3 id=efficient-database-indexing>Efficient Database Indexing<a hidden class=anchor aria-hidden=true href=#efficient-database-indexing>#</a></h3><p>데이터베이스 성능을 최적화하는 가장 효과적인 방법 중 하나는 적절한 인덱스를 생성하는 것이다.</p><h4 id=인덱스의-역할과-중요성>인덱스의 역할과 중요성<a hidden class=anchor aria-hidden=true href=#인덱스의-역할과-중요성>#</a></h4><p>인덱스는 데이터베이스 테이블에서 데이터를 빠르게 찾기 위한 자료 구조이다. 인덱스가 없으면 데이터베이스는 테이블의 모든 행을 검사하는 &lsquo;전체 테이블 스캔(Full Table Scan)&lsquo;을 수행해야 한다.</p><p>예를 들어, 1백만 개의 레코드가 있는 테이블에서 특정 사용자를 찾는 경우:</p><ul><li>인덱스 없이: 최악의 경우 1백만 개 모든 레코드 검사 필요</li><li>인덱스 사용: B-Tree 인덱스의 경우 약 log2(1,000,000) ≈ 20번의 비교로 찾을 수 있음</li></ul><h4 id=인덱스-유형>인덱스 유형<a hidden class=anchor aria-hidden=true href=#인덱스-유형>#</a></h4><ol><li><strong>단일 컬럼 인덱스(Single Column Index)</strong>: 하나의 컬럼에 대한, 가장 기본적인 인덱스</li><li><strong>복합 인덱스(Composite Index)</strong>: 여러 컬럼을 포함하는 인덱스</li><li><strong>고유 인덱스(Unique Index)</strong>: 중복 값을 허용하지 않는 인덱스</li><li><strong>부분 인덱스(Partial Index)</strong>: 테이블의 일부 행만 포함하는 인덱스</li><li><strong>함수 기반 인덱스(Function-Based Index)</strong>: 컬럼 값이 아닌 함수 결과에 대한 인덱스</li></ol><h4 id=효과적인-인덱스-전략>효과적인 인덱스 전략<a hidden class=anchor aria-hidden=true href=#효과적인-인덱스-전략>#</a></h4><p><strong>인덱스가 필요한 컬럼:</strong></p><ol><li>WHERE 절에서 자주 사용되는 컬럼</li><li>JOIN 절에서 사용되는 컬럼</li><li>ORDER BY 또는 GROUP BY 절에서 사용되는 컬럼</li><li>고유성이 높은 컬럼 (선택성이 좋은 컬럼)</li></ol><p><strong>인덱스 생성 예시:</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-4-1><a class=lnlinks href=#hl-4-1> 1</a>
+</span></span></code></pre></td></tr></table></div></div><h4 id=성능-향상-효과>성능 향상 효과<a hidden class=anchor aria-hidden=true href=#성능-향상-효과>#</a></h4><p>커넥션 풀링을 적용하면 다음과 같은 성능 향상을 기대할 수 있다:</p><ol><li><strong>응답 시간 감소</strong>: 연결 설정 시간을 절약하여 즉시 쿼리 실행 가능</li><li><strong>처리량 증가</strong>: 동일 시간 내 더 많은 요청 처리 가능</li><li><strong>서버 부하 감소</strong>: 빈번한 연결 생성/종료로 인한 CPU 및 메모리 사용량 감소</li><li><strong>안정성 향상</strong>: 연결 수 제한으로 데이터베이스 서버 과부하 방지</li></ol><p>실제 성능 테스트에서는 커넥션 풀링 적용 시 응답 시간이 50-80% 감소하는 사례가 많다.</p><h3 id=optimizing-connection-pool-settings>Optimizing Connection Pool Settings<a hidden class=anchor aria-hidden=true href=#optimizing-connection-pool-settings>#</a></h3><p>커넥션 풀을 단순히 구현하는 것뿐만 아니라, 애플리케이션 특성에 맞게 설정을 최적화하는 것이 중요하다.</p><h4 id=주요-최적화-매개변수>주요 최적화 매개변수<a hidden class=anchor aria-hidden=true href=#주요-최적화-매개변수>#</a></h4><ol><li><strong>최소/최대 연결 수(Min/Max Pool Size)</strong><ul><li>최소 연결 수: 풀에서 항상 유지되는 연결 수</li><li>최대 연결 수: 풀이 관리할 수 있는 최대 연결 수</li></ul></li><li><strong>연결 타임아웃(Connection Timeout)</strong><ul><li>새 연결을 얻기 위해 대기하는 최대 시간</li></ul></li><li><strong>유휴 타임아웃(Idle Timeout)</strong><ul><li>비활성 상태의 연결이 풀에서 제거되기 전에 유지되는 시간</li></ul></li><li><strong>연결 수명(Max Lifetime)</strong><ul><li>연결이 재사용되다가 종료되고 새로운 연결로 대체되는 최대 시간</li></ul></li></ol><h4 id=최적-설정-가이드라인>최적 설정 가이드라인<a hidden class=anchor aria-hidden=true href=#최적-설정-가이드라인>#</a></h4><ol><li><p><strong>최대 풀 크기 결정:</strong><br>최대 풀 크기는 다음 공식을 참고할 수 있다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-2-1><a class=lnlinks href=#hl-2-1>1</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>최대 풀 크기 = (CPU 코어 수 * 2) + 유효 디스크 수
+</span></span></code></pre></td></tr></table></div></div><p>예를 들어 8코어 CPU와 1개의 SSD가 있는 경우:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-3-1><a class=lnlinks href=#hl-3-1>1</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>최대 풀 크기 = (8 * 2) + 1 = 17
+</span></span></code></pre></td></tr></table></div></div><p>그러나 이는 시작점일 뿐, 실제 워크로드에 따라 조정이 필요하다.</p></li><li><p><strong>최소 풀 크기 설정:</strong><br>일반적으로 최대 풀 크기의 25-50%로 설정하는 것이 좋다. 이는 초기 연결 생성 비용을 절약하면서 기본 부하를 처리할 수 있는 연결을 유지한다.</p></li><li><p><strong>타임아웃 설정:</strong></p><ul><li>연결 타임아웃: 일반적으로 5-30초 (워크로드에 따라 다름)</li><li>유휴 타임아웃: 일반적으로 5-10분</li><li>최대 수명: 일반적으로 30분-2시간 (데이터베이스 서버 설정에 따라 다름)</li></ul></li></ol><h4 id=모니터링-및-조정-전략>모니터링 및 조정 전략<a hidden class=anchor aria-hidden=true href=#모니터링-및-조정-전략>#</a></h4><p>커넥션 풀 성능을 지속적으로 모니터링하고 다음 지표를 추적해야 한다:</p><ol><li><strong>활성 연결 수</strong>: 현재 사용 중인 연결 수</li><li><strong>유휴 연결 수</strong>: 사용 가능한 연결 수</li><li><strong>대기 시간</strong>: 연결을 얻기 위해 대기한 시간</li><li><strong>타임아웃 발생 빈도</strong>: 연결을 얻지 못한 요청 수</li></ol><p>이러한 지표를 기반으로 풀 설정을 조정할 수 있다:</p><ul><li>대기 시간이 길거나 타임아웃이 자주 발생하면 최대 풀 크기를 늘림</li><li>유휴 연결이 많으면 최소 풀 크기를 줄임</li><li>데이터베이스 서버 부하가 높으면 최대 풀 크기를 줄임</li></ul><h3 id=efficient-database-indexing>Efficient Database Indexing<a hidden class=anchor aria-hidden=true href=#efficient-database-indexing>#</a></h3><p>데이터베이스 성능을 최적화하는 가장 효과적인 방법 중 하나는 적절한 인덱스를 생성하는 것이다.</p><h4 id=인덱스의-역할과-중요성>인덱스의 역할과 중요성<a hidden class=anchor aria-hidden=true href=#인덱스의-역할과-중요성>#</a></h4><p>인덱스는 데이터베이스 테이블에서 데이터를 빠르게 찾기 위한 자료 구조이다. 인덱스가 없으면 데이터베이스는 테이블의 모든 행을 검사하는 &lsquo;전체 테이블 스캔(Full Table Scan)&lsquo;을 수행해야 한다.</p><p>예를 들어, 1백만 개의 레코드가 있는 테이블에서 특정 사용자를 찾는 경우:</p><ul><li>인덱스 없이: 최악의 경우 1백만 개 모든 레코드 검사 필요</li><li>인덱스 사용: B-Tree 인덱스의 경우 약 log2(1,000,000) ≈ 20번의 비교로 찾을 수 있음</li></ul><h4 id=인덱스-유형>인덱스 유형<a hidden class=anchor aria-hidden=true href=#인덱스-유형>#</a></h4><ol><li><strong>단일 컬럼 인덱스(Single Column Index)</strong>: 하나의 컬럼에 대한, 가장 기본적인 인덱스</li><li><strong>복합 인덱스(Composite Index)</strong>: 여러 컬럼을 포함하는 인덱스</li><li><strong>고유 인덱스(Unique Index)</strong>: 중복 값을 허용하지 않는 인덱스</li><li><strong>부분 인덱스(Partial Index)</strong>: 테이블의 일부 행만 포함하는 인덱스</li><li><strong>함수 기반 인덱스(Function-Based Index)</strong>: 컬럼 값이 아닌 함수 결과에 대한 인덱스</li></ol><h4 id=효과적인-인덱스-전략>효과적인 인덱스 전략<a hidden class=anchor aria-hidden=true href=#효과적인-인덱스-전략>#</a></h4><p><strong>인덱스가 필요한 컬럼:</strong></p><ol><li>WHERE 절에서 자주 사용되는 컬럼</li><li>JOIN 절에서 사용되는 컬럼</li><li>ORDER BY 또는 GROUP BY 절에서 사용되는 컬럼</li><li>고유성이 높은 컬럼 (선택성이 좋은 컬럼)</li></ol><p><strong>인덱스 생성 예시:</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-4-1><a class=lnlinks href=#hl-4-1> 1</a>
 </span><span class=lnt id=hl-4-2><a class=lnlinks href=#hl-4-2> 2</a>
 </span><span class=lnt id=hl-4-3><a class=lnlinks href=#hl-4-3> 3</a>
 </span><span class=lnt id=hl-4-4><a class=lnlinks href=#hl-4-4> 4</a>
@@ -543,18 +545,29 @@
 </span></span></span><span class=line><span class=cl><span class=w></span><span class=k>WHERE</span><span class=w> </span><span class=n>category_id</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mi>5</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w></span><span class=k>ORDER</span><span class=w> </span><span class=k>BY</span><span class=w> </span><span class=n>price</span><span class=w> </span><span class=k>DESC</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w></span><span class=k>LIMIT</span><span class=w> </span><span class=mi>50</span><span class=p>;</span><span class=w>
-</span></span></span></code></pre></td></tr></table></div></div><p>최적화 결과:</p><ul><li>쿼리 실행 시간: 250ms → 60ms (76% 감소)</li><li>전송 데이터 크기: 1.2MB → 180KB (85% 감소)</li><li>메모리 사용량: 1.4MB → 220KB (84% 감소)</li></ul><p>이러한 최적화는 특히 고부하 상황이나 모바일 환경에서 상당한 성능 향상을 가져온다.</p><h3 id=denormalizing-database-schema-for-read-heavy-workloads-and-reducing-join-operations>Denormalizing Database Schema for Read-Heavy Workloads and Reducing Join Operations<a hidden class=anchor aria-hidden=true href=#denormalizing-database-schema-for-read-heavy-workloads-and-reducing-join-operations>#</a></h3><h4 id=정규화와-비정규화의-이해>정규화와 비정규화의 이해<a hidden class=anchor aria-hidden=true href=#정규화와-비정규화의-이해>#</a></h4><p>데이터베이스 설계에서 정규화는 중복을 제거하고 데이터 일관성을 유지하는 과정이다. 그러나 읽기 중심 애플리케이션에서는 비정규화가 성능 향상에 도움이 될 수 있다.</p><p><strong>정규화된 스키마 (3NF):</strong></p><pre class=mermaid>customers (id, name, email, address_id)
-addresses (id, street, city, state, zip, country_id)
-countries (id, name, code)
-orders (id, customer_id, order_date, status)
-order_items (id, order_id, product_id, quantity, price)
-products (id, name, description, category_id, price)
-categories (id, name, parent_id)
-</pre><p><strong>비정규화된 스키마 (읽기 최적화):</strong></p><pre class=mermaid>customers (id, name, email, street, city, state, zip, country_name, country_code)
-orders (id, customer_id, customer_name, customer_email, order_date, status)
-order_items (id, order_id, product_id, product_name, category_name, quantity, price)
-products (id, name, description, category_name, parent_category_name, price)
-</pre><h4 id=비정규화-전략>비정규화 전략<a hidden class=anchor aria-hidden=true href=#비정규화-전략>#</a></h4><ol><li><p><strong>자주 조인되는 테이블 병합</strong>: 조회 시 항상 함께 사용되는 테이블은 병합 고려</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-28-1><a class=lnlinks href=#hl-28-1> 1</a>
+</span></span></span></code></pre></td></tr></table></div></div><p>최적화 결과:</p><ul><li>쿼리 실행 시간: 250ms → 60ms (76% 감소)</li><li>전송 데이터 크기: 1.2MB → 180KB (85% 감소)</li><li>메모리 사용량: 1.4MB → 220KB (84% 감소)</li></ul><p>이러한 최적화는 특히 고부하 상황이나 모바일 환경에서 상당한 성능 향상을 가져온다.</p><h3 id=denormalizing-database-schema-for-read-heavy-workloads-and-reducing-join-operations>Denormalizing Database Schema for Read-Heavy Workloads and Reducing Join Operations<a hidden class=anchor aria-hidden=true href=#denormalizing-database-schema-for-read-heavy-workloads-and-reducing-join-operations>#</a></h3><h4 id=정규화와-비정규화의-이해>정규화와 비정규화의 이해<a hidden class=anchor aria-hidden=true href=#정규화와-비정규화의-이해>#</a></h4><p>데이터베이스 설계에서 정규화는 중복을 제거하고 데이터 일관성을 유지하는 과정이다. 그러나 읽기 중심 애플리케이션에서는 비정규화가 성능 향상에 도움이 될 수 있다.</p><p><strong>정규화된 스키마 (3NF):</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-26-1><a class=lnlinks href=#hl-26-1>1</a>
+</span><span class=lnt id=hl-26-2><a class=lnlinks href=#hl-26-2>2</a>
+</span><span class=lnt id=hl-26-3><a class=lnlinks href=#hl-26-3>3</a>
+</span><span class=lnt id=hl-26-4><a class=lnlinks href=#hl-26-4>4</a>
+</span><span class=lnt id=hl-26-5><a class=lnlinks href=#hl-26-5>5</a>
+</span><span class=lnt id=hl-26-6><a class=lnlinks href=#hl-26-6>6</a>
+</span><span class=lnt id=hl-26-7><a class=lnlinks href=#hl-26-7>7</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>customers (id, name, email, address_id)
+</span></span><span class=line><span class=cl>addresses (id, street, city, state, zip, country_id)
+</span></span><span class=line><span class=cl>countries (id, name, code)
+</span></span><span class=line><span class=cl>orders (id, customer_id, order_date, status)
+</span></span><span class=line><span class=cl>order_items (id, order_id, product_id, quantity, price)
+</span></span><span class=line><span class=cl>products (id, name, description, category_id, price)
+</span></span><span class=line><span class=cl>categories (id, name, parent_id)
+</span></span></code></pre></td></tr></table></div></div><p><strong>비정규화된 스키마 (읽기 최적화):</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-27-1><a class=lnlinks href=#hl-27-1>1</a>
+</span><span class=lnt id=hl-27-2><a class=lnlinks href=#hl-27-2>2</a>
+</span><span class=lnt id=hl-27-3><a class=lnlinks href=#hl-27-3>3</a>
+</span><span class=lnt id=hl-27-4><a class=lnlinks href=#hl-27-4>4</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>customers (id, name, email, street, city, state, zip, country_name, country_code)
+</span></span><span class=line><span class=cl>orders (id, customer_id, customer_name, customer_email, order_date, status)
+</span></span><span class=line><span class=cl>order_items (id, order_id, product_id, product_name, category_name, quantity, price)
+</span></span><span class=line><span class=cl>products (id, name, description, category_name, parent_category_name, price)
+</span></span></code></pre></td></tr></table></div></div><h4 id=비정규화-전략>비정규화 전략<a hidden class=anchor aria-hidden=true href=#비정규화-전략>#</a></h4><ol><li><p><strong>자주 조인되는 테이블 병합</strong>: 조회 시 항상 함께 사용되는 테이블은 병합 고려</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-28-1><a class=lnlinks href=#hl-28-1> 1</a>
 </span><span class=lnt id=hl-28-2><a class=lnlinks href=#hl-28-2> 2</a>
 </span><span class=lnt id=hl-28-3><a class=lnlinks href=#hl-28-3> 3</a>
 </span><span class=lnt id=hl-28-4><a class=lnlinks href=#hl-28-4> 4</a>
@@ -1016,19 +1029,31 @@ products (id, name, description, category_name, parent_category_name, price)
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>annotations</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>summary</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;높은 연결 사용률&#34;</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>description</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;데이터베이스 연결 사용률이 80%를 초과했습니다.&#34;</span><span class=w>
-</span></span></span></code></pre></td></tr></table></div></div><h3 id=database-replication-for-redundancy-and-enhanced-read-performance>Database Replication for Redundancy and Enhanced Read Performance<a hidden class=anchor aria-hidden=true href=#database-replication-for-redundancy-and-enhanced-read-performance>#</a></h3><h4 id=데이터베이스-복제의-개념>데이터베이스 복제의 개념<a hidden class=anchor aria-hidden=true href=#데이터베이스-복제의-개념>#</a></h4><p>데이터베이스 복제는 하나의 데이터베이스(마스터)의 데이터를 다른 데이터베이스(복제본)에 복사하여 동기화하는 프로세스이다. 이를 통해 데이터 중복성을 확보하고 읽기 작업을 분산시킬 수 있다.</p><h4 id=복제-구성-유형>복제 구성 유형<a hidden class=anchor aria-hidden=true href=#복제-구성-유형>#</a></h4><ol><li><strong>마스터-슬레이브 복제</strong>:<ul><li>모든 쓰기 작업은 마스터에서 수행</li><li>읽기 작업은 마스터와 슬레이브에 분산</li><li>슬레이브는 마스터의 변경 사항을 비동기적으로 복제</li></ul></li><li><strong>마스터-마스터 복제</strong>:<ul><li>양방향 복제로 두 서버 모두에서 쓰기 가능</li><li>복잡성 증가 및 충돌 가능성</li><li>특정 사용 사례에만 권장</li></ul></li><li><strong>다중 슬레이브 구성</strong>:<ul><li>하나의 마스터와 여러 슬레이브</li><li>읽기 작업을 여러 슬레이브에 분산</li><li>지리적으로 분산된 배포 지원</li></ul></li></ol><h4 id=mysql-복제-설정>MySQL 복제 설정<a hidden class=anchor aria-hidden=true href=#mysql-복제-설정>#</a></h4><p><strong>마스터 서버 설정:</strong></p><pre class=mermaid># my.cnf
-[mysqld]
-server-id = 1
-log_bin = mysql-bin
-binlog_format = ROW
-binlog_do_db = myapp  # 복제할 데이터베이스 지정
-</pre><p><strong>슬레이브 서버 설정:</strong></p><pre class=mermaid># my.cnf
-[mysqld]
-server-id = 2
-relay-log = mysql-relay-bin
-log_bin = mysql-bin
-read_only = 1  # 슬레이브를 읽기 전용으로 설정
-</pre><p><strong>복제 설정 명령:</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-60-1><a class=lnlinks href=#hl-60-1> 1</a>
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=database-replication-for-redundancy-and-enhanced-read-performance>Database Replication for Redundancy and Enhanced Read Performance<a hidden class=anchor aria-hidden=true href=#database-replication-for-redundancy-and-enhanced-read-performance>#</a></h3><h4 id=데이터베이스-복제의-개념>데이터베이스 복제의 개념<a hidden class=anchor aria-hidden=true href=#데이터베이스-복제의-개념>#</a></h4><p>데이터베이스 복제는 하나의 데이터베이스(마스터)의 데이터를 다른 데이터베이스(복제본)에 복사하여 동기화하는 프로세스이다. 이를 통해 데이터 중복성을 확보하고 읽기 작업을 분산시킬 수 있다.</p><h4 id=복제-구성-유형>복제 구성 유형<a hidden class=anchor aria-hidden=true href=#복제-구성-유형>#</a></h4><ol><li><strong>마스터-슬레이브 복제</strong>:<ul><li>모든 쓰기 작업은 마스터에서 수행</li><li>읽기 작업은 마스터와 슬레이브에 분산</li><li>슬레이브는 마스터의 변경 사항을 비동기적으로 복제</li></ul></li><li><strong>마스터-마스터 복제</strong>:<ul><li>양방향 복제로 두 서버 모두에서 쓰기 가능</li><li>복잡성 증가 및 충돌 가능성</li><li>특정 사용 사례에만 권장</li></ul></li><li><strong>다중 슬레이브 구성</strong>:<ul><li>하나의 마스터와 여러 슬레이브</li><li>읽기 작업을 여러 슬레이브에 분산</li><li>지리적으로 분산된 배포 지원</li></ul></li></ol><h4 id=mysql-복제-설정>MySQL 복제 설정<a hidden class=anchor aria-hidden=true href=#mysql-복제-설정>#</a></h4><p><strong>마스터 서버 설정:</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-58-1><a class=lnlinks href=#hl-58-1>1</a>
+</span><span class=lnt id=hl-58-2><a class=lnlinks href=#hl-58-2>2</a>
+</span><span class=lnt id=hl-58-3><a class=lnlinks href=#hl-58-3>3</a>
+</span><span class=lnt id=hl-58-4><a class=lnlinks href=#hl-58-4>4</a>
+</span><span class=lnt id=hl-58-5><a class=lnlinks href=#hl-58-5>5</a>
+</span><span class=lnt id=hl-58-6><a class=lnlinks href=#hl-58-6>6</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl># my.cnf
+</span></span><span class=line><span class=cl>[mysqld]
+</span></span><span class=line><span class=cl>server-id = 1
+</span></span><span class=line><span class=cl>log_bin = mysql-bin
+</span></span><span class=line><span class=cl>binlog_format = ROW
+</span></span><span class=line><span class=cl>binlog_do_db = myapp  # 복제할 데이터베이스 지정
+</span></span></code></pre></td></tr></table></div></div><p><strong>슬레이브 서버 설정:</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-59-1><a class=lnlinks href=#hl-59-1>1</a>
+</span><span class=lnt id=hl-59-2><a class=lnlinks href=#hl-59-2>2</a>
+</span><span class=lnt id=hl-59-3><a class=lnlinks href=#hl-59-3>3</a>
+</span><span class=lnt id=hl-59-4><a class=lnlinks href=#hl-59-4>4</a>
+</span><span class=lnt id=hl-59-5><a class=lnlinks href=#hl-59-5>5</a>
+</span><span class=lnt id=hl-59-6><a class=lnlinks href=#hl-59-6>6</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl># my.cnf
+</span></span><span class=line><span class=cl>[mysqld]
+</span></span><span class=line><span class=cl>server-id = 2
+</span></span><span class=line><span class=cl>relay-log = mysql-relay-bin
+</span></span><span class=line><span class=cl>log_bin = mysql-bin
+</span></span><span class=line><span class=cl>read_only = 1  # 슬레이브를 읽기 전용으로 설정
+</span></span></code></pre></td></tr></table></div></div><p><strong>복제 설정 명령:</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-60-1><a class=lnlinks href=#hl-60-1> 1</a>
 </span><span class=lnt id=hl-60-2><a class=lnlinks href=#hl-60-2> 2</a>
 </span><span class=lnt id=hl-60-3><a class=lnlinks href=#hl-60-3> 3</a>
 </span><span class=lnt id=hl-60-4><a class=lnlinks href=#hl-60-4> 4</a>
@@ -1072,21 +1097,31 @@ read_only = 1  # 슬레이브를 읽기 전용으로 설정
 </span></span></span><span class=line><span class=cl><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w></span><span class=c1>-- 슬레이브 상태 확인
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>SHOW</span><span class=w> </span><span class=n>SLAVE</span><span class=w> </span><span class=n>STATUS</span><span class=err>\</span><span class=k>G</span><span class=w>
-</span></span></span></code></pre></td></tr></table></div></div><h4 id=postgresql-복제-설정>PostgreSQL 복제 설정<a hidden class=anchor aria-hidden=true href=#postgresql-복제-설정>#</a></h4><p><strong>마스터 서버 설정 (postgresql.conf):</strong></p><pre class=mermaid># 복제 설정
-wal_level = replica
-max_wal_senders = 10
-wal_keep_segments = 32
-</pre><p><strong>마스터 서버 설정 (pg_hba.conf):</strong></p><pre class=mermaid># 복제 연결 허용
-host    replication     repl_user    slave_server_ip/32     md5
-</pre><p><strong>슬레이브 서버 설정:</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-63-1><a class=lnlinks href=#hl-63-1>1</a>
+</span></span></span></code></pre></td></tr></table></div></div><h4 id=postgresql-복제-설정>PostgreSQL 복제 설정<a hidden class=anchor aria-hidden=true href=#postgresql-복제-설정>#</a></h4><p><strong>마스터 서버 설정 (postgresql.conf):</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-61-1><a class=lnlinks href=#hl-61-1>1</a>
+</span><span class=lnt id=hl-61-2><a class=lnlinks href=#hl-61-2>2</a>
+</span><span class=lnt id=hl-61-3><a class=lnlinks href=#hl-61-3>3</a>
+</span><span class=lnt id=hl-61-4><a class=lnlinks href=#hl-61-4>4</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl># 복제 설정
+</span></span><span class=line><span class=cl>wal_level = replica
+</span></span><span class=line><span class=cl>max_wal_senders = 10
+</span></span><span class=line><span class=cl>wal_keep_segments = 32
+</span></span></code></pre></td></tr></table></div></div><p><strong>마스터 서버 설정 (pg_hba.conf):</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-62-1><a class=lnlinks href=#hl-62-1>1</a>
+</span><span class=lnt id=hl-62-2><a class=lnlinks href=#hl-62-2>2</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl># 복제 연결 허용
+</span></span><span class=line><span class=cl>host    replication     repl_user    slave_server_ip/32     md5
+</span></span></code></pre></td></tr></table></div></div><p><strong>슬레이브 서버 설정:</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-63-1><a class=lnlinks href=#hl-63-1>1</a>
 </span><span class=lnt id=hl-63-2><a class=lnlinks href=#hl-63-2>2</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 초기 데이터 복사</span>
 </span></span><span class=line><span class=cl>pg_basebackup -h master_server_ip -D /var/lib/postgresql/data -U repl_user -P -v -X stream
-</span></span></code></pre></td></tr></table></div></div><p><strong>슬레이브 서버 설정 (recovery.conf):</strong></p><pre class=mermaid># 복제 설정
-standby_mode = &#39;on&#39;
-primary_conninfo = &#39;host=master_server_ip port=5432 user=repl_user password=password&#39;
-trigger_file = &#39;/tmp/postgresql.trigger&#39;
-</pre><h4 id=애플리케이션에서의-복제-활용>애플리케이션에서의 복제 활용<a hidden class=anchor aria-hidden=true href=#애플리케이션에서의-복제-활용>#</a></h4><p>복제 구성을 최대한 활용하려면 애플리케이션에서 읽기 및 쓰기 작업을 적절하게 분리해야 한다.</p><p><strong>Java/Spring Boot 예시:</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-65-1><a class=lnlinks href=#hl-65-1> 1</a>
+</span></span></code></pre></td></tr></table></div></div><p><strong>슬레이브 서버 설정 (recovery.conf):</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-64-1><a class=lnlinks href=#hl-64-1>1</a>
+</span><span class=lnt id=hl-64-2><a class=lnlinks href=#hl-64-2>2</a>
+</span><span class=lnt id=hl-64-3><a class=lnlinks href=#hl-64-3>3</a>
+</span><span class=lnt id=hl-64-4><a class=lnlinks href=#hl-64-4>4</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl># 복제 설정
+</span></span><span class=line><span class=cl>standby_mode = &#39;on&#39;
+</span></span><span class=line><span class=cl>primary_conninfo = &#39;host=master_server_ip port=5432 user=repl_user password=password&#39;
+</span></span><span class=line><span class=cl>trigger_file = &#39;/tmp/postgresql.trigger&#39;
+</span></span></code></pre></td></tr></table></div></div><h4 id=애플리케이션에서의-복제-활용>애플리케이션에서의 복제 활용<a hidden class=anchor aria-hidden=true href=#애플리케이션에서의-복제-활용>#</a></h4><p>복제 구성을 최대한 활용하려면 애플리케이션에서 읽기 및 쓰기 작업을 적절하게 분리해야 한다.</p><p><strong>Java/Spring Boot 예시:</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-65-1><a class=lnlinks href=#hl-65-1> 1</a>
 </span><span class=lnt id=hl-65-2><a class=lnlinks href=#hl-65-2> 2</a>
 </span><span class=lnt id=hl-65-3><a class=lnlinks href=#hl-65-3> 3</a>
 </span><span class=lnt id=hl-65-4><a class=lnlinks href=#hl-65-4> 4</a>
@@ -1284,13 +1319,19 @@ trigger_file = &#39;/tmp/postgresql.trigger&#39;
 </span></span></span><span class=line><span class=cl><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w></span><span class=c1>-- PostgreSQL 슬레이브를 마스터로 승격
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=n>touch</span><span class=w> </span><span class=o>/</span><span class=n>tmp</span><span class=o>/</span><span class=n>postgresql</span><span class=p>.</span><span class=k>trigger</span><span class=w>  </span><span class=c1>-- recovery.conf에 지정된 트리거 파일 생성
-</span></span></span></code></pre></td></tr></table></div></div></li></ol><h3 id=database-sharding-for-data-distribution>Database Sharding for Data Distribution<a hidden class=anchor aria-hidden=true href=#database-sharding-for-data-distribution>#</a></h3><h4 id=샤딩의-개념>샤딩의 개념<a hidden class=anchor aria-hidden=true href=#샤딩의-개념>#</a></h4><p>샤딩은 대규모 데이터베이스를 더 작고 관리하기 쉬운 조각(샤드)으로 분할하는 기술이다. 각 샤드는 별도의 서버에 호스팅되어 부하를 분산시킨다.</p><h4 id=샤딩-전략>샤딩 전략<a hidden class=anchor aria-hidden=true href=#샤딩-전략>#</a></h4><ol><li><p><strong>수평 샤딩(Horizontal Sharding)</strong>: 동일한 스키마를 가진 여러 서버에 행을 분산</p><pre class=mermaid>서버 1: 고객 ID 1-1000
-서버 2: 고객 ID 1001-2000
-서버 3: 고객 ID 2001-3000
-</pre></li><li><p><strong>수직 샤딩(Vertical Sharding)</strong>: 테이블 또는 스키마를 여러 서버에 분산</p><pre class=mermaid>서버 1: 고객, 주문 테이블
-서버 2: 제품, 인벤토리 테이블
-서버 3: 결제, 배송 테이블
-</pre></li><li><p><strong>디렉토리 기반 샤딩</strong>: 중앙 디렉토리를 사용하여 데이터 위치 추적</p></li></ol><h4 id=샤딩-키-선택>샤딩 키 선택<a hidden class=anchor aria-hidden=true href=#샤딩-키-선택>#</a></h4><p>샤딩 키는 데이터를 어떤 샤드에 배치할지 결정하는 중요한 요소이다.</p><p><strong>좋은 샤딩 키의 특성:</strong></p><ol><li>균등한 데이터 분포</li><li>최소한의 크로스-샤드 쿼리</li><li>확장성 고려</li></ol><p><strong>일반적인 샤딩 키:</strong></p><ul><li>고객 ID</li><li>지리적 위치</li><li>날짜/시간</li><li>해시 값</li></ul><h4 id=샤딩-구현-방법>샤딩 구현 방법<a hidden class=anchor aria-hidden=true href=#샤딩-구현-방법>#</a></h4><ol><li><p><strong>애플리케이션 레벨 샤딩</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-74-1><a class=lnlinks href=#hl-74-1> 1</a>
+</span></span></span></code></pre></td></tr></table></div></div></li></ol><h3 id=database-sharding-for-data-distribution>Database Sharding for Data Distribution<a hidden class=anchor aria-hidden=true href=#database-sharding-for-data-distribution>#</a></h3><h4 id=샤딩의-개념>샤딩의 개념<a hidden class=anchor aria-hidden=true href=#샤딩의-개념>#</a></h4><p>샤딩은 대규모 데이터베이스를 더 작고 관리하기 쉬운 조각(샤드)으로 분할하는 기술이다. 각 샤드는 별도의 서버에 호스팅되어 부하를 분산시킨다.</p><h4 id=샤딩-전략>샤딩 전략<a hidden class=anchor aria-hidden=true href=#샤딩-전략>#</a></h4><ol><li><p><strong>수평 샤딩(Horizontal Sharding)</strong>: 동일한 스키마를 가진 여러 서버에 행을 분산</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-72-1><a class=lnlinks href=#hl-72-1>1</a>
+</span><span class=lnt id=hl-72-2><a class=lnlinks href=#hl-72-2>2</a>
+</span><span class=lnt id=hl-72-3><a class=lnlinks href=#hl-72-3>3</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>서버 1: 고객 ID 1-1000
+</span></span><span class=line><span class=cl>서버 2: 고객 ID 1001-2000
+</span></span><span class=line><span class=cl>서버 3: 고객 ID 2001-3000
+</span></span></code></pre></td></tr></table></div></div></li><li><p><strong>수직 샤딩(Vertical Sharding)</strong>: 테이블 또는 스키마를 여러 서버에 분산</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-73-1><a class=lnlinks href=#hl-73-1>1</a>
+</span><span class=lnt id=hl-73-2><a class=lnlinks href=#hl-73-2>2</a>
+</span><span class=lnt id=hl-73-3><a class=lnlinks href=#hl-73-3>3</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>서버 1: 고객, 주문 테이블
+</span></span><span class=line><span class=cl>서버 2: 제품, 인벤토리 테이블
+</span></span><span class=line><span class=cl>서버 3: 결제, 배송 테이블
+</span></span></code></pre></td></tr></table></div></div></li><li><p><strong>디렉토리 기반 샤딩</strong>: 중앙 디렉토리를 사용하여 데이터 위치 추적</p></li></ol><h4 id=샤딩-키-선택>샤딩 키 선택<a hidden class=anchor aria-hidden=true href=#샤딩-키-선택>#</a></h4><p>샤딩 키는 데이터를 어떤 샤드에 배치할지 결정하는 중요한 요소이다.</p><p><strong>좋은 샤딩 키의 특성:</strong></p><ol><li>균등한 데이터 분포</li><li>최소한의 크로스-샤드 쿼리</li><li>확장성 고려</li></ol><p><strong>일반적인 샤딩 키:</strong></p><ul><li>고객 ID</li><li>지리적 위치</li><li>날짜/시간</li><li>해시 값</li></ul><h4 id=샤딩-구현-방법>샤딩 구현 방법<a hidden class=anchor aria-hidden=true href=#샤딩-구현-방법>#</a></h4><ol><li><p><strong>애플리케이션 레벨 샤딩</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-74-1><a class=lnlinks href=#hl-74-1> 1</a>
 </span><span class=lnt id=hl-74-2><a class=lnlinks href=#hl-74-2> 2</a>
 </span><span class=lnt id=hl-74-3><a class=lnlinks href=#hl-74-3> 3</a>
 </span><span class=lnt id=hl-74-4><a class=lnlinks href=#hl-74-4> 4</a>
