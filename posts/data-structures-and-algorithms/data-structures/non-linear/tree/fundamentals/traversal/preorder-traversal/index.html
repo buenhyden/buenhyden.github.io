@@ -1,0 +1,546 @@
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Preorder Traversal | hyunyoun's Blog</title>
+<meta name=keywords content="Data-Structures-and-Algorithms,Data-Structures,Tree,Fundamentals,Traversal"><meta name=description content='전위 순회는 트리를 탐색하는 깊이 우선 탐색(Depth-First Search, DFS)의 한 형태로, 재귀적으로 수행되며, 루트 노드부터 시작하여 왼쪽 가지를 따라 깊이 내려간 후 오른쪽 가지로 이동한다. 전위 순회의 이름에서 "전위(Pre)"는 부모 노드를 자식 노드보다 먼저(before) 방문한다는 의미를 담고 있다.'><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/data-structures-and-algorithms/data-structures/non-linear/tree/fundamentals/traversal/preorder-traversal/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.8762af4fa9ee176c57f72565b721f234162fc7a9c882a271e0a1f68c4e89fb34.css integrity="sha256-h2KvT6nuF2xX9yVltyHyNBYvx6nIgqJx4KH2jE6J+zQ=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/data-structures-and-algorithms/data-structures/non-linear/tree/fundamentals/traversal/preorder-traversal/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/data-structures-and-algorithms/data-structures/non-linear/tree/fundamentals/traversal/preorder-traversal/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="Preorder Traversal"><meta property="og:description" content='전위 순회는 트리를 탐색하는 깊이 우선 탐색(Depth-First Search, DFS)의 한 형태로, 재귀적으로 수행되며, 루트 노드부터 시작하여 왼쪽 가지를 따라 깊이 내려간 후 오른쪽 가지로 이동한다. 전위 순회의 이름에서 "전위(Pre)"는 부모 노드를 자식 노드보다 먼저(before) 방문한다는 의미를 담고 있다.'><meta property="og:locale" content="en"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2024-12-06T09:59:00+00:00"><meta property="article:modified_time" content="2024-12-06T09:59:00+00:00"><meta property="article:tag" content="Data-Structures-and-Algorithms"><meta property="article:tag" content="Data-Structures"><meta property="article:tag" content="Tree"><meta property="article:tag" content="Fundamentals"><meta property="article:tag" content="Traversal"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="Preorder Traversal"><meta name=twitter:description content='전위 순회는 트리를 탐색하는 깊이 우선 탐색(Depth-First Search, DFS)의 한 형태로, 재귀적으로 수행되며, 루트 노드부터 시작하여 왼쪽 가지를 따라 깊이 내려간 후 오른쪽 가지로 이동한다. 전위 순회의 이름에서 "전위(Pre)"는 부모 노드를 자식 노드보다 먼저(before) 방문한다는 의미를 담고 있다.'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"기술 블로그","item":"https://buenhyden.github.io/posts/"},{"@type":"ListItem","position":2,"name":"Data Structures and Algorithms","item":"https://buenhyden.github.io/posts/data-structures-and-algorithms/"},{"@type":"ListItem","position":3,"name":"Data Structures","item":"https://buenhyden.github.io/posts/data-structures-and-algorithms/data-structures/"},{"@type":"ListItem","position":5,"name":"트리 (Tree)","item":"https://buenhyden.github.io/posts/data-structures-and-algorithms/data-structures/non-linear/tree/"},{"@type":"ListItem","position":6,"name":"Fundamentals of Tree","item":"https://buenhyden.github.io/posts/data-structures-and-algorithms/data-structures/non-linear/tree/fundamentals/"},{"@type":"ListItem","position":7,"name":"Traversal","item":"https://buenhyden.github.io/posts/data-structures-and-algorithms/data-structures/non-linear/tree/fundamentals/traversal/"},{"@type":"ListItem","position":8,"name":"Preorder Traversal","item":"https://buenhyden.github.io/posts/data-structures-and-algorithms/data-structures/non-linear/tree/fundamentals/traversal/preorder-traversal/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Preorder Traversal","name":"Preorder Traversal","description":"전위 순회는 트리를 탐색하는 깊이 우선 탐색(Depth-First Search, DFS)의 한 형태로, 재귀적으로 수행되며, 루트 노드부터 시작하여 왼쪽 가지를 따라 깊이 내려간 후 오른쪽 가지로 이동한다. 전위 순회의 이름에서 \"전위(Pre)\"는 부모 노드를 자식 노드보다 먼저(before) 방문한다는 의미를 담고 있다.","keywords":["Data-Structures-and-Algorithms","Data-Structures","Tree","Fundamentals","Traversal"],"articleBody":"전위 순회(Preorder Traversal) 전위 순회(Preorder Traversal)는 트리 자료구조를 탐색하는 가장 기본적인 방법 중 하나이다.\n전위 순회는 트리를 탐색하는 깊이 우선 탐색(Depth-First Search, DFS)의 한 형태이다.\n이 방법에서는 다음과 같은 순서로 노드를 방문한다:\n현재 노드(루트)를 방문합니다. 왼쪽 서브트리를 전위 순회한다. 오른쪽 서브트리를 전위 순회한다. 이 과정은 재귀적으로 수행되며, 루트 노드부터 시작하여 왼쪽 가지를 따라 깊이 내려간 후 오른쪽 가지로 이동한다. 전위 순회의 이름에서 “전위(Pre)“는 부모 노드를 자식 노드보다 먼저(before) 방문한다는 의미를 담고 있다.\n전위 순회는 트리를 탐색하는 기본적이면서도 강력한 방법이다.\n루트를 먼저 방문한 후 왼쪽과 오른쪽 서브트리를 순서대로 방문하는 이 방법은 트리 복제, 표현식 트리 처리, 디렉토리 구조 탐색 등 다양한 문제를 해결하는 데 활용된다.\n재귀적 구현이 간결하고 직관적이지만, 스택 오버플로우 위험이 있는 깊은 트리에서는 반복적 방법이나 모리스 순회와 같은 최적화된 알고리즘을 고려해야 할 수 있다.\n전위 순회의 알고리즘 아래의 이진 트리를 예로 들어 전위 순회 과정을 살펴보면:\n1 2 3 4 5 1 / \\ 2 3 / \\ / \\ 4 5 6 7 전위 순회 순서: 1 → 2 → 4 → 5 → 3 → 6 → 7\n이 순서를 단계별로 설명하면:\n루트 노드 1을 방문한다. 왼쪽 서브트리로 이동하여 노드 2를 방문한다. 노드 2의 왼쪽 서브트리로 이동하여 노드 4를 방문한다. 노드 4는 자식이 없으므로, 노드 2의 오른쪽 서브트리로 이동하여 노드 5를 방문한다. 노드 5도 자식이 없으므로, 루트 노드 1의 오른쪽 서브트리로 이동하여 노드 3을 방문한다. 노드 3의 왼쪽 서브트리로 이동하여 노드 6을 방문한다. 노드 6은 자식이 없으므로, 노드 3의 오른쪽 서브트리로 이동하여 노드 7을 방문한다. 1 2 3 4 5 A / \\ B C / \\ \\ D E F 이진 트리의 전위 순회 순서를 구하는 과정은 다음과 같다.\nA 방문 → 출력: A B 방문 (A의 왼쪽 자식) → 출력: A B D 방문 (B의 왼쪽 자식) → 출력: A B D E 방문 (B의 오른쪽 자식) → 출력: A B D E C 방문 (A의 오른쪽 자식) → 출력: A B D E C F 방문 (C의 오른쪽 자식) → 출력: A B D E C F 재귀적 구현 전위 순회는 재귀를 사용하여 간결하게 구현할 수 있다:\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 class Node: def __init__(self, value): self.value = value self.left = None self.right = None def preorder_traversal(node): if node is None: return # 현재 노드 출력 print(node.value, end=\" \") # 왼쪽 서브트리 탐색 preorder_traversal(node.left) # 오른쪽 서브트리 탐색 preorder_traversal(node.right) # 트리 생성 root = Node('A') root.left = Node('B') root.right = Node('C') root.left.left = Node('D') root.left.right = Node('E') root.right.right = Node('F') # 전위 순회 실행 preorder_traversal(root) 실행 결과:\n1 A B D E C F 반복적(비재귀적) 구현 스택을 사용한 반복적 구현 방법도 가능합니다:\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 def preorder_traversal_iterative(root): if root is None: return stack = [root] # 스택에 루트 노드 삽입 while stack: node = stack.pop() print(node.value, end=\" \") # 현재 노드 방문 # 스택의 특성상 오른쪽 자식을 먼저 삽입해야 왼쪽 자식이 먼저 처리됨 if node.right: stack.append(node.right) if node.left: stack.append(node.left) # 실행 preorder_traversal_iterative(root) 실행 결과:\n1 A B D E C F 다양한 트리 구조에서의 전위 순회 완전 이진 트리(Complete Binary Tree)\n완전 이진 트리는 마지막 레벨을 제외한 모든 레벨이 완전히 채워져 있고, 마지막 레벨의 노드들은 가능한 한 왼쪽부터 채워진 트리이다.\n1 2 3 4 5 1 / \\ 2 3 / \\ / 4 5 6 전위 순회 순서: 1 → 2 → 4 → 5 → 3 → 6\n편향 트리(Skewed Tree)\n한쪽으로만 자식 노드가 있는 트리이다.\n왼쪽 편향 트리:\n1 2 3 4 5 6 7 1 / 2 / 3 / 4 전위 순회 순서: 1 → 2 → 3 → 4\n오른쪽 편향 트리:\n1 2 3 4 5 6 7 1 \\ 2 \\ 3 \\ 4 전위 순회 순서: 1 → 2 → 3 → 4\n일반 트리(N-ary Tree)\n각 노드가 0개 이상의 자식 노드를 가질 수 있는 트리이다.\n1 2 3 4 5 1 / | \\ 2 3 4 /\\ | /\\ 5 6 7 8 9 일반 트리에서의 전위 순회:\n현재 노드를 방문한다. 각 자식 노드를 왼쪽에서 오른쪽 순서로 전위 순회한다. 전위 순회 순서: 1 → 2 → 5 → 6 → 3 → 7 → 4 → 8 → 9\n전위 순회의 활용 사례 트리 복제(Tree Cloning)\n전위 순회는 트리의 복제본을 만드는 데 유용하다.\n각 노드를 방문하면서 새 노드를 생성하고 연결하는 방식으로 트리를 복제할 수 있다.\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 def clone_tree(node): if node is None: return None # 현재 노드 복제 new_node = TreeNode(node.value) # 왼쪽 서브트리 복제 new_node.left = clone_tree(node.left) # 오른쪽 서브트리 복제 new_node.right = clone_tree(node.right) return new_node 디렉토리 구조 출력\n파일 시스템의 디렉토리 구조를 출력할 때 전위 순회가 자연스러운 방법이다.\n루트 디렉토리부터 시작하여 각 하위 디렉토리와 파일을 순차적으로 탐색한다.\n1 2 3 4 5 6 7 8 9 def print_directory_structure(path, indent=\"\"): # 현재 디렉토리 출력 print(indent + os.path.basename(path)) # 하위 항목이 디렉토리인 경우 재귀적으로 탐색 if os.path.isdir(path): for item in os.listdir(path): item_path = os.path.join(path, item) print_directory_structure(item_path, indent + \" \") 표현식 트리의 전위 표기법(Prefix Notation) 변환\n표현식 트리에서 연산자는 내부 노드에, 피연산자는 리프 노드에 저장된다.\n전위 순회를 사용하면 중위 표기법(infix notation)으로 작성된 수식을 전위 표기법(prefix notation 또는 Polish notation)으로 변환할 수 있다.\n예를 들어, 중위 표기법 a + b * c를 표현하는 트리는 다음과 같다:\n1 2 3 4 5 + / \\ a * / \\ b c 전위 순회를 수행하면 + a * b c라는 전위 표기법을 얻을 수 있다.\nXML/HTML 문서 파싱\nXML이나 HTML과 같은 구조화된 문서는 트리 형태로 표현될 수 있으며, 문서를 파싱할 때 전위 순회가 사용된다.\n먼저 부모 태그를 처리한 후 자식 요소들을 처리한다.\n1 2 3 4 5 6 7 8 9 10 11 def parse_xml_element(element): # 현재 요소(태그) 처리 print(f\"처리 중인 태그: {element.tag}\") # 요소의 속성 처리 for attr_name, attr_value in element.attrib.items(): print(f\" 속성: {attr_name} = {attr_value}\") # 자식 요소 처리 for child in element: parse_xml_element(child) 트리의 직렬화(Serialization)\n트리를 저장하거나 전송하기 위해 선형 구조로 변환하는 과정에서 전위 순회가 사용된다.\n전위 순회의 특성상 부모 노드가 자식 노드보다 먼저 저장되므로, 역직렬화 과정에서 트리를 쉽게 재구성할 수 있다.\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 def serialize_tree(root): if root is None: return \"null,\" # 현재 노드의 값을 문자열에 추가 serialized = str(root.value) + \",\" # 왼쪽 서브트리 직렬화 serialized += serialize_tree(root.left) # 오른쪽 서브트리 직렬화 serialized += serialize_tree(root.right) return serialized 전위 순회의 시간 및 공간 복잡도 시간 복잡도\n전위 순회는 트리의 모든 노드를 한 번씩 방문하므로 시간 복잡도는 O(n). 여기서 n은 트리의 노드 수이다.\n공간 복잡도\n재귀적 구현: 재귀 호출 스택의 크기는 트리의 높이 h에 비례하므로 공간 복잡도는 O(h)이다. 최악의 경우(편향 트리)에는 O(n)이 될 수 있다. 반복적 구현: 명시적 스택을 사용하는 경우에도 공간 복잡도는 O(h)이다. 마찬가지로 최악의 경우에는 O(n)이 될 수 있다. 전위 순회와 다른 순회 방법 비교 전위 순회 vs 중위 순회(Inorder Traversal)\n전위 순회: 루트 → 왼쪽 → 오른쪽 중위 순회: 왼쪽 → 루트 → 오른쪽 중위 순회는 이진 검색 트리(BST)에서 노드를 오름차순으로 방문할 때 유용하다. 중위 표기법의 수식을 생성할 때도 사용된다. 전위 순회 vs 후위 순회(Postorder Traversal)\n전위 순회: 루트 → 왼쪽 → 오른쪽 후위 순회: 왼쪽 → 오른쪽 → 루트 후위 순회는 트리를 삭제하거나 후위 표기법(postfix notation)의 수식을 생성할 때 유용하다. 자식 노드를 먼저 처리한 후 부모 노드를 처리하는 상향식 접근 방식이다. 전위 순회 vs 레벨 순회(Level Order Traversal)\n전위 순회: 깊이 우선(DFS) 방식으로 루트부터 시작하여 왼쪽 가지를 따라 내려간다. 레벨 순회: 너비 우선(BFS) 방식으로 각 레벨의 노드를 왼쪽에서 오른쪽으로 방문한다. 레벨 순회는 최단 경로 문제나 트리의 너비 계산에 유용하다. 실제 코드 예제: 이진 트리의 전위 순회 구현 아래는 Python으로 이진 트리 노드 클래스와 전위 순회 메서드를 구현한 예제:\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 class TreeNode: def __init__(self, value=0, left=None, right=None): self.value = value self.left = left self.right = right def preorder_traversal_recursive(root): result = [] def dfs(node): if not node: return # 현재 노드 방문 result.append(node.value) # 왼쪽 서브트리 순회 dfs(node.left) # 오른쪽 서브트리 순회 dfs(node.right) dfs(root) return result def preorder_traversal_iterative(root): if not root: return [] result = [] stack = [root] while stack: node = stack.pop() result.append(node.value) # 스택은 LIFO이므로 오른쪽 자식을 먼저 푸시 if node.right: stack.append(node.right) if node.left: stack.append(node.left) return result # 다음과 같은 이진 트리 생성: # 1 # / \\ # 2 3 # / \\ / \\ # 4 5 6 7 root = TreeNode(1) root.left = TreeNode(2) root.right = TreeNode(3) root.left.left = TreeNode(4) root.left.right = TreeNode(5) root.right.left = TreeNode(6) root.right.right = TreeNode(7) # 재귀적 방법으로 전위 순회 print(\"재귀적 전위 순회:\", preorder_traversal_recursive(root)) # [1, 2, 4, 5, 3, 6, 7] # 반복적 방법으로 전위 순회 print(\"반복적 전위 순회:\", preorder_traversal_iterative(root)) # [1, 2, 4, 5, 3, 6, 7] 전위 순회의 변형 모리스 전위 순회(Morris Preorder Traversal)\n모리스 순회 알고리즘은 추가 공간을 사용하지 않고(O(1) 공간 복잡도) 트리를 순회하는 방법이다.\n이 방법은 트리의 구조를 일시적으로 수정하여 포인터를 사용해 이전 노드로 돌아갈 수 있게 한다.\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 def morris_preorder_traversal(root): result = [] current = root while current: # 왼쪽 자식이 없으면 현재 노드를 방문하고 오른쪽으로 이동 if not current.left: result.append(current.value) current = current.right else: # 왼쪽 서브트리에서 가장 오른쪽 노드(중위 순회에서 현재 노드의 선행자)를 찾음 predecessor = current.left while predecessor.right and predecessor.right != current: predecessor = predecessor.right # 선행자의 오른쪽이 None이면, 현재 노드로 연결하고 현재 노드를 방문한 후 왼쪽으로 이동 if not predecessor.right: result.append(current.value) predecessor.right = current current = current.left # 선행자의 오른쪽이 현재 노드를 가리키면, 그 연결을 끊고 오른쪽으로 이동 else: predecessor.right = None current = current.right return result N진 트리의 전위 순회\nN진 트리(각 노드가 N개 이하의 자식을 가질 수 있는 트리)에서도 전위 순회를 적용할 수 있다.\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 class NaryTreeNode: def __init__(self, value=0): self.value = value self.children = [] def preorder_nary_tree(root): if not root: return [] result = [root.value] for child in root.children: result.extend(preorder_nary_tree(child)) return result 실전 문제: 전위 순회 응용 이진 트리의 경로 합 확인 주어진 이진 트리와 목표 합이 있을 때, 루트에서 리프까지의 경로 중 합이 목표 값과 일치하는 경로가 있는지 확인하는 문제.\n1 2 3 4 5 6 7 8 9 10 11 def has_path_sum(root, target_sum): if not root: return False # 리프 노드에 도달했을 때 합이 목표 값과 일치하는지 확인 if not root.left and not root.right: return root.value == target_sum # 왼쪽 또는 오른쪽 서브트리에서 경로를 찾음 return (has_path_sum(root.left, target_sum - root.value) or has_path_sum(root.right, target_sum - root.value)) 이진 트리의 전위 순회 결과로부터 트리 재구성 전위 순회의 결과와 중위 순회의 결과가 주어졌을 때, 원래 이진 트리를 재구성하는 문제.\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 def build_tree(preorder, inorder): if not preorder or not inorder: return None # 전위 순회의 첫 번째 요소는 루트 root_value = preorder[0] root = TreeNode(root_value) # 중위 순회에서 루트의 위치 찾기 root_index = inorder.index(root_value) # 왼쪽 서브트리와 오른쪽 서브트리로 분할 root.left = build_tree(preorder[1:1+root_index], inorder[:root_index]) root.right = build_tree(preorder[1+root_index:], inorder[root_index+1:]) return root 참고 및 출처 ","wordCount":"1873","inLanguage":"en","image":"https://buenhyden.github.io/images","datePublished":"2024-12-06T09:59:00Z","dateModified":"2024-12-06T09:59:00Z","author":{"@type":"Person","name":"Me"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://buenhyden.github.io/posts/data-structures-and-algorithms/data-structures/non-linear/tree/fundamentals/traversal/preorder-traversal/"},"publisher":{"@type":"Organization","name":"hyunyoun's Blog","logo":{"@type":"ImageObject","url":"https://buenhyden.github.io/favicons/favicon.ico"}}}</script></head><body id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/>기술 블로그</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/data-structures-and-algorithms/>Data Structures and Algorithms</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/data-structures-and-algorithms/data-structures/>Data Structures</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/data-structures-and-algorithms/data-structures/non-linear/tree/>트리 (Tree)</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/data-structures-and-algorithms/data-structures/non-linear/tree/fundamentals/>Fundamentals of Tree</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/data-structures-and-algorithms/data-structures/non-linear/tree/fundamentals/traversal/>Traversal</a></div><h1 class="post-title entry-hint-parent">Preorder Traversal</h1><div class=post-description>전위 순회는 트리를 탐색하는 깊이 우선 탐색(Depth-First Search, DFS)의 한 형태로, 재귀적으로 수행되며, 루트 노드부터 시작하여 왼쪽 가지를 따라 깊이 내려간 후 오른쪽 가지로 이동한다. 전위 순회의 이름에서 "전위(Pre)"는 부모 노드를 자식 노드보다 먼저(before) 방문한다는 의미를 담고 있다.</div><div class=post-meta><span title='2024-12-06 09:59:00 +0000 UTC'>December 6, 2024</span>&nbsp;·&nbsp;9 min&nbsp;·&nbsp;Me&nbsp;|&nbsp;<a href=https://github.com/buenhyden/blog-data/main/content/posts/Data%20Structures%20and%20Algorithms/Data%20Structures/Non-Linear/Tree/Fundamentals/Traversal/preorder-traversal.md rel="noopener noreferrer" target=_blank>Suggest Changes</a></div></header><div class=toc><details><summary accesskey=c title="(Alt + C)"><span class=details>Table of Contents</span></summary><div class=inner><nav id=TableOfContents><ul><li><a href=#전위-순회preorder-traversal>전위 순회(Preorder Traversal)</a><ul><li><a href=#전위-순회의-알고리즘>전위 순회의 알고리즘</a></li><li><a href=#반복적비재귀적-구현>반복적(비재귀적) 구현</a></li><li><a href=#다양한-트리-구조에서의-전위-순회>다양한 트리 구조에서의 전위 순회</a></li><li><a href=#전위-순회의-활용-사례>전위 순회의 활용 사례</a></li><li><a href=#전위-순회의-시간-및-공간-복잡도>전위 순회의 시간 및 공간 복잡도</a></li><li><a href=#전위-순회와-다른-순회-방법-비교>전위 순회와 다른 순회 방법 비교</a></li><li><a href=#실제-코드-예제-이진-트리의-전위-순회-구현>실제 코드 예제: 이진 트리의 전위 순회 구현</a></li><li><a href=#전위-순회의-변형>전위 순회의 변형</a></li><li><a href=#실전-문제-전위-순회-응용>실전 문제: 전위 순회 응용</a></li></ul></li><li><a href=#참고-및-출처>참고 및 출처</a></li></ul></nav></div></details></div><div class=post-content><h2 id=전위-순회preorder-traversal>전위 순회(Preorder Traversal)<a hidden class=anchor aria-hidden=true href=#전위-순회preorder-traversal>#</a></h2><p>전위 순회(Preorder Traversal)는 트리 자료구조를 탐색하는 가장 기본적인 방법 중 하나이다.</p><p>전위 순회는 트리를 탐색하는 깊이 우선 탐색(Depth-First Search, DFS)의 한 형태이다.</p><p>이 방법에서는 다음과 같은 순서로 노드를 방문한다:</p><ol><li>현재 노드(루트)를 방문합니다.</li><li>왼쪽 서브트리를 전위 순회한다.</li><li>오른쪽 서브트리를 전위 순회한다.</li></ol><p>이 과정은 재귀적으로 수행되며, 루트 노드부터 시작하여 왼쪽 가지를 따라 깊이 내려간 후 오른쪽 가지로 이동한다. 전위 순회의 이름에서 &ldquo;전위(Pre)&ldquo;는 부모 노드를 자식 노드보다 먼저(before) 방문한다는 의미를 담고 있다.</p><p>전위 순회는 트리를 탐색하는 기본적이면서도 강력한 방법이다.<br>루트를 먼저 방문한 후 왼쪽과 오른쪽 서브트리를 순서대로 방문하는 이 방법은 트리 복제, 표현식 트리 처리, 디렉토리 구조 탐색 등 다양한 문제를 해결하는 데 활용된다.</p><p>재귀적 구현이 간결하고 직관적이지만, 스택 오버플로우 위험이 있는 깊은 트리에서는 반복적 방법이나 모리스 순회와 같은 최적화된 알고리즘을 고려해야 할 수 있다.</p><h3 id=전위-순회의-알고리즘>전위 순회의 알고리즘<a hidden class=anchor aria-hidden=true href=#전위-순회의-알고리즘>#</a></h3><p>아래의 이진 트리를 예로 들어 전위 순회 과정을 살펴보면:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-0-1><a class=lnlinks href=#hl-0-1>1</a>
+</span><span class=lnt id=hl-0-2><a class=lnlinks href=#hl-0-2>2</a>
+</span><span class=lnt id=hl-0-3><a class=lnlinks href=#hl-0-3>3</a>
+</span><span class=lnt id=hl-0-4><a class=lnlinks href=#hl-0-4>4</a>
+</span><span class=lnt id=hl-0-5><a class=lnlinks href=#hl-0-5>5</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>       1
+</span></span><span class=line><span class=cl>     /   \
+</span></span><span class=line><span class=cl>    2     3
+</span></span><span class=line><span class=cl>   / \   / \
+</span></span><span class=line><span class=cl>  4   5 6   7
+</span></span></code></pre></td></tr></table></div></div><p>전위 순회 순서: 1 → 2 → 4 → 5 → 3 → 6 → 7</p><p>이 순서를 단계별로 설명하면:</p><ol><li>루트 노드 1을 방문한다.</li><li>왼쪽 서브트리로 이동하여 노드 2를 방문한다.</li><li>노드 2의 왼쪽 서브트리로 이동하여 노드 4를 방문한다.</li><li>노드 4는 자식이 없으므로, 노드 2의 오른쪽 서브트리로 이동하여 노드 5를 방문한다.</li><li>노드 5도 자식이 없으므로, 루트 노드 1의 오른쪽 서브트리로 이동하여 노드 3을 방문한다.</li><li>노드 3의 왼쪽 서브트리로 이동하여 노드 6을 방문한다.</li><li>노드 6은 자식이 없으므로, 노드 3의 오른쪽 서브트리로 이동하여 노드 7을 방문한다.</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-1-1><a class=lnlinks href=#hl-1-1>1</a>
+</span><span class=lnt id=hl-1-2><a class=lnlinks href=#hl-1-2>2</a>
+</span><span class=lnt id=hl-1-3><a class=lnlinks href=#hl-1-3>3</a>
+</span><span class=lnt id=hl-1-4><a class=lnlinks href=#hl-1-4>4</a>
+</span><span class=lnt id=hl-1-5><a class=lnlinks href=#hl-1-5>5</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>        A
+</span></span><span class=line><span class=cl>       / \
+</span></span><span class=line><span class=cl>      B   C
+</span></span><span class=line><span class=cl>     / \   \
+</span></span><span class=line><span class=cl>    D   E   F
+</span></span></code></pre></td></tr></table></div></div><p>이진 트리의 전위 순회 순서를 구하는 과정은 다음과 같다.</p><ol><li><strong>A 방문</strong> → 출력: <code>A</code></li><li><strong>B 방문 (A의 왼쪽 자식)</strong> → 출력: <code>A B</code></li><li><strong>D 방문 (B의 왼쪽 자식)</strong> → 출력: <code>A B D</code></li><li><strong>E 방문 (B의 오른쪽 자식)</strong> → 출력: <code>A B D E</code></li><li><strong>C 방문 (A의 오른쪽 자식)</strong> → 출력: <code>A B D E C</code></li><li><strong>F 방문 (C의 오른쪽 자식)</strong> → 출력: <code>A B D E C F</code></li></ol><h4 id=재귀적-구현>재귀적 구현<a hidden class=anchor aria-hidden=true href=#재귀적-구현>#</a></h4><p>전위 순회는 재귀를 사용하여 간결하게 구현할 수 있다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-2-1><a class=lnlinks href=#hl-2-1> 1</a>
+</span><span class=lnt id=hl-2-2><a class=lnlinks href=#hl-2-2> 2</a>
+</span><span class=lnt id=hl-2-3><a class=lnlinks href=#hl-2-3> 3</a>
+</span><span class=lnt id=hl-2-4><a class=lnlinks href=#hl-2-4> 4</a>
+</span><span class=lnt id=hl-2-5><a class=lnlinks href=#hl-2-5> 5</a>
+</span><span class=lnt id=hl-2-6><a class=lnlinks href=#hl-2-6> 6</a>
+</span><span class=lnt id=hl-2-7><a class=lnlinks href=#hl-2-7> 7</a>
+</span><span class=lnt id=hl-2-8><a class=lnlinks href=#hl-2-8> 8</a>
+</span><span class=lnt id=hl-2-9><a class=lnlinks href=#hl-2-9> 9</a>
+</span><span class=lnt id=hl-2-10><a class=lnlinks href=#hl-2-10>10</a>
+</span><span class=lnt id=hl-2-11><a class=lnlinks href=#hl-2-11>11</a>
+</span><span class=lnt id=hl-2-12><a class=lnlinks href=#hl-2-12>12</a>
+</span><span class=lnt id=hl-2-13><a class=lnlinks href=#hl-2-13>13</a>
+</span><span class=lnt id=hl-2-14><a class=lnlinks href=#hl-2-14>14</a>
+</span><span class=lnt id=hl-2-15><a class=lnlinks href=#hl-2-15>15</a>
+</span><span class=lnt id=hl-2-16><a class=lnlinks href=#hl-2-16>16</a>
+</span><span class=lnt id=hl-2-17><a class=lnlinks href=#hl-2-17>17</a>
+</span><span class=lnt id=hl-2-18><a class=lnlinks href=#hl-2-18>18</a>
+</span><span class=lnt id=hl-2-19><a class=lnlinks href=#hl-2-19>19</a>
+</span><span class=lnt id=hl-2-20><a class=lnlinks href=#hl-2-20>20</a>
+</span><span class=lnt id=hl-2-21><a class=lnlinks href=#hl-2-21>21</a>
+</span><span class=lnt id=hl-2-22><a class=lnlinks href=#hl-2-22>22</a>
+</span><span class=lnt id=hl-2-23><a class=lnlinks href=#hl-2-23>23</a>
+</span><span class=lnt id=hl-2-24><a class=lnlinks href=#hl-2-24>24</a>
+</span><span class=lnt id=hl-2-25><a class=lnlinks href=#hl-2-25>25</a>
+</span><span class=lnt id=hl-2-26><a class=lnlinks href=#hl-2-26>26</a>
+</span><span class=lnt id=hl-2-27><a class=lnlinks href=#hl-2-27>27</a>
+</span><span class=lnt id=hl-2-28><a class=lnlinks href=#hl-2-28>28</a>
+</span><span class=lnt id=hl-2-29><a class=lnlinks href=#hl-2-29>29</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>Node</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>value</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>value</span> <span class=o>=</span> <span class=n>value</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>left</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>right</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>preorder_traversal</span><span class=p>(</span><span class=n>node</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>node</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 현재 노드 출력</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=n>node</span><span class=o>.</span><span class=n>value</span><span class=p>,</span> <span class=n>end</span><span class=o>=</span><span class=s2>&#34; &#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 왼쪽 서브트리 탐색</span>
+</span></span><span class=line><span class=cl>    <span class=n>preorder_traversal</span><span class=p>(</span><span class=n>node</span><span class=o>.</span><span class=n>left</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 오른쪽 서브트리 탐색</span>
+</span></span><span class=line><span class=cl>    <span class=n>preorder_traversal</span><span class=p>(</span><span class=n>node</span><span class=o>.</span><span class=n>right</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 트리 생성</span>
+</span></span><span class=line><span class=cl><span class=n>root</span> <span class=o>=</span> <span class=n>Node</span><span class=p>(</span><span class=s1>&#39;A&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>root</span><span class=o>.</span><span class=n>left</span> <span class=o>=</span> <span class=n>Node</span><span class=p>(</span><span class=s1>&#39;B&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>root</span><span class=o>.</span><span class=n>right</span> <span class=o>=</span> <span class=n>Node</span><span class=p>(</span><span class=s1>&#39;C&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>root</span><span class=o>.</span><span class=n>left</span><span class=o>.</span><span class=n>left</span> <span class=o>=</span> <span class=n>Node</span><span class=p>(</span><span class=s1>&#39;D&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>root</span><span class=o>.</span><span class=n>left</span><span class=o>.</span><span class=n>right</span> <span class=o>=</span> <span class=n>Node</span><span class=p>(</span><span class=s1>&#39;E&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>root</span><span class=o>.</span><span class=n>right</span><span class=o>.</span><span class=n>right</span> <span class=o>=</span> <span class=n>Node</span><span class=p>(</span><span class=s1>&#39;F&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 전위 순회 실행</span>
+</span></span><span class=line><span class=cl><span class=n>preorder_traversal</span><span class=p>(</span><span class=n>root</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><p>실행 결과:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-3-1><a class=lnlinks href=#hl-3-1>1</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>A B D E C F
+</span></span></code></pre></td></tr></table></div></div><h3 id=반복적비재귀적-구현>반복적(비재귀적) 구현<a hidden class=anchor aria-hidden=true href=#반복적비재귀적-구현>#</a></h3><p>스택을 사용한 반복적 구현 방법도 가능합니다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-4-1><a class=lnlinks href=#hl-4-1> 1</a>
+</span><span class=lnt id=hl-4-2><a class=lnlinks href=#hl-4-2> 2</a>
+</span><span class=lnt id=hl-4-3><a class=lnlinks href=#hl-4-3> 3</a>
+</span><span class=lnt id=hl-4-4><a class=lnlinks href=#hl-4-4> 4</a>
+</span><span class=lnt id=hl-4-5><a class=lnlinks href=#hl-4-5> 5</a>
+</span><span class=lnt id=hl-4-6><a class=lnlinks href=#hl-4-6> 6</a>
+</span><span class=lnt id=hl-4-7><a class=lnlinks href=#hl-4-7> 7</a>
+</span><span class=lnt id=hl-4-8><a class=lnlinks href=#hl-4-8> 8</a>
+</span><span class=lnt id=hl-4-9><a class=lnlinks href=#hl-4-9> 9</a>
+</span><span class=lnt id=hl-4-10><a class=lnlinks href=#hl-4-10>10</a>
+</span><span class=lnt id=hl-4-11><a class=lnlinks href=#hl-4-11>11</a>
+</span><span class=lnt id=hl-4-12><a class=lnlinks href=#hl-4-12>12</a>
+</span><span class=lnt id=hl-4-13><a class=lnlinks href=#hl-4-13>13</a>
+</span><span class=lnt id=hl-4-14><a class=lnlinks href=#hl-4-14>14</a>
+</span><span class=lnt id=hl-4-15><a class=lnlinks href=#hl-4-15>15</a>
+</span><span class=lnt id=hl-4-16><a class=lnlinks href=#hl-4-16>16</a>
+</span><span class=lnt id=hl-4-17><a class=lnlinks href=#hl-4-17>17</a>
+</span><span class=lnt id=hl-4-18><a class=lnlinks href=#hl-4-18>18</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>preorder_traversal_iterative</span><span class=p>(</span><span class=n>root</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>root</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=n>stack</span> <span class=o>=</span> <span class=p>[</span><span class=n>root</span><span class=p>]</span>  <span class=c1># 스택에 루트 노드 삽입</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=n>stack</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>node</span> <span class=o>=</span> <span class=n>stack</span><span class=o>.</span><span class=n>pop</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=n>node</span><span class=o>.</span><span class=n>value</span><span class=p>,</span> <span class=n>end</span><span class=o>=</span><span class=s2>&#34; &#34;</span><span class=p>)</span>  <span class=c1># 현재 노드 방문</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 스택의 특성상 오른쪽 자식을 먼저 삽입해야 왼쪽 자식이 먼저 처리됨</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>node</span><span class=o>.</span><span class=n>right</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>stack</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>node</span><span class=o>.</span><span class=n>right</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>node</span><span class=o>.</span><span class=n>left</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>stack</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>node</span><span class=o>.</span><span class=n>left</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 실행</span>
+</span></span><span class=line><span class=cl><span class=n>preorder_traversal_iterative</span><span class=p>(</span><span class=n>root</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><p>실행 결과:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-5-1><a class=lnlinks href=#hl-5-1>1</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>A B D E C F
+</span></span></code></pre></td></tr></table></div></div><h3 id=다양한-트리-구조에서의-전위-순회>다양한 트리 구조에서의 전위 순회<a hidden class=anchor aria-hidden=true href=#다양한-트리-구조에서의-전위-순회>#</a></h3><ol><li><p>완전 이진 트리(Complete Binary Tree)<br>완전 이진 트리는 마지막 레벨을 제외한 모든 레벨이 완전히 채워져 있고, 마지막 레벨의 노드들은 가능한 한 왼쪽부터 채워진 트리이다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-6-1><a class=lnlinks href=#hl-6-1>1</a>
+</span><span class=lnt id=hl-6-2><a class=lnlinks href=#hl-6-2>2</a>
+</span><span class=lnt id=hl-6-3><a class=lnlinks href=#hl-6-3>3</a>
+</span><span class=lnt id=hl-6-4><a class=lnlinks href=#hl-6-4>4</a>
+</span><span class=lnt id=hl-6-5><a class=lnlinks href=#hl-6-5>5</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>       1
+</span></span><span class=line><span class=cl>     /   \
+</span></span><span class=line><span class=cl>    2     3
+</span></span><span class=line><span class=cl>   / \   / 
+</span></span><span class=line><span class=cl>  4   5 6   
+</span></span></code></pre></td></tr></table></div></div><p>전위 순회 순서: 1 → 2 → 4 → 5 → 3 → 6</p></li><li><p>편향 트리(Skewed Tree)<br>한쪽으로만 자식 노드가 있는 트리이다.</p><p>왼쪽 편향 트리:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-7-1><a class=lnlinks href=#hl-7-1>1</a>
+</span><span class=lnt id=hl-7-2><a class=lnlinks href=#hl-7-2>2</a>
+</span><span class=lnt id=hl-7-3><a class=lnlinks href=#hl-7-3>3</a>
+</span><span class=lnt id=hl-7-4><a class=lnlinks href=#hl-7-4>4</a>
+</span><span class=lnt id=hl-7-5><a class=lnlinks href=#hl-7-5>5</a>
+</span><span class=lnt id=hl-7-6><a class=lnlinks href=#hl-7-6>6</a>
+</span><span class=lnt id=hl-7-7><a class=lnlinks href=#hl-7-7>7</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>  1
+</span></span><span class=line><span class=cl> /
+</span></span><span class=line><span class=cl>2
+</span></span><span class=line><span class=cl>/
+</span></span><span class=line><span class=cl>3
+</span></span><span class=line><span class=cl>/
+</span></span><span class=line><span class=cl>4
+</span></span></code></pre></td></tr></table></div></div><p>전위 순회 순서: 1 → 2 → 3 → 4</p><p>오른쪽 편향 트리:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-8-1><a class=lnlinks href=#hl-8-1>1</a>
+</span><span class=lnt id=hl-8-2><a class=lnlinks href=#hl-8-2>2</a>
+</span><span class=lnt id=hl-8-3><a class=lnlinks href=#hl-8-3>3</a>
+</span><span class=lnt id=hl-8-4><a class=lnlinks href=#hl-8-4>4</a>
+</span><span class=lnt id=hl-8-5><a class=lnlinks href=#hl-8-5>5</a>
+</span><span class=lnt id=hl-8-6><a class=lnlinks href=#hl-8-6>6</a>
+</span><span class=lnt id=hl-8-7><a class=lnlinks href=#hl-8-7>7</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>1
+</span></span><span class=line><span class=cl> \
+</span></span><span class=line><span class=cl>  2
+</span></span><span class=line><span class=cl>   \
+</span></span><span class=line><span class=cl>    3
+</span></span><span class=line><span class=cl>     \
+</span></span><span class=line><span class=cl>      4
+</span></span></code></pre></td></tr></table></div></div><p>전위 순회 순서: 1 → 2 → 3 → 4</p></li><li><p>일반 트리(N-ary Tree)<br>각 노드가 0개 이상의 자식 노드를 가질 수 있는 트리이다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-9-1><a class=lnlinks href=#hl-9-1>1</a>
+</span><span class=lnt id=hl-9-2><a class=lnlinks href=#hl-9-2>2</a>
+</span><span class=lnt id=hl-9-3><a class=lnlinks href=#hl-9-3>3</a>
+</span><span class=lnt id=hl-9-4><a class=lnlinks href=#hl-9-4>4</a>
+</span><span class=lnt id=hl-9-5><a class=lnlinks href=#hl-9-5>5</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>       1
+</span></span><span class=line><span class=cl>     / | \
+</span></span><span class=line><span class=cl>    2  3  4
+</span></span><span class=line><span class=cl>   /\  |  /\
+</span></span><span class=line><span class=cl>  5  6 7 8  9
+</span></span></code></pre></td></tr></table></div></div><p>일반 트리에서의 전위 순회:</p><ol><li>현재 노드를 방문한다.</li><li>각 자식 노드를 왼쪽에서 오른쪽 순서로 전위 순회한다.</li></ol><p>전위 순회 순서: 1 → 2 → 5 → 6 → 3 → 7 → 4 → 8 → 9</p></li></ol><h3 id=전위-순회의-활용-사례>전위 순회의 활용 사례<a hidden class=anchor aria-hidden=true href=#전위-순회의-활용-사례>#</a></h3><ol><li><p>트리 복제(Tree Cloning)<br>전위 순회는 트리의 복제본을 만드는 데 유용하다.<br>각 노드를 방문하면서 새 노드를 생성하고 연결하는 방식으로 트리를 복제할 수 있다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-10-1><a class=lnlinks href=#hl-10-1> 1</a>
+</span><span class=lnt id=hl-10-2><a class=lnlinks href=#hl-10-2> 2</a>
+</span><span class=lnt id=hl-10-3><a class=lnlinks href=#hl-10-3> 3</a>
+</span><span class=lnt id=hl-10-4><a class=lnlinks href=#hl-10-4> 4</a>
+</span><span class=lnt id=hl-10-5><a class=lnlinks href=#hl-10-5> 5</a>
+</span><span class=lnt id=hl-10-6><a class=lnlinks href=#hl-10-6> 6</a>
+</span><span class=lnt id=hl-10-7><a class=lnlinks href=#hl-10-7> 7</a>
+</span><span class=lnt id=hl-10-8><a class=lnlinks href=#hl-10-8> 8</a>
+</span><span class=lnt id=hl-10-9><a class=lnlinks href=#hl-10-9> 9</a>
+</span><span class=lnt id=hl-10-10><a class=lnlinks href=#hl-10-10>10</a>
+</span><span class=lnt id=hl-10-11><a class=lnlinks href=#hl-10-11>11</a>
+</span><span class=lnt id=hl-10-12><a class=lnlinks href=#hl-10-12>12</a>
+</span><span class=lnt id=hl-10-13><a class=lnlinks href=#hl-10-13>13</a>
+</span><span class=lnt id=hl-10-14><a class=lnlinks href=#hl-10-14>14</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>clone_tree</span><span class=p>(</span><span class=n>node</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>node</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 현재 노드 복제</span>
+</span></span><span class=line><span class=cl>    <span class=n>new_node</span> <span class=o>=</span> <span class=n>TreeNode</span><span class=p>(</span><span class=n>node</span><span class=o>.</span><span class=n>value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 왼쪽 서브트리 복제</span>
+</span></span><span class=line><span class=cl>    <span class=n>new_node</span><span class=o>.</span><span class=n>left</span> <span class=o>=</span> <span class=n>clone_tree</span><span class=p>(</span><span class=n>node</span><span class=o>.</span><span class=n>left</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 오른쪽 서브트리 복제</span>
+</span></span><span class=line><span class=cl>    <span class=n>new_node</span><span class=o>.</span><span class=n>right</span> <span class=o>=</span> <span class=n>clone_tree</span><span class=p>(</span><span class=n>node</span><span class=o>.</span><span class=n>right</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>new_node</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>디렉토리 구조 출력<br>파일 시스템의 디렉토리 구조를 출력할 때 전위 순회가 자연스러운 방법이다.<br>루트 디렉토리부터 시작하여 각 하위 디렉토리와 파일을 순차적으로 탐색한다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-11-1><a class=lnlinks href=#hl-11-1>1</a>
+</span><span class=lnt id=hl-11-2><a class=lnlinks href=#hl-11-2>2</a>
+</span><span class=lnt id=hl-11-3><a class=lnlinks href=#hl-11-3>3</a>
+</span><span class=lnt id=hl-11-4><a class=lnlinks href=#hl-11-4>4</a>
+</span><span class=lnt id=hl-11-5><a class=lnlinks href=#hl-11-5>5</a>
+</span><span class=lnt id=hl-11-6><a class=lnlinks href=#hl-11-6>6</a>
+</span><span class=lnt id=hl-11-7><a class=lnlinks href=#hl-11-7>7</a>
+</span><span class=lnt id=hl-11-8><a class=lnlinks href=#hl-11-8>8</a>
+</span><span class=lnt id=hl-11-9><a class=lnlinks href=#hl-11-9>9</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>print_directory_structure</span><span class=p>(</span><span class=n>path</span><span class=p>,</span> <span class=n>indent</span><span class=o>=</span><span class=s2>&#34;&#34;</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 현재 디렉토리 출력</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=n>indent</span> <span class=o>+</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>basename</span><span class=p>(</span><span class=n>path</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 하위 항목이 디렉토리인 경우 재귀적으로 탐색</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>isdir</span><span class=p>(</span><span class=n>path</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>item</span> <span class=ow>in</span> <span class=n>os</span><span class=o>.</span><span class=n>listdir</span><span class=p>(</span><span class=n>path</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=n>item_path</span> <span class=o>=</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>join</span><span class=p>(</span><span class=n>path</span><span class=p>,</span> <span class=n>item</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=n>print_directory_structure</span><span class=p>(</span><span class=n>item_path</span><span class=p>,</span> <span class=n>indent</span> <span class=o>+</span> <span class=s2>&#34;  &#34;</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>표현식 트리의 전위 표기법(Prefix Notation) 변환<br>표현식 트리에서 연산자는 내부 노드에, 피연산자는 리프 노드에 저장된다.<br>전위 순회를 사용하면 중위 표기법(infix notation)으로 작성된 수식을 전위 표기법(prefix notation 또는 Polish notation)으로 변환할 수 있다.</p><p>예를 들어, 중위 표기법 <code>a + b * c</code>를 표현하는 트리는 다음과 같다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-12-1><a class=lnlinks href=#hl-12-1>1</a>
+</span><span class=lnt id=hl-12-2><a class=lnlinks href=#hl-12-2>2</a>
+</span><span class=lnt id=hl-12-3><a class=lnlinks href=#hl-12-3>3</a>
+</span><span class=lnt id=hl-12-4><a class=lnlinks href=#hl-12-4>4</a>
+</span><span class=lnt id=hl-12-5><a class=lnlinks href=#hl-12-5>5</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>    +
+</span></span><span class=line><span class=cl>   / \
+</span></span><span class=line><span class=cl>  a   *
+</span></span><span class=line><span class=cl>     / \
+</span></span><span class=line><span class=cl>    b   c
+</span></span></code></pre></td></tr></table></div></div><p>전위 순회를 수행하면 <code>+ a * b c</code>라는 전위 표기법을 얻을 수 있다.</p></li><li><p>XML/HTML 문서 파싱<br>XML이나 HTML과 같은 구조화된 문서는 트리 형태로 표현될 수 있으며, 문서를 파싱할 때 전위 순회가 사용된다.<br>먼저 부모 태그를 처리한 후 자식 요소들을 처리한다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-13-1><a class=lnlinks href=#hl-13-1> 1</a>
+</span><span class=lnt id=hl-13-2><a class=lnlinks href=#hl-13-2> 2</a>
+</span><span class=lnt id=hl-13-3><a class=lnlinks href=#hl-13-3> 3</a>
+</span><span class=lnt id=hl-13-4><a class=lnlinks href=#hl-13-4> 4</a>
+</span><span class=lnt id=hl-13-5><a class=lnlinks href=#hl-13-5> 5</a>
+</span><span class=lnt id=hl-13-6><a class=lnlinks href=#hl-13-6> 6</a>
+</span><span class=lnt id=hl-13-7><a class=lnlinks href=#hl-13-7> 7</a>
+</span><span class=lnt id=hl-13-8><a class=lnlinks href=#hl-13-8> 8</a>
+</span><span class=lnt id=hl-13-9><a class=lnlinks href=#hl-13-9> 9</a>
+</span><span class=lnt id=hl-13-10><a class=lnlinks href=#hl-13-10>10</a>
+</span><span class=lnt id=hl-13-11><a class=lnlinks href=#hl-13-11>11</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>parse_xml_element</span><span class=p>(</span><span class=n>element</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 현재 요소(태그) 처리</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;처리 중인 태그: </span><span class=si>{</span><span class=n>element</span><span class=o>.</span><span class=n>tag</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 요소의 속성 처리</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>attr_name</span><span class=p>,</span> <span class=n>attr_value</span> <span class=ow>in</span> <span class=n>element</span><span class=o>.</span><span class=n>attrib</span><span class=o>.</span><span class=n>items</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;  속성: </span><span class=si>{</span><span class=n>attr_name</span><span class=si>}</span><span class=s2> = </span><span class=si>{</span><span class=n>attr_value</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 자식 요소 처리</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>child</span> <span class=ow>in</span> <span class=n>element</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>parse_xml_element</span><span class=p>(</span><span class=n>child</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>트리의 직렬화(Serialization)<br>트리를 저장하거나 전송하기 위해 선형 구조로 변환하는 과정에서 전위 순회가 사용된다.<br>전위 순회의 특성상 부모 노드가 자식 노드보다 먼저 저장되므로, 역직렬화 과정에서 트리를 쉽게 재구성할 수 있다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-14-1><a class=lnlinks href=#hl-14-1> 1</a>
+</span><span class=lnt id=hl-14-2><a class=lnlinks href=#hl-14-2> 2</a>
+</span><span class=lnt id=hl-14-3><a class=lnlinks href=#hl-14-3> 3</a>
+</span><span class=lnt id=hl-14-4><a class=lnlinks href=#hl-14-4> 4</a>
+</span><span class=lnt id=hl-14-5><a class=lnlinks href=#hl-14-5> 5</a>
+</span><span class=lnt id=hl-14-6><a class=lnlinks href=#hl-14-6> 6</a>
+</span><span class=lnt id=hl-14-7><a class=lnlinks href=#hl-14-7> 7</a>
+</span><span class=lnt id=hl-14-8><a class=lnlinks href=#hl-14-8> 8</a>
+</span><span class=lnt id=hl-14-9><a class=lnlinks href=#hl-14-9> 9</a>
+</span><span class=lnt id=hl-14-10><a class=lnlinks href=#hl-14-10>10</a>
+</span><span class=lnt id=hl-14-11><a class=lnlinks href=#hl-14-11>11</a>
+</span><span class=lnt id=hl-14-12><a class=lnlinks href=#hl-14-12>12</a>
+</span><span class=lnt id=hl-14-13><a class=lnlinks href=#hl-14-13>13</a>
+</span><span class=lnt id=hl-14-14><a class=lnlinks href=#hl-14-14>14</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>serialize_tree</span><span class=p>(</span><span class=n>root</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>root</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=s2>&#34;null,&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 현재 노드의 값을 문자열에 추가</span>
+</span></span><span class=line><span class=cl>    <span class=n>serialized</span> <span class=o>=</span> <span class=nb>str</span><span class=p>(</span><span class=n>root</span><span class=o>.</span><span class=n>value</span><span class=p>)</span> <span class=o>+</span> <span class=s2>&#34;,&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 왼쪽 서브트리 직렬화</span>
+</span></span><span class=line><span class=cl>    <span class=n>serialized</span> <span class=o>+=</span> <span class=n>serialize_tree</span><span class=p>(</span><span class=n>root</span><span class=o>.</span><span class=n>left</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 오른쪽 서브트리 직렬화</span>
+</span></span><span class=line><span class=cl>    <span class=n>serialized</span> <span class=o>+=</span> <span class=n>serialize_tree</span><span class=p>(</span><span class=n>root</span><span class=o>.</span><span class=n>right</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>serialized</span>
+</span></span></code></pre></td></tr></table></div></div></li></ol><h3 id=전위-순회의-시간-및-공간-복잡도>전위 순회의 시간 및 공간 복잡도<a hidden class=anchor aria-hidden=true href=#전위-순회의-시간-및-공간-복잡도>#</a></h3><ol><li><p>시간 복잡도<br>전위 순회는 트리의 모든 노드를 한 번씩 방문하므로 시간 복잡도는 O(n). 여기서 n은 트리의 노드 수이다.</p></li><li><p>공간 복잡도</p><ul><li><strong>재귀적 구현</strong>: 재귀 호출 스택의 크기는 트리의 높이 h에 비례하므로 공간 복잡도는 O(h)이다. 최악의 경우(편향 트리)에는 O(n)이 될 수 있다.</li><li><strong>반복적 구현</strong>: 명시적 스택을 사용하는 경우에도 공간 복잡도는 O(h)이다. 마찬가지로 최악의 경우에는 O(n)이 될 수 있다.</li></ul></li></ol><h3 id=전위-순회와-다른-순회-방법-비교>전위 순회와 다른 순회 방법 비교<a hidden class=anchor aria-hidden=true href=#전위-순회와-다른-순회-방법-비교>#</a></h3><ol><li><p>전위 순회 vs 중위 순회(Inorder Traversal)</p><ul><li><strong>전위 순회</strong>: 루트 → 왼쪽 → 오른쪽</li><li><strong>중위 순회</strong>: 왼쪽 → 루트 → 오른쪽
+중위 순회는 이진 검색 트리(BST)에서 노드를 오름차순으로 방문할 때 유용하다.
+중위 표기법의 수식을 생성할 때도 사용된다.</li></ul></li><li><p>전위 순회 vs 후위 순회(Postorder Traversal)</p><ul><li><strong>전위 순회</strong>: 루트 → 왼쪽 → 오른쪽</li><li><strong>후위 순회</strong>: 왼쪽 → 오른쪽 → 루트
+후위 순회는 트리를 삭제하거나 후위 표기법(postfix notation)의 수식을 생성할 때 유용하다.
+자식 노드를 먼저 처리한 후 부모 노드를 처리하는 상향식 접근 방식이다.</li></ul></li><li><p>전위 순회 vs 레벨 순회(Level Order Traversal)</p><ul><li><strong>전위 순회</strong>: 깊이 우선(DFS) 방식으로 루트부터 시작하여 왼쪽 가지를 따라 내려간다.</li><li><strong>레벨 순회</strong>: 너비 우선(BFS) 방식으로 각 레벨의 노드를 왼쪽에서 오른쪽으로 방문한다.
+레벨 순회는 최단 경로 문제나 트리의 너비 계산에 유용하다.</li></ul></li></ol><h3 id=실제-코드-예제-이진-트리의-전위-순회-구현>실제 코드 예제: 이진 트리의 전위 순회 구현<a hidden class=anchor aria-hidden=true href=#실제-코드-예제-이진-트리의-전위-순회-구현>#</a></h3><p>아래는 Python으로 이진 트리 노드 클래스와 전위 순회 메서드를 구현한 예제:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-15-1><a class=lnlinks href=#hl-15-1> 1</a>
+</span><span class=lnt id=hl-15-2><a class=lnlinks href=#hl-15-2> 2</a>
+</span><span class=lnt id=hl-15-3><a class=lnlinks href=#hl-15-3> 3</a>
+</span><span class=lnt id=hl-15-4><a class=lnlinks href=#hl-15-4> 4</a>
+</span><span class=lnt id=hl-15-5><a class=lnlinks href=#hl-15-5> 5</a>
+</span><span class=lnt id=hl-15-6><a class=lnlinks href=#hl-15-6> 6</a>
+</span><span class=lnt id=hl-15-7><a class=lnlinks href=#hl-15-7> 7</a>
+</span><span class=lnt id=hl-15-8><a class=lnlinks href=#hl-15-8> 8</a>
+</span><span class=lnt id=hl-15-9><a class=lnlinks href=#hl-15-9> 9</a>
+</span><span class=lnt id=hl-15-10><a class=lnlinks href=#hl-15-10>10</a>
+</span><span class=lnt id=hl-15-11><a class=lnlinks href=#hl-15-11>11</a>
+</span><span class=lnt id=hl-15-12><a class=lnlinks href=#hl-15-12>12</a>
+</span><span class=lnt id=hl-15-13><a class=lnlinks href=#hl-15-13>13</a>
+</span><span class=lnt id=hl-15-14><a class=lnlinks href=#hl-15-14>14</a>
+</span><span class=lnt id=hl-15-15><a class=lnlinks href=#hl-15-15>15</a>
+</span><span class=lnt id=hl-15-16><a class=lnlinks href=#hl-15-16>16</a>
+</span><span class=lnt id=hl-15-17><a class=lnlinks href=#hl-15-17>17</a>
+</span><span class=lnt id=hl-15-18><a class=lnlinks href=#hl-15-18>18</a>
+</span><span class=lnt id=hl-15-19><a class=lnlinks href=#hl-15-19>19</a>
+</span><span class=lnt id=hl-15-20><a class=lnlinks href=#hl-15-20>20</a>
+</span><span class=lnt id=hl-15-21><a class=lnlinks href=#hl-15-21>21</a>
+</span><span class=lnt id=hl-15-22><a class=lnlinks href=#hl-15-22>22</a>
+</span><span class=lnt id=hl-15-23><a class=lnlinks href=#hl-15-23>23</a>
+</span><span class=lnt id=hl-15-24><a class=lnlinks href=#hl-15-24>24</a>
+</span><span class=lnt id=hl-15-25><a class=lnlinks href=#hl-15-25>25</a>
+</span><span class=lnt id=hl-15-26><a class=lnlinks href=#hl-15-26>26</a>
+</span><span class=lnt id=hl-15-27><a class=lnlinks href=#hl-15-27>27</a>
+</span><span class=lnt id=hl-15-28><a class=lnlinks href=#hl-15-28>28</a>
+</span><span class=lnt id=hl-15-29><a class=lnlinks href=#hl-15-29>29</a>
+</span><span class=lnt id=hl-15-30><a class=lnlinks href=#hl-15-30>30</a>
+</span><span class=lnt id=hl-15-31><a class=lnlinks href=#hl-15-31>31</a>
+</span><span class=lnt id=hl-15-32><a class=lnlinks href=#hl-15-32>32</a>
+</span><span class=lnt id=hl-15-33><a class=lnlinks href=#hl-15-33>33</a>
+</span><span class=lnt id=hl-15-34><a class=lnlinks href=#hl-15-34>34</a>
+</span><span class=lnt id=hl-15-35><a class=lnlinks href=#hl-15-35>35</a>
+</span><span class=lnt id=hl-15-36><a class=lnlinks href=#hl-15-36>36</a>
+</span><span class=lnt id=hl-15-37><a class=lnlinks href=#hl-15-37>37</a>
+</span><span class=lnt id=hl-15-38><a class=lnlinks href=#hl-15-38>38</a>
+</span><span class=lnt id=hl-15-39><a class=lnlinks href=#hl-15-39>39</a>
+</span><span class=lnt id=hl-15-40><a class=lnlinks href=#hl-15-40>40</a>
+</span><span class=lnt id=hl-15-41><a class=lnlinks href=#hl-15-41>41</a>
+</span><span class=lnt id=hl-15-42><a class=lnlinks href=#hl-15-42>42</a>
+</span><span class=lnt id=hl-15-43><a class=lnlinks href=#hl-15-43>43</a>
+</span><span class=lnt id=hl-15-44><a class=lnlinks href=#hl-15-44>44</a>
+</span><span class=lnt id=hl-15-45><a class=lnlinks href=#hl-15-45>45</a>
+</span><span class=lnt id=hl-15-46><a class=lnlinks href=#hl-15-46>46</a>
+</span><span class=lnt id=hl-15-47><a class=lnlinks href=#hl-15-47>47</a>
+</span><span class=lnt id=hl-15-48><a class=lnlinks href=#hl-15-48>48</a>
+</span><span class=lnt id=hl-15-49><a class=lnlinks href=#hl-15-49>49</a>
+</span><span class=lnt id=hl-15-50><a class=lnlinks href=#hl-15-50>50</a>
+</span><span class=lnt id=hl-15-51><a class=lnlinks href=#hl-15-51>51</a>
+</span><span class=lnt id=hl-15-52><a class=lnlinks href=#hl-15-52>52</a>
+</span><span class=lnt id=hl-15-53><a class=lnlinks href=#hl-15-53>53</a>
+</span><span class=lnt id=hl-15-54><a class=lnlinks href=#hl-15-54>54</a>
+</span><span class=lnt id=hl-15-55><a class=lnlinks href=#hl-15-55>55</a>
+</span><span class=lnt id=hl-15-56><a class=lnlinks href=#hl-15-56>56</a>
+</span><span class=lnt id=hl-15-57><a class=lnlinks href=#hl-15-57>57</a>
+</span><span class=lnt id=hl-15-58><a class=lnlinks href=#hl-15-58>58</a>
+</span><span class=lnt id=hl-15-59><a class=lnlinks href=#hl-15-59>59</a>
+</span><span class=lnt id=hl-15-60><a class=lnlinks href=#hl-15-60>60</a>
+</span><span class=lnt id=hl-15-61><a class=lnlinks href=#hl-15-61>61</a>
+</span><span class=lnt id=hl-15-62><a class=lnlinks href=#hl-15-62>62</a>
+</span><span class=lnt id=hl-15-63><a class=lnlinks href=#hl-15-63>63</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>TreeNode</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>value</span><span class=o>=</span><span class=mi>0</span><span class=p>,</span> <span class=n>left</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>right</span><span class=o>=</span><span class=kc>None</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>value</span> <span class=o>=</span> <span class=n>value</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>left</span> <span class=o>=</span> <span class=n>left</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>right</span> <span class=o>=</span> <span class=n>right</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>preorder_traversal_recursive</span><span class=p>(</span><span class=n>root</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>result</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>dfs</span><span class=p>(</span><span class=n>node</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=ow>not</span> <span class=n>node</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 현재 노드 방문</span>
+</span></span><span class=line><span class=cl>        <span class=n>result</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>node</span><span class=o>.</span><span class=n>value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 왼쪽 서브트리 순회</span>
+</span></span><span class=line><span class=cl>        <span class=n>dfs</span><span class=p>(</span><span class=n>node</span><span class=o>.</span><span class=n>left</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 오른쪽 서브트리 순회</span>
+</span></span><span class=line><span class=cl>        <span class=n>dfs</span><span class=p>(</span><span class=n>node</span><span class=o>.</span><span class=n>right</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=n>dfs</span><span class=p>(</span><span class=n>root</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>result</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>preorder_traversal_iterative</span><span class=p>(</span><span class=n>root</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=ow>not</span> <span class=n>root</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=n>result</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>    <span class=n>stack</span> <span class=o>=</span> <span class=p>[</span><span class=n>root</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=n>stack</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>node</span> <span class=o>=</span> <span class=n>stack</span><span class=o>.</span><span class=n>pop</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=n>result</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>node</span><span class=o>.</span><span class=n>value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 스택은 LIFO이므로 오른쪽 자식을 먼저 푸시</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>node</span><span class=o>.</span><span class=n>right</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>stack</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>node</span><span class=o>.</span><span class=n>right</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>node</span><span class=o>.</span><span class=n>left</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>stack</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>node</span><span class=o>.</span><span class=n>left</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>result</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 다음과 같은 이진 트리 생성:</span>
+</span></span><span class=line><span class=cl><span class=c1>#       1</span>
+</span></span><span class=line><span class=cl><span class=c1>#     /   \</span>
+</span></span><span class=line><span class=cl><span class=c1>#    2     3</span>
+</span></span><span class=line><span class=cl><span class=c1>#   / \   / \</span>
+</span></span><span class=line><span class=cl><span class=c1>#  4   5 6   7</span>
+</span></span><span class=line><span class=cl><span class=n>root</span> <span class=o>=</span> <span class=n>TreeNode</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>root</span><span class=o>.</span><span class=n>left</span> <span class=o>=</span> <span class=n>TreeNode</span><span class=p>(</span><span class=mi>2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>root</span><span class=o>.</span><span class=n>right</span> <span class=o>=</span> <span class=n>TreeNode</span><span class=p>(</span><span class=mi>3</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>root</span><span class=o>.</span><span class=n>left</span><span class=o>.</span><span class=n>left</span> <span class=o>=</span> <span class=n>TreeNode</span><span class=p>(</span><span class=mi>4</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>root</span><span class=o>.</span><span class=n>left</span><span class=o>.</span><span class=n>right</span> <span class=o>=</span> <span class=n>TreeNode</span><span class=p>(</span><span class=mi>5</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>root</span><span class=o>.</span><span class=n>right</span><span class=o>.</span><span class=n>left</span> <span class=o>=</span> <span class=n>TreeNode</span><span class=p>(</span><span class=mi>6</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>root</span><span class=o>.</span><span class=n>right</span><span class=o>.</span><span class=n>right</span> <span class=o>=</span> <span class=n>TreeNode</span><span class=p>(</span><span class=mi>7</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 재귀적 방법으로 전위 순회</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=s2>&#34;재귀적 전위 순회:&#34;</span><span class=p>,</span> <span class=n>preorder_traversal_recursive</span><span class=p>(</span><span class=n>root</span><span class=p>))</span>  <span class=c1># [1, 2, 4, 5, 3, 6, 7]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 반복적 방법으로 전위 순회</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=s2>&#34;반복적 전위 순회:&#34;</span><span class=p>,</span> <span class=n>preorder_traversal_iterative</span><span class=p>(</span><span class=n>root</span><span class=p>))</span>  <span class=c1># [1, 2, 4, 5, 3, 6, 7]</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=전위-순회의-변형>전위 순회의 변형<a hidden class=anchor aria-hidden=true href=#전위-순회의-변형>#</a></h3><ol><li><p>모리스 전위 순회(Morris Preorder Traversal)<br>모리스 순회 알고리즘은 추가 공간을 사용하지 않고(O(1) 공간 복잡도) 트리를 순회하는 방법이다.<br>이 방법은 트리의 구조를 일시적으로 수정하여 포인터를 사용해 이전 노드로 돌아갈 수 있게 한다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-16-1><a class=lnlinks href=#hl-16-1> 1</a>
+</span><span class=lnt id=hl-16-2><a class=lnlinks href=#hl-16-2> 2</a>
+</span><span class=lnt id=hl-16-3><a class=lnlinks href=#hl-16-3> 3</a>
+</span><span class=lnt id=hl-16-4><a class=lnlinks href=#hl-16-4> 4</a>
+</span><span class=lnt id=hl-16-5><a class=lnlinks href=#hl-16-5> 5</a>
+</span><span class=lnt id=hl-16-6><a class=lnlinks href=#hl-16-6> 6</a>
+</span><span class=lnt id=hl-16-7><a class=lnlinks href=#hl-16-7> 7</a>
+</span><span class=lnt id=hl-16-8><a class=lnlinks href=#hl-16-8> 8</a>
+</span><span class=lnt id=hl-16-9><a class=lnlinks href=#hl-16-9> 9</a>
+</span><span class=lnt id=hl-16-10><a class=lnlinks href=#hl-16-10>10</a>
+</span><span class=lnt id=hl-16-11><a class=lnlinks href=#hl-16-11>11</a>
+</span><span class=lnt id=hl-16-12><a class=lnlinks href=#hl-16-12>12</a>
+</span><span class=lnt id=hl-16-13><a class=lnlinks href=#hl-16-13>13</a>
+</span><span class=lnt id=hl-16-14><a class=lnlinks href=#hl-16-14>14</a>
+</span><span class=lnt id=hl-16-15><a class=lnlinks href=#hl-16-15>15</a>
+</span><span class=lnt id=hl-16-16><a class=lnlinks href=#hl-16-16>16</a>
+</span><span class=lnt id=hl-16-17><a class=lnlinks href=#hl-16-17>17</a>
+</span><span class=lnt id=hl-16-18><a class=lnlinks href=#hl-16-18>18</a>
+</span><span class=lnt id=hl-16-19><a class=lnlinks href=#hl-16-19>19</a>
+</span><span class=lnt id=hl-16-20><a class=lnlinks href=#hl-16-20>20</a>
+</span><span class=lnt id=hl-16-21><a class=lnlinks href=#hl-16-21>21</a>
+</span><span class=lnt id=hl-16-22><a class=lnlinks href=#hl-16-22>22</a>
+</span><span class=lnt id=hl-16-23><a class=lnlinks href=#hl-16-23>23</a>
+</span><span class=lnt id=hl-16-24><a class=lnlinks href=#hl-16-24>24</a>
+</span><span class=lnt id=hl-16-25><a class=lnlinks href=#hl-16-25>25</a>
+</span><span class=lnt id=hl-16-26><a class=lnlinks href=#hl-16-26>26</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>morris_preorder_traversal</span><span class=p>(</span><span class=n>root</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>result</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>    <span class=n>current</span> <span class=o>=</span> <span class=n>root</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=n>current</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 왼쪽 자식이 없으면 현재 노드를 방문하고 오른쪽으로 이동</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=ow>not</span> <span class=n>current</span><span class=o>.</span><span class=n>left</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>result</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>current</span><span class=o>.</span><span class=n>value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=n>current</span> <span class=o>=</span> <span class=n>current</span><span class=o>.</span><span class=n>right</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 왼쪽 서브트리에서 가장 오른쪽 노드(중위 순회에서 현재 노드의 선행자)를 찾음</span>
+</span></span><span class=line><span class=cl>            <span class=n>predecessor</span> <span class=o>=</span> <span class=n>current</span><span class=o>.</span><span class=n>left</span>
+</span></span><span class=line><span class=cl>            <span class=k>while</span> <span class=n>predecessor</span><span class=o>.</span><span class=n>right</span> <span class=ow>and</span> <span class=n>predecessor</span><span class=o>.</span><span class=n>right</span> <span class=o>!=</span> <span class=n>current</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=n>predecessor</span> <span class=o>=</span> <span class=n>predecessor</span><span class=o>.</span><span class=n>right</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>            <span class=c1># 선행자의 오른쪽이 None이면, 현재 노드로 연결하고 현재 노드를 방문한 후 왼쪽으로 이동</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=ow>not</span> <span class=n>predecessor</span><span class=o>.</span><span class=n>right</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=n>result</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>current</span><span class=o>.</span><span class=n>value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=n>predecessor</span><span class=o>.</span><span class=n>right</span> <span class=o>=</span> <span class=n>current</span>
+</span></span><span class=line><span class=cl>                <span class=n>current</span> <span class=o>=</span> <span class=n>current</span><span class=o>.</span><span class=n>left</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 선행자의 오른쪽이 현재 노드를 가리키면, 그 연결을 끊고 오른쪽으로 이동</span>
+</span></span><span class=line><span class=cl>            <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=n>predecessor</span><span class=o>.</span><span class=n>right</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>                <span class=n>current</span> <span class=o>=</span> <span class=n>current</span><span class=o>.</span><span class=n>right</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>result</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>N진 트리의 전위 순회<br>N진 트리(각 노드가 N개 이하의 자식을 가질 수 있는 트리)에서도 전위 순회를 적용할 수 있다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-17-1><a class=lnlinks href=#hl-17-1> 1</a>
+</span><span class=lnt id=hl-17-2><a class=lnlinks href=#hl-17-2> 2</a>
+</span><span class=lnt id=hl-17-3><a class=lnlinks href=#hl-17-3> 3</a>
+</span><span class=lnt id=hl-17-4><a class=lnlinks href=#hl-17-4> 4</a>
+</span><span class=lnt id=hl-17-5><a class=lnlinks href=#hl-17-5> 5</a>
+</span><span class=lnt id=hl-17-6><a class=lnlinks href=#hl-17-6> 6</a>
+</span><span class=lnt id=hl-17-7><a class=lnlinks href=#hl-17-7> 7</a>
+</span><span class=lnt id=hl-17-8><a class=lnlinks href=#hl-17-8> 8</a>
+</span><span class=lnt id=hl-17-9><a class=lnlinks href=#hl-17-9> 9</a>
+</span><span class=lnt id=hl-17-10><a class=lnlinks href=#hl-17-10>10</a>
+</span><span class=lnt id=hl-17-11><a class=lnlinks href=#hl-17-11>11</a>
+</span><span class=lnt id=hl-17-12><a class=lnlinks href=#hl-17-12>12</a>
+</span><span class=lnt id=hl-17-13><a class=lnlinks href=#hl-17-13>13</a>
+</span><span class=lnt id=hl-17-14><a class=lnlinks href=#hl-17-14>14</a>
+</span><span class=lnt id=hl-17-15><a class=lnlinks href=#hl-17-15>15</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>NaryTreeNode</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>value</span><span class=o>=</span><span class=mi>0</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>value</span> <span class=o>=</span> <span class=n>value</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>children</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>preorder_nary_tree</span><span class=p>(</span><span class=n>root</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=ow>not</span> <span class=n>root</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>result</span> <span class=o>=</span> <span class=p>[</span><span class=n>root</span><span class=o>.</span><span class=n>value</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>child</span> <span class=ow>in</span> <span class=n>root</span><span class=o>.</span><span class=n>children</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>result</span><span class=o>.</span><span class=n>extend</span><span class=p>(</span><span class=n>preorder_nary_tree</span><span class=p>(</span><span class=n>child</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>result</span>
+</span></span></code></pre></td></tr></table></div></div></li></ol><h3 id=실전-문제-전위-순회-응용>실전 문제: 전위 순회 응용<a hidden class=anchor aria-hidden=true href=#실전-문제-전위-순회-응용>#</a></h3><h4 id=이진-트리의-경로-합-확인>이진 트리의 경로 합 확인<a hidden class=anchor aria-hidden=true href=#이진-트리의-경로-합-확인>#</a></h4><p>주어진 이진 트리와 목표 합이 있을 때, 루트에서 리프까지의 경로 중 합이 목표 값과 일치하는 경로가 있는지 확인하는 문제.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-18-1><a class=lnlinks href=#hl-18-1> 1</a>
+</span><span class=lnt id=hl-18-2><a class=lnlinks href=#hl-18-2> 2</a>
+</span><span class=lnt id=hl-18-3><a class=lnlinks href=#hl-18-3> 3</a>
+</span><span class=lnt id=hl-18-4><a class=lnlinks href=#hl-18-4> 4</a>
+</span><span class=lnt id=hl-18-5><a class=lnlinks href=#hl-18-5> 5</a>
+</span><span class=lnt id=hl-18-6><a class=lnlinks href=#hl-18-6> 6</a>
+</span><span class=lnt id=hl-18-7><a class=lnlinks href=#hl-18-7> 7</a>
+</span><span class=lnt id=hl-18-8><a class=lnlinks href=#hl-18-8> 8</a>
+</span><span class=lnt id=hl-18-9><a class=lnlinks href=#hl-18-9> 9</a>
+</span><span class=lnt id=hl-18-10><a class=lnlinks href=#hl-18-10>10</a>
+</span><span class=lnt id=hl-18-11><a class=lnlinks href=#hl-18-11>11</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>has_path_sum</span><span class=p>(</span><span class=n>root</span><span class=p>,</span> <span class=n>target_sum</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=ow>not</span> <span class=n>root</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>False</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 리프 노드에 도달했을 때 합이 목표 값과 일치하는지 확인</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=ow>not</span> <span class=n>root</span><span class=o>.</span><span class=n>left</span> <span class=ow>and</span> <span class=ow>not</span> <span class=n>root</span><span class=o>.</span><span class=n>right</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>root</span><span class=o>.</span><span class=n>value</span> <span class=o>==</span> <span class=n>target_sum</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 왼쪽 또는 오른쪽 서브트리에서 경로를 찾음</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=p>(</span><span class=n>has_path_sum</span><span class=p>(</span><span class=n>root</span><span class=o>.</span><span class=n>left</span><span class=p>,</span> <span class=n>target_sum</span> <span class=o>-</span> <span class=n>root</span><span class=o>.</span><span class=n>value</span><span class=p>)</span> <span class=ow>or</span> 
+</span></span><span class=line><span class=cl>            <span class=n>has_path_sum</span><span class=p>(</span><span class=n>root</span><span class=o>.</span><span class=n>right</span><span class=p>,</span> <span class=n>target_sum</span> <span class=o>-</span> <span class=n>root</span><span class=o>.</span><span class=n>value</span><span class=p>))</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=이진-트리의-전위-순회-결과로부터-트리-재구성>이진 트리의 전위 순회 결과로부터 트리 재구성<a hidden class=anchor aria-hidden=true href=#이진-트리의-전위-순회-결과로부터-트리-재구성>#</a></h4><p>전위 순회의 결과와 중위 순회의 결과가 주어졌을 때, 원래 이진 트리를 재구성하는 문제.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-19-1><a class=lnlinks href=#hl-19-1> 1</a>
+</span><span class=lnt id=hl-19-2><a class=lnlinks href=#hl-19-2> 2</a>
+</span><span class=lnt id=hl-19-3><a class=lnlinks href=#hl-19-3> 3</a>
+</span><span class=lnt id=hl-19-4><a class=lnlinks href=#hl-19-4> 4</a>
+</span><span class=lnt id=hl-19-5><a class=lnlinks href=#hl-19-5> 5</a>
+</span><span class=lnt id=hl-19-6><a class=lnlinks href=#hl-19-6> 6</a>
+</span><span class=lnt id=hl-19-7><a class=lnlinks href=#hl-19-7> 7</a>
+</span><span class=lnt id=hl-19-8><a class=lnlinks href=#hl-19-8> 8</a>
+</span><span class=lnt id=hl-19-9><a class=lnlinks href=#hl-19-9> 9</a>
+</span><span class=lnt id=hl-19-10><a class=lnlinks href=#hl-19-10>10</a>
+</span><span class=lnt id=hl-19-11><a class=lnlinks href=#hl-19-11>11</a>
+</span><span class=lnt id=hl-19-12><a class=lnlinks href=#hl-19-12>12</a>
+</span><span class=lnt id=hl-19-13><a class=lnlinks href=#hl-19-13>13</a>
+</span><span class=lnt id=hl-19-14><a class=lnlinks href=#hl-19-14>14</a>
+</span><span class=lnt id=hl-19-15><a class=lnlinks href=#hl-19-15>15</a>
+</span><span class=lnt id=hl-19-16><a class=lnlinks href=#hl-19-16>16</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>build_tree</span><span class=p>(</span><span class=n>preorder</span><span class=p>,</span> <span class=n>inorder</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=ow>not</span> <span class=n>preorder</span> <span class=ow>or</span> <span class=ow>not</span> <span class=n>inorder</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 전위 순회의 첫 번째 요소는 루트</span>
+</span></span><span class=line><span class=cl>    <span class=n>root_value</span> <span class=o>=</span> <span class=n>preorder</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=n>root</span> <span class=o>=</span> <span class=n>TreeNode</span><span class=p>(</span><span class=n>root_value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 중위 순회에서 루트의 위치 찾기</span>
+</span></span><span class=line><span class=cl>    <span class=n>root_index</span> <span class=o>=</span> <span class=n>inorder</span><span class=o>.</span><span class=n>index</span><span class=p>(</span><span class=n>root_value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 왼쪽 서브트리와 오른쪽 서브트리로 분할</span>
+</span></span><span class=line><span class=cl>    <span class=n>root</span><span class=o>.</span><span class=n>left</span> <span class=o>=</span> <span class=n>build_tree</span><span class=p>(</span><span class=n>preorder</span><span class=p>[</span><span class=mi>1</span><span class=p>:</span><span class=mi>1</span><span class=o>+</span><span class=n>root_index</span><span class=p>],</span> <span class=n>inorder</span><span class=p>[:</span><span class=n>root_index</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>    <span class=n>root</span><span class=o>.</span><span class=n>right</span> <span class=o>=</span> <span class=n>build_tree</span><span class=p>(</span><span class=n>preorder</span><span class=p>[</span><span class=mi>1</span><span class=o>+</span><span class=n>root_index</span><span class=p>:],</span> <span class=n>inorder</span><span class=p>[</span><span class=n>root_index</span><span class=o>+</span><span class=mi>1</span><span class=p>:])</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>root</span>
+</span></span></code></pre></td></tr></table></div></div><hr><h2 id=참고-및-출처>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처>#</a></h2></div><footer class=post-footer><ul class=post-tags><li><a href=https://buenhyden.github.io/tags/data-structures-and-algorithms/>Data-Structures-and-Algorithms</a></li><li><a href=https://buenhyden.github.io/tags/data-structures/>Data-Structures</a></li><li><a href=https://buenhyden.github.io/tags/tree/>Tree</a></li><li><a href=https://buenhyden.github.io/tags/fundamentals/>Fundamentals</a></li><li><a href=https://buenhyden.github.io/tags/traversal/>Traversal</a></li></ul><nav class=paginav><a class=prev href=https://buenhyden.github.io/posts/data-structures-and-algorithms/fundamentals/basic-concepts/recursion/types/tail-recursion/><span class=title>« Prev</span><br><span>꼬리 재귀(Tail Recursion)</span>
+</a><a class=next href=https://buenhyden.github.io/posts/programming-languages/javascript-and-typescript/javascript/es6+/ecmascript/><span class=title>Next »</span><br><span>ECMAScript</span></a></nav></footer><div class=comments><script>const getStoredTheme=()=>localStorage.getItem("pref-theme")==="dark"?"dark":"light",setGiscusTheme=()=>{const e=e=>{const t=document.querySelector("iframe.giscus-frame");t&&t.contentWindow.postMessage({giscus:e},"https://giscus.app")};e({setConfig:{theme:getStoredTheme()}})};document.addEventListener("DOMContentLoaded",()=>{const n={src:"https://giscus.app/client.js","data-repo":"buenhyden/buenhyden.github.io","data-repo-id":"R_kgDONsSnFQ","data-category":"General","data-category-id":"DIC_kwDONsSnFc4CmK-R","data-mapping":"pathname","data-strict":"0","data-reactions-enabled":"1","data-emit-metadata":"0","data-input-position":"bottom","data-theme":getStoredTheme(),"data-lang":"en","data-loading":"lazy",crossorigin:"anonymous",async:""},e=document.createElement("script");Object.entries(n).forEach(([t,n])=>e.setAttribute(t,n)),console.log(e),document.querySelector(".comments").appendChild(e);const t=document.querySelector("#theme-toggle");t&&t.addEventListener("click",setGiscusTheme)})</script></div></article></main><footer class=footer><span>&copy; 2025 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script><script>document.querySelectorAll("pre > code").forEach(e=>{const n=e.parentNode.parentNode,t=document.createElement("button");t.classList.add("copy-code"),t.innerHTML="copy";function s(){t.innerHTML="copied!",setTimeout(()=>{t.innerHTML="copy"},2e3)}t.addEventListener("click",t=>{if("clipboard"in navigator){navigator.clipboard.writeText(e.textContent),s();return}const n=document.createRange();n.selectNodeContents(e);const o=window.getSelection();o.removeAllRanges(),o.addRange(n);try{document.execCommand("copy"),s()}catch{}o.removeRange(n)}),n.classList.contains("highlight")?n.appendChild(t):n.parentNode.firstChild==n||(e.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName=="TABLE"?e.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(t):e.parentNode.appendChild(t))})</script></body></html>
