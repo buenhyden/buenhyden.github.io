@@ -1,0 +1,276 @@
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Caddy | hyunyoun's Blog</title>
+<meta name=keywords content="Backend-Development,Web-Infrastructure,Web-Servers,Caddy"><meta name=description content="Caddy는 Go 언어로 작성된 현대적이고 강력한 오픈 소스 웹 서버이다."><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/system-design/system-architecture/web-infrastructure/web-servers/implementations/caddy/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.8762af4fa9ee176c57f72565b721f234162fc7a9c882a271e0a1f68c4e89fb34.css integrity="sha256-h2KvT6nuF2xX9yVltyHyNBYvx6nIgqJx4KH2jE6J+zQ=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate type=application/rss+xml href=https://buenhyden.github.io/posts/system-design/system-architecture/web-infrastructure/web-servers/implementations/caddy/index.xml><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/system-design/system-architecture/web-infrastructure/web-servers/implementations/caddy/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/system-design/system-architecture/web-infrastructure/web-servers/implementations/caddy/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="Caddy"><meta property="og:description" content="Caddy는 Go 언어로 작성된 현대적이고 강력한 오픈 소스 웹 서버이다."><meta property="og:locale" content="en"><meta property="og:type" content="website"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="Caddy"><meta name=twitter:description content="Caddy는 Go 언어로 작성된 현대적이고 강력한 오픈 소스 웹 서버이다."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"기술 블로그","item":"https://buenhyden.github.io/posts/"},{"@type":"ListItem","position":2,"name":"System Design","item":"https://buenhyden.github.io/posts/system-design/"},{"@type":"ListItem","position":3,"name":"System Architecture","item":""},{"@type":"ListItem","position":4,"name":"Web Infrastructure","item":""},{"@type":"ListItem","position":5,"name":"Web Servers","item":"https://buenhyden.github.io/posts/system-design/system-architecture/web-infrastructure/web-servers/"},{"@type":"ListItem","position":6,"name":"Caddy","item":"https://buenhyden.github.io/posts/system-design/system-architecture/web-infrastructure/web-servers/implementations/caddy/"}]}</script></head><body class=list id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><header class=page-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/>기술 블로그</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/system-design/>System Design</a>&nbsp;»&nbsp;<a href>System Architecture</a>&nbsp;»&nbsp;<a href>Web Infrastructure</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/system-design/system-architecture/web-infrastructure/web-servers/>Web Servers</a></div><h1>Caddy</h1><div class=post-description>Caddy는 Go 언어로 작성된 현대적이고 강력한 오픈 소스 웹 서버이다.</div></header><div class=post-content><h2 id=caddy>Caddy<a hidden class=anchor aria-hidden=true href=#caddy>#</a></h2><p>Caddy는 Go 언어로 작성된 현대적이고 강력한 오픈 소스 웹 서버이다.</p><h3 id=주요-특징>주요 특징<a hidden class=anchor aria-hidden=true href=#주요-특징>#</a></h3><ol><li>자동 HTTPS: Let&rsquo;s Encrypt를 통해 SSL/TLS 인증서를 자동으로 획득 및 갱신</li><li>간단한 설정: 직관적인 Caddyfile을 통한 쉬운 구성</li><li>HTTP/2 및 HTTP/3 지원</li><li>리버스 프록시 및 로드 밸런싱 기능</li><li>정적 파일 서빙에 최적화</li></ol><h3 id=설치-및-기본-사용법>설치 및 기본 사용법<a hidden class=anchor aria-hidden=true href=#설치-및-기본-사용법>#</a></h3><ol><li><p>설치:<br>Ubuntu/Debian:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-0-1><a class=lnlinks href=#hl-0-1>1</a>
+</span><span class=lnt id=hl-0-2><a class=lnlinks href=#hl-0-2>2</a>
+</span><span class=lnt id=hl-0-3><a class=lnlinks href=#hl-0-3>3</a>
+</span><span class=lnt id=hl-0-4><a class=lnlinks href=#hl-0-4>4</a>
+</span><span class=lnt id=hl-0-5><a class=lnlinks href=#hl-0-5>5</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>sudo apt install -y debian-keyring debian-archive-keyring apt-transport-https
+</span></span><span class=line><span class=cl>curl -1sLf &#39;https://dl.cloudsmith.io/public/caddy/stable/gpg.key&#39; | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+</span></span><span class=line><span class=cl>curl -1sLf &#39;https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt&#39; | sudo tee /etc/apt/sources.list.d/caddy-stable.list
+</span></span><span class=line><span class=cl>sudo apt update
+</span></span><span class=line><span class=cl>sudo apt install caddy
+</span></span></code></pre></td></tr></table></div></div></li><li><p>기본 설정:<br>/etc/caddy/Caddyfile 파일을 편집하여 설정한다.</p></li><li><p>간단한 Caddyfile 예시:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-1-1><a class=lnlinks href=#hl-1-1>1</a>
+</span><span class=lnt id=hl-1-2><a class=lnlinks href=#hl-1-2>2</a>
+</span><span class=lnt id=hl-1-3><a class=lnlinks href=#hl-1-3>3</a>
+</span><span class=lnt id=hl-1-4><a class=lnlinks href=#hl-1-4>4</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-gdscript3 data-lang=gdscript3><span class=line><span class=cl><span class=n>example</span><span class=o>.</span><span class=n>com</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>root</span> <span class=o>*</span> <span class=o>/</span><span class=k>var</span><span class=o>/</span><span class=n>www</span><span class=o>/</span><span class=n>example</span><span class=o>.</span><span class=n>com</span>
+</span></span><span class=line><span class=cl>    <span class=n>file_server</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>Caddy 시작:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-2-1><a class=lnlinks href=#hl-2-1>1</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>sudo systemctl start caddy
+</span></span></code></pre></td></tr></table></div></div></li><li><p>상태 확인:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-3-1><a class=lnlinks href=#hl-3-1>1</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>sudo systemctl status caddy
+</span></span></code></pre></td></tr></table></div></div></li></ol><h3 id=설정옵션>설정옵션<a hidden class=anchor aria-hidden=true href=#설정옵션>#</a></h3><h4 id=기본-설정>기본 설정<a hidden class=anchor aria-hidden=true href=#기본-설정>#</a></h4><p>Caddy의 설정은 Caddyfile이라는 파일을 통해 이루어진다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-4-1><a class=lnlinks href=#hl-4-1> 1</a>
+</span><span class=lnt id=hl-4-2><a class=lnlinks href=#hl-4-2> 2</a>
+</span><span class=lnt id=hl-4-3><a class=lnlinks href=#hl-4-3> 3</a>
+</span><span class=lnt id=hl-4-4><a class=lnlinks href=#hl-4-4> 4</a>
+</span><span class=lnt id=hl-4-5><a class=lnlinks href=#hl-4-5> 5</a>
+</span><span class=lnt id=hl-4-6><a class=lnlinks href=#hl-4-6> 6</a>
+</span><span class=lnt id=hl-4-7><a class=lnlinks href=#hl-4-7> 7</a>
+</span><span class=lnt id=hl-4-8><a class=lnlinks href=#hl-4-8> 8</a>
+</span><span class=lnt id=hl-4-9><a class=lnlinks href=#hl-4-9> 9</a>
+</span><span class=lnt id=hl-4-10><a class=lnlinks href=#hl-4-10>10</a>
+</span><span class=lnt id=hl-4-11><a class=lnlinks href=#hl-4-11>11</a>
+</span><span class=lnt id=hl-4-12><a class=lnlinks href=#hl-4-12>12</a>
+</span><span class=lnt id=hl-4-13><a class=lnlinks href=#hl-4-13>13</a>
+</span><span class=lnt id=hl-4-14><a class=lnlinks href=#hl-4-14>14</a>
+</span><span class=lnt id=hl-4-15><a class=lnlinks href=#hl-4-15>15</a>
+</span><span class=lnt id=hl-4-16><a class=lnlinks href=#hl-4-16>16</a>
+</span><span class=lnt id=hl-4-17><a class=lnlinks href=#hl-4-17>17</a>
+</span><span class=lnt id=hl-4-18><a class=lnlinks href=#hl-4-18>18</a>
+</span><span class=lnt id=hl-4-19><a class=lnlinks href=#hl-4-19>19</a>
+</span><span class=lnt id=hl-4-20><a class=lnlinks href=#hl-4-20>20</a>
+</span><span class=lnt id=hl-4-21><a class=lnlinks href=#hl-4-21>21</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-caddyfile data-lang=caddyfile><span class=line><span class=cl><span class=c1># 가장 기본적인 설정
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=gh>example.com</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>root</span> <span class=nd>*</span> <span class=s>/var/www/example.com</span>
+</span></span><span class=line><span class=cl>    <span class=k>file_server</span>
+</span></span><span class=line><span class=cl>    <span class=k>encode</span> <span class=s>gzip</span>
+</span></span><span class=line><span class=cl>    <span class=k>log</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>output</span> <span class=s>file</span> <span class=s>/var/log/caddy/access.log</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span><span class=c1>
+</span></span></span><span class=line><span class=cl><span class=c1>
+</span></span></span><span class=line><span class=cl><span class=c1># 리버스 프록시 설정
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=gh>api.example.com</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>reverse_proxy</span> <span class=n>localhost</span><span class=p>:</span><span class=mi>3000</span>
+</span></span><span class=line><span class=cl><span class=p>}</span><span class=c1>
+</span></span></span><span class=line><span class=cl><span class=c1>
+</span></span></span><span class=line><span class=cl><span class=c1># PHP 애플리케이션 설정
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=gh>php.example.com</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>root</span> <span class=nd>*</span> <span class=s>/var/www/php-app</span>
+</span></span><span class=line><span class=cl>    <span class=k>php_fastcgi</span> <span class=s>unix//run/php/php8.0-fpm.sock</span>
+</span></span><span class=line><span class=cl>    <span class=k>file_server</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=ssltls-자동-설정>SSL/TLS 자동 설정<a hidden class=anchor aria-hidden=true href=#ssltls-자동-설정>#</a></h4><p>Caddy의 가장 큰 특징 중 하나는 자동 HTTPS 설정이다.<br>별도의 설정 없이도 도메인에 대한 SSL/TLS 인증서를 자동으로 발급하고 관리한다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-5-1><a class=lnlinks href=#hl-5-1> 1</a>
+</span><span class=lnt id=hl-5-2><a class=lnlinks href=#hl-5-2> 2</a>
+</span><span class=lnt id=hl-5-3><a class=lnlinks href=#hl-5-3> 3</a>
+</span><span class=lnt id=hl-5-4><a class=lnlinks href=#hl-5-4> 4</a>
+</span><span class=lnt id=hl-5-5><a class=lnlinks href=#hl-5-5> 5</a>
+</span><span class=lnt id=hl-5-6><a class=lnlinks href=#hl-5-6> 6</a>
+</span><span class=lnt id=hl-5-7><a class=lnlinks href=#hl-5-7> 7</a>
+</span><span class=lnt id=hl-5-8><a class=lnlinks href=#hl-5-8> 8</a>
+</span><span class=lnt id=hl-5-9><a class=lnlinks href=#hl-5-9> 9</a>
+</span><span class=lnt id=hl-5-10><a class=lnlinks href=#hl-5-10>10</a>
+</span><span class=lnt id=hl-5-11><a class=lnlinks href=#hl-5-11>11</a>
+</span><span class=lnt id=hl-5-12><a class=lnlinks href=#hl-5-12>12</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-caddyfile data-lang=caddyfile><span class=line><span class=cl><span class=gh>example.com</span> <span class=p>{</span><span class=c1>
+</span></span></span><span class=line><span class=cl><span class=c1>    # HTTPS가 자동으로 설정됨
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>root</span> <span class=nd>*</span> <span class=s>/var/www/example.com</span>
+</span></span><span class=line><span class=cl>    <span class=k>file_server</span><span class=c1>
+</span></span></span><span class=line><span class=cl><span class=c1>    
+</span></span></span><span class=line><span class=cl><span class=c1>    # 추가적인 TLS 설정 (선택사항)
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>tls</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>protocols</span> <span class=s>tls1.3</span>
+</span></span><span class=line><span class=cl>        <span class=k>curves</span> <span class=s>x25519</span>
+</span></span><span class=line><span class=cl>        <span class=k>alpn</span> <span class=s>h2</span> <span class=s>http/1.1</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=고급-기능-설정>고급 기능 설정<a hidden class=anchor aria-hidden=true href=#고급-기능-설정>#</a></h4><p>Caddy는 다양한 고급 기능을 제공한다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-6-1><a class=lnlinks href=#hl-6-1> 1</a>
+</span><span class=lnt id=hl-6-2><a class=lnlinks href=#hl-6-2> 2</a>
+</span><span class=lnt id=hl-6-3><a class=lnlinks href=#hl-6-3> 3</a>
+</span><span class=lnt id=hl-6-4><a class=lnlinks href=#hl-6-4> 4</a>
+</span><span class=lnt id=hl-6-5><a class=lnlinks href=#hl-6-5> 5</a>
+</span><span class=lnt id=hl-6-6><a class=lnlinks href=#hl-6-6> 6</a>
+</span><span class=lnt id=hl-6-7><a class=lnlinks href=#hl-6-7> 7</a>
+</span><span class=lnt id=hl-6-8><a class=lnlinks href=#hl-6-8> 8</a>
+</span><span class=lnt id=hl-6-9><a class=lnlinks href=#hl-6-9> 9</a>
+</span><span class=lnt id=hl-6-10><a class=lnlinks href=#hl-6-10>10</a>
+</span><span class=lnt id=hl-6-11><a class=lnlinks href=#hl-6-11>11</a>
+</span><span class=lnt id=hl-6-12><a class=lnlinks href=#hl-6-12>12</a>
+</span><span class=lnt id=hl-6-13><a class=lnlinks href=#hl-6-13>13</a>
+</span><span class=lnt id=hl-6-14><a class=lnlinks href=#hl-6-14>14</a>
+</span><span class=lnt id=hl-6-15><a class=lnlinks href=#hl-6-15>15</a>
+</span><span class=lnt id=hl-6-16><a class=lnlinks href=#hl-6-16>16</a>
+</span><span class=lnt id=hl-6-17><a class=lnlinks href=#hl-6-17>17</a>
+</span><span class=lnt id=hl-6-18><a class=lnlinks href=#hl-6-18>18</a>
+</span><span class=lnt id=hl-6-19><a class=lnlinks href=#hl-6-19>19</a>
+</span><span class=lnt id=hl-6-20><a class=lnlinks href=#hl-6-20>20</a>
+</span><span class=lnt id=hl-6-21><a class=lnlinks href=#hl-6-21>21</a>
+</span><span class=lnt id=hl-6-22><a class=lnlinks href=#hl-6-22>22</a>
+</span><span class=lnt id=hl-6-23><a class=lnlinks href=#hl-6-23>23</a>
+</span><span class=lnt id=hl-6-24><a class=lnlinks href=#hl-6-24>24</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-caddyfile data-lang=caddyfile><span class=line><span class=cl><span class=c1># 로드 밸런싱 설정
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=gh>balance.example.com</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>reverse_proxy</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>to</span> <span class=n>10.0.0.1</span><span class=p>:</span><span class=mi>80</span> <span class=n>10.0.0.2</span><span class=p>:</span><span class=mi>80</span> <span class=n>10.0.0.3</span><span class=p>:</span><span class=mi>80</span>
+</span></span><span class=line><span class=cl>        <span class=k>lb_policy</span> <span class=s>round_robin</span>
+</span></span><span class=line><span class=cl>        <span class=k>health_check</span> <span class=s>/health</span>
+</span></span><span class=line><span class=cl>        <span class=k>health_check_interval</span> <span class=mi>10s</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span><span class=c1>
+</span></span></span><span class=line><span class=cl><span class=c1>
+</span></span></span><span class=line><span class=cl><span class=c1># URL 리다이렉션
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=gh>example.com</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>redir</span> <span class=s>https://www.example.com</span><span class=se>{uri}</span> <span class=s>permanent</span>
+</span></span><span class=line><span class=cl><span class=p>}</span><span class=c1>
+</span></span></span><span class=line><span class=cl><span class=c1>
+</span></span></span><span class=line><span class=cl><span class=c1># 정적 파일 압축
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=gh>static.example.com</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>root</span> <span class=nd>*</span> <span class=s>/var/www/static</span>
+</span></span><span class=line><span class=cl>    <span class=k>file_server</span>
+</span></span><span class=line><span class=cl>    <span class=k>encode</span> <span class=s>gzip</span> <span class=s>zstd</span>
+</span></span><span class=line><span class=cl>    <span class=k>header</span> <span class=nd>/*</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>Cache-Control</span> <span class=s2>&#34;public, max-age=31536000&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=미들웨어와-핸들러-설정>미들웨어와 핸들러 설정<a hidden class=anchor aria-hidden=true href=#미들웨어와-핸들러-설정>#</a></h4><p>Caddy는 다양한 미들웨어와 핸들러를 지원한다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-7-1><a class=lnlinks href=#hl-7-1> 1</a>
+</span><span class=lnt id=hl-7-2><a class=lnlinks href=#hl-7-2> 2</a>
+</span><span class=lnt id=hl-7-3><a class=lnlinks href=#hl-7-3> 3</a>
+</span><span class=lnt id=hl-7-4><a class=lnlinks href=#hl-7-4> 4</a>
+</span><span class=lnt id=hl-7-5><a class=lnlinks href=#hl-7-5> 5</a>
+</span><span class=lnt id=hl-7-6><a class=lnlinks href=#hl-7-6> 6</a>
+</span><span class=lnt id=hl-7-7><a class=lnlinks href=#hl-7-7> 7</a>
+</span><span class=lnt id=hl-7-8><a class=lnlinks href=#hl-7-8> 8</a>
+</span><span class=lnt id=hl-7-9><a class=lnlinks href=#hl-7-9> 9</a>
+</span><span class=lnt id=hl-7-10><a class=lnlinks href=#hl-7-10>10</a>
+</span><span class=lnt id=hl-7-11><a class=lnlinks href=#hl-7-11>11</a>
+</span><span class=lnt id=hl-7-12><a class=lnlinks href=#hl-7-12>12</a>
+</span><span class=lnt id=hl-7-13><a class=lnlinks href=#hl-7-13>13</a>
+</span><span class=lnt id=hl-7-14><a class=lnlinks href=#hl-7-14>14</a>
+</span><span class=lnt id=hl-7-15><a class=lnlinks href=#hl-7-15>15</a>
+</span><span class=lnt id=hl-7-16><a class=lnlinks href=#hl-7-16>16</a>
+</span><span class=lnt id=hl-7-17><a class=lnlinks href=#hl-7-17>17</a>
+</span><span class=lnt id=hl-7-18><a class=lnlinks href=#hl-7-18>18</a>
+</span><span class=lnt id=hl-7-19><a class=lnlinks href=#hl-7-19>19</a>
+</span><span class=lnt id=hl-7-20><a class=lnlinks href=#hl-7-20>20</a>
+</span><span class=lnt id=hl-7-21><a class=lnlinks href=#hl-7-21>21</a>
+</span><span class=lnt id=hl-7-22><a class=lnlinks href=#hl-7-22>22</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-caddyfile data-lang=caddyfile><span class=line><span class=cl><span class=gh>example.com</span> <span class=p>{</span><span class=c1>
+</span></span></span><span class=line><span class=cl><span class=c1>    # 기본 인증
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>basic_auth</span> <span class=nd>/*</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>admin</span> <span class=s>JDJhJDE0JDV1RzNuMTRMVXU2amZoa3JtL2Z0Sy4=</span><span class=c1> # bcrypt 해시
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=p>}</span><span class=c1>
+</span></span></span><span class=line><span class=cl><span class=c1>    
+</span></span></span><span class=line><span class=cl><span class=c1>    # CORS 설정
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>header</span> <span class=nd>/*</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>Access-Control-Allow-Origin</span> <span class=s>*</span>
+</span></span><span class=line><span class=cl>        <span class=k>Access-Control-Allow-Methods</span> <span class=s2>&#34;GET, POST, OPTIONS&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=k>Access-Control-Allow-Headers</span> <span class=s2>&#34;Content-Type&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span><span class=c1>
+</span></span></span><span class=line><span class=cl><span class=c1>    
+</span></span></span><span class=line><span class=cl><span class=c1>    # 요청 경로 기반 처리
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>handle</span> <span class=nd>/api/*</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>reverse_proxy</span> <span class=n>localhost</span><span class=p>:</span><span class=mi>3000</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>handle</span> <span class=nd>/*</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>file_server</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=로깅-및-모니터링>로깅 및 모니터링<a hidden class=anchor aria-hidden=true href=#로깅-및-모니터링>#</a></h4><p>Caddy의 로깅 설정과 모니터링:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-8-1><a class=lnlinks href=#hl-8-1> 1</a>
+</span><span class=lnt id=hl-8-2><a class=lnlinks href=#hl-8-2> 2</a>
+</span><span class=lnt id=hl-8-3><a class=lnlinks href=#hl-8-3> 3</a>
+</span><span class=lnt id=hl-8-4><a class=lnlinks href=#hl-8-4> 4</a>
+</span><span class=lnt id=hl-8-5><a class=lnlinks href=#hl-8-5> 5</a>
+</span><span class=lnt id=hl-8-6><a class=lnlinks href=#hl-8-6> 6</a>
+</span><span class=lnt id=hl-8-7><a class=lnlinks href=#hl-8-7> 7</a>
+</span><span class=lnt id=hl-8-8><a class=lnlinks href=#hl-8-8> 8</a>
+</span><span class=lnt id=hl-8-9><a class=lnlinks href=#hl-8-9> 9</a>
+</span><span class=lnt id=hl-8-10><a class=lnlinks href=#hl-8-10>10</a>
+</span><span class=lnt id=hl-8-11><a class=lnlinks href=#hl-8-11>11</a>
+</span><span class=lnt id=hl-8-12><a class=lnlinks href=#hl-8-12>12</a>
+</span><span class=lnt id=hl-8-13><a class=lnlinks href=#hl-8-13>13</a>
+</span><span class=lnt id=hl-8-14><a class=lnlinks href=#hl-8-14>14</a>
+</span><span class=lnt id=hl-8-15><a class=lnlinks href=#hl-8-15>15</a>
+</span><span class=lnt id=hl-8-16><a class=lnlinks href=#hl-8-16>16</a>
+</span><span class=lnt id=hl-8-17><a class=lnlinks href=#hl-8-17>17</a>
+</span><span class=lnt id=hl-8-18><a class=lnlinks href=#hl-8-18>18</a>
+</span><span class=lnt id=hl-8-19><a class=lnlinks href=#hl-8-19>19</a>
+</span><span class=lnt id=hl-8-20><a class=lnlinks href=#hl-8-20>20</a>
+</span><span class=lnt id=hl-8-21><a class=lnlinks href=#hl-8-21>21</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-caddyfile data-lang=caddyfile><span class=line><span class=cl><span class=p>{</span><span class=c1>
+</span></span></span><span class=line><span class=cl><span class=c1>    # 전역 로깅 설정
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>log</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>output</span> <span class=s>file</span> <span class=s>/var/log/caddy/global.log</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>roll_size</span> <span class=s>10mb</span>
+</span></span><span class=line><span class=cl>            <span class=k>roll_keep</span> <span class=mi>5</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=k>format</span> <span class=s>json</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span><span class=c1>
+</span></span></span><span class=line><span class=cl><span class=c1>    
+</span></span></span><span class=line><span class=cl><span class=c1>    # 매트릭스 엔드포인트 활성화
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>metrics</span> <span class=n>localhost</span><span class=p>:</span><span class=mi>2019</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=gh>example.com</span> <span class=p>{</span><span class=c1>
+</span></span></span><span class=line><span class=cl><span class=c1>    # 사이트별 로깅
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>log</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>output</span> <span class=s>file</span> <span class=s>/var/log/caddy/example.com.log</span>
+</span></span><span class=line><span class=cl>        <span class=k>format</span> <span class=s>console</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=개발-환경-설정>개발 환경 설정<a hidden class=anchor aria-hidden=true href=#개발-환경-설정>#</a></h4><p>로컬 개발을 위한 Caddy 설정:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-9-1><a class=lnlinks href=#hl-9-1> 1</a>
+</span><span class=lnt id=hl-9-2><a class=lnlinks href=#hl-9-2> 2</a>
+</span><span class=lnt id=hl-9-3><a class=lnlinks href=#hl-9-3> 3</a>
+</span><span class=lnt id=hl-9-4><a class=lnlinks href=#hl-9-4> 4</a>
+</span><span class=lnt id=hl-9-5><a class=lnlinks href=#hl-9-5> 5</a>
+</span><span class=lnt id=hl-9-6><a class=lnlinks href=#hl-9-6> 6</a>
+</span><span class=lnt id=hl-9-7><a class=lnlinks href=#hl-9-7> 7</a>
+</span><span class=lnt id=hl-9-8><a class=lnlinks href=#hl-9-8> 8</a>
+</span><span class=lnt id=hl-9-9><a class=lnlinks href=#hl-9-9> 9</a>
+</span><span class=lnt id=hl-9-10><a class=lnlinks href=#hl-9-10>10</a>
+</span><span class=lnt id=hl-9-11><a class=lnlinks href=#hl-9-11>11</a>
+</span><span class=lnt id=hl-9-12><a class=lnlinks href=#hl-9-12>12</a>
+</span><span class=lnt id=hl-9-13><a class=lnlinks href=#hl-9-13>13</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-caddyfile data-lang=caddyfile><span class=line><span class=cl><span class=gh>localhost:8080</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>root</span> <span class=nd>*</span> <span class=s>/path/to/project</span>
+</span></span><span class=line><span class=cl>    <span class=k>file_server</span>
+</span></span><span class=line><span class=cl>    <span class=k>encode</span> <span class=s>gzip</span><span class=c1>
+</span></span></span><span class=line><span class=cl><span class=c1>    
+</span></span></span><span class=line><span class=cl><span class=c1>    # 라이브 리로드 설정
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>handle</span> <span class=nd>/.live-reload</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>reverse_proxy</span> <span class=n>localhost</span><span class=p>:</span><span class=mi>35729</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span><span class=c1>
+</span></span></span><span class=line><span class=cl><span class=c1>    
+</span></span></span><span class=line><span class=cl><span class=c1>    # PHP 개발 서버
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>php_fastcgi</span> <span class=n>127.0.0.1</span><span class=p>:</span><span class=mi>9000</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=문제-해결과-디버깅>문제 해결과 디버깅<a hidden class=anchor aria-hidden=true href=#문제-해결과-디버깅>#</a></h4><p>Caddy 서버의 문제를 해결하기 위한 명령어들:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-10-1><a class=lnlinks href=#hl-10-1> 1</a>
+</span><span class=lnt id=hl-10-2><a class=lnlinks href=#hl-10-2> 2</a>
+</span><span class=lnt id=hl-10-3><a class=lnlinks href=#hl-10-3> 3</a>
+</span><span class=lnt id=hl-10-4><a class=lnlinks href=#hl-10-4> 4</a>
+</span><span class=lnt id=hl-10-5><a class=lnlinks href=#hl-10-5> 5</a>
+</span><span class=lnt id=hl-10-6><a class=lnlinks href=#hl-10-6> 6</a>
+</span><span class=lnt id=hl-10-7><a class=lnlinks href=#hl-10-7> 7</a>
+</span><span class=lnt id=hl-10-8><a class=lnlinks href=#hl-10-8> 8</a>
+</span><span class=lnt id=hl-10-9><a class=lnlinks href=#hl-10-9> 9</a>
+</span><span class=lnt id=hl-10-10><a class=lnlinks href=#hl-10-10>10</a>
+</span><span class=lnt id=hl-10-11><a class=lnlinks href=#hl-10-11>11</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 설정 유효성 검사</span>
+</span></span><span class=line><span class=cl>caddy validate
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 설정 다시 로드</span>
+</span></span><span class=line><span class=cl>caddy reload
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 상태 확인</span>
+</span></span><span class=line><span class=cl>caddy status
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 디버그 모드로 시작</span>
+</span></span><span class=line><span class=cl>caddy run --debug
+</span></span></code></pre></td></tr></table></div></div><hr><h2 id=참고-및-출처>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처>#</a></h2></div></main><footer class=footer><span>&copy; 2025 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>

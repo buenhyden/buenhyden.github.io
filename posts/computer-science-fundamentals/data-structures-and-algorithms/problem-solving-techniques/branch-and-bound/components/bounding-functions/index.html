@@ -1,0 +1,428 @@
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>한계 함수(Bounding Functions) | hyunyoun's Blog</title>
+<meta name=keywords content="Data-Structures-and-Algorithms,Problem-Solving-Techniques,Branch-and-Bound,Components,Bounding-Functions"><meta name=description content="한계 함수는 분기한정법의 효율성을 결정짓는 중요한 요소로, 불필요한 탐색을 줄이고 최적해를 빠르게 찾는 데 결정적인 역할을 한다."><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/computer-science-fundamentals/data-structures-and-algorithms/problem-solving-techniques/branch-and-bound/components/bounding-functions/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.8762af4fa9ee176c57f72565b721f234162fc7a9c882a271e0a1f68c4e89fb34.css integrity="sha256-h2KvT6nuF2xX9yVltyHyNBYvx6nIgqJx4KH2jE6J+zQ=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate type=application/rss+xml href=https://buenhyden.github.io/posts/computer-science-fundamentals/data-structures-and-algorithms/problem-solving-techniques/branch-and-bound/components/bounding-functions/index.xml><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/computer-science-fundamentals/data-structures-and-algorithms/problem-solving-techniques/branch-and-bound/components/bounding-functions/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/computer-science-fundamentals/data-structures-and-algorithms/problem-solving-techniques/branch-and-bound/components/bounding-functions/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="한계 함수(Bounding Functions)"><meta property="og:description" content="한계 함수는 분기한정법의 효율성을 결정짓는 중요한 요소로, 불필요한 탐색을 줄이고 최적해를 빠르게 찾는 데 결정적인 역할을 한다."><meta property="og:locale" content="en"><meta property="og:type" content="website"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="한계 함수(Bounding Functions)"><meta name=twitter:description content="한계 함수는 분기한정법의 효율성을 결정짓는 중요한 요소로, 불필요한 탐색을 줄이고 최적해를 빠르게 찾는 데 결정적인 역할을 한다."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"기술 블로그","item":"https://buenhyden.github.io/posts/"},{"@type":"ListItem","position":2,"name":"컴퓨터 과학","item":"https://buenhyden.github.io/posts/computer-science-fundamentals/"},{"@type":"ListItem","position":3,"name":"Data Structures and Algorithms","item":"https://buenhyden.github.io/posts/computer-science-fundamentals/data-structures-and-algorithms/"},{"@type":"ListItem","position":4,"name":"Problem Solving Techniques","item":"https://buenhyden.github.io/posts/computer-science-fundamentals/data-structures-and-algorithms/problem-solving-techniques/"},{"@type":"ListItem","position":5,"name":"분기 한정법 (Branch and Bound)","item":"https://buenhyden.github.io/posts/computer-science-fundamentals/data-structures-and-algorithms/problem-solving-techniques/branch-and-bound/"},{"@type":"ListItem","position":6,"name":"Components of Branch and Bound","item":"https://buenhyden.github.io/posts/computer-science-fundamentals/data-structures-and-algorithms/problem-solving-techniques/branch-and-bound/components/"},{"@type":"ListItem","position":7,"name":"한계 함수(Bounding Functions)","item":"https://buenhyden.github.io/posts/computer-science-fundamentals/data-structures-and-algorithms/problem-solving-techniques/branch-and-bound/components/bounding-functions/"}]}</script></head><body class=list id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><header class=page-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/>기술 블로그</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/computer-science-fundamentals/>컴퓨터 과학</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/computer-science-fundamentals/data-structures-and-algorithms/>Data Structures and Algorithms</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/computer-science-fundamentals/data-structures-and-algorithms/problem-solving-techniques/>Problem Solving Techniques</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/computer-science-fundamentals/data-structures-and-algorithms/problem-solving-techniques/branch-and-bound/>분기 한정법 (Branch and Bound)</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/computer-science-fundamentals/data-structures-and-algorithms/problem-solving-techniques/branch-and-bound/components/>Components of Branch and Bound</a></div><h1>한계 함수(Bounding Functions)</h1><div class=post-description>한계 함수는 분기한정법의 효율성을 결정짓는 중요한 요소로, 불필요한 탐색을 줄이고 최적해를 빠르게 찾는 데 결정적인 역할을 한다.</div></header><div class=post-content><h2 id=한계-함수bounding-functions>한계 함수(Bounding Functions)<a hidden class=anchor aria-hidden=true href=#한계-함수bounding-functions>#</a></h2><p>Branch and Bound(분기한정법)은 조합 최적화 문제를 해결하기 위한 강력한 알고리즘 패러다임으로, 이 알고리즘의 핵심 요소 중 하나가 바로 &lsquo;한계 함수(Bounding Functions)&lsquo;이다.<br>한계 함수는 분기한정법의 효율성을 결정짓는 중요한 요소로, 불필요한 탐색을 줄이고 최적해를 빠르게 찾는 데 결정적인 역할을 한다.</p><p>한계 함수(Bounding Functions)는 Branch and Bound 알고리즘의 핵심 요소로, 불필요한 해공간 탐색을 줄이고 최적해를 효율적으로 찾는 데 중요한 역할을 한다. 효과적인 한계 함수는 정확성, 강도, 계산 효율성, 단조성 등의 특성을 가져야 한다.</p><p>효과적인 한계 함수를 설계하고 구현하기 위해서는 문제의 구조를 깊이 이해하고, 적절한 완화 기법을 선택하며, 계산 효율성과 한계 강도 사이의 균형을 유지하는 것이 중요하다. 또한, 최신 기술 발전(기계 학습, 병렬 컴퓨팅 등)을 활용하여 한계 함수의 성능을 향상시킬 수 있다.</p><p>Branch and Bound 알고리즘에서 한계 함수는 분기 전략, 노드 선택 전략과 함께 종합적으로 고려되어야 하며, 이러한 요소들이 효과적으로 결합될 때 복잡한 조합 최적화 문제를 효율적으로 해결할 수 있다.</p><h3 id=한계-함수bounding-functions의-기본-개념>한계 함수(Bounding Functions)의 기본 개념<a hidden class=anchor aria-hidden=true href=#한계-함수bounding-functions의-기본-개념>#</a></h3><p>한계 함수는 부분 문제의 해공간에서 얻을 수 있는 최적해의 범위(상한 또는 하한)를 추정하는 함수이다.<br>이 추정값을 통해 현재 탐색 중인 부분 문제가 최적해를 포함할 가능성이 있는지 여부를 판단한다.</p><p>한계 함수는 다음과 같은 두 가지 유형으로 나눌 수 있다:</p><ol><li><strong>하한 함수(Lower Bound)</strong>: 최대화 문제에서, 특정 부분 문제의 최적해가 가질 수 있는 최소 값을 추정한다.</li><li><strong>상한 함수(Upper Bound)</strong>: 최소화 문제에서, 특정 부분 문제의 최적해가 가질 수 있는 최대 값을 추정한다.</li></ol><p>일반적으로 최소화 문제에서는 하한 함수를, 최대화 문제에서는 상한 함수를 사용한다.</p><h3 id=좋은-한계-함수의-특성>좋은 한계 함수의 특성<a hidden class=anchor aria-hidden=true href=#좋은-한계-함수의-특성>#</a></h3><p>효과적인 한계 함수는 다음과 같은 특성을 가져야 한다:</p><ol><li><strong>정확성(Validity)</strong>: 한계 함수는 실제 최적해보다 낙관적이어야 한다. 즉, 최소화 문제에서 하한 함수는 실제 최적값보다 작거나 같아야 한다.</li><li><strong>강도(Strength)</strong>: 한계 값이 실제 최적값에 가까울수록 더 강력한 한계 함수이다. 강한 한계 함수는 더 많은 가지치기(pruning)를 가능하게 한다.</li><li><strong>계산 효율성(Computational Efficiency)</strong>: 한계 함수 계산이 너무 복잡하면 전체 알고리즘의 성능이 저하될 수 있습니다. 빠르게 계산할 수 있으면서도 좋은 한계 값을 제공하는 함수가 이상적이다.</li><li><strong>단조성(Monotonicity)</strong>: 탐색 트리의 깊이가 깊어질수록(즉, 더 많은 변수가 고정될수록) 한계 값이 실제 최적값에 가까워지는 특성을 가져야 한다.</li></ol><h3 id=3-한계-함수의-종류와-계산-방법>3. 한계 함수의 종류와 계산 방법<a hidden class=anchor aria-hidden=true href=#3-한계-함수의-종류와-계산-방법>#</a></h3><h4 id=완화-기반-한계-함수relaxation-based-bounds>완화 기반 한계 함수(Relaxation-based Bounds)<a hidden class=anchor aria-hidden=true href=#완화-기반-한계-함수relaxation-based-bounds>#</a></h4><p>문제의 일부 제약 조건을 완화하여 더 쉽게 풀 수 있는 문제로 변환한다.<br>완화된 문제의 최적해는 원래 문제의 한계 값을 제공한다.</p><h5 id=선형-완화linear-relaxation>선형 완화(Linear Relaxation)<a hidden class=anchor aria-hidden=true href=#선형-완화linear-relaxation>#</a></h5><p>정수 계획법(Integer Programming) 문제에서 정수 제약을 제거하고 선형 계획법(Linear Programming) 문제로 완화한다.</p><p>예를 들어, 정수 변수 x ∈ {0, 1}을 실수 변수 0 ≤ x ≤ 1로 완화합니다. 완화된 LP 문제의 최적값은 원래 IP 문제의 하한(최소화 문제의 경우)을 제공한다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-0-1><a class=lnlinks href=#hl-0-1>1</a>
+</span><span class=lnt id=hl-0-2><a class=lnlinks href=#hl-0-2>2</a>
+</span><span class=lnt id=hl-0-3><a class=lnlinks href=#hl-0-3>3</a>
+</span><span class=lnt id=hl-0-4><a class=lnlinks href=#hl-0-4>4</a>
+</span><span class=lnt id=hl-0-5><a class=lnlinks href=#hl-0-5>5</a>
+</span><span class=lnt id=hl-0-6><a class=lnlinks href=#hl-0-6>6</a>
+</span><span class=lnt id=hl-0-7><a class=lnlinks href=#hl-0-7>7</a>
+</span><span class=lnt id=hl-0-8><a class=lnlinks href=#hl-0-8>8</a>
+</span><span class=lnt id=hl-0-9><a class=lnlinks href=#hl-0-9>9</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>calculate_linear_relaxation_bound</span><span class=p>(</span><span class=n>problem</span><span class=p>,</span> <span class=n>fixed_variables</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 정수 제약을 완화한 LP 문제 생성</span>
+</span></span><span class=line><span class=cl>    <span class=n>relaxed_problem</span> <span class=o>=</span> <span class=n>create_lp_relaxation</span><span class=p>(</span><span class=n>problem</span><span class=p>,</span> <span class=n>fixed_variables</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># LP 문제 해결</span>
+</span></span><span class=line><span class=cl>    <span class=n>relaxed_solution</span> <span class=o>=</span> <span class=n>solve_lp</span><span class=p>(</span><span class=n>relaxed_problem</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 완화된 문제의 최적값 반환</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>relaxed_solution</span><span class=o>.</span><span class=n>objective_value</span>
+</span></span></code></pre></td></tr></table></div></div><h5 id=라그랑지안-완화lagrangian-relaxation>라그랑지안 완화(Lagrangian Relaxation)<a hidden class=anchor aria-hidden=true href=#라그랑지안-완화lagrangian-relaxation>#</a></h5><p>일부 복잡한 제약 조건을 목적 함수에 페널티 항으로 통합하여 문제를 단순화한다.<br>적절한 라그랑지안 승수(Lagrangian multipliers)를 선택하면 원래 문제의 좋은 하한을 얻을 수 있다.</p><p>예를 들어, 최소화 문제 min cx subject to Ax ≤ b, x ∈ X에서, Ax ≤ b 제약을 완화하여 라그랑지안 함수 L(x, λ) = cx + λ(Ax - b)를 만듭니다. λ ≥ 0일 때, min L(x, λ)는 원래 문제의 하한을 제공한다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-1-1><a class=lnlinks href=#hl-1-1>1</a>
+</span><span class=lnt id=hl-1-2><a class=lnlinks href=#hl-1-2>2</a>
+</span><span class=lnt id=hl-1-3><a class=lnlinks href=#hl-1-3>3</a>
+</span><span class=lnt id=hl-1-4><a class=lnlinks href=#hl-1-4>4</a>
+</span><span class=lnt id=hl-1-5><a class=lnlinks href=#hl-1-5>5</a>
+</span><span class=lnt id=hl-1-6><a class=lnlinks href=#hl-1-6>6</a>
+</span><span class=lnt id=hl-1-7><a class=lnlinks href=#hl-1-7>7</a>
+</span><span class=lnt id=hl-1-8><a class=lnlinks href=#hl-1-8>8</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>calculate_lagrangian_bound</span><span class=p>(</span><span class=n>problem</span><span class=p>,</span> <span class=n>fixed_variables</span><span class=p>,</span> <span class=n>multipliers</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 라그랑지안 문제 생성</span>
+</span></span><span class=line><span class=cl>    <span class=n>lagrangian_problem</span> <span class=o>=</span> <span class=n>create_lagrangian_relaxation</span><span class=p>(</span><span class=n>problem</span><span class=p>,</span> <span class=n>fixed_variables</span><span class=p>,</span> <span class=n>multipliers</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 라그랑지안 문제 해결</span>
+</span></span><span class=line><span class=cl>    <span class=n>lagrangian_solution</span> <span class=o>=</span> <span class=n>solve_lagrangian</span><span class=p>(</span><span class=n>lagrangian_problem</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>lagrangian_solution</span><span class=o>.</span><span class=n>objective_value</span>
+</span></span></code></pre></td></tr></table></div></div><h5 id=네트워크-완화network-relaxation>네트워크 완화(Network Relaxation)<a hidden class=anchor aria-hidden=true href=#네트워크-완화network-relaxation>#</a></h5><p>그래프 기반 문제에서, 원래 그래프의 일부 특성만 유지하는 단순화된 네트워크 문제로 완화한다.<br>예를 들어, TSP(외판원 문제)에서 최소 신장 트리(MST) 또는 최소 가중치 매칭 문제로 완화할 수 있다.</p><p>TSP에서 MST 기반 하한 예시:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-2-1><a class=lnlinks href=#hl-2-1> 1</a>
+</span><span class=lnt id=hl-2-2><a class=lnlinks href=#hl-2-2> 2</a>
+</span><span class=lnt id=hl-2-3><a class=lnlinks href=#hl-2-3> 3</a>
+</span><span class=lnt id=hl-2-4><a class=lnlinks href=#hl-2-4> 4</a>
+</span><span class=lnt id=hl-2-5><a class=lnlinks href=#hl-2-5> 5</a>
+</span><span class=lnt id=hl-2-6><a class=lnlinks href=#hl-2-6> 6</a>
+</span><span class=lnt id=hl-2-7><a class=lnlinks href=#hl-2-7> 7</a>
+</span><span class=lnt id=hl-2-8><a class=lnlinks href=#hl-2-8> 8</a>
+</span><span class=lnt id=hl-2-9><a class=lnlinks href=#hl-2-9> 9</a>
+</span><span class=lnt id=hl-2-10><a class=lnlinks href=#hl-2-10>10</a>
+</span><span class=lnt id=hl-2-11><a class=lnlinks href=#hl-2-11>11</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>calculate_mst_bound_for_tsp</span><span class=p>(</span><span class=n>graph</span><span class=p>,</span> <span class=n>fixed_edges</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 고정된 간선을 포함하는 그래프 생성</span>
+</span></span><span class=line><span class=cl>    <span class=n>modified_graph</span> <span class=o>=</span> <span class=n>create_graph_with_fixed_edges</span><span class=p>(</span><span class=n>graph</span><span class=p>,</span> <span class=n>fixed_edges</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 최소 신장 트리 계산</span>
+</span></span><span class=line><span class=cl>    <span class=n>mst_weight</span> <span class=o>=</span> <span class=n>calculate_mst</span><span class=p>(</span><span class=n>modified_graph</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 필요시 추가 조정 (예: 차수 제약 위반에 대한 페널티)</span>
+</span></span><span class=line><span class=cl>    <span class=n>adjustment</span> <span class=o>=</span> <span class=n>calculate_degree_penalty</span><span class=p>(</span><span class=n>modified_graph</span><span class=p>,</span> <span class=n>mst_weight</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>mst_weight</span> <span class=o>+</span> <span class=n>adjustment</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=휴리스틱-기반-한계-함수heuristic-based-bounds>휴리스틱 기반 한계 함수(Heuristic-based Bounds)<a hidden class=anchor aria-hidden=true href=#휴리스틱-기반-한계-함수heuristic-based-bounds>#</a></h4><p>실행 가능한 해결책을 빠르게 구성하는 휴리스틱 알고리즘을 사용하여 상한(최소화 문제의 경우)을 계산한다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-3-1><a class=lnlinks href=#hl-3-1>1</a>
+</span><span class=lnt id=hl-3-2><a class=lnlinks href=#hl-3-2>2</a>
+</span><span class=lnt id=hl-3-3><a class=lnlinks href=#hl-3-3>3</a>
+</span><span class=lnt id=hl-3-4><a class=lnlinks href=#hl-3-4>4</a>
+</span><span class=lnt id=hl-3-5><a class=lnlinks href=#hl-3-5>5</a>
+</span><span class=lnt id=hl-3-6><a class=lnlinks href=#hl-3-6>6</a>
+</span><span class=lnt id=hl-3-7><a class=lnlinks href=#hl-3-7>7</a>
+</span><span class=lnt id=hl-3-8><a class=lnlinks href=#hl-3-8>8</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>calculate_heuristic_upper_bound</span><span class=p>(</span><span class=n>problem</span><span class=p>,</span> <span class=n>partial_solution</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 부분 해결책을 완성하는 휴리스틱 알고리즘 적용</span>
+</span></span><span class=line><span class=cl>    <span class=n>complete_solution</span> <span class=o>=</span> <span class=n>apply_completion_heuristic</span><span class=p>(</span><span class=n>problem</span><span class=p>,</span> <span class=n>partial_solution</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 완성된 해결책의 목적 함수 값 계산</span>
+</span></span><span class=line><span class=cl>    <span class=n>objective_value</span> <span class=o>=</span> <span class=n>evaluate_solution</span><span class=p>(</span><span class=n>problem</span><span class=p>,</span> <span class=n>complete_solution</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>objective_value</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=문제-특화-한계-함수problem-specific-bounds>문제 특화 한계 함수(Problem-specific Bounds)<a hidden class=anchor aria-hidden=true href=#문제-특화-한계-함수problem-specific-bounds>#</a></h4><p>특정 문제의 구조와 특성을 활용한 맞춤형 한계 함수를 개발한다.</p><h5 id=배낭-문제knapsack-problem의-한계-함수>배낭 문제(Knapsack Problem)의 한계 함수<a hidden class=anchor aria-hidden=true href=#배낭-문제knapsack-problem의-한계-함수>#</a></h5><p>분수 배낭(Fractional Knapsack) 문제를 해결하거나 항목의 가치 밀도(value/weight)를 기준으로 정렬하여 한계 값을 계산한다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-4-1><a class=lnlinks href=#hl-4-1> 1</a>
+</span><span class=lnt id=hl-4-2><a class=lnlinks href=#hl-4-2> 2</a>
+</span><span class=lnt id=hl-4-3><a class=lnlinks href=#hl-4-3> 3</a>
+</span><span class=lnt id=hl-4-4><a class=lnlinks href=#hl-4-4> 4</a>
+</span><span class=lnt id=hl-4-5><a class=lnlinks href=#hl-4-5> 5</a>
+</span><span class=lnt id=hl-4-6><a class=lnlinks href=#hl-4-6> 6</a>
+</span><span class=lnt id=hl-4-7><a class=lnlinks href=#hl-4-7> 7</a>
+</span><span class=lnt id=hl-4-8><a class=lnlinks href=#hl-4-8> 8</a>
+</span><span class=lnt id=hl-4-9><a class=lnlinks href=#hl-4-9> 9</a>
+</span><span class=lnt id=hl-4-10><a class=lnlinks href=#hl-4-10>10</a>
+</span><span class=lnt id=hl-4-11><a class=lnlinks href=#hl-4-11>11</a>
+</span><span class=lnt id=hl-4-12><a class=lnlinks href=#hl-4-12>12</a>
+</span><span class=lnt id=hl-4-13><a class=lnlinks href=#hl-4-13>13</a>
+</span><span class=lnt id=hl-4-14><a class=lnlinks href=#hl-4-14>14</a>
+</span><span class=lnt id=hl-4-15><a class=lnlinks href=#hl-4-15>15</a>
+</span><span class=lnt id=hl-4-16><a class=lnlinks href=#hl-4-16>16</a>
+</span><span class=lnt id=hl-4-17><a class=lnlinks href=#hl-4-17>17</a>
+</span><span class=lnt id=hl-4-18><a class=lnlinks href=#hl-4-18>18</a>
+</span><span class=lnt id=hl-4-19><a class=lnlinks href=#hl-4-19>19</a>
+</span><span class=lnt id=hl-4-20><a class=lnlinks href=#hl-4-20>20</a>
+</span><span class=lnt id=hl-4-21><a class=lnlinks href=#hl-4-21>21</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>calculate_knapsack_bound</span><span class=p>(</span><span class=n>items</span><span class=p>,</span> <span class=n>capacity</span><span class=p>,</span> <span class=n>selected_items</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>remaining_capacity</span> <span class=o>=</span> <span class=n>capacity</span> <span class=o>-</span> <span class=nb>sum</span><span class=p>(</span><span class=n>items</span><span class=p>[</span><span class=n>i</span><span class=p>]</span><span class=o>.</span><span class=n>weight</span> <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=n>selected_items</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>current_value</span> <span class=o>=</span> <span class=nb>sum</span><span class=p>(</span><span class=n>items</span><span class=p>[</span><span class=n>i</span><span class=p>]</span><span class=o>.</span><span class=n>value</span> <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=n>selected_items</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 선택되지 않은 항목을 가치 밀도 기준으로 정렬</span>
+</span></span><span class=line><span class=cl>    <span class=n>unselected_items</span> <span class=o>=</span> <span class=p>[</span><span class=n>i</span> <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=nb>len</span><span class=p>(</span><span class=n>items</span><span class=p>))</span> <span class=k>if</span> <span class=n>i</span> <span class=ow>not</span> <span class=ow>in</span> <span class=n>selected_items</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=n>sorted_items</span> <span class=o>=</span> <span class=nb>sorted</span><span class=p>(</span><span class=n>unselected_items</span><span class=p>,</span> 
+</span></span><span class=line><span class=cl>                          <span class=n>key</span><span class=o>=</span><span class=k>lambda</span> <span class=n>i</span><span class=p>:</span> <span class=n>items</span><span class=p>[</span><span class=n>i</span><span class=p>]</span><span class=o>.</span><span class=n>value</span> <span class=o>/</span> <span class=n>items</span><span class=p>[</span><span class=n>i</span><span class=p>]</span><span class=o>.</span><span class=n>weight</span><span class=p>,</span> 
+</span></span><span class=line><span class=cl>                          <span class=n>reverse</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 분수 배낭 문제 해결</span>
+</span></span><span class=line><span class=cl>    <span class=n>bound</span> <span class=o>=</span> <span class=n>current_value</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=n>sorted_items</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>items</span><span class=p>[</span><span class=n>i</span><span class=p>]</span><span class=o>.</span><span class=n>weight</span> <span class=o>&lt;=</span> <span class=n>remaining_capacity</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>bound</span> <span class=o>+=</span> <span class=n>items</span><span class=p>[</span><span class=n>i</span><span class=p>]</span><span class=o>.</span><span class=n>value</span>
+</span></span><span class=line><span class=cl>            <span class=n>remaining_capacity</span> <span class=o>-=</span> <span class=n>items</span><span class=p>[</span><span class=n>i</span><span class=p>]</span><span class=o>.</span><span class=n>weight</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>bound</span> <span class=o>+=</span> <span class=n>items</span><span class=p>[</span><span class=n>i</span><span class=p>]</span><span class=o>.</span><span class=n>value</span> <span class=o>*</span> <span class=p>(</span><span class=n>remaining_capacity</span> <span class=o>/</span> <span class=n>items</span><span class=p>[</span><span class=n>i</span><span class=p>]</span><span class=o>.</span><span class=n>weight</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>break</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>bound</span>
+</span></span></code></pre></td></tr></table></div></div><h5 id=332-tsp외판원-문제의-한계-함수>3.3.2 TSP(외판원 문제)의 한계 함수<a hidden class=anchor aria-hidden=true href=#332-tsp외판원-문제의-한계-함수>#</a></h5><p>최소 신장 트리(MST), 1-트리, 할당 문제 등을 활용하여 TSP의 하한을 계산한다.</p><p>1-트리 기반 하한 예시:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-5-1><a class=lnlinks href=#hl-5-1> 1</a>
+</span><span class=lnt id=hl-5-2><a class=lnlinks href=#hl-5-2> 2</a>
+</span><span class=lnt id=hl-5-3><a class=lnlinks href=#hl-5-3> 3</a>
+</span><span class=lnt id=hl-5-4><a class=lnlinks href=#hl-5-4> 4</a>
+</span><span class=lnt id=hl-5-5><a class=lnlinks href=#hl-5-5> 5</a>
+</span><span class=lnt id=hl-5-6><a class=lnlinks href=#hl-5-6> 6</a>
+</span><span class=lnt id=hl-5-7><a class=lnlinks href=#hl-5-7> 7</a>
+</span><span class=lnt id=hl-5-8><a class=lnlinks href=#hl-5-8> 8</a>
+</span><span class=lnt id=hl-5-9><a class=lnlinks href=#hl-5-9> 9</a>
+</span><span class=lnt id=hl-5-10><a class=lnlinks href=#hl-5-10>10</a>
+</span><span class=lnt id=hl-5-11><a class=lnlinks href=#hl-5-11>11</a>
+</span><span class=lnt id=hl-5-12><a class=lnlinks href=#hl-5-12>12</a>
+</span><span class=lnt id=hl-5-13><a class=lnlinks href=#hl-5-13>13</a>
+</span><span class=lnt id=hl-5-14><a class=lnlinks href=#hl-5-14>14</a>
+</span><span class=lnt id=hl-5-15><a class=lnlinks href=#hl-5-15>15</a>
+</span><span class=lnt id=hl-5-16><a class=lnlinks href=#hl-5-16>16</a>
+</span><span class=lnt id=hl-5-17><a class=lnlinks href=#hl-5-17>17</a>
+</span><span class=lnt id=hl-5-18><a class=lnlinks href=#hl-5-18>18</a>
+</span><span class=lnt id=hl-5-19><a class=lnlinks href=#hl-5-19>19</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>calculate_one_tree_bound</span><span class=p>(</span><span class=n>graph</span><span class=p>,</span> <span class=n>fixed_edges</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>n</span> <span class=o>=</span> <span class=nb>len</span><span class=p>(</span><span class=n>graph</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 노드 1을 제외한 최소 신장 트리 계산</span>
+</span></span><span class=line><span class=cl>    <span class=n>mst_without_node_1</span> <span class=o>=</span> <span class=n>calculate_mst_without_node</span><span class=p>(</span><span class=n>graph</span><span class=p>,</span> <span class=mi>1</span><span class=p>,</span> <span class=n>fixed_edges</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 노드 1에 연결된 두 개의 최소 간선 찾기</span>
+</span></span><span class=line><span class=cl>    <span class=n>edges_to_node_1</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=n>n</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>i</span> <span class=o>!=</span> <span class=mi>1</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>edges_to_node_1</span><span class=o>.</span><span class=n>append</span><span class=p>((</span><span class=n>graph</span><span class=p>[</span><span class=mi>1</span><span class=p>][</span><span class=n>i</span><span class=p>],</span> <span class=n>i</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=n>edges_to_node_1</span><span class=o>.</span><span class=n>sort</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>min_edges_weight</span> <span class=o>=</span> <span class=n>edges_to_node_1</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=mi>0</span><span class=p>]</span> <span class=o>+</span> <span class=n>edges_to_node_1</span><span class=p>[</span><span class=mi>1</span><span class=p>][</span><span class=mi>0</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 1-트리 가중치 = MST(without node 1) + 두 개의 최소 간선</span>
+</span></span><span class=line><span class=cl>    <span class=n>one_tree_weight</span> <span class=o>=</span> <span class=n>mst_without_node_1</span> <span class=o>+</span> <span class=n>min_edges_weight</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>one_tree_weight</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=한계-함수의-개선-기법>한계 함수의 개선 기법<a hidden class=anchor aria-hidden=true href=#한계-함수의-개선-기법>#</a></h3><h4 id=제약-전파constraint-propagation>제약 전파(Constraint Propagation)<a hidden class=anchor aria-hidden=true href=#제약-전파constraint-propagation>#</a></h4><p>현재 고정된 변수들의 값을 고려하여 다른 변수들의 가능한 값 범위를 축소한다.<br>이를 통해 더 강력한 한계 값을 얻을 수 있다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-6-1><a class=lnlinks href=#hl-6-1> 1</a>
+</span><span class=lnt id=hl-6-2><a class=lnlinks href=#hl-6-2> 2</a>
+</span><span class=lnt id=hl-6-3><a class=lnlinks href=#hl-6-3> 3</a>
+</span><span class=lnt id=hl-6-4><a class=lnlinks href=#hl-6-4> 4</a>
+</span><span class=lnt id=hl-6-5><a class=lnlinks href=#hl-6-5> 5</a>
+</span><span class=lnt id=hl-6-6><a class=lnlinks href=#hl-6-6> 6</a>
+</span><span class=lnt id=hl-6-7><a class=lnlinks href=#hl-6-7> 7</a>
+</span><span class=lnt id=hl-6-8><a class=lnlinks href=#hl-6-8> 8</a>
+</span><span class=lnt id=hl-6-9><a class=lnlinks href=#hl-6-9> 9</a>
+</span><span class=lnt id=hl-6-10><a class=lnlinks href=#hl-6-10>10</a>
+</span><span class=lnt id=hl-6-11><a class=lnlinks href=#hl-6-11>11</a>
+</span><span class=lnt id=hl-6-12><a class=lnlinks href=#hl-6-12>12</a>
+</span><span class=lnt id=hl-6-13><a class=lnlinks href=#hl-6-13>13</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>propagate_constraints</span><span class=p>(</span><span class=n>problem</span><span class=p>,</span> <span class=n>fixed_variables</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>domains</span> <span class=o>=</span> <span class=n>initialize_domains</span><span class=p>(</span><span class=n>problem</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 고정된 변수에 따른 제약 전파</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>var</span><span class=p>,</span> <span class=n>value</span> <span class=ow>in</span> <span class=n>fixed_variables</span><span class=o>.</span><span class=n>items</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>        <span class=n>domains</span><span class=p>[</span><span class=n>var</span><span class=p>]</span> <span class=o>=</span> <span class=p>[</span><span class=n>value</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 연결된 변수들의 도메인 갱신</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>constraint</span> <span class=ow>in</span> <span class=n>problem</span><span class=o>.</span><span class=n>constraints</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=n>var</span> <span class=ow>in</span> <span class=n>constraint</span><span class=o>.</span><span class=n>variables</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=n>update_domains</span><span class=p>(</span><span class=n>domains</span><span class=p>,</span> <span class=n>constraint</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>domains</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=절단-평면cutting-planes>절단 평면(Cutting Planes)<a hidden class=anchor aria-hidden=true href=#절단-평면cutting-planes>#</a></h4><p>선형 완화 문제에 추가적인 제약 조건(절단 평면)을 도입하여 완화 갭(relaxation gap)을 줄인다. 이는 정수 계획법 문제의 한계 함수를 개선하는 데 효과적이다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-7-1><a class=lnlinks href=#hl-7-1>1</a>
+</span><span class=lnt id=hl-7-2><a class=lnlinks href=#hl-7-2>2</a>
+</span><span class=lnt id=hl-7-3><a class=lnlinks href=#hl-7-3>3</a>
+</span><span class=lnt id=hl-7-4><a class=lnlinks href=#hl-7-4>4</a>
+</span><span class=lnt id=hl-7-5><a class=lnlinks href=#hl-7-5>5</a>
+</span><span class=lnt id=hl-7-6><a class=lnlinks href=#hl-7-6>6</a>
+</span><span class=lnt id=hl-7-7><a class=lnlinks href=#hl-7-7>7</a>
+</span><span class=lnt id=hl-7-8><a class=lnlinks href=#hl-7-8>8</a>
+</span><span class=lnt id=hl-7-9><a class=lnlinks href=#hl-7-9>9</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>add_cutting_planes</span><span class=p>(</span><span class=n>relaxed_problem</span><span class=p>,</span> <span class=n>relaxed_solution</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 절단 평면 생성</span>
+</span></span><span class=line><span class=cl>    <span class=n>cutting_planes</span> <span class=o>=</span> <span class=n>generate_cutting_planes</span><span class=p>(</span><span class=n>relaxed_problem</span><span class=p>,</span> <span class=n>relaxed_solution</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 절단 평면 추가</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>plane</span> <span class=ow>in</span> <span class=n>cutting_planes</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>relaxed_problem</span><span class=o>.</span><span class=n>add_constraint</span><span class=p>(</span><span class=n>plane</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>relaxed_problem</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=변수-고정variable-fixing>변수 고정(Variable Fixing)<a hidden class=anchor aria-hidden=true href=#변수-고정variable-fixing>#</a></h4><p>한계 함수 계산 과정에서 일부 변수가 특정 값을 가져야 한다는 것이 확실해지면, 이 변수를 고정하여 문제를 단순화한다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-8-1><a class=lnlinks href=#hl-8-1>1</a>
+</span><span class=lnt id=hl-8-2><a class=lnlinks href=#hl-8-2>2</a>
+</span><span class=lnt id=hl-8-3><a class=lnlinks href=#hl-8-3>3</a>
+</span><span class=lnt id=hl-8-4><a class=lnlinks href=#hl-8-4>4</a>
+</span><span class=lnt id=hl-8-5><a class=lnlinks href=#hl-8-5>5</a>
+</span><span class=lnt id=hl-8-6><a class=lnlinks href=#hl-8-6>6</a>
+</span><span class=lnt id=hl-8-7><a class=lnlinks href=#hl-8-7>7</a>
+</span><span class=lnt id=hl-8-8><a class=lnlinks href=#hl-8-8>8</a>
+</span><span class=lnt id=hl-8-9><a class=lnlinks href=#hl-8-9>9</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>fix_variables</span><span class=p>(</span><span class=n>problem</span><span class=p>,</span> <span class=n>relaxed_solution</span><span class=p>,</span> <span class=n>current_bound</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>fixed_variables</span> <span class=o>=</span> <span class=p>{}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>var</span> <span class=ow>in</span> <span class=n>problem</span><span class=o>.</span><span class=n>variables</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 약한 가교 조건(Weak Bridging Condition) 확인</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>check_fixing_condition</span><span class=p>(</span><span class=n>problem</span><span class=p>,</span> <span class=n>var</span><span class=p>,</span> <span class=n>relaxed_solution</span><span class=p>,</span> <span class=n>current_bound</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=n>fixed_variables</span><span class=p>[</span><span class=n>var</span><span class=p>]</span> <span class=o>=</span> <span class=n>get_fixed_value</span><span class=p>(</span><span class=n>var</span><span class=p>,</span> <span class=n>relaxed_solution</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>fixed_variables</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=한계-함수와-branch-and-bound-알고리즘-통합>한계 함수와 Branch and Bound 알고리즘 통합<a hidden class=anchor aria-hidden=true href=#한계-함수와-branch-and-bound-알고리즘-통합>#</a></h3><h4 id=분기한정법-알고리즘의-기본-구조>분기한정법 알고리즘의 기본 구조<a hidden class=anchor aria-hidden=true href=#분기한정법-알고리즘의-기본-구조>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-9-1><a class=lnlinks href=#hl-9-1> 1</a>
+</span><span class=lnt id=hl-9-2><a class=lnlinks href=#hl-9-2> 2</a>
+</span><span class=lnt id=hl-9-3><a class=lnlinks href=#hl-9-3> 3</a>
+</span><span class=lnt id=hl-9-4><a class=lnlinks href=#hl-9-4> 4</a>
+</span><span class=lnt id=hl-9-5><a class=lnlinks href=#hl-9-5> 5</a>
+</span><span class=lnt id=hl-9-6><a class=lnlinks href=#hl-9-6> 6</a>
+</span><span class=lnt id=hl-9-7><a class=lnlinks href=#hl-9-7> 7</a>
+</span><span class=lnt id=hl-9-8><a class=lnlinks href=#hl-9-8> 8</a>
+</span><span class=lnt id=hl-9-9><a class=lnlinks href=#hl-9-9> 9</a>
+</span><span class=lnt id=hl-9-10><a class=lnlinks href=#hl-9-10>10</a>
+</span><span class=lnt id=hl-9-11><a class=lnlinks href=#hl-9-11>11</a>
+</span><span class=lnt id=hl-9-12><a class=lnlinks href=#hl-9-12>12</a>
+</span><span class=lnt id=hl-9-13><a class=lnlinks href=#hl-9-13>13</a>
+</span><span class=lnt id=hl-9-14><a class=lnlinks href=#hl-9-14>14</a>
+</span><span class=lnt id=hl-9-15><a class=lnlinks href=#hl-9-15>15</a>
+</span><span class=lnt id=hl-9-16><a class=lnlinks href=#hl-9-16>16</a>
+</span><span class=lnt id=hl-9-17><a class=lnlinks href=#hl-9-17>17</a>
+</span><span class=lnt id=hl-9-18><a class=lnlinks href=#hl-9-18>18</a>
+</span><span class=lnt id=hl-9-19><a class=lnlinks href=#hl-9-19>19</a>
+</span><span class=lnt id=hl-9-20><a class=lnlinks href=#hl-9-20>20</a>
+</span><span class=lnt id=hl-9-21><a class=lnlinks href=#hl-9-21>21</a>
+</span><span class=lnt id=hl-9-22><a class=lnlinks href=#hl-9-22>22</a>
+</span><span class=lnt id=hl-9-23><a class=lnlinks href=#hl-9-23>23</a>
+</span><span class=lnt id=hl-9-24><a class=lnlinks href=#hl-9-24>24</a>
+</span><span class=lnt id=hl-9-25><a class=lnlinks href=#hl-9-25>25</a>
+</span><span class=lnt id=hl-9-26><a class=lnlinks href=#hl-9-26>26</a>
+</span><span class=lnt id=hl-9-27><a class=lnlinks href=#hl-9-27>27</a>
+</span><span class=lnt id=hl-9-28><a class=lnlinks href=#hl-9-28>28</a>
+</span><span class=lnt id=hl-9-29><a class=lnlinks href=#hl-9-29>29</a>
+</span><span class=lnt id=hl-9-30><a class=lnlinks href=#hl-9-30>30</a>
+</span><span class=lnt id=hl-9-31><a class=lnlinks href=#hl-9-31>31</a>
+</span><span class=lnt id=hl-9-32><a class=lnlinks href=#hl-9-32>32</a>
+</span><span class=lnt id=hl-9-33><a class=lnlinks href=#hl-9-33>33</a>
+</span><span class=lnt id=hl-9-34><a class=lnlinks href=#hl-9-34>34</a>
+</span><span class=lnt id=hl-9-35><a class=lnlinks href=#hl-9-35>35</a>
+</span><span class=lnt id=hl-9-36><a class=lnlinks href=#hl-9-36>36</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>branch_and_bound</span><span class=p>(</span><span class=n>problem</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 초기화: 루트 노드 생성</span>
+</span></span><span class=line><span class=cl>    <span class=n>root</span> <span class=o>=</span> <span class=n>create_root_node</span><span class=p>(</span><span class=n>problem</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>queue</span> <span class=o>=</span> <span class=p>[</span><span class=n>root</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=n>best_solution</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>    <span class=n>best_value</span> <span class=o>=</span> <span class=nb>float</span><span class=p>(</span><span class=s1>&#39;inf&#39;</span><span class=p>)</span>  <span class=c1># 최소화 문제 가정</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=n>queue</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 현재 노드 선택 (보통 하한이 가장 낮은 노드)</span>
+</span></span><span class=line><span class=cl>        <span class=n>current</span> <span class=o>=</span> <span class=n>select_node</span><span class=p>(</span><span class=n>queue</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>queue</span><span class=o>.</span><span class=n>remove</span><span class=p>(</span><span class=n>current</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 한계 함수 계산</span>
+</span></span><span class=line><span class=cl>        <span class=n>bound</span> <span class=o>=</span> <span class=n>calculate_bound</span><span class=p>(</span><span class=n>problem</span><span class=p>,</span> <span class=n>current</span><span class=o>.</span><span class=n>fixed_variables</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>current</span><span class=o>.</span><span class=n>bound</span> <span class=o>=</span> <span class=n>bound</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 가지치기(pruning) 조건 확인</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>bound</span> <span class=o>&gt;=</span> <span class=n>best_value</span><span class=p>:</span>  <span class=c1># 최소화 문제의 경우</span>
+</span></span><span class=line><span class=cl>            <span class=k>continue</span>  <span class=c1># 이 노드는 더 좋은 해결책을 제공하지 않음</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 해결책 완성 여부 확인</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>is_complete_solution</span><span class=p>(</span><span class=n>current</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 더 좋은 해결책을 찾았으면 업데이트</span>
+</span></span><span class=line><span class=cl>            <span class=n>solution_value</span> <span class=o>=</span> <span class=n>evaluate_solution</span><span class=p>(</span><span class=n>problem</span><span class=p>,</span> <span class=n>current</span><span class=o>.</span><span class=n>solution</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=n>solution_value</span> <span class=o>&lt;</span> <span class=n>best_value</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=n>best_solution</span> <span class=o>=</span> <span class=n>current</span><span class=o>.</span><span class=n>solution</span>
+</span></span><span class=line><span class=cl>                <span class=n>best_value</span> <span class=o>=</span> <span class=n>solution_value</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 분기(branching): 두 개 이상의 하위 문제 생성</span>
+</span></span><span class=line><span class=cl>            <span class=n>children</span> <span class=o>=</span> <span class=n>branch</span><span class=p>(</span><span class=n>problem</span><span class=p>,</span> <span class=n>current</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=c1># 생성된 하위 문제들을 큐에 추가</span>
+</span></span><span class=line><span class=cl>            <span class=k>for</span> <span class=n>child</span> <span class=ow>in</span> <span class=n>children</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=n>queue</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>child</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>best_solution</span><span class=p>,</span> <span class=n>best_value</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=한계-함수-선택-전략>한계 함수 선택 전략<a hidden class=anchor aria-hidden=true href=#한계-함수-선택-전략>#</a></h4><p>문제 특성에 따라 적절한 한계 함수를 선택하거나 여러 한계 함수를 조합하여 사용한다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-10-1><a class=lnlinks href=#hl-10-1> 1</a>
+</span><span class=lnt id=hl-10-2><a class=lnlinks href=#hl-10-2> 2</a>
+</span><span class=lnt id=hl-10-3><a class=lnlinks href=#hl-10-3> 3</a>
+</span><span class=lnt id=hl-10-4><a class=lnlinks href=#hl-10-4> 4</a>
+</span><span class=lnt id=hl-10-5><a class=lnlinks href=#hl-10-5> 5</a>
+</span><span class=lnt id=hl-10-6><a class=lnlinks href=#hl-10-6> 6</a>
+</span><span class=lnt id=hl-10-7><a class=lnlinks href=#hl-10-7> 7</a>
+</span><span class=lnt id=hl-10-8><a class=lnlinks href=#hl-10-8> 8</a>
+</span><span class=lnt id=hl-10-9><a class=lnlinks href=#hl-10-9> 9</a>
+</span><span class=lnt id=hl-10-10><a class=lnlinks href=#hl-10-10>10</a>
+</span><span class=lnt id=hl-10-11><a class=lnlinks href=#hl-10-11>11</a>
+</span><span class=lnt id=hl-10-12><a class=lnlinks href=#hl-10-12>12</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>calculate_bound</span><span class=p>(</span><span class=n>problem</span><span class=p>,</span> <span class=n>fixed_variables</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>problem_type</span> <span class=o>=</span> <span class=n>identify_problem_type</span><span class=p>(</span><span class=n>problem</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>problem_type</span> <span class=o>==</span> <span class=s2>&#34;KNAPSACK&#34;</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>calculate_knapsack_bound</span><span class=p>(</span><span class=n>problem</span><span class=o>.</span><span class=n>items</span><span class=p>,</span> <span class=n>problem</span><span class=o>.</span><span class=n>capacity</span><span class=p>,</span> <span class=n>fixed_variables</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>elif</span> <span class=n>problem_type</span> <span class=o>==</span> <span class=s2>&#34;TSP&#34;</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>calculate_one_tree_bound</span><span class=p>(</span><span class=n>problem</span><span class=o>.</span><span class=n>graph</span><span class=p>,</span> <span class=n>fixed_variables</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>elif</span> <span class=n>problem_type</span> <span class=o>==</span> <span class=s2>&#34;IP&#34;</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>calculate_linear_relaxation_bound</span><span class=p>(</span><span class=n>problem</span><span class=p>,</span> <span class=n>fixed_variables</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 기본 한계 함수</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>calculate_general_bound</span><span class=p>(</span><span class=n>problem</span><span class=p>,</span> <span class=n>fixed_variables</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=한계-함수의-점진적-계산incremental-calculation>한계 함수의 점진적 계산(Incremental Calculation)<a hidden class=anchor aria-hidden=true href=#한계-함수의-점진적-계산incremental-calculation>#</a></h4><p>부모 노드에서 계산된 정보를 활용하여 자식 노드의 한계 함수를 효율적으로 계산한다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-11-1><a class=lnlinks href=#hl-11-1> 1</a>
+</span><span class=lnt id=hl-11-2><a class=lnlinks href=#hl-11-2> 2</a>
+</span><span class=lnt id=hl-11-3><a class=lnlinks href=#hl-11-3> 3</a>
+</span><span class=lnt id=hl-11-4><a class=lnlinks href=#hl-11-4> 4</a>
+</span><span class=lnt id=hl-11-5><a class=lnlinks href=#hl-11-5> 5</a>
+</span><span class=lnt id=hl-11-6><a class=lnlinks href=#hl-11-6> 6</a>
+</span><span class=lnt id=hl-11-7><a class=lnlinks href=#hl-11-7> 7</a>
+</span><span class=lnt id=hl-11-8><a class=lnlinks href=#hl-11-8> 8</a>
+</span><span class=lnt id=hl-11-9><a class=lnlinks href=#hl-11-9> 9</a>
+</span><span class=lnt id=hl-11-10><a class=lnlinks href=#hl-11-10>10</a>
+</span><span class=lnt id=hl-11-11><a class=lnlinks href=#hl-11-11>11</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>calculate_incremental_bound</span><span class=p>(</span><span class=n>problem</span><span class=p>,</span> <span class=n>node</span><span class=p>,</span> <span class=n>parent_bound</span><span class=p>,</span> <span class=n>parent_solution</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 부모 노드와 현재 노드의 고정된 변수 차이 확인</span>
+</span></span><span class=line><span class=cl>    <span class=n>new_fixed_vars</span> <span class=o>=</span> <span class=n>get_new_fixed_variables</span><span class=p>(</span><span class=n>node</span><span class=p>,</span> <span class=n>parent_node</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 부모 노드의 한계 값과 해결책 정보를 활용하여 증분 계산</span>
+</span></span><span class=line><span class=cl>    <span class=n>bound_change</span> <span class=o>=</span> <span class=n>calculate_bound_change</span><span class=p>(</span><span class=n>problem</span><span class=p>,</span> <span class=n>new_fixed_vars</span><span class=p>,</span> <span class=n>parent_solution</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 새로운 한계 값 계산</span>
+</span></span><span class=line><span class=cl>    <span class=n>new_bound</span> <span class=o>=</span> <span class=n>parent_bound</span> <span class=o>+</span> <span class=n>bound_change</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>new_bound</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=한계-함수와-문제-특성의-관계>한계 함수와 문제 특성의 관계<a hidden class=anchor aria-hidden=true href=#한계-함수와-문제-특성의-관계>#</a></h3><p>한계 함수의 효과는 문제의 특성과 밀접한 관련이 있다.<br>다양한 문제 특성에 따른 한계 함수의 성능을 이해하는 것이 중요하다.</p><ol><li><p>문제 크기와 한계 함수<br>문제의 크기가 커질수록 한계 함수의 계산 시간과 메모리 요구사항이 증가한다. 따라서 대규모 문제에서는 계산 효율성이 중요해진다.</p><ul><li><strong>작은 문제</strong>: 강한 한계 값을 제공하는 복잡한 한계 함수가 유리</li><li><strong>중간 크기 문제</strong>: 계산 효율성과 한계 강도의 균형이 필요</li><li><strong>대규모 문제</strong>: 증분 계산이 가능하고 병렬화가 용이한 단순한 한계 함수가 유리</li></ul></li><li><p>문제 구조와 한계 함수<br>문제의 수학적 구조에 따라 적합한 한계 함수가 달라진다.</p><ul><li><strong>희소 구조(Sparse Structure)</strong>: 네트워크 기반 완화가 효과적</li><li><strong>밀집 구조(Dense Structure)</strong>: 선형 또는 라그랑지안 완화가 유용</li><li><strong>분해 가능한 구조(Decomposable Structure)</strong>: 분해 기반 한계 함수가 강력</li></ul></li><li><p>최적해의 분포와 한계 함수<br>최적해의 분포 특성도 한계 함수의 효과에 영향을 미친다.</p><ul><li><strong>고르게 분산된 최적해</strong>: 일반적인 완화 기법이 잘 작동</li><li><strong>군집화된 최적해</strong>: 문제 특화 휴리스틱 기반 한계 함수가 유리</li><li><strong>희소한 최적해</strong>: 강한 절단 평면이나 제약 전파 기법이 효과적</li></ul></li></ol><h3 id=주요-최적화-문제별-한계-함수-예시>주요 최적화 문제별 한계 함수 예시<a hidden class=anchor aria-hidden=true href=#주요-최적화-문제별-한계-함수-예시>#</a></h3><h4 id=정수-계획법integer-programming>정수 계획법(Integer Programming)<a hidden class=anchor aria-hidden=true href=#정수-계획법integer-programming>#</a></h4><p><strong>문제 정의</strong>: min cx subject to Ax ≤ b, x ∈ Z^n<br><strong>한계 함수</strong>:</p><ol><li>선형 완화(Linear Relaxation): 정수 제약을 제거하고 LP 문제로 완화</li><li>라그랑지안 완화(Lagrangian Relaxation): 복잡한 제약을 목적 함수에 통합</li><li>Gomory 절단 평면: 선형 완화에 추가 제약을 도입하여 강화</li></ol><h4 id=배낭-문제knapsack-problem>배낭 문제(Knapsack Problem)<a hidden class=anchor aria-hidden=true href=#배낭-문제knapsack-problem>#</a></h4><p><strong>문제 정의</strong>: max Σ v_i x_i subject to Σ w_i x_i ≤ W, x_i ∈ {0,1}<br><strong>한계 함수</strong>:</p><ol><li>분수 배낭(Fractional Knapsack): 항목을 부분적으로 선택 가능하도록 완화</li><li>가치 밀도 정렬(Value Density Sorting): 가치/무게 비율로 정렬하여 한계 계산</li><li>동적 계획법 기반 한계: 작은 용량에 대한 최적해를 활용한 한계 계산</li></ol><h4 id=외판원-문제tsp>외판원 문제(TSP)<a hidden class=anchor aria-hidden=true href=#외판원-문제tsp>#</a></h4><p><strong>문제 정의</strong>: 모든 도시를 한 번씩 방문하는 최소 비용 순회 경로 찾기<br><strong>한계 함수</strong>:</p><ol><li>최소 신장 트리(MST) 기반 하한: MST 비용 ≤ TSP 최적해</li><li>1-트리 기반 하한: MST + 특정 노드에 연결된 두 개의 최소 간선</li><li>할당 문제(Assignment Problem) 완화: 각 도시에 정확히 두 개의 간선이 연결되도록 제약</li></ol><h4 id=그래프-색칠-문제graph-coloring>그래프 색칠 문제(Graph Coloring)<a hidden class=anchor aria-hidden=true href=#그래프-색칠-문제graph-coloring>#</a></h4><p><strong>문제 정의</strong>: 인접한 노드가 다른 색을 갖도록 최소 개수의 색으로 그래프 색칠<br><strong>한계 함수</strong>:</p><ol><li>클리크(Clique) 기반 하한: 최대 클리크의 크기 ≤ 필요한 최소 색상 수</li><li>독립 집합 분할(Independent Set Partition) 하한: 그래프를 독립 집합으로 분할하는 최소 개수</li></ol><h3 id=고급-한계-함수-기법>고급 한계 함수 기법<a hidden class=anchor aria-hidden=true href=#고급-한계-함수-기법>#</a></h3><h4 id=컬럼-생성column-generation>컬럼 생성(Column Generation)<a hidden class=anchor aria-hidden=true href=#컬럼-생성column-generation>#</a></h4><p>매우 많은 변수가 있는 문제에서, 초기에는 일부 변수만 고려하고 필요에 따라 추가 변수(컬럼)를 생성한다. 이 방법은 큰 선형 계획법 문제의 한계 함수 계산에 효과적이다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-12-1><a class=lnlinks href=#hl-12-1> 1</a>
+</span><span class=lnt id=hl-12-2><a class=lnlinks href=#hl-12-2> 2</a>
+</span><span class=lnt id=hl-12-3><a class=lnlinks href=#hl-12-3> 3</a>
+</span><span class=lnt id=hl-12-4><a class=lnlinks href=#hl-12-4> 4</a>
+</span><span class=lnt id=hl-12-5><a class=lnlinks href=#hl-12-5> 5</a>
+</span><span class=lnt id=hl-12-6><a class=lnlinks href=#hl-12-6> 6</a>
+</span><span class=lnt id=hl-12-7><a class=lnlinks href=#hl-12-7> 7</a>
+</span><span class=lnt id=hl-12-8><a class=lnlinks href=#hl-12-8> 8</a>
+</span><span class=lnt id=hl-12-9><a class=lnlinks href=#hl-12-9> 9</a>
+</span><span class=lnt id=hl-12-10><a class=lnlinks href=#hl-12-10>10</a>
+</span><span class=lnt id=hl-12-11><a class=lnlinks href=#hl-12-11>11</a>
+</span><span class=lnt id=hl-12-12><a class=lnlinks href=#hl-12-12>12</a>
+</span><span class=lnt id=hl-12-13><a class=lnlinks href=#hl-12-13>13</a>
+</span><span class=lnt id=hl-12-14><a class=lnlinks href=#hl-12-14>14</a>
+</span><span class=lnt id=hl-12-15><a class=lnlinks href=#hl-12-15>15</a>
+</span><span class=lnt id=hl-12-16><a class=lnlinks href=#hl-12-16>16</a>
+</span><span class=lnt id=hl-12-17><a class=lnlinks href=#hl-12-17>17</a>
+</span><span class=lnt id=hl-12-18><a class=lnlinks href=#hl-12-18>18</a>
+</span><span class=lnt id=hl-12-19><a class=lnlinks href=#hl-12-19>19</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>calculate_bound_with_column_generation</span><span class=p>(</span><span class=n>problem</span><span class=p>,</span> <span class=n>fixed_variables</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 주문제(Master Problem) 초기화</span>
+</span></span><span class=line><span class=cl>    <span class=n>master_problem</span> <span class=o>=</span> <span class=n>initialize_restricted_master_problem</span><span class=p>(</span><span class=n>problem</span><span class=p>,</span> <span class=n>fixed_variables</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=kc>True</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 현재 주문제 해결</span>
+</span></span><span class=line><span class=cl>        <span class=n>master_solution</span> <span class=o>=</span> <span class=n>solve_lp</span><span class=p>(</span><span class=n>master_problem</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 새로운 컬럼 생성 (가격 책정 문제 해결)</span>
+</span></span><span class=line><span class=cl>        <span class=n>new_column</span> <span class=o>=</span> <span class=n>solve_pricing_problem</span><span class=p>(</span><span class=n>problem</span><span class=p>,</span> <span class=n>master_solution</span><span class=o>.</span><span class=n>dual_values</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>new_column</span> <span class=ow>is</span> <span class=kc>None</span> <span class=ow>or</span> <span class=ow>not</span> <span class=n>is_improving</span><span class=p>(</span><span class=n>new_column</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 더 이상 개선할 수 있는 컬럼이 없으면 종료</span>
+</span></span><span class=line><span class=cl>            <span class=k>break</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 새 컬럼을 주문제에 추가</span>
+</span></span><span class=line><span class=cl>        <span class=n>add_column_to_master</span><span class=p>(</span><span class=n>master_problem</span><span class=p>,</span> <span class=n>new_column</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>master_solution</span><span class=o>.</span><span class=n>objective_value</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=베이지안-최적화bayesian-optimization>베이지안 최적화(Bayesian Optimization)<a hidden class=anchor aria-hidden=true href=#베이지안-최적화bayesian-optimization>#</a></h4><p>하한 함수의 매개변수를 최적화하기 위해 베이지안 최적화 기법을 활용한다. 이는 특히 라그랑지안 완화의 승수(multipliers)를 최적화하는 데 유용하다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-13-1><a class=lnlinks href=#hl-13-1> 1</a>
+</span><span class=lnt id=hl-13-2><a class=lnlinks href=#hl-13-2> 2</a>
+</span><span class=lnt id=hl-13-3><a class=lnlinks href=#hl-13-3> 3</a>
+</span><span class=lnt id=hl-13-4><a class=lnlinks href=#hl-13-4> 4</a>
+</span><span class=lnt id=hl-13-5><a class=lnlinks href=#hl-13-5> 5</a>
+</span><span class=lnt id=hl-13-6><a class=lnlinks href=#hl-13-6> 6</a>
+</span><span class=lnt id=hl-13-7><a class=lnlinks href=#hl-13-7> 7</a>
+</span><span class=lnt id=hl-13-8><a class=lnlinks href=#hl-13-8> 8</a>
+</span><span class=lnt id=hl-13-9><a class=lnlinks href=#hl-13-9> 9</a>
+</span><span class=lnt id=hl-13-10><a class=lnlinks href=#hl-13-10>10</a>
+</span><span class=lnt id=hl-13-11><a class=lnlinks href=#hl-13-11>11</a>
+</span><span class=lnt id=hl-13-12><a class=lnlinks href=#hl-13-12>12</a>
+</span><span class=lnt id=hl-13-13><a class=lnlinks href=#hl-13-13>13</a>
+</span><span class=lnt id=hl-13-14><a class=lnlinks href=#hl-13-14>14</a>
+</span><span class=lnt id=hl-13-15><a class=lnlinks href=#hl-13-15>15</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>optimize_lagrangian_multipliers</span><span class=p>(</span><span class=n>problem</span><span class=p>,</span> <span class=n>iterations</span><span class=o>=</span><span class=mi>100</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 초기 승수 값</span>
+</span></span><span class=line><span class=cl>    <span class=n>multipliers</span> <span class=o>=</span> <span class=n>initialize_multipliers</span><span class=p>(</span><span class=n>problem</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=n>iterations</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 현재 승수로 라그랑지안 하한 계산</span>
+</span></span><span class=line><span class=cl>        <span class=n>bound</span> <span class=o>=</span> <span class=n>calculate_lagrangian_bound</span><span class=p>(</span><span class=n>problem</span><span class=p>,</span> <span class=p>{},</span> <span class=n>multipliers</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 베이지안 최적화로 새로운 승수 추정</span>
+</span></span><span class=line><span class=cl>        <span class=n>new_multipliers</span> <span class=o>=</span> <span class=n>update_multipliers_with_bayesian_optimization</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>            <span class=n>problem</span><span class=p>,</span> <span class=n>multipliers</span><span class=p>,</span> <span class=n>bound</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=n>multipliers</span> <span class=o>=</span> <span class=n>new_multipliers</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>multipliers</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=기계-학습-기반-한계-함수ml-based-bounding-functions>기계 학습 기반 한계 함수(ML-based Bounding Functions)<a hidden class=anchor aria-hidden=true href=#기계-학습-기반-한계-함수ml-based-bounding-functions>#</a></h4><p>과거 문제 인스턴스의 해결 경험을 학습하여 새로운 인스턴스의 한계 값을 예측하는 기계 학습 모델을 활용한다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-14-1><a class=lnlinks href=#hl-14-1> 1</a>
+</span><span class=lnt id=hl-14-2><a class=lnlinks href=#hl-14-2> 2</a>
+</span><span class=lnt id=hl-14-3><a class=lnlinks href=#hl-14-3> 3</a>
+</span><span class=lnt id=hl-14-4><a class=lnlinks href=#hl-14-4> 4</a>
+</span><span class=lnt id=hl-14-5><a class=lnlinks href=#hl-14-5> 5</a>
+</span><span class=lnt id=hl-14-6><a class=lnlinks href=#hl-14-6> 6</a>
+</span><span class=lnt id=hl-14-7><a class=lnlinks href=#hl-14-7> 7</a>
+</span><span class=lnt id=hl-14-8><a class=lnlinks href=#hl-14-8> 8</a>
+</span><span class=lnt id=hl-14-9><a class=lnlinks href=#hl-14-9> 9</a>
+</span><span class=lnt id=hl-14-10><a class=lnlinks href=#hl-14-10>10</a>
+</span><span class=lnt id=hl-14-11><a class=lnlinks href=#hl-14-11>11</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>calculate_ml_based_bound</span><span class=p>(</span><span class=n>problem</span><span class=p>,</span> <span class=n>fixed_variables</span><span class=p>,</span> <span class=n>ml_model</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 문제와 현재 상태에서 특성 추출</span>
+</span></span><span class=line><span class=cl>    <span class=n>features</span> <span class=o>=</span> <span class=n>extract_features</span><span class=p>(</span><span class=n>problem</span><span class=p>,</span> <span class=n>fixed_variables</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># ML 모델을 사용하여 하한 예측</span>
+</span></span><span class=line><span class=cl>    <span class=n>predicted_bound</span> <span class=o>=</span> <span class=n>ml_model</span><span class=o>.</span><span class=n>predict</span><span class=p>(</span><span class=n>features</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 예측된 하한이 유효한지 확인 (필요 시 조정)</span>
+</span></span><span class=line><span class=cl>    <span class=n>valid_bound</span> <span class=o>=</span> <span class=n>validate_and_adjust_bound</span><span class=p>(</span><span class=n>problem</span><span class=p>,</span> <span class=n>predicted_bound</span><span class=p>,</span> <span class=n>fixed_variables</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>valid_bound</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=실제-응용-사례-및-성능-분석>실제 응용 사례 및 성능 분석<a hidden class=anchor aria-hidden=true href=#실제-응용-사례-및-성능-분석>#</a></h3><ol><li><p>네트워크 설계 최적화<br>통신 네트워크 설계 문제에서 Branch and Bound와 다양한 한계 함수를 적용한 사례:</p><ul><li><strong>문제</strong>: 비용을 최소화하면서 요구 사항을 만족하는 네트워크 토폴로지 설계</li><li><strong>한계 함수</strong>: 최소 신장 트리 + 용량 제약 완화</li><li><strong>성능</strong>: 라그랑지안 완화를 사용한 한계 함수가 단순 선형 완화보다 30% 더 빠른 수렴 제공</li></ul></li><li><p>생산 일정 최적화<br>제조 공장의 생산 일정 최적화 문제:</p><ul><li><strong>문제</strong>: 납기를 맞추면서 생산 비용을 최소화하는 작업 일정 수립</li><li><strong>한계 함수</strong>: 작업 분할 완화 + 자원 제약 완화</li><li><strong>성능</strong>: 특수한 절단 평면을 추가한 한계 함수가 가지치기 효율을 2배 향상</li></ul></li><li><p>물류 최적화<br>물류 및 배송 최적화 문제:</p><ul><li><strong>문제</strong>: 여러 차량을 활용한 최적 배송 경로 계획</li><li><strong>한계 함수</strong>: 배송점 클러스터링 + 각 클러스터 내 TSP 완화</li><li><strong>성능</strong>: 문제 특화 한계 함수와 변수 고정 기법의 조합이 계산 시간을 90% 감소</li></ul></li></ol><h3 id=한계-함수-설계-지침-및-최적화-팁>한계 함수 설계 지침 및 최적화 팁<a hidden class=anchor aria-hidden=true href=#한계-함수-설계-지침-및-최적화-팁>#</a></h3><ul><li>효과적인 한계 함수 설계를 위한 지침<ol><li><strong>문제 구조 분석</strong>: 문제의 수학적 구조와 특성을 철저히 분석한다.</li><li><strong>기존 완화 기법 검토</strong>: 문제 유형에 적용 가능한 표준 완화 기법을 검토한다.</li><li><strong>증분 계산 최적화</strong>: 부모 노드의 계산 결과를 자식 노드에서 재활용한다.</li><li><strong>문제 특화 지식 활용</strong>: 특정 문제 도메인의 지식과 특성을 활용한다.</li><li><strong>실험적 검증</strong>: 여러 한계 함수를 실험적으로 비교하여 최상의 조합을 찾는다.</li></ol></li><li>한계 함수 구현 및 최적화 팁<ol><li><strong>메모이제이션(Memoization)</strong>: 동일한 부분 문제에 대한 한계 값을 캐싱한다.</li><li><strong>병렬 계산</strong>: 독립적인 하위 문제의 한계를 병렬로 계산한다.</li><li><strong>초기 전처리</strong>: 문제 인스턴스를 미리 분석하여 더 나은 한계 함수 구성요소를 선택한다.</li><li><strong>동적 한계 함수 선택</strong>: 탐색 과정에서 성능 지표에 따라 한계 함수를 동적으로 전환한다.</li><li><strong>점진적 개선</strong>: 단순한 한계 함수로 시작하여 필요에 따라 복잡한 기법을 추가한다.</li></ol></li></ul><h3 id=10-최신-연구-동향과-발전-방향>10. 최신 연구 동향과 발전 방향<a hidden class=anchor aria-hidden=true href=#10-최신-연구-동향과-발전-방향>#</a></h3><ol><li>딥 러닝 기반 한계 함수<br>신경망을 사용하여 복잡한 조합 최적화 문제의 하한을 예측하는 연구가 활발히 진행되고 있다. 이는 특히 기존 수학적 완화가 약한 문제에 유망한 접근법이다.</li><li>하이브리드 한계 함수<br>기존의 수학적 완화와 데이터 기반 예측을 결합한 하이브리드 한계 함수가 개발되고 있다. 이는 수학적 엄밀성과 경험적 효율성을 모두 활용한다.</li><li>분산 및 병렬 한계 계산<br>대규모 분산 컴퓨팅 환경에서 한계 함수를 효율적으로 계산하는 방법에 대한 연구가 진행 중이다. 이는 매우 큰 문제 인스턴스에 대한 Branch and Bound 적용을 가능하게 한다.</li></ol><hr><h2 id=참고-및-출처>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처>#</a></h2></div></main><footer class=footer><span>&copy; 2025 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>
