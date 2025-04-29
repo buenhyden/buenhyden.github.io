@@ -1,0 +1,532 @@
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Mockoon | hyunyoun's Blog</title>
+<meta name=keywords content="Backend-Development,API-Design-and-Implementation,API-Testing,Mocking-APIs,Tools,Mockoon"><meta name=description content="Mockoon은 개발자가 빠르고 쉽게 API를 모킹(가짜로 구현)할 수 있는 오픈 소스 데스크톱 애플리케이션이다."><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/backend-development/api-design-and-implementation/api-lifecycle-management/testing/mocking-apis/tools/mockoon/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.8762af4fa9ee176c57f72565b721f234162fc7a9c882a271e0a1f68c4e89fb34.css integrity="sha256-h2KvT6nuF2xX9yVltyHyNBYvx6nIgqJx4KH2jE6J+zQ=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate type=application/rss+xml href=https://buenhyden.github.io/posts/backend-development/api-design-and-implementation/api-lifecycle-management/testing/mocking-apis/tools/mockoon/index.xml><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/backend-development/api-design-and-implementation/api-lifecycle-management/testing/mocking-apis/tools/mockoon/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/backend-development/api-design-and-implementation/api-lifecycle-management/testing/mocking-apis/tools/mockoon/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="Mockoon"><meta property="og:description" content="Mockoon은 개발자가 빠르고 쉽게 API를 모킹(가짜로 구현)할 수 있는 오픈 소스 데스크톱 애플리케이션이다."><meta property="og:locale" content="en"><meta property="og:type" content="website"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="Mockoon"><meta name=twitter:description content="Mockoon은 개발자가 빠르고 쉽게 API를 모킹(가짜로 구현)할 수 있는 오픈 소스 데스크톱 애플리케이션이다."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"기술 블로그","item":"https://buenhyden.github.io/posts/"},{"@type":"ListItem","position":2,"name":"Backend Development","item":"https://buenhyden.github.io/posts/backend-development/"},{"@type":"ListItem","position":3,"name":"API Design and Implementation","item":"https://buenhyden.github.io/posts/backend-development/api-design-and-implementation/"},{"@type":"ListItem","position":4,"name":"API Lifecycle Management","item":"https://buenhyden.github.io/posts/backend-development/api-design-and-implementation/api-lifecycle-management/"},{"@type":"ListItem","position":5,"name":"API Testing","item":"https://buenhyden.github.io/posts/backend-development/api-design-and-implementation/api-lifecycle-management/testing/"},{"@type":"ListItem","position":6,"name":"Mocking APIs","item":"https://buenhyden.github.io/posts/backend-development/api-design-and-implementation/api-lifecycle-management/testing/mocking-apis/"},{"@type":"ListItem","position":7,"name":"Mockoon","item":"https://buenhyden.github.io/posts/backend-development/api-design-and-implementation/api-lifecycle-management/testing/mocking-apis/tools/mockoon/"}]}</script></head><body class=list id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><header class=page-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/>기술 블로그</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/backend-development/>Backend Development</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/backend-development/api-design-and-implementation/>API Design and Implementation</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/backend-development/api-design-and-implementation/api-lifecycle-management/>API Lifecycle Management</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/backend-development/api-design-and-implementation/api-lifecycle-management/testing/>API Testing</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/backend-development/api-design-and-implementation/api-lifecycle-management/testing/mocking-apis/>Mocking APIs</a></div><h1>Mockoon</h1><div class=post-description>Mockoon은 개발자가 빠르고 쉽게 API를 모킹(가짜로 구현)할 수 있는 오픈 소스 데스크톱 애플리케이션이다.</div></header><div class=post-content><h2 id=mockoon>Mockoon<a hidden class=anchor aria-hidden=true href=#mockoon>#</a></h2><p>Mockoon은 개발자가 빠르고 쉽게 API를 모킹(가짜로 구현)할 수 있는 오픈 소스 데스크톱 애플리케이션이다.<br>이 도구는 2017년에 처음 출시되었으며, API 개발 및 테스트 과정을 간소화하기 위해 설계되었다.</p><p>Mockoon의 주요 특징:</p><ul><li>그래픽 사용자 인터페이스(GUI)로 코드 작성 없이 API 모킹 가능</li><li>윈도우, 맥, 리눅스 지원 크로스 플랫폼 애플리케이션</li><li>무료 오픈 소스 도구</li><li>CLI(Command Line Interface) 버전 제공</li><li>Docker 이미지 지원</li></ul><h3 id=mockoon이-해결하는-개발-문제>Mockoon이 해결하는 개발 문제<a hidden class=anchor aria-hidden=true href=#mockoon이-해결하는-개발-문제>#</a></h3><p>백엔드 개발자로서 다음과 같은 상황에서 Mockoon이 매우 유용하다:</p><ol><li><strong>백엔드 API가 아직 개발 중일 때</strong>: 프론트엔드 팀이 백엔드 API 완성을 기다리지 않고 개발을 진행할 수 있다.</li><li><strong>테스트 환경 구축</strong>: 실제 서버에 의존하지 않고 다양한 응답과 시나리오를 테스트할 수 있다.</li><li><strong>외부 API 의존성 제거</strong>: 개발 과정에서 외부 API 호출 횟수를 줄이거나 비용을 절감할 수 있다.</li><li><strong>오프라인 개발</strong>: 인터넷 연결 없이도 API 응답을 시뮬레이션할 수 있다.</li><li><strong>프로토타이핑</strong>: 실제 구현 전에 API 설계를 빠르게 테스트할 수 있다.</li></ol><h3 id=mockoon-설치-및-기본-설정>Mockoon 설치 및 기본 설정<a hidden class=anchor aria-hidden=true href=#mockoon-설치-및-기본-설정>#</a></h3><p>Mockoon은 설치가 매우 간단하다:</p><ol><li><a href=https://mockoon.com/download/>Mockoon 공식 웹사이트</a>에서 운영 체제에 맞는 버전 다운로드</li><li>설치 파일 실행 및 설치 완료</li><li>애플리케이션 실행</li></ol><p>기본 설정:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-0-1><a class=lnlinks href=#hl-0-1> 1</a>
+</span><span class=lnt id=hl-0-2><a class=lnlinks href=#hl-0-2> 2</a>
+</span><span class=lnt id=hl-0-3><a class=lnlinks href=#hl-0-3> 3</a>
+</span><span class=lnt id=hl-0-4><a class=lnlinks href=#hl-0-4> 4</a>
+</span><span class=lnt id=hl-0-5><a class=lnlinks href=#hl-0-5> 5</a>
+</span><span class=lnt id=hl-0-6><a class=lnlinks href=#hl-0-6> 6</a>
+</span><span class=lnt id=hl-0-7><a class=lnlinks href=#hl-0-7> 7</a>
+</span><span class=lnt id=hl-0-8><a class=lnlinks href=#hl-0-8> 8</a>
+</span><span class=lnt id=hl-0-9><a class=lnlinks href=#hl-0-9> 9</a>
+</span><span class=lnt id=hl-0-10><a class=lnlinks href=#hl-0-10>10</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// Mockoon은 JSON 형식으로 설정을 저장합니다.
+</span></span></span><span class=line><span class=cl><span class=c1>// 설정 예시:
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;uuid&#34;</span><span class=o>:</span> <span class=s2>&#34;1095c7e0-e2fc-11ea-8e7a-1f0c56a5665e&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;name&#34;</span><span class=o>:</span> <span class=s2>&#34;My API&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;endpointPrefix&#34;</span><span class=o>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;latency&#34;</span><span class=o>:</span> <span class=mi>0</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;port&#34;</span><span class=o>:</span> <span class=mi>3000</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;routes&#34;</span><span class=o>:</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=mockoon의-주요-기능>Mockoon의 주요 기능<a hidden class=anchor aria-hidden=true href=#mockoon의-주요-기능>#</a></h3><h4 id=기본-라우트-설정>기본 라우트 설정<a hidden class=anchor aria-hidden=true href=#기본-라우트-설정>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-1-1><a class=lnlinks href=#hl-1-1> 1</a>
+</span><span class=lnt id=hl-1-2><a class=lnlinks href=#hl-1-2> 2</a>
+</span><span class=lnt id=hl-1-3><a class=lnlinks href=#hl-1-3> 3</a>
+</span><span class=lnt id=hl-1-4><a class=lnlinks href=#hl-1-4> 4</a>
+</span><span class=lnt id=hl-1-5><a class=lnlinks href=#hl-1-5> 5</a>
+</span><span class=lnt id=hl-1-6><a class=lnlinks href=#hl-1-6> 6</a>
+</span><span class=lnt id=hl-1-7><a class=lnlinks href=#hl-1-7> 7</a>
+</span><span class=lnt id=hl-1-8><a class=lnlinks href=#hl-1-8> 8</a>
+</span><span class=lnt id=hl-1-9><a class=lnlinks href=#hl-1-9> 9</a>
+</span><span class=lnt id=hl-1-10><a class=lnlinks href=#hl-1-10>10</a>
+</span><span class=lnt id=hl-1-11><a class=lnlinks href=#hl-1-11>11</a>
+</span><span class=lnt id=hl-1-12><a class=lnlinks href=#hl-1-12>12</a>
+</span><span class=lnt id=hl-1-13><a class=lnlinks href=#hl-1-13>13</a>
+</span><span class=lnt id=hl-1-14><a class=lnlinks href=#hl-1-14>14</a>
+</span><span class=lnt id=hl-1-15><a class=lnlinks href=#hl-1-15>15</a>
+</span><span class=lnt id=hl-1-16><a class=lnlinks href=#hl-1-16>16</a>
+</span><span class=lnt id=hl-1-17><a class=lnlinks href=#hl-1-17>17</a>
+</span><span class=lnt id=hl-1-18><a class=lnlinks href=#hl-1-18>18</a>
+</span><span class=lnt id=hl-1-19><a class=lnlinks href=#hl-1-19>19</a>
+</span><span class=lnt id=hl-1-20><a class=lnlinks href=#hl-1-20>20</a>
+</span><span class=lnt id=hl-1-21><a class=lnlinks href=#hl-1-21>21</a>
+</span><span class=lnt id=hl-1-22><a class=lnlinks href=#hl-1-22>22</a>
+</span><span class=lnt id=hl-1-23><a class=lnlinks href=#hl-1-23>23</a>
+</span><span class=lnt id=hl-1-24><a class=lnlinks href=#hl-1-24>24</a>
+</span><span class=lnt id=hl-1-25><a class=lnlinks href=#hl-1-25>25</a>
+</span><span class=lnt id=hl-1-26><a class=lnlinks href=#hl-1-26>26</a>
+</span><span class=lnt id=hl-1-27><a class=lnlinks href=#hl-1-27>27</a>
+</span><span class=lnt id=hl-1-28><a class=lnlinks href=#hl-1-28>28</a>
+</span><span class=lnt id=hl-1-29><a class=lnlinks href=#hl-1-29>29</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// GET /users 라우트 설정 예시
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;uuid&#34;</span><span class=o>:</span> <span class=s2>&#34;2d3c7a90-e2fc-11ea-8e7a-1f0c56a5665e&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;documentation&#34;</span><span class=o>:</span> <span class=s2>&#34;사용자 목록 반환&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;method&#34;</span><span class=o>:</span> <span class=s2>&#34;get&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;endpoint&#34;</span><span class=o>:</span> <span class=s2>&#34;users&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;responses&#34;</span><span class=o>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;uuid&#34;</span><span class=o>:</span> <span class=s2>&#34;3a7c8b10-e2fc-11ea-8e7a-1f0c56a5665e&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;body&#34;</span><span class=o>:</span> <span class=s2>&#34;{\n  \&#34;users\&#34;: [\n    {\n      \&#34;id\&#34;: 1,\n      \&#34;name\&#34;: \&#34;김철수\&#34;\n    },\n    {\n      \&#34;id\&#34;: 2,\n      \&#34;name\&#34;: \&#34;이영희\&#34;\n    }\n  ]\n}&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;latency&#34;</span><span class=o>:</span> <span class=mi>0</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;statusCode&#34;</span><span class=o>:</span> <span class=mi>200</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;label&#34;</span><span class=o>:</span> <span class=s2>&#34;성공 응답&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;headers&#34;</span><span class=o>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span>
+</span></span><span class=line><span class=cl>          <span class=s2>&#34;key&#34;</span><span class=o>:</span> <span class=s2>&#34;Content-Type&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>          <span class=s2>&#34;value&#34;</span><span class=o>:</span> <span class=s2>&#34;application/json&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>      <span class=p>],</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;filePath&#34;</span><span class=o>:</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;sendFileAsBody&#34;</span><span class=o>:</span> <span class=kc>false</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;rules&#34;</span><span class=o>:</span> <span class=p>[],</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;rulesOperator&#34;</span><span class=o>:</span> <span class=s2>&#34;OR&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;disableTemplating&#34;</span><span class=o>:</span> <span class=kc>false</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;fallbackTo404&#34;</span><span class=o>:</span> <span class=kc>false</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>],</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;enabled&#34;</span><span class=o>:</span> <span class=kc>true</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>GUI에서는 이러한 설정을 직관적으로 작성할 수 있다.</p><h4 id=동적-응답-생성>동적 응답 생성<a hidden class=anchor aria-hidden=true href=#동적-응답-생성>#</a></h4><p>Mockoon은 템플릿 엔진을 사용하여 동적 응답을 생성할 수 있다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-2-1><a class=lnlinks href=#hl-2-1>1</a>
+</span><span class=lnt id=hl-2-2><a class=lnlinks href=#hl-2-2>2</a>
+</span><span class=lnt id=hl-2-3><a class=lnlinks href=#hl-2-3>3</a>
+</span><span class=lnt id=hl-2-4><a class=lnlinks href=#hl-2-4>4</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 템플릿 문법 예시 (Handlebars 기반)
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;body&#34;</span><span class=o>:</span> <span class=s2>&#34;{\n  \&#34;timestamp\&#34;: \&#34;{{now}}\&#34;,\n  \&#34;randomId\&#34;: \&#34;{{faker &#39;datatype.uuid&#39;}}\&#34;,\n  \&#34;userName\&#34;: \&#34;{{faker &#39;name.firstName&#39;}} {{faker &#39;name.lastName&#39;}}\&#34;\n}&#34;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>이렇게 하면 매 요청마다 다른 응답을 생성할 수 있다.</p><h4 id=조건부-응답>조건부 응답<a hidden class=anchor aria-hidden=true href=#조건부-응답>#</a></h4><p>특정 조건에 따라 다른 응답을 반환할 수 있다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-3-1><a class=lnlinks href=#hl-3-1> 1</a>
+</span><span class=lnt id=hl-3-2><a class=lnlinks href=#hl-3-2> 2</a>
+</span><span class=lnt id=hl-3-3><a class=lnlinks href=#hl-3-3> 3</a>
+</span><span class=lnt id=hl-3-4><a class=lnlinks href=#hl-3-4> 4</a>
+</span><span class=lnt id=hl-3-5><a class=lnlinks href=#hl-3-5> 5</a>
+</span><span class=lnt id=hl-3-6><a class=lnlinks href=#hl-3-6> 6</a>
+</span><span class=lnt id=hl-3-7><a class=lnlinks href=#hl-3-7> 7</a>
+</span><span class=lnt id=hl-3-8><a class=lnlinks href=#hl-3-8> 8</a>
+</span><span class=lnt id=hl-3-9><a class=lnlinks href=#hl-3-9> 9</a>
+</span><span class=lnt id=hl-3-10><a class=lnlinks href=#hl-3-10>10</a>
+</span><span class=lnt id=hl-3-11><a class=lnlinks href=#hl-3-11>11</a>
+</span><span class=lnt id=hl-3-12><a class=lnlinks href=#hl-3-12>12</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 쿼리 파라미터에 따른 조건부 응답
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;rules&#34;</span><span class=o>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;target&#34;</span><span class=o>:</span> <span class=s2>&#34;query&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;modifier&#34;</span><span class=o>:</span> <span class=s2>&#34;type&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;value&#34;</span><span class=o>:</span> <span class=s2>&#34;premium&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;operator&#34;</span><span class=o>:</span> <span class=s2>&#34;equals&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>],</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;body&#34;</span><span class=o>:</span> <span class=s2>&#34;{\n  \&#34;message\&#34;: \&#34;프리미엄 콘텐츠입니다.\&#34;\n}&#34;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=요청-로깅>요청 로깅<a hidden class=anchor aria-hidden=true href=#요청-로깅>#</a></h4><p>모든 수신 요청은 로그에 기록되어 디버깅에 유용하게 활용할 수 있다.</p><h4 id=openapi-가져오기내보내기>OpenAPI 가져오기/내보내기<a hidden class=anchor aria-hidden=true href=#openapi-가져오기내보내기>#</a></h4><p>OpenAPI(Swagger) 명세를 가져와서 자동으로 모킹 서버를 생성하거나 Mockoon 설정을 OpenAPI 형식으로 내보낼 수 있다.</p><h4 id=파일-서빙>파일 서빙<a hidden class=anchor aria-hidden=true href=#파일-서빙>#</a></h4><p>정적 파일을 서빙할 수 있어 이미지나 문서 등의 파일 다운로드 시뮬레이션이 가능하다.</p><h3 id=실제-개발-워크플로우에-mockoon-통합하기>실제 개발 워크플로우에 Mockoon 통합하기<a hidden class=anchor aria-hidden=true href=#실제-개발-워크플로우에-mockoon-통합하기>#</a></h3><h4 id=프론트엔드-백엔드-병렬-개발>프론트엔드-백엔드 병렬 개발<a hidden class=anchor aria-hidden=true href=#프론트엔드-백엔드-병렬-개발>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-4-1><a class=lnlinks href=#hl-4-1>1</a>
+</span><span class=lnt id=hl-4-2><a class=lnlinks href=#hl-4-2>2</a>
+</span><span class=lnt id=hl-4-3><a class=lnlinks href=#hl-4-3>3</a>
+</span><span class=lnt id=hl-4-4><a class=lnlinks href=#hl-4-4>4</a>
+</span><span class=lnt id=hl-4-5><a class=lnlinks href=#hl-4-5>5</a>
+</span><span class=lnt id=hl-4-6><a class=lnlinks href=#hl-4-6>6</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 프로젝트 계획 단계
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=mf>1.</span> <span class=nx>API</span> <span class=nx>인터페이스</span> <span class=nx>정의</span> <span class=p>(</span><span class=nx>엔드포인트</span><span class=p>,</span> <span class=nx>요청</span><span class=o>/</span><span class=nx>응답</span> <span class=nx>형식</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=mf>2.</span> <span class=nx>Mockoon으로</span> <span class=nx>모든</span> <span class=nx>API</span> <span class=nx>엔드포인트</span> <span class=nx>모킹</span>
+</span></span><span class=line><span class=cl><span class=mf>3.</span> <span class=nx>프론트엔드</span> <span class=nx>팀은</span> <span class=nx>모킹된</span> <span class=nx>API를</span> <span class=nx>사용하여</span> <span class=nx>개발</span> <span class=nx>시작</span>
+</span></span><span class=line><span class=cl><span class=mf>4.</span> <span class=nx>백엔드</span> <span class=nx>팀은</span> <span class=nx>실제</span> <span class=nx>API</span> <span class=nx>구현</span> <span class=nx>진행</span>
+</span></span><span class=line><span class=cl><span class=mf>5.</span> <span class=nx>완성된</span> <span class=nx>백엔드</span> <span class=nx>API로</span> <span class=nx>전환</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=테스트-자동화와-통합>테스트 자동화와 통합<a hidden class=anchor aria-hidden=true href=#테스트-자동화와-통합>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-5-1><a class=lnlinks href=#hl-5-1> 1</a>
+</span><span class=lnt id=hl-5-2><a class=lnlinks href=#hl-5-2> 2</a>
+</span><span class=lnt id=hl-5-3><a class=lnlinks href=#hl-5-3> 3</a>
+</span><span class=lnt id=hl-5-4><a class=lnlinks href=#hl-5-4> 4</a>
+</span><span class=lnt id=hl-5-5><a class=lnlinks href=#hl-5-5> 5</a>
+</span><span class=lnt id=hl-5-6><a class=lnlinks href=#hl-5-6> 6</a>
+</span><span class=lnt id=hl-5-7><a class=lnlinks href=#hl-5-7> 7</a>
+</span><span class=lnt id=hl-5-8><a class=lnlinks href=#hl-5-8> 8</a>
+</span><span class=lnt id=hl-5-9><a class=lnlinks href=#hl-5-9> 9</a>
+</span><span class=lnt id=hl-5-10><a class=lnlinks href=#hl-5-10>10</a>
+</span><span class=lnt id=hl-5-11><a class=lnlinks href=#hl-5-11>11</a>
+</span><span class=lnt id=hl-5-12><a class=lnlinks href=#hl-5-12>12</a>
+</span><span class=lnt id=hl-5-13><a class=lnlinks href=#hl-5-13>13</a>
+</span><span class=lnt id=hl-5-14><a class=lnlinks href=#hl-5-14>14</a>
+</span><span class=lnt id=hl-5-15><a class=lnlinks href=#hl-5-15>15</a>
+</span><span class=lnt id=hl-5-16><a class=lnlinks href=#hl-5-16>16</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># Python 테스트 코드 예시</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>setup_module</span><span class=p>(</span><span class=n>module</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># Mockoon CLI 시작</span>
+</span></span><span class=line><span class=cl>    <span class=n>subprocess</span><span class=o>.</span><span class=n>Popen</span><span class=p>([</span><span class=s2>&#34;mockoon-cli&#34;</span><span class=p>,</span> <span class=s2>&#34;start&#34;</span><span class=p>,</span> <span class=s2>&#34;--data&#34;</span><span class=p>,</span> <span class=s2>&#34;mockoon.json&#34;</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>    <span class=n>time</span><span class=o>.</span><span class=n>sleep</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>  <span class=c1># 서버 시작 대기</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>teardown_module</span><span class=p>(</span><span class=n>module</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># Mockoon CLI 종료</span>
+</span></span><span class=line><span class=cl>    <span class=n>subprocess</span><span class=o>.</span><span class=n>Popen</span><span class=p>([</span><span class=s2>&#34;mockoon-cli&#34;</span><span class=p>,</span> <span class=s2>&#34;stop&#34;</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>test_api_client</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 테스트용 API 클라이언트 - 모킹된 서버로 요청</span>
+</span></span><span class=line><span class=cl>    <span class=n>client</span> <span class=o>=</span> <span class=n>APIClient</span><span class=p>(</span><span class=n>base_url</span><span class=o>=</span><span class=s2>&#34;http://localhost:3000&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>response</span> <span class=o>=</span> <span class=n>client</span><span class=o>.</span><span class=n>get_users</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=k>assert</span> <span class=n>response</span><span class=o>.</span><span class=n>status_code</span> <span class=o>==</span> <span class=mi>200</span>
+</span></span><span class=line><span class=cl>    <span class=k>assert</span> <span class=nb>len</span><span class=p>(</span><span class=n>response</span><span class=o>.</span><span class=n>json</span><span class=p>()[</span><span class=s2>&#34;users&#34;</span><span class=p>])</span> <span class=o>&gt;</span> <span class=mi>0</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=cicd-환경에서-mockoon-활용>CI/CD 환경에서 Mockoon 활용<a hidden class=anchor aria-hidden=true href=#cicd-환경에서-mockoon-활용>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-6-1><a class=lnlinks href=#hl-6-1> 1</a>
+</span><span class=lnt id=hl-6-2><a class=lnlinks href=#hl-6-2> 2</a>
+</span><span class=lnt id=hl-6-3><a class=lnlinks href=#hl-6-3> 3</a>
+</span><span class=lnt id=hl-6-4><a class=lnlinks href=#hl-6-4> 4</a>
+</span><span class=lnt id=hl-6-5><a class=lnlinks href=#hl-6-5> 5</a>
+</span><span class=lnt id=hl-6-6><a class=lnlinks href=#hl-6-6> 6</a>
+</span><span class=lnt id=hl-6-7><a class=lnlinks href=#hl-6-7> 7</a>
+</span><span class=lnt id=hl-6-8><a class=lnlinks href=#hl-6-8> 8</a>
+</span><span class=lnt id=hl-6-9><a class=lnlinks href=#hl-6-9> 9</a>
+</span><span class=lnt id=hl-6-10><a class=lnlinks href=#hl-6-10>10</a>
+</span><span class=lnt id=hl-6-11><a class=lnlinks href=#hl-6-11>11</a>
+</span><span class=lnt id=hl-6-12><a class=lnlinks href=#hl-6-12>12</a>
+</span><span class=lnt id=hl-6-13><a class=lnlinks href=#hl-6-13>13</a>
+</span><span class=lnt id=hl-6-14><a class=lnlinks href=#hl-6-14>14</a>
+</span><span class=lnt id=hl-6-15><a class=lnlinks href=#hl-6-15>15</a>
+</span><span class=lnt id=hl-6-16><a class=lnlinks href=#hl-6-16>16</a>
+</span><span class=lnt id=hl-6-17><a class=lnlinks href=#hl-6-17>17</a>
+</span><span class=lnt id=hl-6-18><a class=lnlinks href=#hl-6-18>18</a>
+</span><span class=lnt id=hl-6-19><a class=lnlinks href=#hl-6-19>19</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># GitHub Actions 워크플로우 예시</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>jobs</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>test</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>runs-on</span><span class=p>:</span><span class=w> </span><span class=l>ubuntu-latest</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>steps</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Checkout code</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>uses</span><span class=p>:</span><span class=w> </span><span class=l>actions/checkout@v2</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Setup Mockoon CLI</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>run</span><span class=p>:</span><span class=w> </span><span class=l>npm install -g @mockoon/cli</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Start Mockoon server</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>run</span><span class=p>:</span><span class=w> </span><span class=l>mockoon-cli start --data ./mockoon.json</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Run tests</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>run</span><span class=p>:</span><span class=w> </span><span class=l>npm test</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Stop Mockoon server</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>run</span><span class=p>:</span><span class=w> </span><span class=l>mockoon-cli stop</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=mockoon-고급-사용법>Mockoon 고급 사용법<a hidden class=anchor aria-hidden=true href=#mockoon-고급-사용법>#</a></h3><h4 id=71-환경-변수-활용>7.1 환경 변수 활용<a hidden class=anchor aria-hidden=true href=#71-환경-변수-활용>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-7-1><a class=lnlinks href=#hl-7-1> 1</a>
+</span><span class=lnt id=hl-7-2><a class=lnlinks href=#hl-7-2> 2</a>
+</span><span class=lnt id=hl-7-3><a class=lnlinks href=#hl-7-3> 3</a>
+</span><span class=lnt id=hl-7-4><a class=lnlinks href=#hl-7-4> 4</a>
+</span><span class=lnt id=hl-7-5><a class=lnlinks href=#hl-7-5> 5</a>
+</span><span class=lnt id=hl-7-6><a class=lnlinks href=#hl-7-6> 6</a>
+</span><span class=lnt id=hl-7-7><a class=lnlinks href=#hl-7-7> 7</a>
+</span><span class=lnt id=hl-7-8><a class=lnlinks href=#hl-7-8> 8</a>
+</span><span class=lnt id=hl-7-9><a class=lnlinks href=#hl-7-9> 9</a>
+</span><span class=lnt id=hl-7-10><a class=lnlinks href=#hl-7-10>10</a>
+</span><span class=lnt id=hl-7-11><a class=lnlinks href=#hl-7-11>11</a>
+</span><span class=lnt id=hl-7-12><a class=lnlinks href=#hl-7-12>12</a>
+</span><span class=lnt id=hl-7-13><a class=lnlinks href=#hl-7-13>13</a>
+</span><span class=lnt id=hl-7-14><a class=lnlinks href=#hl-7-14>14</a>
+</span><span class=lnt id=hl-7-15><a class=lnlinks href=#hl-7-15>15</a>
+</span><span class=lnt id=hl-7-16><a class=lnlinks href=#hl-7-16>16</a>
+</span><span class=lnt id=hl-7-17><a class=lnlinks href=#hl-7-17>17</a>
+</span><span class=lnt id=hl-7-18><a class=lnlinks href=#hl-7-18>18</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 환경 변수 정의
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;variables&#34;</span><span class=o>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;key&#34;</span><span class=o>:</span> <span class=s2>&#34;apiVersion&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;value&#34;</span><span class=o>:</span> <span class=s2>&#34;v1&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;key&#34;</span><span class=o>:</span> <span class=s2>&#34;baseUrl&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;value&#34;</span><span class=o>:</span> <span class=s2>&#34;api.example.com&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 응답에서 환경 변수 사용
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;body&#34;</span><span class=o>:</span> <span class=s2>&#34;{\n  \&#34;apiUrl\&#34;: \&#34;https://{{baseUrl}}/{{apiVersion}}\&#34;\n}&#34;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=fakerjs를-활용한-대량-데이터-생성>Faker.js를 활용한 대량 데이터 생성<a hidden class=anchor aria-hidden=true href=#fakerjs를-활용한-대량-데이터-생성>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-8-1><a class=lnlinks href=#hl-8-1>1</a>
+</span><span class=lnt id=hl-8-2><a class=lnlinks href=#hl-8-2>2</a>
+</span><span class=lnt id=hl-8-3><a class=lnlinks href=#hl-8-3>3</a>
+</span><span class=lnt id=hl-8-4><a class=lnlinks href=#hl-8-4>4</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 랜덤 사용자 데이터 생성 예시
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;body&#34;</span><span class=o>:</span> <span class=s2>&#34;{\n  \&#34;users\&#34;: [\n    {{#repeat 10}}\n    {\n      \&#34;id\&#34;: {{@index}},\n      \&#34;name\&#34;: \&#34;{{faker &#39;name.firstName&#39;}} {{faker &#39;name.lastName&#39;}}\&#34;,\n      \&#34;email\&#34;: \&#34;{{faker &#39;internet.email&#39;}}\&#34;,\n      \&#34;phone\&#34;: \&#34;{{faker &#39;phone.phoneNumber&#39;}}\&#34;\n    }{{#unless @last}},{{/unless}}\n    {{/repeat}}\n  ]\n}&#34;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>이 코드는 10명의 랜덤 사용자 데이터를 생성한다.</p><h4 id=crud-작업-시뮬레이션>CRUD 작업 시뮬레이션<a hidden class=anchor aria-hidden=true href=#crud-작업-시뮬레이션>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-9-1><a class=lnlinks href=#hl-9-1> 1</a>
+</span><span class=lnt id=hl-9-2><a class=lnlinks href=#hl-9-2> 2</a>
+</span><span class=lnt id=hl-9-3><a class=lnlinks href=#hl-9-3> 3</a>
+</span><span class=lnt id=hl-9-4><a class=lnlinks href=#hl-9-4> 4</a>
+</span><span class=lnt id=hl-9-5><a class=lnlinks href=#hl-9-5> 5</a>
+</span><span class=lnt id=hl-9-6><a class=lnlinks href=#hl-9-6> 6</a>
+</span><span class=lnt id=hl-9-7><a class=lnlinks href=#hl-9-7> 7</a>
+</span><span class=lnt id=hl-9-8><a class=lnlinks href=#hl-9-8> 8</a>
+</span><span class=lnt id=hl-9-9><a class=lnlinks href=#hl-9-9> 9</a>
+</span><span class=lnt id=hl-9-10><a class=lnlinks href=#hl-9-10>10</a>
+</span><span class=lnt id=hl-9-11><a class=lnlinks href=#hl-9-11>11</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// POST 요청 처리 및 응답
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;method&#34;</span><span class=o>:</span> <span class=s2>&#34;post&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;endpoint&#34;</span><span class=o>:</span> <span class=s2>&#34;users&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;responses&#34;</span><span class=o>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;statusCode&#34;</span><span class=o>:</span> <span class=mi>201</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;body&#34;</span><span class=o>:</span> <span class=s2>&#34;{\n  \&#34;message\&#34;: \&#34;사용자가 생성되었습니다.\&#34;,\n  \&#34;user\&#34;: {{body}}\n}&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>이렇게 하면 클라이언트가 보낸 요청 본문(body)을 응답에 포함시킬 수 있다.</p><h4 id=mockoon-cli-활용>Mockoon CLI 활용<a hidden class=anchor aria-hidden=true href=#mockoon-cli-활용>#</a></h4><p>터미널에서:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-10-1><a class=lnlinks href=#hl-10-1>1</a>
+</span><span class=lnt id=hl-10-2><a class=lnlinks href=#hl-10-2>2</a>
+</span><span class=lnt id=hl-10-3><a class=lnlinks href=#hl-10-3>3</a>
+</span><span class=lnt id=hl-10-4><a class=lnlinks href=#hl-10-4>4</a>
+</span><span class=lnt id=hl-10-5><a class=lnlinks href=#hl-10-5>5</a>
+</span><span class=lnt id=hl-10-6><a class=lnlinks href=#hl-10-6>6</a>
+</span><span class=lnt id=hl-10-7><a class=lnlinks href=#hl-10-7>7</a>
+</span><span class=lnt id=hl-10-8><a class=lnlinks href=#hl-10-8>8</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Mockoon CLI 설치</span>
+</span></span><span class=line><span class=cl>npm install -g @mockoon/cli
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 설정 파일로 서버 시작</span>
+</span></span><span class=line><span class=cl>mockoon-cli start --data mockoon.json --port <span class=m>3000</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># API 호출 테스트</span>
+</span></span><span class=line><span class=cl>curl http://localhost:3000/users
+</span></span></code></pre></td></tr></table></div></div><h3 id=실제-프로젝트-적용-사례-연구>실제 프로젝트 적용 사례 연구<a hidden class=anchor aria-hidden=true href=#실제-프로젝트-적용-사례-연구>#</a></h3><h4 id=마이크로서비스-아키텍처에서의-활용>마이크로서비스 아키텍처에서의 활용<a hidden class=anchor aria-hidden=true href=#마이크로서비스-아키텍처에서의-활용>#</a></h4><p>마이크로서비스 환경에서 각 서비스를 독립적으로 개발하고 테스트할 때 Mockoon을 활용할 수 있다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-11-1><a class=lnlinks href=#hl-11-1> 1</a>
+</span><span class=lnt id=hl-11-2><a class=lnlinks href=#hl-11-2> 2</a>
+</span><span class=lnt id=hl-11-3><a class=lnlinks href=#hl-11-3> 3</a>
+</span><span class=lnt id=hl-11-4><a class=lnlinks href=#hl-11-4> 4</a>
+</span><span class=lnt id=hl-11-5><a class=lnlinks href=#hl-11-5> 5</a>
+</span><span class=lnt id=hl-11-6><a class=lnlinks href=#hl-11-6> 6</a>
+</span><span class=lnt id=hl-11-7><a class=lnlinks href=#hl-11-7> 7</a>
+</span><span class=lnt id=hl-11-8><a class=lnlinks href=#hl-11-8> 8</a>
+</span><span class=lnt id=hl-11-9><a class=lnlinks href=#hl-11-9> 9</a>
+</span><span class=lnt id=hl-11-10><a class=lnlinks href=#hl-11-10>10</a>
+</span><span class=lnt id=hl-11-11><a class=lnlinks href=#hl-11-11>11</a>
+</span><span class=lnt id=hl-11-12><a class=lnlinks href=#hl-11-12>12</a>
+</span><span class=lnt id=hl-11-13><a class=lnlinks href=#hl-11-13>13</a>
+</span><span class=lnt id=hl-11-14><a class=lnlinks href=#hl-11-14>14</a>
+</span><span class=lnt id=hl-11-15><a class=lnlinks href=#hl-11-15>15</a>
+</span><span class=lnt id=hl-11-16><a class=lnlinks href=#hl-11-16>16</a>
+</span><span class=lnt id=hl-11-17><a class=lnlinks href=#hl-11-17>17</a>
+</span><span class=lnt id=hl-11-18><a class=lnlinks href=#hl-11-18>18</a>
+</span><span class=lnt id=hl-11-19><a class=lnlinks href=#hl-11-19>19</a>
+</span><span class=lnt id=hl-11-20><a class=lnlinks href=#hl-11-20>20</a>
+</span><span class=lnt id=hl-11-21><a class=lnlinks href=#hl-11-21>21</a>
+</span><span class=lnt id=hl-11-22><a class=lnlinks href=#hl-11-22>22</a>
+</span><span class=lnt id=hl-11-23><a class=lnlinks href=#hl-11-23>23</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 사용자 서비스 모킹
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;port&#34;</span><span class=o>:</span> <span class=mi>3001</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;routes&#34;</span><span class=o>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;method&#34;</span><span class=o>:</span> <span class=s2>&#34;get&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;endpoint&#34;</span><span class=o>:</span> <span class=s2>&#34;users/:id&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;responses&#34;</span><span class=o>:</span> <span class=p>[...]</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 주문 서비스 모킹
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;port&#34;</span><span class=o>:</span> <span class=mi>3002</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;routes&#34;</span><span class=o>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;method&#34;</span><span class=o>:</span> <span class=s2>&#34;get&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;endpoint&#34;</span><span class=o>:</span> <span class=s2>&#34;orders/:id&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;responses&#34;</span><span class=o>:</span> <span class=p>[...]</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>각 서비스를 별도의 포트에서 실행하여 전체 시스템을 시뮬레이션할 수 있다.</p><h4 id=모바일-앱-개발-적용-사례>모바일 앱 개발 적용 사례<a hidden class=anchor aria-hidden=true href=#모바일-앱-개발-적용-사례>#</a></h4><p>모바일 앱 개발자는 백엔드 API가 아직 준비되지 않았을 때 Mockoon을 사용하여 개발을 진행할 수 있다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-12-1><a class=lnlinks href=#hl-12-1>1</a>
+</span><span class=lnt id=hl-12-2><a class=lnlinks href=#hl-12-2>2</a>
+</span><span class=lnt id=hl-12-3><a class=lnlinks href=#hl-12-3>3</a>
+</span><span class=lnt id=hl-12-4><a class=lnlinks href=#hl-12-4>4</a>
+</span><span class=lnt id=hl-12-5><a class=lnlinks href=#hl-12-5>5</a>
+</span><span class=lnt id=hl-12-6><a class=lnlinks href=#hl-12-6>6</a>
+</span><span class=lnt id=hl-12-7><a class=lnlinks href=#hl-12-7>7</a>
+</span><span class=lnt id=hl-12-8><a class=lnlinks href=#hl-12-8>8</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-swift data-lang=swift><span class=line><span class=cl><span class=c1>// iOS에서 모킹된 API 호출 예시</span>
+</span></span><span class=line><span class=cl><span class=kd>let</span> <span class=nv>url</span> <span class=p>=</span> <span class=n>URL</span><span class=p>(</span><span class=n>string</span><span class=p>:</span> <span class=s>&#34;http://localhost:3000/api/users&#34;</span><span class=p>)</span><span class=o>!</span>
+</span></span><span class=line><span class=cl><span class=n>URLSession</span><span class=p>.</span><span class=n>shared</span><span class=p>.</span><span class=n>dataTask</span><span class=p>(</span><span class=n>with</span><span class=p>:</span> <span class=n>url</span><span class=p>)</span> <span class=p>{</span> <span class=p>(</span><span class=n>data</span><span class=p>,</span> <span class=n>response</span><span class=p>,</span> <span class=n>error</span><span class=p>)</span> <span class=k>in</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=kd>let</span> <span class=nv>data</span> <span class=p>=</span> <span class=n>data</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kd>let</span> <span class=nv>users</span> <span class=p>=</span> <span class=k>try</span><span class=p>?</span> <span class=n>JSONDecoder</span><span class=p>().</span><span class=n>decode</span><span class=p>([</span><span class=n>User</span><span class=p>].</span><span class=kc>self</span><span class=p>,</span> <span class=n>from</span><span class=p>:</span> <span class=n>data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// UI 업데이트</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}.</span><span class=n>resume</span><span class=p>()</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=mockoon-베스트-프랙티스>Mockoon 베스트 프랙티스<a hidden class=anchor aria-hidden=true href=#mockoon-베스트-프랙티스>#</a></h3><h4 id=프로젝트-구조화>프로젝트 구조화<a hidden class=anchor aria-hidden=true href=#프로젝트-구조화>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-13-1><a class=lnlinks href=#hl-13-1>1</a>
+</span><span class=lnt id=hl-13-2><a class=lnlinks href=#hl-13-2>2</a>
+</span><span class=lnt id=hl-13-3><a class=lnlinks href=#hl-13-3>3</a>
+</span><span class=lnt id=hl-13-4><a class=lnlinks href=#hl-13-4>4</a>
+</span><span class=lnt id=hl-13-5><a class=lnlinks href=#hl-13-5>5</a>
+</span><span class=lnt id=hl-13-6><a class=lnlinks href=#hl-13-6>6</a>
+</span><span class=lnt id=hl-13-7><a class=lnlinks href=#hl-13-7>7</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>project/
+</span></span><span class=line><span class=cl>├── mockoon/
+</span></span><span class=line><span class=cl>│   ├── dev.json        # 개발 환경 설정
+</span></span><span class=line><span class=cl>│   ├── test.json       # 테스트 환경 설정
+</span></span><span class=line><span class=cl>│   └── demo.json       # 데모 환경 설정
+</span></span><span class=line><span class=cl>├── src/
+</span></span><span class=line><span class=cl>└── tests/
+</span></span></code></pre></td></tr></table></div></div><h4 id=버전-관리-및-팀-협업>버전 관리 및 팀 협업<a hidden class=anchor aria-hidden=true href=#버전-관리-및-팀-협업>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-14-1><a class=lnlinks href=#hl-14-1>1</a>
+</span><span class=lnt id=hl-14-2><a class=lnlinks href=#hl-14-2>2</a>
+</span><span class=lnt id=hl-14-3><a class=lnlinks href=#hl-14-3>3</a>
+</span><span class=lnt id=hl-14-4><a class=lnlinks href=#hl-14-4>4</a>
+</span><span class=lnt id=hl-14-5><a class=lnlinks href=#hl-14-5>5</a>
+</span><span class=lnt id=hl-14-6><a class=lnlinks href=#hl-14-6>6</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl># .gitignore 파일 예시
+</span></span><span class=line><span class=cl>mockoon/local.json  # 로컬 개발용 설정은 제외
+</span></span><span class=line><span class=cl>mockoon/tmp.json    # 임시 설정 파일 제외
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl># 공유해야 할 설정 파일은 버전 관리에 포함
+</span></span><span class=line><span class=cl>mockoon/shared.json
+</span></span></code></pre></td></tr></table></div></div><h4 id=문서화-및-주석-활용>문서화 및 주석 활용<a hidden class=anchor aria-hidden=true href=#문서화-및-주석-활용>#</a></h4><p>Mockoon의 문서화 필드를 적극 활용하여 각 엔드포인트의 목적과 사용법을 기록한다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-15-1><a class=lnlinks href=#hl-15-1>1</a>
+</span><span class=lnt id=hl-15-2><a class=lnlinks href=#hl-15-2>2</a>
+</span><span class=lnt id=hl-15-3><a class=lnlinks href=#hl-15-3>3</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;documentation&#34;</span><span class=o>:</span> <span class=s2>&#34;## 사용자 API\n\n이 엔드포인트는 사용자 정보를 제공합니다.\n\n### 쿼리 파라미터\n- `type`: 사용자 유형 (일반/프리미엄)\n- `limit`: 최대 반환 개수&#34;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=mockoon의-한계와-대안>Mockoon의 한계와 대안<a hidden class=anchor aria-hidden=true href=#mockoon의-한계와-대안>#</a></h3><h4 id=한계점>한계점<a hidden class=anchor aria-hidden=true href=#한계점>#</a></h4><ol><li><strong>상태 관리 제한</strong>: 복잡한 상태 변화를 시뮬레이션하기 어려움</li><li><strong>복잡한 로직 구현</strong>: 고급 비즈니스 로직 구현에 제한적</li><li><strong>실시간 통신</strong>: WebSocket 등의 실시간 프로토콜 지원 제한적</li><li><strong>대규모 팀 협업</strong>: 여러 개발자가 동시에 같은 모킹 설정을 수정하기 어려움</li></ol><h4 id=대체-및-보완-도구>대체 및 보완 도구<a hidden class=anchor aria-hidden=true href=#대체-및-보완-도구>#</a></h4><ol><li><strong>Wiremock</strong>: 더 복잡한 모킹 시나리오 지원</li><li><strong>JSON Server</strong>: RESTful API를 위한 간단한 모킹</li><li><strong>Mirage JS</strong>: 프론트엔드 중심의 API 모킹</li><li><strong>Nock</strong>: Node.js에서 HTTP 요청 모킹</li><li><strong>Prism</strong>: OpenAPI 기반 모킹 도구</li></ol><h3 id=실제-개발-과정에서의-mockoon-활용-예시>실제 개발 과정에서의 Mockoon 활용 예시<a hidden class=anchor aria-hidden=true href=#실제-개발-과정에서의-mockoon-활용-예시>#</a></h3><p>다음은 실제 개발 과정에서 단계별로 Mockoon을 활용하는 방법:</p><h4 id=api-설계-및-프로토타이핑>API 설계 및 프로토타이핑<a hidden class=anchor aria-hidden=true href=#api-설계-및-프로토타이핑>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-16-1><a class=lnlinks href=#hl-16-1>1</a>
+</span><span class=lnt id=hl-16-2><a class=lnlinks href=#hl-16-2>2</a>
+</span><span class=lnt id=hl-16-3><a class=lnlinks href=#hl-16-3>3</a>
+</span><span class=lnt id=hl-16-4><a class=lnlinks href=#hl-16-4>4</a>
+</span><span class=lnt id=hl-16-5><a class=lnlinks href=#hl-16-5>5</a>
+</span><span class=lnt id=hl-16-6><a class=lnlinks href=#hl-16-6>6</a>
+</span><span class=lnt id=hl-16-7><a class=lnlinks href=#hl-16-7>7</a>
+</span><span class=lnt id=hl-16-8><a class=lnlinks href=#hl-16-8>8</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 1. 기본 API 구조 설계
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>GET</span> <span class=o>/</span><span class=nx>api</span><span class=o>/</span><span class=nx>products</span> <span class=o>-</span> <span class=nx>제품</span> <span class=nx>목록</span>
+</span></span><span class=line><span class=cl><span class=nx>GET</span> <span class=o>/</span><span class=nx>api</span><span class=o>/</span><span class=nx>products</span><span class=o>/:</span><span class=nx>id</span> <span class=o>-</span> <span class=nx>제품</span> <span class=nx>상세</span>
+</span></span><span class=line><span class=cl><span class=nx>POST</span> <span class=o>/</span><span class=nx>api</span><span class=o>/</span><span class=nx>products</span> <span class=o>-</span> <span class=nx>제품</span> <span class=nx>생성</span>
+</span></span><span class=line><span class=cl><span class=nx>PUT</span> <span class=o>/</span><span class=nx>api</span><span class=o>/</span><span class=nx>products</span><span class=o>/:</span><span class=nx>id</span> <span class=o>-</span> <span class=nx>제품</span> <span class=nx>수정</span>
+</span></span><span class=line><span class=cl><span class=nx>DELETE</span> <span class=o>/</span><span class=nx>api</span><span class=o>/</span><span class=nx>products</span><span class=o>/:</span><span class=nx>id</span> <span class=o>-</span> <span class=nx>제품</span> <span class=nx>삭제</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 2. Mockoon에서 각 엔드포인트 구현
+</span></span></span></code></pre></td></tr></table></div></div><h4 id=프론트엔드-개발-지원>프론트엔드 개발 지원<a hidden class=anchor aria-hidden=true href=#프론트엔드-개발-지원>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-17-1><a class=lnlinks href=#hl-17-1> 1</a>
+</span><span class=lnt id=hl-17-2><a class=lnlinks href=#hl-17-2> 2</a>
+</span><span class=lnt id=hl-17-3><a class=lnlinks href=#hl-17-3> 3</a>
+</span><span class=lnt id=hl-17-4><a class=lnlinks href=#hl-17-4> 4</a>
+</span><span class=lnt id=hl-17-5><a class=lnlinks href=#hl-17-5> 5</a>
+</span><span class=lnt id=hl-17-6><a class=lnlinks href=#hl-17-6> 6</a>
+</span><span class=lnt id=hl-17-7><a class=lnlinks href=#hl-17-7> 7</a>
+</span><span class=lnt id=hl-17-8><a class=lnlinks href=#hl-17-8> 8</a>
+</span><span class=lnt id=hl-17-9><a class=lnlinks href=#hl-17-9> 9</a>
+</span><span class=lnt id=hl-17-10><a class=lnlinks href=#hl-17-10>10</a>
+</span><span class=lnt id=hl-17-11><a class=lnlinks href=#hl-17-11>11</a>
+</span><span class=lnt id=hl-17-12><a class=lnlinks href=#hl-17-12>12</a>
+</span><span class=lnt id=hl-17-13><a class=lnlinks href=#hl-17-13>13</a>
+</span><span class=lnt id=hl-17-14><a class=lnlinks href=#hl-17-14>14</a>
+</span><span class=lnt id=hl-17-15><a class=lnlinks href=#hl-17-15>15</a>
+</span><span class=lnt id=hl-17-16><a class=lnlinks href=#hl-17-16>16</a>
+</span><span class=lnt id=hl-17-17><a class=lnlinks href=#hl-17-17>17</a>
+</span><span class=lnt id=hl-17-18><a class=lnlinks href=#hl-17-18>18</a>
+</span><span class=lnt id=hl-17-19><a class=lnlinks href=#hl-17-19>19</a>
+</span><span class=lnt id=hl-17-20><a class=lnlinks href=#hl-17-20>20</a>
+</span><span class=lnt id=hl-17-21><a class=lnlinks href=#hl-17-21>21</a>
+</span><span class=lnt id=hl-17-22><a class=lnlinks href=#hl-17-22>22</a>
+</span><span class=lnt id=hl-17-23><a class=lnlinks href=#hl-17-23>23</a>
+</span><span class=lnt id=hl-17-24><a class=lnlinks href=#hl-17-24>24</a>
+</span><span class=lnt id=hl-17-25><a class=lnlinks href=#hl-17-25>25</a>
+</span><span class=lnt id=hl-17-26><a class=lnlinks href=#hl-17-26>26</a>
+</span><span class=lnt id=hl-17-27><a class=lnlinks href=#hl-17-27>27</a>
+</span><span class=lnt id=hl-17-28><a class=lnlinks href=#hl-17-28>28</a>
+</span><span class=lnt id=hl-17-29><a class=lnlinks href=#hl-17-29>29</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// React 애플리케이션에서 모킹된 API 사용
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>import</span> <span class=nx>React</span><span class=p>,</span> <span class=p>{</span> <span class=nx>useEffect</span><span class=p>,</span> <span class=nx>useState</span> <span class=p>}</span> <span class=nx>from</span> <span class=s1>&#39;react&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=kr>import</span> <span class=nx>axios</span> <span class=nx>from</span> <span class=s1>&#39;axios&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>function</span> <span class=nx>ProductList</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=p>[</span><span class=nx>products</span><span class=p>,</span> <span class=nx>setProducts</span><span class=p>]</span> <span class=o>=</span> <span class=nx>useState</span><span class=p>([]);</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=nx>useEffect</span><span class=p>(()</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// Mockoon에서 실행 중인 API 호출
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>axios</span><span class=p>.</span><span class=nx>get</span><span class=p>(</span><span class=s1>&#39;http://localhost:3000/api/products&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>      <span class=p>.</span><span class=nx>then</span><span class=p>(</span><span class=nx>response</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>setProducts</span><span class=p>(</span><span class=nx>response</span><span class=p>.</span><span class=nx>data</span><span class=p>.</span><span class=nx>products</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>      <span class=p>})</span>
+</span></span><span class=line><span class=cl>      <span class=p>.</span><span class=k>catch</span><span class=p>(</span><span class=nx>error</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>console</span><span class=p>.</span><span class=nx>error</span><span class=p>(</span><span class=s1>&#39;API 호출 오류:&#39;</span><span class=p>,</span> <span class=nx>error</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>      <span class=p>});</span>
+</span></span><span class=line><span class=cl>  <span class=p>},</span> <span class=p>[]);</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=o>&lt;</span><span class=nx>div</span><span class=o>&gt;</span>
+</span></span><span class=line><span class=cl>      <span class=o>&lt;</span><span class=nx>h1</span><span class=o>&gt;</span><span class=nx>제품</span> <span class=nx>목록</span><span class=o>&lt;</span><span class=err>/h1&gt;</span>
+</span></span><span class=line><span class=cl>      <span class=o>&lt;</span><span class=nx>ul</span><span class=o>&gt;</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span><span class=nx>products</span><span class=p>.</span><span class=nx>map</span><span class=p>(</span><span class=nx>product</span> <span class=p>=&gt;</span> <span class=p>(</span>
+</span></span><span class=line><span class=cl>          <span class=o>&lt;</span><span class=nx>li</span> <span class=nx>key</span><span class=o>=</span><span class=p>{</span><span class=nx>product</span><span class=p>.</span><span class=nx>id</span><span class=p>}</span><span class=o>&gt;</span><span class=p>{</span><span class=nx>product</span><span class=p>.</span><span class=nx>name</span><span class=p>}</span> <span class=o>-</span> <span class=p>{</span><span class=nx>product</span><span class=p>.</span><span class=nx>price</span><span class=p>}</span><span class=nx>원</span><span class=o>&lt;</span><span class=err>/li&gt;</span>
+</span></span><span class=line><span class=cl>        <span class=p>))}</span>
+</span></span><span class=line><span class=cl>      <span class=o>&lt;</span><span class=err>/ul&gt;</span>
+</span></span><span class=line><span class=cl>    <span class=o>&lt;</span><span class=err>/div&gt;</span>
+</span></span><span class=line><span class=cl>  <span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=테스트-시나리오-구현>테스트 시나리오 구현<a hidden class=anchor aria-hidden=true href=#테스트-시나리오-구현>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-18-1><a class=lnlinks href=#hl-18-1> 1</a>
+</span><span class=lnt id=hl-18-2><a class=lnlinks href=#hl-18-2> 2</a>
+</span><span class=lnt id=hl-18-3><a class=lnlinks href=#hl-18-3> 3</a>
+</span><span class=lnt id=hl-18-4><a class=lnlinks href=#hl-18-4> 4</a>
+</span><span class=lnt id=hl-18-5><a class=lnlinks href=#hl-18-5> 5</a>
+</span><span class=lnt id=hl-18-6><a class=lnlinks href=#hl-18-6> 6</a>
+</span><span class=lnt id=hl-18-7><a class=lnlinks href=#hl-18-7> 7</a>
+</span><span class=lnt id=hl-18-8><a class=lnlinks href=#hl-18-8> 8</a>
+</span><span class=lnt id=hl-18-9><a class=lnlinks href=#hl-18-9> 9</a>
+</span><span class=lnt id=hl-18-10><a class=lnlinks href=#hl-18-10>10</a>
+</span><span class=lnt id=hl-18-11><a class=lnlinks href=#hl-18-11>11</a>
+</span><span class=lnt id=hl-18-12><a class=lnlinks href=#hl-18-12>12</a>
+</span><span class=lnt id=hl-18-13><a class=lnlinks href=#hl-18-13>13</a>
+</span><span class=lnt id=hl-18-14><a class=lnlinks href=#hl-18-14>14</a>
+</span><span class=lnt id=hl-18-15><a class=lnlinks href=#hl-18-15>15</a>
+</span><span class=lnt id=hl-18-16><a class=lnlinks href=#hl-18-16>16</a>
+</span><span class=lnt id=hl-18-17><a class=lnlinks href=#hl-18-17>17</a>
+</span><span class=lnt id=hl-18-18><a class=lnlinks href=#hl-18-18>18</a>
+</span><span class=lnt id=hl-18-19><a class=lnlinks href=#hl-18-19>19</a>
+</span><span class=lnt id=hl-18-20><a class=lnlinks href=#hl-18-20>20</a>
+</span><span class=lnt id=hl-18-21><a class=lnlinks href=#hl-18-21>21</a>
+</span><span class=lnt id=hl-18-22><a class=lnlinks href=#hl-18-22>22</a>
+</span><span class=lnt id=hl-18-23><a class=lnlinks href=#hl-18-23>23</a>
+</span><span class=lnt id=hl-18-24><a class=lnlinks href=#hl-18-24>24</a>
+</span><span class=lnt id=hl-18-25><a class=lnlinks href=#hl-18-25>25</a>
+</span><span class=lnt id=hl-18-26><a class=lnlinks href=#hl-18-26>26</a>
+</span><span class=lnt id=hl-18-27><a class=lnlinks href=#hl-18-27>27</a>
+</span><span class=lnt id=hl-18-28><a class=lnlinks href=#hl-18-28>28</a>
+</span><span class=lnt id=hl-18-29><a class=lnlinks href=#hl-18-29>29</a>
+</span><span class=lnt id=hl-18-30><a class=lnlinks href=#hl-18-30>30</a>
+</span><span class=lnt id=hl-18-31><a class=lnlinks href=#hl-18-31>31</a>
+</span><span class=lnt id=hl-18-32><a class=lnlinks href=#hl-18-32>32</a>
+</span><span class=lnt id=hl-18-33><a class=lnlinks href=#hl-18-33>33</a>
+</span><span class=lnt id=hl-18-34><a class=lnlinks href=#hl-18-34>34</a>
+</span><span class=lnt id=hl-18-35><a class=lnlinks href=#hl-18-35>35</a>
+</span><span class=lnt id=hl-18-36><a class=lnlinks href=#hl-18-36>36</a>
+</span><span class=lnt id=hl-18-37><a class=lnlinks href=#hl-18-37>37</a>
+</span><span class=lnt id=hl-18-38><a class=lnlinks href=#hl-18-38>38</a>
+</span><span class=lnt id=hl-18-39><a class=lnlinks href=#hl-18-39>39</a>
+</span><span class=lnt id=hl-18-40><a class=lnlinks href=#hl-18-40>40</a>
+</span><span class=lnt id=hl-18-41><a class=lnlinks href=#hl-18-41>41</a>
+</span><span class=lnt id=hl-18-42><a class=lnlinks href=#hl-18-42>42</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 다양한 응답 상태 시뮬레이션
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;uuid&#34;</span><span class=o>:</span> <span class=s2>&#34;route-1&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;method&#34;</span><span class=o>:</span> <span class=s2>&#34;get&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;endpoint&#34;</span><span class=o>:</span> <span class=s2>&#34;api/products&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;responses&#34;</span><span class=o>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;uuid&#34;</span><span class=o>:</span> <span class=s2>&#34;response-success&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;statusCode&#34;</span><span class=o>:</span> <span class=mi>200</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;label&#34;</span><span class=o>:</span> <span class=s2>&#34;성공 응답&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;body&#34;</span><span class=o>:</span> <span class=s2>&#34;{\n  \&#34;products\&#34;: [...]\n}&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;uuid&#34;</span><span class=o>:</span> <span class=s2>&#34;response-empty&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;statusCode&#34;</span><span class=o>:</span> <span class=mi>200</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;label&#34;</span><span class=o>:</span> <span class=s2>&#34;빈 목록&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;body&#34;</span><span class=o>:</span> <span class=s2>&#34;{\n  \&#34;products\&#34;: []\n}&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;rules&#34;</span><span class=o>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span>
+</span></span><span class=line><span class=cl>          <span class=s2>&#34;target&#34;</span><span class=o>:</span> <span class=s2>&#34;query&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>          <span class=s2>&#34;modifier&#34;</span><span class=o>:</span> <span class=s2>&#34;category&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>          <span class=s2>&#34;value&#34;</span><span class=o>:</span> <span class=s2>&#34;nonexistent&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>          <span class=s2>&#34;operator&#34;</span><span class=o>:</span> <span class=s2>&#34;equals&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>      <span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;uuid&#34;</span><span class=o>:</span> <span class=s2>&#34;response-error&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;statusCode&#34;</span><span class=o>:</span> <span class=mi>500</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;label&#34;</span><span class=o>:</span> <span class=s2>&#34;서버 오류&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;body&#34;</span><span class=o>:</span> <span class=s2>&#34;{\n  \&#34;error\&#34;: \&#34;서버 내부 오류가 발생했습니다.\&#34;\n}&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;rules&#34;</span><span class=o>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span>
+</span></span><span class=line><span class=cl>          <span class=s2>&#34;target&#34;</span><span class=o>:</span> <span class=s2>&#34;query&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>          <span class=s2>&#34;modifier&#34;</span><span class=o>:</span> <span class=s2>&#34;simulate&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>          <span class=s2>&#34;value&#34;</span><span class=o>:</span> <span class=s2>&#34;error&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>          <span class=s2>&#34;operator&#34;</span><span class=o>:</span> <span class=s2>&#34;equals&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>      <span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><hr><h2 id=용어-정리>용어 정리<a hidden class=anchor aria-hidden=true href=#용어-정리>#</a></h2><table><thead><tr><th>용어</th><th>설명</th></tr></thead><tbody><tr><td></td><td></td></tr></tbody></table><hr></div></main><footer class=footer><span>&copy; 2025 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>
