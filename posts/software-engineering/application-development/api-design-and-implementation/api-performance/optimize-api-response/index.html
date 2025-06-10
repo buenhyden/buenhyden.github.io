@@ -1,0 +1,728 @@
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Optimize API Response | hyunyoun's Blog</title><meta name=keywords content="Backend-Development,Best-Practices,Optimize-API-Response"><meta name=description content="API 응답 최적화는 현대 웹 애플리케이션의 성능, 사용자 경험 및 자원 효율성을 크게 향상시키는 핵심 요소이다."><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/software-engineering/application-development/api-design-and-implementation/api-performance/optimize-api-response/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.a9863521b3bd3c240bc506f46b95e3c06ccef2ae37f529d5f99bdaef442bccce.css integrity="sha256-qYY1IbO9PCQLxQb0a5XjwGzO8q439SnV+Zva70QrzM4=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/software-engineering/application-development/api-design-and-implementation/api-performance/optimize-api-response/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/software-engineering/application-development/api-design-and-implementation/api-performance/optimize-api-response/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="Optimize API Response"><meta property="og:description" content="API 응답 최적화는 현대 웹 애플리케이션의 성능, 사용자 경험 및 자원 효율성을 크게 향상시키는 핵심 요소이다."><meta property="og:locale" content="en"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2025-02-12T01:39:00+00:00"><meta property="article:modified_time" content="2025-02-12T01:39:00+00:00"><meta property="article:tag" content="Backend-Development"><meta property="article:tag" content="Best-Practices"><meta property="article:tag" content="Optimize-API-Response"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="Optimize API Response"><meta name=twitter:description content="API 응답 최적화는 현대 웹 애플리케이션의 성능, 사용자 경험 및 자원 효율성을 크게 향상시키는 핵심 요소이다."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"기술 블로그","item":"https://buenhyden.github.io/posts/"},{"@type":"ListItem","position":2,"name":"Software Engineering","item":""},{"@type":"ListItem","position":3,"name":"Application Development","item":""},{"@type":"ListItem","position":4,"name":"API Design and Implementation","item":"https://buenhyden.github.io/posts/software-engineering/application-development/api-design-and-implementation/"},{"@type":"ListItem","position":5,"name":"API Performance","item":"https://buenhyden.github.io/posts/software-engineering/application-development/api-design-and-implementation/api-performance/"},{"@type":"ListItem","position":6,"name":"Optimize API Response","item":"https://buenhyden.github.io/posts/software-engineering/application-development/api-design-and-implementation/api-performance/optimize-api-response/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Optimize API Response","name":"Optimize API Response","description":"API 응답 최적화는 현대 웹 애플리케이션의 성능, 사용자 경험 및 자원 효율성을 크게 향상시키는 핵심 요소이다.","keywords":["Backend-Development","Best-Practices","Optimize-API-Response"],"articleBody":"Optimize API Response API 응답 최적화는 현대 웹 애플리케이션의 성능, 사용자 경험 및 자원 효율성을 크게 향상시키는 핵심 요소이다.\nEnforcing Reasonable Payload Size Limits 페이로드 크기는 API 성능에 직접적인 영향을 미친다. 대용량 데이터 전송은 네트워크 대역폭을 소모하고 서버 처리 시간을 증가시킨다.\n페이로드 제한의 중요성 네트워크 효율성: 작은 페이로드는 더 빠른 전송 시간을 의미한다. 연구에 따르면 모바일 환경에서 5MB 이상의 페이로드는 평균 응답 시간을 3-4초 증가시킨다. 서버 리소스 관리: 대형 페이로드를 처리할 때 서버의 메모리 사용량이 급증할 수 있다. 이는 특히 동시 요청이 많을 때 서버 과부하로 이어질 수 있다. 데이터베이스 효율성: 대형 데이터를 저장하고 검색하는 것은 데이터베이스 성능에 부담을 준다. 구현 전략 1 2 3 4 5 6 7 8 9 10 11 12 13 14 // Express.js에서 페이로드 크기 제한 설정 예제 const express = require('express'); const app = express(); // JSON 페이로드 크기를 1MB로 제한 app.use(express.json({ limit: '1mb' })); // 폼 데이터 크기를 5MB로 제한 app.use(express.urlencoded({ extended: true, limit: '5mb' })); // 특정 라우트에 대해 다른 제한 적용 app.post('/upload-profile-image', express.json({ limit: '2mb' }), (req, res) =\u003e { // 프로필 이미지 처리 로직 }); 모범 사례 컨텐츠 유형별 제한: 이미지, 비디오, 텍스트 데이터에 대해 각기 다른 제한을 설정한다. 클라이언트 측 검증: 서버에 보내기 전에 클라이언트에서 파일 크기를 확인한다. 점진적 업로드: 대용량 파일은 청크(chunk) 단위로 분할하여 전송한다. 압축 권장: 가능한 경우 클라이언트 측에서 데이터 압축을 권장한다. Enabling Compression for Responses 데이터 압축은 전송되는 바이트 수를 감소시켜 네트워크 대역폭을 절약하고 응답 시간을 단축시킨다.\n압축의 장점 대역폭 감소: 압축은 전송되는 데이터 크기를 50-90% 감소시킬 수 있다. 응답 시간 개선: Facebook의 연구에 따르면 응답 압축으로 모바일 앱의 로딩 시간이 최대 35% 개선되었다. 확장성 향상: 같은 서버로 더 많은 요청을 처리할 수 있다. 주요 압축 알고리즘 Gzip: 가장 널리, 보편적으로 지원되는 압축 방식이다. Brotli: Google이 개발한 더 효율적인 압축 알고리즘으로, Gzip보다 평균 15-25% 더 나은 압축률을 제공한다. Deflate: 오래된 알고리즘이지만 여전히 일부 환경에서 사용된다. 구현 예제 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 // Node.js Express에서 압축 미들웨어 사용 const express = require('express'); const compression = require('compression'); const app = express(); // 압축 사용 설정 app.use(compression({ // 압축 수준 (0-9, 9가 최대 압축, 기본값은 6) level: 6, // 압축할 최소 바이트 (기본값 1KB) threshold: 1024, // 특정 MIME 타입만 압축 filter: (req, res) =\u003e { const contentType = res.getHeader('Content-Type'); return /text|json|javascript|css|xml/i.test(contentType); } })); 압축 적용 시 고려사항 CPU 사용량: 압축은 CPU 리소스를 사용한다. 고압축 레벨은 더 많은 처리 시간이 필요하다. 동적 vs 정적 컨텐츠: 정적 컨텐츠는 미리 압축하여 저장할 수 있다. 컨텐츠 유형: 텍스트, JSON, HTML, CSS 및 JavaScript는 압축 혜택이 크다. 이미 압축된 형식: JPEG, PNG, PDF 등 이미 압축된 형식은 추가 압축 효과가 미미하다. Efficient Pagination for Large Datasets 페이지네이션은 대량의 데이터를 관리 가능한 “페이지\"로 분할하여 서버 부하를 줄이고 응답 시간을 개선한다.\n페이지네이션 메커니즘 오프셋 기반 페이지네이션: 가장 일반적인 방식으로, 특정 오프셋부터 제한된 수의 레코드를 가져온다. 커서 기반 페이지네이션: 마지막으로 검색된 항목의 고유 식별자를 사용한다. 시간 기반 페이지네이션: 타임스탬프를 기준으로 데이터를 분할한다. 오프셋 기반 VS 커서 기반 페이지네이션 오프셋 기반 페이지네이션:\n1 2 3 4 -- 오프셋 기반 페이지네이션 SQL 예제 SELECT * FROM products ORDER BY id LIMIT 20 OFFSET 40; -- 3번째 페이지 (20개씩) 장점:\n구현이 간단하다. 페이지 번호로 직접 이동할 수 있다. 단점:\n오프셋이 커질수록 성능이 저하된다(DB는 오프셋까지의 모든 레코드를 스캔해야 함). 데이터 변경 시 결과가 일관되지 않을 수 있다. 커서 기반 페이지네이션:\n1 2 3 4 5 -- 커서 기반 페이지네이션 SQL 예제 SELECT * FROM products WHERE id \u003e 1042 -- 마지막으로 본 ID ORDER BY id LIMIT 20; 장점:\n대규모 데이터셋에서 훨씬 효율적이다. 데이터가 변경되어도 일관된 결과를 제공한다. 인덱스를 효과적으로 활용한다. 단점:\n구현이 더 복잡하다. 임의의 페이지로 직접 이동이 어렵다. API 설계 모범 사례 1 2 3 4 5 6 7 8 9 10 11 12 13 // 커서 기반 페이지네이션 API 응답 예제 { \"data\": [ { \"id\": 1043, \"name\": \"Product A\", … }, { \"id\": 1044, \"name\": \"Product B\", … }, // … ], \"pagination\": { \"next_cursor\": \"1062\", // 다음 페이지의 시작점 \"has_next_page\": true, \"total_count\": 1500 // 선택적으로 총 개수 제공 } } 고급 페이지네이션 전략 동적 페이지 크기: 클라이언트 환경(모바일 vs 데스크톱)에 따라 페이지 크기를 조정한다. 사전 로딩: 사용자가 다음 페이지로 이동할 가능성이 높을 때 미리 데이터를 로드한다. 스트리밍 응답: 매우 큰 데이터셋의 경우, 전체 응답을 기다리지 않고 데이터를 청크 단위로 스트리밍한다. Minimising Unnecessary Processing or Expensive Computation on the Server 서버의 계산 리소스는 한정되어 있으므로, 불필요한 처리를 제거하고 고비용 작업을 최적화하는 것이 중요하다.\n최적화 전략 결과 캐싱 동일한 계산을 반복적으로 수행하는 대신 결과를 저장하고 재사용한다.\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 // Node.js에서 메모리 캐싱 예제 const cache = new Map(); function expensiveCalculation(input) { // 캐시에 결과가 있는지 확인 const cacheKey = JSON.stringify(input); if (cache.has(cacheKey)) { return cache.get(cacheKey); } // 실제 계산 수행 console.time('calculation'); let result = 0; // 복잡한 계산 시뮬레이션 for (let i = 0; i \u003c 1000000; i++) { result += Math.sqrt(i * input.value); } console.timeEnd('calculation'); // 결과 캐싱 cache.set(cacheKey, result); return result; } 분산 시스템에서는 Redis와 같은 외부 캐시 시스템을 활용할 수 있다:\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 // Redis를 이용한 캐싱 예제 const redis = require('redis'); const client = redis.createClient(); const { promisify } = require('util'); const getAsync = promisify(client.get).bind(client); const setAsync = promisify(client.set).bind(client); async function expensiveCalculationWithRedis(input) { const cacheKey = `calc:${JSON.stringify(input)}`; // 캐시에서 확인 const cachedResult = await getAsync(cacheKey); if (cachedResult) { return JSON.parse(cachedResult); } // 계산 수행 const result = /* 복잡한 계산 */; // 결과 캐싱 (60초 유효) await setAsync(cacheKey, JSON.stringify(result), 'EX', 60); return result; } 계산 오프로딩 일부 계산은 클라이언트 측에서 수행되거나 별도의 작업자 프로세스로 오프로드될 수 있다.\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 // 백그라운드 작업 처리 예제 (Bull 큐 사용) const Queue = require('bull'); const calculationQueue = new Queue('calculations'); // API 엔드포인트 app.post('/calculate', async (req, res) =\u003e { const jobId = `calc-${Date.now()}`; // 계산 작업을 큐에 추가 await calculationQueue.add({ id: jobId, input: req.body, userId: req.user.id }); // 즉시 응답하고 작업 ID 반환 res.json({ jobId, status: 'processing', estimatedCompletionTime: '30s' }); }); // 작업 상태 확인 엔드포인트 app.get('/calculation/:jobId', async (req, res) =\u003e { const job = await calculationQueue.getJob(req.params.jobId); // 작업 상태 반환 }); // 백그라운드 작업자에서 처리 calculationQueue.process(async (job) =\u003e { // 실제 계산 수행 const result = /* 복잡한 계산 */; // 결과 저장 return result; }); 조건부 계산 모든 요청에 대해 모든 필드를 계산하는 대신, 필요한 경우에만 계산을 수행한다.\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 // GraphQL 예제 - 클라이언트가 요청한 필드만 계산 const resolvers = { User: { // 기본 필드는 DB에서 직접 가져옴 id: (user) =\u003e user.id, name: (user) =\u003e user.name, // 계산 비용이 높은 필드는 요청될 때만 계산 friendsCount: async (user, args, context) =\u003e { // 요청에 포함된 경우에만 계산 const count = await context.db.friendship.count({ where: { userId: user.id } }); return count; }, // 매우 비용이 높은 필드 recommendedProducts: async (user) =\u003e { // 복잡한 추천 알고리즘 실행 } } }; 데이터베이스 쿼리 최적화 복잡한 계산의 상당 부분은 데이터베이스에서 발생한다. 쿼리를 최적화하면 서버 부하를 크게 줄일 수 있다.\n1 2 3 4 5 6 7 8 9 10 11 -- 비효율적인 쿼리 SELECT * FROM orders WHERE customer_id = 123 ORDER BY created_at DESC; -- 최적화된 쿼리 SELECT id, status, total_amount, created_at FROM orders WHERE customer_id = 123 ORDER BY created_at DESC LIMIT 10; 성능 모니터링 및 병목 식별 서버의 불필요한 계산을 식별하려면 성능 모니터링이 필수적이다:\n프로파일링 도구: Node.js의 경우 clinic.js, 0x 같은 도구를 사용한다. APM(애플리케이션 성능 모니터링) 솔루션: New Relic, Datadog 등을 활용한다. 로깅 및 메트릭스: 핵심 작업의 실행 시간을 로깅하고 추적한다. API 응답 형식 최적화 API 응답의 형식과 구조도 성능에 상당한 영향을 미친다.\nJSON 최적화 대부분의 API는 JSON 형식으로 응답한다.\nJSON 구조를 최적화하면 응답 크기를 줄일 수 있다:\n불필요한 데이터 제거: 클라이언트가 필요로 하지 않는 필드는 포함하지 않는다. 중첩 줄이기: 깊이 중첩된 구조는 파싱 비용이 증가한다. 일관된 명명 규칙: 짧고 의미 있는 속성 이름을 사용한다. 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 // 최적화되지 않은 응답 { \"userData\": { \"userIdentifier\": \"u123456\", \"userFullName\": \"홍길동\", \"userEmailAddress\": \"hong@example.com\", \"userRegistrationDate\": \"2023-04-15T08:30:45Z\", \"userLastLoginTimestamp\": \"2023-05-10T14:22:33Z\", \"userPreferences\": { \"userPreferredLanguage\": \"ko\", \"userPreferredTheme\": \"dark\", \"userNotificationSettings\": { \"emailNotificationsEnabled\": true, \"pushNotificationsEnabled\": false } } } } // 최적화된 응답 { \"user\": { \"id\": \"u123456\", \"name\": \"홍길동\", \"email\": \"hong@example.com\", \"registered\": \"2023-04-15T08:30:45Z\", \"lastLogin\": \"2023-05-10T14:22:33Z\", \"prefs\": { \"lang\": \"ko\", \"theme\": \"dark\", \"notifications\": { \"email\": true, \"push\": false } } } } 부분 응답 및 필드 선택 클라이언트가 필요한 데이터만 요청할 수 있도록 하면 응답 크기를 줄일 수 있다:\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 // Express.js에서 필드 선택 구현 예제 app.get('/users/:id', (req, res) =\u003e { const userId = req.params.id; const fields = req.query.fields ? req.query.fields.split(',') : null; // 데이터베이스에서 사용자 정보 조회 getUserById(userId) .then(user =\u003e { // 요청된 필드만 포함 if (fields) { const filteredUser = {}; fields.forEach(field =\u003e { if (user[field] !== undefined) { filteredUser[field] = user[field]; } }); return res.json(filteredUser); } // 필드가 지정되지 않은 경우 전체 응답 res.json(user); }) .catch(error =\u003e { res.status(500).json({ error: error.message }); }); }); 사용 예: /users/123?fields=id,name,email\n응답 버전 관리 API가 발전함에 따라 응답 형식도 변경될 수 있다. 버전 관리를 통해 클라이언트 호환성을 유지하면서도 응답을 최적화할 수 있다:\n1 2 3 4 5 6 7 app.get('/api/v1/users/:id', (req, res) =\u003e { // 기존 형식의 응답 }); app.get('/api/v2/users/:id', (req, res) =\u003e { // 최적화된 새 형식의 응답 }); 고급 API 최적화 기법 HTTP/2 및 HTTP/3 활용 최신 HTTP 프로토콜은 성능 향상을 위한 다양한 기능을 제공한다:\n멀티플렉싱: 단일 연결로 여러 요청/응답을 병렬 처리 헤더 압축: 요청/응답 헤더 크기 축소 서버 푸시: 클라이언트가 요청하기 전에 리소스 전송 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 // Node.js에서 HTTP/2 서버 예제 const http2 = require('http2'); const fs = require('fs'); const server = http2.createSecureServer({ key: fs.readFileSync('server.key'), cert: fs.readFileSync('server.crt') }); server.on('stream', (stream, headers) =\u003e { const path = headers[':path']; if (path === '/api/users') { // 사용자 데이터 응답 stream.respond({ 'content-type': 'application/json', ':status': 200 }); // 사용자 데이터를 응답하면서 stream.end(JSON.stringify({ users: […] })); // 관련 리소스를 미리 푸시 const pushStream = stream.pushStream({ ':path': '/api/user-preferences' }, (err, pushStream) =\u003e { pushStream.respond({ 'content-type': 'application/json', ':status': 200 }); pushStream.end(JSON.stringify({ preferences: […] })); }); } }); server.listen(8443); 스트리밍 응답 대용량 응답을 처리할 때는 전체 응답을 메모리에 로드하지 않고 청크 단위로 스트리밍하면 메모리 사용량을 줄이고 응답 시간을 단축할 수 있다:\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 // Express.js와 MongoDB에서 스트리밍 응답 예제 app.get('/api/logs', (req, res) =\u003e { res.setHeader('Content-Type', 'application/json'); res.write('{\"logs\":['); let first = true; const cursor = db.collection('logs').find().stream(); cursor.on('data', (log) =\u003e { // 최초 항목이 아닌 경우 쉼표 추가 if (!first) { res.write(','); } else { first = false; } res.write(JSON.stringify(log)); }); cursor.on('end', () =\u003e { res.write(']}'); res.end(); }); cursor.on('error', (err) =\u003e { // 오류 처리 res.end(`],\"error\":\"${err.message}\"}`); }); // 클라이언트 연결이 끊어지면 스트림도 종료 req.on('close', () =\u003e { cursor.close(); }); }); 응답 캐싱 계층 API 응답을 캐싱하면 서버 부하를 크게 줄이고 응답 시간을 단축할 수 있다:\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 // Redis를 사용한 API 응답 캐싱 예제 const express = require('express'); const redis = require('redis'); const { promisify } = require('util'); const app = express(); const client = redis.createClient(); const getAsync = promisify(client.get).bind(client); const setAsync = promisify(client.set).bind(client); // 캐싱 미들웨어 async function cacheMiddleware(req, res, next) { // URL을 캐시 키로 사용 const cacheKey = `api:${req.originalUrl}`; try { // 캐시에서 응답 확인 const cachedResponse = await getAsync(cacheKey); if (cachedResponse) { // 캐시된 응답이 있으면 즉시 반환 const data = JSON.parse(cachedResponse); return res.json(data); } // 원본 res.json 메서드를 저장 const originalJson = res.json; // res.json 메서드를 오버라이드하여 응답을 캐싱 res.json = function(data) { // 응답 캐싱 (5분 유효) setAsync(cacheKey, JSON.stringify(data), 'EX', 300) .catch(err =\u003e console.error('캐싱 오류:', err)); // 원본 메서드 호출 return originalJson.call(this, data); }; next(); } catch (error) { console.error('캐시 미들웨어 오류:', error); next(); } } // 읽기 전용 API에 캐싱 적용 app.get('/api/products', cacheMiddleware, (req, res) =\u003e { // 제품 목록 조회 및 응답 }); app.get('/api/categories', cacheMiddleware, (req, res) =\u003e { // 카테고리 목록 조회 및 응답 }); 용어 정리 용어 설명 참고 및 출처 ","wordCount":"2154","inLanguage":"en","image":"https://buenhyden.github.io/images","datePublished":"2025-02-12T01:39:00Z","dateModified":"2025-02-12T01:39:00Z","author":{"@type":"Person","name":"Me"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://buenhyden.github.io/posts/software-engineering/application-development/api-design-and-implementation/api-performance/optimize-api-response/"},"publisher":{"@type":"Organization","name":"hyunyoun's Blog","logo":{"@type":"ImageObject","url":"https://buenhyden.github.io/favicons/favicon.ico"}}}</script></head><body id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/>기술 블로그</a>&nbsp;»&nbsp;<a href>Software Engineering</a>&nbsp;»&nbsp;<a href>Application Development</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/software-engineering/application-development/api-design-and-implementation/>API Design and Implementation</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/software-engineering/application-development/api-design-and-implementation/api-performance/>API Performance</a></div><h1 class="post-title entry-hint-parent">Optimize API Response</h1><div class=post-description>API 응답 최적화는 현대 웹 애플리케이션의 성능, 사용자 경험 및 자원 효율성을 크게 향상시키는 핵심 요소이다.</div><div class=post-meta><span title='2025-02-12 01:39:00 +0000 UTC'>February 12, 2025</span>&nbsp;·&nbsp;11 min&nbsp;·&nbsp;Me&nbsp;|&nbsp;<a href=https://github.com/buenhyden/blog-data/main/content/posts/Software%20Engineering/Application%20Development/API%20Design%20and%20Implementation/API%20Performance/Optimize-API-Response.md rel="noopener noreferrer" target=_blank>Suggest Changes</a></div></header><div class=toc><details><summary accesskey=c title="(Alt + C)"><span class=details>Table of Contents</span></summary><div class=inner><nav id=TableOfContents><ul><li><a href=#optimize-api-response>Optimize API Response</a><ul><li><a href=#enforcing-reasonable-payload-size-limits>Enforcing Reasonable Payload Size Limits</a></li><li><a href=#enabling-compression-for-responses>Enabling Compression for Responses</a></li><li><a href=#efficient-pagination-for-large-datasets>Efficient Pagination for Large Datasets</a></li><li><a href=#minimising-unnecessary-processing-or-expensive-computation-on-the-server>Minimising Unnecessary Processing or Expensive Computation on the Server</a></li><li><a href=#api-응답-형식-최적화>API 응답 형식 최적화</a></li><li><a href=#고급-api-최적화-기법>고급 API 최적화 기법</a></li></ul></li><li><a href=#용어-정리>용어 정리</a></li><li><a href=#참고-및-출처>참고 및 출처</a></li></ul></nav></div></details></div><div class=post-content><h2 id=optimize-api-response>Optimize API Response<a hidden class=anchor aria-hidden=true href=#optimize-api-response>#</a></h2><p>API 응답 최적화는 현대 웹 애플리케이션의 성능, 사용자 경험 및 자원 효율성을 크게 향상시키는 핵심 요소이다.</p><h3 id=enforcing-reasonable-payload-size-limits>Enforcing Reasonable Payload Size Limits<a hidden class=anchor aria-hidden=true href=#enforcing-reasonable-payload-size-limits>#</a></h3><p>페이로드 크기는 API 성능에 직접적인 영향을 미친다. 대용량 데이터 전송은 네트워크 대역폭을 소모하고 서버 처리 시간을 증가시킨다.</p><h4 id=페이로드-제한의-중요성>페이로드 제한의 중요성<a hidden class=anchor aria-hidden=true href=#페이로드-제한의-중요성>#</a></h4><ul><li><strong>네트워크 효율성</strong>: 작은 페이로드는 더 빠른 전송 시간을 의미한다. 연구에 따르면 모바일 환경에서 5MB 이상의 페이로드는 평균 응답 시간을 3-4초 증가시킨다.</li><li><strong>서버 리소스 관리</strong>: 대형 페이로드를 처리할 때 서버의 메모리 사용량이 급증할 수 있다. 이는 특히 동시 요청이 많을 때 서버 과부하로 이어질 수 있다.</li><li><strong>데이터베이스 효율성</strong>: 대형 데이터를 저장하고 검색하는 것은 데이터베이스 성능에 부담을 준다.</li></ul><h4 id=구현-전략>구현 전략<a hidden class=anchor aria-hidden=true href=#구현-전략>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-0-1><a class=lnlinks href=#hl-0-1> 1</a>
+</span><span class=lnt id=hl-0-2><a class=lnlinks href=#hl-0-2> 2</a>
+</span><span class=lnt id=hl-0-3><a class=lnlinks href=#hl-0-3> 3</a>
+</span><span class=lnt id=hl-0-4><a class=lnlinks href=#hl-0-4> 4</a>
+</span><span class=lnt id=hl-0-5><a class=lnlinks href=#hl-0-5> 5</a>
+</span><span class=lnt id=hl-0-6><a class=lnlinks href=#hl-0-6> 6</a>
+</span><span class=lnt id=hl-0-7><a class=lnlinks href=#hl-0-7> 7</a>
+</span><span class=lnt id=hl-0-8><a class=lnlinks href=#hl-0-8> 8</a>
+</span><span class=lnt id=hl-0-9><a class=lnlinks href=#hl-0-9> 9</a>
+</span><span class=lnt id=hl-0-10><a class=lnlinks href=#hl-0-10>10</a>
+</span><span class=lnt id=hl-0-11><a class=lnlinks href=#hl-0-11>11</a>
+</span><span class=lnt id=hl-0-12><a class=lnlinks href=#hl-0-12>12</a>
+</span><span class=lnt id=hl-0-13><a class=lnlinks href=#hl-0-13>13</a>
+</span><span class=lnt id=hl-0-14><a class=lnlinks href=#hl-0-14>14</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// Express.js에서 페이로드 크기 제한 설정 예제
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>const</span> <span class=nx>express</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;express&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kr>const</span> <span class=nx>app</span> <span class=o>=</span> <span class=nx>express</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// JSON 페이로드 크기를 1MB로 제한
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>app</span><span class=p>.</span><span class=nx>use</span><span class=p>(</span><span class=nx>express</span><span class=p>.</span><span class=nx>json</span><span class=p>({</span> <span class=nx>limit</span><span class=o>:</span> <span class=s1>&#39;1mb&#39;</span> <span class=p>}));</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 폼 데이터 크기를 5MB로 제한
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>app</span><span class=p>.</span><span class=nx>use</span><span class=p>(</span><span class=nx>express</span><span class=p>.</span><span class=nx>urlencoded</span><span class=p>({</span> <span class=nx>extended</span><span class=o>:</span> <span class=kc>true</span><span class=p>,</span> <span class=nx>limit</span><span class=o>:</span> <span class=s1>&#39;5mb&#39;</span> <span class=p>}));</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 특정 라우트에 대해 다른 제한 적용
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>app</span><span class=p>.</span><span class=nx>post</span><span class=p>(</span><span class=s1>&#39;/upload-profile-image&#39;</span><span class=p>,</span> <span class=nx>express</span><span class=p>.</span><span class=nx>json</span><span class=p>({</span> <span class=nx>limit</span><span class=o>:</span> <span class=s1>&#39;2mb&#39;</span> <span class=p>}),</span> <span class=p>(</span><span class=nx>req</span><span class=p>,</span> <span class=nx>res</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 프로필 이미지 처리 로직
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=모범-사례>모범 사례<a hidden class=anchor aria-hidden=true href=#모범-사례>#</a></h4><ul><li><strong>컨텐츠 유형별 제한</strong>: 이미지, 비디오, 텍스트 데이터에 대해 각기 다른 제한을 설정한다.</li><li><strong>클라이언트 측 검증</strong>: 서버에 보내기 전에 클라이언트에서 파일 크기를 확인한다.</li><li><strong>점진적 업로드</strong>: 대용량 파일은 청크(chunk) 단위로 분할하여 전송한다.</li><li><strong>압축 권장</strong>: 가능한 경우 클라이언트 측에서 데이터 압축을 권장한다.</li></ul><h3 id=enabling-compression-for-responses>Enabling Compression for Responses<a hidden class=anchor aria-hidden=true href=#enabling-compression-for-responses>#</a></h3><p>데이터 압축은 전송되는 바이트 수를 감소시켜 네트워크 대역폭을 절약하고 응답 시간을 단축시킨다.</p><h4 id=압축의-장점>압축의 장점<a hidden class=anchor aria-hidden=true href=#압축의-장점>#</a></h4><ul><li><strong>대역폭 감소</strong>: 압축은 전송되는 데이터 크기를 50-90% 감소시킬 수 있다.</li><li><strong>응답 시간 개선</strong>: Facebook의 연구에 따르면 응답 압축으로 모바일 앱의 로딩 시간이 최대 35% 개선되었다.</li><li><strong>확장성 향상</strong>: 같은 서버로 더 많은 요청을 처리할 수 있다.</li></ul><h4 id=주요-압축-알고리즘>주요 압축 알고리즘<a hidden class=anchor aria-hidden=true href=#주요-압축-알고리즘>#</a></h4><ul><li><strong>Gzip</strong>: 가장 널리, 보편적으로 지원되는 압축 방식이다.</li><li><strong>Brotli</strong>: Google이 개발한 더 효율적인 압축 알고리즘으로, Gzip보다 평균 15-25% 더 나은 압축률을 제공한다.</li><li><strong>Deflate</strong>: 오래된 알고리즘이지만 여전히 일부 환경에서 사용된다.</li></ul><h4 id=구현-예제>구현 예제<a hidden class=anchor aria-hidden=true href=#구현-예제>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-1-1><a class=lnlinks href=#hl-1-1> 1</a>
+</span><span class=lnt id=hl-1-2><a class=lnlinks href=#hl-1-2> 2</a>
+</span><span class=lnt id=hl-1-3><a class=lnlinks href=#hl-1-3> 3</a>
+</span><span class=lnt id=hl-1-4><a class=lnlinks href=#hl-1-4> 4</a>
+</span><span class=lnt id=hl-1-5><a class=lnlinks href=#hl-1-5> 5</a>
+</span><span class=lnt id=hl-1-6><a class=lnlinks href=#hl-1-6> 6</a>
+</span><span class=lnt id=hl-1-7><a class=lnlinks href=#hl-1-7> 7</a>
+</span><span class=lnt id=hl-1-8><a class=lnlinks href=#hl-1-8> 8</a>
+</span><span class=lnt id=hl-1-9><a class=lnlinks href=#hl-1-9> 9</a>
+</span><span class=lnt id=hl-1-10><a class=lnlinks href=#hl-1-10>10</a>
+</span><span class=lnt id=hl-1-11><a class=lnlinks href=#hl-1-11>11</a>
+</span><span class=lnt id=hl-1-12><a class=lnlinks href=#hl-1-12>12</a>
+</span><span class=lnt id=hl-1-13><a class=lnlinks href=#hl-1-13>13</a>
+</span><span class=lnt id=hl-1-14><a class=lnlinks href=#hl-1-14>14</a>
+</span><span class=lnt id=hl-1-15><a class=lnlinks href=#hl-1-15>15</a>
+</span><span class=lnt id=hl-1-16><a class=lnlinks href=#hl-1-16>16</a>
+</span><span class=lnt id=hl-1-17><a class=lnlinks href=#hl-1-17>17</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// Node.js Express에서 압축 미들웨어 사용
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>const</span> <span class=nx>express</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;express&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kr>const</span> <span class=nx>compression</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;compression&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kr>const</span> <span class=nx>app</span> <span class=o>=</span> <span class=nx>express</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 압축 사용 설정
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>app</span><span class=p>.</span><span class=nx>use</span><span class=p>(</span><span class=nx>compression</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 압축 수준 (0-9, 9가 최대 압축, 기본값은 6)
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>level</span><span class=o>:</span> <span class=mi>6</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 압축할 최소 바이트 (기본값 1KB)
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>threshold</span><span class=o>:</span> <span class=mi>1024</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 특정 MIME 타입만 압축 
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>filter</span><span class=o>:</span> <span class=p>(</span><span class=nx>req</span><span class=p>,</span> <span class=nx>res</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kr>const</span> <span class=nx>contentType</span> <span class=o>=</span> <span class=nx>res</span><span class=p>.</span><span class=nx>getHeader</span><span class=p>(</span><span class=s1>&#39;Content-Type&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=sr>/text|json|javascript|css|xml/i</span><span class=p>.</span><span class=nx>test</span><span class=p>(</span><span class=nx>contentType</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}));</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=압축-적용-시-고려사항>압축 적용 시 고려사항<a hidden class=anchor aria-hidden=true href=#압축-적용-시-고려사항>#</a></h4><ul><li><strong>CPU 사용량</strong>: 압축은 CPU 리소스를 사용한다. 고압축 레벨은 더 많은 처리 시간이 필요하다.</li><li><strong>동적 vs 정적 컨텐츠</strong>: 정적 컨텐츠는 미리 압축하여 저장할 수 있다.</li><li><strong>컨텐츠 유형</strong>: 텍스트, JSON, HTML, CSS 및 JavaScript는 압축 혜택이 크다.</li><li><strong>이미 압축된 형식</strong>: JPEG, PNG, PDF 등 이미 압축된 형식은 추가 압축 효과가 미미하다.</li></ul><h3 id=efficient-pagination-for-large-datasets>Efficient Pagination for Large Datasets<a hidden class=anchor aria-hidden=true href=#efficient-pagination-for-large-datasets>#</a></h3><p>페이지네이션은 대량의 데이터를 관리 가능한 &ldquo;페이지"로 분할하여 서버 부하를 줄이고 응답 시간을 개선한다.</p><h4 id=페이지네이션-메커니즘>페이지네이션 메커니즘<a hidden class=anchor aria-hidden=true href=#페이지네이션-메커니즘>#</a></h4><ul><li><strong>오프셋 기반 페이지네이션</strong>: 가장 일반적인 방식으로, 특정 오프셋부터 제한된 수의 레코드를 가져온다.</li><li><strong>커서 기반 페이지네이션</strong>: 마지막으로 검색된 항목의 고유 식별자를 사용한다.</li><li><strong>시간 기반 페이지네이션</strong>: 타임스탬프를 기준으로 데이터를 분할한다.</li></ul><h4 id=오프셋-기반-vs-커서-기반-페이지네이션>오프셋 기반 VS 커서 기반 페이지네이션<a hidden class=anchor aria-hidden=true href=#오프셋-기반-vs-커서-기반-페이지네이션>#</a></h4><ul><li><p><strong>오프셋 기반 페이지네이션</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-2-1><a class=lnlinks href=#hl-2-1>1</a>
+</span><span class=lnt id=hl-2-2><a class=lnlinks href=#hl-2-2>2</a>
+</span><span class=lnt id=hl-2-3><a class=lnlinks href=#hl-2-3>3</a>
+</span><span class=lnt id=hl-2-4><a class=lnlinks href=#hl-2-4>4</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sql data-lang=sql><span class=line><span class=cl><span class=c1>-- 오프셋 기반 페이지네이션 SQL 예제
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>SELECT</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=k>FROM</span><span class=w> </span><span class=n>products</span><span class=w> 
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>ORDER</span><span class=w> </span><span class=k>BY</span><span class=w> </span><span class=n>id</span><span class=w> 
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>LIMIT</span><span class=w> </span><span class=mi>20</span><span class=w> </span><span class=k>OFFSET</span><span class=w> </span><span class=mi>40</span><span class=p>;</span><span class=w>  </span><span class=c1>-- 3번째 페이지 (20개씩)
+</span></span></span></code></pre></td></tr></table></div></div><ul><li><p><strong>장점</strong>:</p><ul><li>구현이 간단하다.</li><li>페이지 번호로 직접 이동할 수 있다.</li></ul></li><li><p><strong>단점</strong>:</p><ul><li>오프셋이 커질수록 성능이 저하된다(DB는 오프셋까지의 모든 레코드를 스캔해야 함).</li><li>데이터 변경 시 결과가 일관되지 않을 수 있다.</li></ul></li></ul></li><li><p><strong>커서 기반 페이지네이션</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-3-1><a class=lnlinks href=#hl-3-1>1</a>
+</span><span class=lnt id=hl-3-2><a class=lnlinks href=#hl-3-2>2</a>
+</span><span class=lnt id=hl-3-3><a class=lnlinks href=#hl-3-3>3</a>
+</span><span class=lnt id=hl-3-4><a class=lnlinks href=#hl-3-4>4</a>
+</span><span class=lnt id=hl-3-5><a class=lnlinks href=#hl-3-5>5</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sql data-lang=sql><span class=line><span class=cl><span class=c1>-- 커서 기반 페이지네이션 SQL 예제
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>SELECT</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=k>FROM</span><span class=w> </span><span class=n>products</span><span class=w> 
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>WHERE</span><span class=w> </span><span class=n>id</span><span class=w> </span><span class=o>&gt;</span><span class=w> </span><span class=mi>1042</span><span class=w>  </span><span class=c1>-- 마지막으로 본 ID
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>ORDER</span><span class=w> </span><span class=k>BY</span><span class=w> </span><span class=n>id</span><span class=w> 
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>LIMIT</span><span class=w> </span><span class=mi>20</span><span class=p>;</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><ul><li><p><strong>장점</strong>:</p><ul><li>대규모 데이터셋에서 훨씬 효율적이다.</li><li>데이터가 변경되어도 일관된 결과를 제공한다.</li><li>인덱스를 효과적으로 활용한다.</li></ul></li><li><p><strong>단점</strong>:</p><ul><li>구현이 더 복잡하다.</li><li>임의의 페이지로 직접 이동이 어렵다.</li></ul></li></ul></li></ul><h4 id=api-설계-모범-사례>API 설계 모범 사례<a hidden class=anchor aria-hidden=true href=#api-설계-모범-사례>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-4-1><a class=lnlinks href=#hl-4-1> 1</a>
+</span><span class=lnt id=hl-4-2><a class=lnlinks href=#hl-4-2> 2</a>
+</span><span class=lnt id=hl-4-3><a class=lnlinks href=#hl-4-3> 3</a>
+</span><span class=lnt id=hl-4-4><a class=lnlinks href=#hl-4-4> 4</a>
+</span><span class=lnt id=hl-4-5><a class=lnlinks href=#hl-4-5> 5</a>
+</span><span class=lnt id=hl-4-6><a class=lnlinks href=#hl-4-6> 6</a>
+</span><span class=lnt id=hl-4-7><a class=lnlinks href=#hl-4-7> 7</a>
+</span><span class=lnt id=hl-4-8><a class=lnlinks href=#hl-4-8> 8</a>
+</span><span class=lnt id=hl-4-9><a class=lnlinks href=#hl-4-9> 9</a>
+</span><span class=lnt id=hl-4-10><a class=lnlinks href=#hl-4-10>10</a>
+</span><span class=lnt id=hl-4-11><a class=lnlinks href=#hl-4-11>11</a>
+</span><span class=lnt id=hl-4-12><a class=lnlinks href=#hl-4-12>12</a>
+</span><span class=lnt id=hl-4-13><a class=lnlinks href=#hl-4-13>13</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 커서 기반 페이지네이션 API 응답 예제
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;data&#34;</span><span class=o>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span> <span class=s2>&#34;id&#34;</span><span class=o>:</span> <span class=mi>1043</span><span class=p>,</span> <span class=s2>&#34;name&#34;</span><span class=o>:</span> <span class=s2>&#34;Product A&#34;</span><span class=p>,</span> <span class=err>…</span> <span class=p>},</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span> <span class=s2>&#34;id&#34;</span><span class=o>:</span> <span class=mi>1044</span><span class=p>,</span> <span class=s2>&#34;name&#34;</span><span class=o>:</span> <span class=s2>&#34;Product B&#34;</span><span class=p>,</span> <span class=err>…</span> <span class=p>},</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// …
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=p>],</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;pagination&#34;</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;next_cursor&#34;</span><span class=o>:</span> <span class=s2>&#34;1062&#34;</span><span class=p>,</span>  <span class=c1>// 다음 페이지의 시작점
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=s2>&#34;has_next_page&#34;</span><span class=o>:</span> <span class=kc>true</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;total_count&#34;</span><span class=o>:</span> <span class=mi>1500</span>    <span class=c1>// 선택적으로 총 개수 제공
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=고급-페이지네이션-전략>고급 페이지네이션 전략<a hidden class=anchor aria-hidden=true href=#고급-페이지네이션-전략>#</a></h4><ul><li><strong>동적 페이지 크기</strong>: 클라이언트 환경(모바일 vs 데스크톱)에 따라 페이지 크기를 조정한다.</li><li><strong>사전 로딩</strong>: 사용자가 다음 페이지로 이동할 가능성이 높을 때 미리 데이터를 로드한다.</li><li><strong>스트리밍 응답</strong>: 매우 큰 데이터셋의 경우, 전체 응답을 기다리지 않고 데이터를 청크 단위로 스트리밍한다.</li></ul><h3 id=minimising-unnecessary-processing-or-expensive-computation-on-the-server>Minimising Unnecessary Processing or Expensive Computation on the Server<a hidden class=anchor aria-hidden=true href=#minimising-unnecessary-processing-or-expensive-computation-on-the-server>#</a></h3><p>서버의 계산 리소스는 한정되어 있으므로, 불필요한 처리를 제거하고 고비용 작업을 최적화하는 것이 중요하다.</p><h4 id=최적화-전략>최적화 전략<a hidden class=anchor aria-hidden=true href=#최적화-전략>#</a></h4><h5 id=결과-캐싱>결과 캐싱<a hidden class=anchor aria-hidden=true href=#결과-캐싱>#</a></h5><p>동일한 계산을 반복적으로 수행하는 대신 결과를 저장하고 재사용한다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-5-1><a class=lnlinks href=#hl-5-1> 1</a>
+</span><span class=lnt id=hl-5-2><a class=lnlinks href=#hl-5-2> 2</a>
+</span><span class=lnt id=hl-5-3><a class=lnlinks href=#hl-5-3> 3</a>
+</span><span class=lnt id=hl-5-4><a class=lnlinks href=#hl-5-4> 4</a>
+</span><span class=lnt id=hl-5-5><a class=lnlinks href=#hl-5-5> 5</a>
+</span><span class=lnt id=hl-5-6><a class=lnlinks href=#hl-5-6> 6</a>
+</span><span class=lnt id=hl-5-7><a class=lnlinks href=#hl-5-7> 7</a>
+</span><span class=lnt id=hl-5-8><a class=lnlinks href=#hl-5-8> 8</a>
+</span><span class=lnt id=hl-5-9><a class=lnlinks href=#hl-5-9> 9</a>
+</span><span class=lnt id=hl-5-10><a class=lnlinks href=#hl-5-10>10</a>
+</span><span class=lnt id=hl-5-11><a class=lnlinks href=#hl-5-11>11</a>
+</span><span class=lnt id=hl-5-12><a class=lnlinks href=#hl-5-12>12</a>
+</span><span class=lnt id=hl-5-13><a class=lnlinks href=#hl-5-13>13</a>
+</span><span class=lnt id=hl-5-14><a class=lnlinks href=#hl-5-14>14</a>
+</span><span class=lnt id=hl-5-15><a class=lnlinks href=#hl-5-15>15</a>
+</span><span class=lnt id=hl-5-16><a class=lnlinks href=#hl-5-16>16</a>
+</span><span class=lnt id=hl-5-17><a class=lnlinks href=#hl-5-17>17</a>
+</span><span class=lnt id=hl-5-18><a class=lnlinks href=#hl-5-18>18</a>
+</span><span class=lnt id=hl-5-19><a class=lnlinks href=#hl-5-19>19</a>
+</span><span class=lnt id=hl-5-20><a class=lnlinks href=#hl-5-20>20</a>
+</span><span class=lnt id=hl-5-21><a class=lnlinks href=#hl-5-21>21</a>
+</span><span class=lnt id=hl-5-22><a class=lnlinks href=#hl-5-22>22</a>
+</span><span class=lnt id=hl-5-23><a class=lnlinks href=#hl-5-23>23</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// Node.js에서 메모리 캐싱 예제
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>const</span> <span class=nx>cache</span> <span class=o>=</span> <span class=k>new</span> <span class=nx>Map</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>function</span> <span class=nx>expensiveCalculation</span><span class=p>(</span><span class=nx>input</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 캐시에 결과가 있는지 확인
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=kr>const</span> <span class=nx>cacheKey</span> <span class=o>=</span> <span class=nx>JSON</span><span class=p>.</span><span class=nx>stringify</span><span class=p>(</span><span class=nx>input</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=p>(</span><span class=nx>cache</span><span class=p>.</span><span class=nx>has</span><span class=p>(</span><span class=nx>cacheKey</span><span class=p>))</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>cache</span><span class=p>.</span><span class=nx>get</span><span class=p>(</span><span class=nx>cacheKey</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// 실제 계산 수행
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>console</span><span class=p>.</span><span class=nx>time</span><span class=p>(</span><span class=s1>&#39;calculation&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=kd>let</span> <span class=nx>result</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 복잡한 계산 시뮬레이션
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=k>for</span> <span class=p>(</span><span class=kd>let</span> <span class=nx>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=nx>i</span> <span class=o>&lt;</span> <span class=mi>1000000</span><span class=p>;</span> <span class=nx>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>result</span> <span class=o>+=</span> <span class=nb>Math</span><span class=p>.</span><span class=nx>sqrt</span><span class=p>(</span><span class=nx>i</span> <span class=o>*</span> <span class=nx>input</span><span class=p>.</span><span class=nx>value</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>timeEnd</span><span class=p>(</span><span class=s1>&#39;calculation&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// 결과 캐싱
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>cache</span><span class=p>.</span><span class=nx>set</span><span class=p>(</span><span class=nx>cacheKey</span><span class=p>,</span> <span class=nx>result</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=nx>result</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>분산 시스템에서는 Redis와 같은 외부 캐시 시스템을 활용할 수 있다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-6-1><a class=lnlinks href=#hl-6-1> 1</a>
+</span><span class=lnt id=hl-6-2><a class=lnlinks href=#hl-6-2> 2</a>
+</span><span class=lnt id=hl-6-3><a class=lnlinks href=#hl-6-3> 3</a>
+</span><span class=lnt id=hl-6-4><a class=lnlinks href=#hl-6-4> 4</a>
+</span><span class=lnt id=hl-6-5><a class=lnlinks href=#hl-6-5> 5</a>
+</span><span class=lnt id=hl-6-6><a class=lnlinks href=#hl-6-6> 6</a>
+</span><span class=lnt id=hl-6-7><a class=lnlinks href=#hl-6-7> 7</a>
+</span><span class=lnt id=hl-6-8><a class=lnlinks href=#hl-6-8> 8</a>
+</span><span class=lnt id=hl-6-9><a class=lnlinks href=#hl-6-9> 9</a>
+</span><span class=lnt id=hl-6-10><a class=lnlinks href=#hl-6-10>10</a>
+</span><span class=lnt id=hl-6-11><a class=lnlinks href=#hl-6-11>11</a>
+</span><span class=lnt id=hl-6-12><a class=lnlinks href=#hl-6-12>12</a>
+</span><span class=lnt id=hl-6-13><a class=lnlinks href=#hl-6-13>13</a>
+</span><span class=lnt id=hl-6-14><a class=lnlinks href=#hl-6-14>14</a>
+</span><span class=lnt id=hl-6-15><a class=lnlinks href=#hl-6-15>15</a>
+</span><span class=lnt id=hl-6-16><a class=lnlinks href=#hl-6-16>16</a>
+</span><span class=lnt id=hl-6-17><a class=lnlinks href=#hl-6-17>17</a>
+</span><span class=lnt id=hl-6-18><a class=lnlinks href=#hl-6-18>18</a>
+</span><span class=lnt id=hl-6-19><a class=lnlinks href=#hl-6-19>19</a>
+</span><span class=lnt id=hl-6-20><a class=lnlinks href=#hl-6-20>20</a>
+</span><span class=lnt id=hl-6-21><a class=lnlinks href=#hl-6-21>21</a>
+</span><span class=lnt id=hl-6-22><a class=lnlinks href=#hl-6-22>22</a>
+</span><span class=lnt id=hl-6-23><a class=lnlinks href=#hl-6-23>23</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// Redis를 이용한 캐싱 예제
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>const</span> <span class=nx>redis</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;redis&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kr>const</span> <span class=nx>client</span> <span class=o>=</span> <span class=nx>redis</span><span class=p>.</span><span class=nx>createClient</span><span class=p>();</span>
+</span></span><span class=line><span class=cl><span class=kr>const</span> <span class=p>{</span> <span class=nx>promisify</span> <span class=p>}</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;util&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kr>const</span> <span class=nx>getAsync</span> <span class=o>=</span> <span class=nx>promisify</span><span class=p>(</span><span class=nx>client</span><span class=p>.</span><span class=nx>get</span><span class=p>).</span><span class=nx>bind</span><span class=p>(</span><span class=nx>client</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kr>const</span> <span class=nx>setAsync</span> <span class=o>=</span> <span class=nx>promisify</span><span class=p>(</span><span class=nx>client</span><span class=p>.</span><span class=nx>set</span><span class=p>).</span><span class=nx>bind</span><span class=p>(</span><span class=nx>client</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kr>async</span> <span class=kd>function</span> <span class=nx>expensiveCalculationWithRedis</span><span class=p>(</span><span class=nx>input</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>cacheKey</span> <span class=o>=</span> <span class=sb>`calc:</span><span class=si>${</span><span class=nx>JSON</span><span class=p>.</span><span class=nx>stringify</span><span class=p>(</span><span class=nx>input</span><span class=p>)</span><span class=si>}</span><span class=sb>`</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// 캐시에서 확인
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=kr>const</span> <span class=nx>cachedResult</span> <span class=o>=</span> <span class=kr>await</span> <span class=nx>getAsync</span><span class=p>(</span><span class=nx>cacheKey</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=p>(</span><span class=nx>cachedResult</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>JSON</span><span class=p>.</span><span class=nx>parse</span><span class=p>(</span><span class=nx>cachedResult</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// 계산 수행
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=kr>const</span> <span class=nx>result</span> <span class=o>=</span> <span class=cm>/* 복잡한 계산 */</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// 결과 캐싱 (60초 유효)
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=kr>await</span> <span class=nx>setAsync</span><span class=p>(</span><span class=nx>cacheKey</span><span class=p>,</span> <span class=nx>JSON</span><span class=p>.</span><span class=nx>stringify</span><span class=p>(</span><span class=nx>result</span><span class=p>),</span> <span class=s1>&#39;EX&#39;</span><span class=p>,</span> <span class=mi>60</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=nx>result</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h5 id=계산-오프로딩>계산 오프로딩<a hidden class=anchor aria-hidden=true href=#계산-오프로딩>#</a></h5><p>일부 계산은 클라이언트 측에서 수행되거나 별도의 작업자 프로세스로 오프로드될 수 있다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-7-1><a class=lnlinks href=#hl-7-1> 1</a>
+</span><span class=lnt id=hl-7-2><a class=lnlinks href=#hl-7-2> 2</a>
+</span><span class=lnt id=hl-7-3><a class=lnlinks href=#hl-7-3> 3</a>
+</span><span class=lnt id=hl-7-4><a class=lnlinks href=#hl-7-4> 4</a>
+</span><span class=lnt id=hl-7-5><a class=lnlinks href=#hl-7-5> 5</a>
+</span><span class=lnt id=hl-7-6><a class=lnlinks href=#hl-7-6> 6</a>
+</span><span class=lnt id=hl-7-7><a class=lnlinks href=#hl-7-7> 7</a>
+</span><span class=lnt id=hl-7-8><a class=lnlinks href=#hl-7-8> 8</a>
+</span><span class=lnt id=hl-7-9><a class=lnlinks href=#hl-7-9> 9</a>
+</span><span class=lnt id=hl-7-10><a class=lnlinks href=#hl-7-10>10</a>
+</span><span class=lnt id=hl-7-11><a class=lnlinks href=#hl-7-11>11</a>
+</span><span class=lnt id=hl-7-12><a class=lnlinks href=#hl-7-12>12</a>
+</span><span class=lnt id=hl-7-13><a class=lnlinks href=#hl-7-13>13</a>
+</span><span class=lnt id=hl-7-14><a class=lnlinks href=#hl-7-14>14</a>
+</span><span class=lnt id=hl-7-15><a class=lnlinks href=#hl-7-15>15</a>
+</span><span class=lnt id=hl-7-16><a class=lnlinks href=#hl-7-16>16</a>
+</span><span class=lnt id=hl-7-17><a class=lnlinks href=#hl-7-17>17</a>
+</span><span class=lnt id=hl-7-18><a class=lnlinks href=#hl-7-18>18</a>
+</span><span class=lnt id=hl-7-19><a class=lnlinks href=#hl-7-19>19</a>
+</span><span class=lnt id=hl-7-20><a class=lnlinks href=#hl-7-20>20</a>
+</span><span class=lnt id=hl-7-21><a class=lnlinks href=#hl-7-21>21</a>
+</span><span class=lnt id=hl-7-22><a class=lnlinks href=#hl-7-22>22</a>
+</span><span class=lnt id=hl-7-23><a class=lnlinks href=#hl-7-23>23</a>
+</span><span class=lnt id=hl-7-24><a class=lnlinks href=#hl-7-24>24</a>
+</span><span class=lnt id=hl-7-25><a class=lnlinks href=#hl-7-25>25</a>
+</span><span class=lnt id=hl-7-26><a class=lnlinks href=#hl-7-26>26</a>
+</span><span class=lnt id=hl-7-27><a class=lnlinks href=#hl-7-27>27</a>
+</span><span class=lnt id=hl-7-28><a class=lnlinks href=#hl-7-28>28</a>
+</span><span class=lnt id=hl-7-29><a class=lnlinks href=#hl-7-29>29</a>
+</span><span class=lnt id=hl-7-30><a class=lnlinks href=#hl-7-30>30</a>
+</span><span class=lnt id=hl-7-31><a class=lnlinks href=#hl-7-31>31</a>
+</span><span class=lnt id=hl-7-32><a class=lnlinks href=#hl-7-32>32</a>
+</span><span class=lnt id=hl-7-33><a class=lnlinks href=#hl-7-33>33</a>
+</span><span class=lnt id=hl-7-34><a class=lnlinks href=#hl-7-34>34</a>
+</span><span class=lnt id=hl-7-35><a class=lnlinks href=#hl-7-35>35</a>
+</span><span class=lnt id=hl-7-36><a class=lnlinks href=#hl-7-36>36</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 백그라운드 작업 처리 예제 (Bull 큐 사용)
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>const</span> <span class=nx>Queue</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;bull&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kr>const</span> <span class=nx>calculationQueue</span> <span class=o>=</span> <span class=k>new</span> <span class=nx>Queue</span><span class=p>(</span><span class=s1>&#39;calculations&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// API 엔드포인트
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>app</span><span class=p>.</span><span class=nx>post</span><span class=p>(</span><span class=s1>&#39;/calculate&#39;</span><span class=p>,</span> <span class=kr>async</span> <span class=p>(</span><span class=nx>req</span><span class=p>,</span> <span class=nx>res</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>jobId</span> <span class=o>=</span> <span class=sb>`calc-</span><span class=si>${</span><span class=nb>Date</span><span class=p>.</span><span class=nx>now</span><span class=p>()</span><span class=si>}</span><span class=sb>`</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// 계산 작업을 큐에 추가
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=kr>await</span> <span class=nx>calculationQueue</span><span class=p>.</span><span class=nx>add</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>    <span class=nx>id</span><span class=o>:</span> <span class=nx>jobId</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>input</span><span class=o>:</span> <span class=nx>req</span><span class=p>.</span><span class=nx>body</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>userId</span><span class=o>:</span> <span class=nx>req</span><span class=p>.</span><span class=nx>user</span><span class=p>.</span><span class=nx>id</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// 즉시 응답하고 작업 ID 반환
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>res</span><span class=p>.</span><span class=nx>json</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>    <span class=nx>jobId</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>status</span><span class=o>:</span> <span class=s1>&#39;processing&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>estimatedCompletionTime</span><span class=o>:</span> <span class=s1>&#39;30s&#39;</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 작업 상태 확인 엔드포인트
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>app</span><span class=p>.</span><span class=nx>get</span><span class=p>(</span><span class=s1>&#39;/calculation/:jobId&#39;</span><span class=p>,</span> <span class=kr>async</span> <span class=p>(</span><span class=nx>req</span><span class=p>,</span> <span class=nx>res</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>job</span> <span class=o>=</span> <span class=kr>await</span> <span class=nx>calculationQueue</span><span class=p>.</span><span class=nx>getJob</span><span class=p>(</span><span class=nx>req</span><span class=p>.</span><span class=nx>params</span><span class=p>.</span><span class=nx>jobId</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 작업 상태 반환
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 백그라운드 작업자에서 처리
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>calculationQueue</span><span class=p>.</span><span class=nx>process</span><span class=p>(</span><span class=kr>async</span> <span class=p>(</span><span class=nx>job</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 실제 계산 수행
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=kr>const</span> <span class=nx>result</span> <span class=o>=</span> <span class=cm>/* 복잡한 계산 */</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 결과 저장
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=k>return</span> <span class=nx>result</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><h5 id=조건부-계산>조건부 계산<a hidden class=anchor aria-hidden=true href=#조건부-계산>#</a></h5><p>모든 요청에 대해 모든 필드를 계산하는 대신, 필요한 경우에만 계산을 수행한다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-8-1><a class=lnlinks href=#hl-8-1> 1</a>
+</span><span class=lnt id=hl-8-2><a class=lnlinks href=#hl-8-2> 2</a>
+</span><span class=lnt id=hl-8-3><a class=lnlinks href=#hl-8-3> 3</a>
+</span><span class=lnt id=hl-8-4><a class=lnlinks href=#hl-8-4> 4</a>
+</span><span class=lnt id=hl-8-5><a class=lnlinks href=#hl-8-5> 5</a>
+</span><span class=lnt id=hl-8-6><a class=lnlinks href=#hl-8-6> 6</a>
+</span><span class=lnt id=hl-8-7><a class=lnlinks href=#hl-8-7> 7</a>
+</span><span class=lnt id=hl-8-8><a class=lnlinks href=#hl-8-8> 8</a>
+</span><span class=lnt id=hl-8-9><a class=lnlinks href=#hl-8-9> 9</a>
+</span><span class=lnt id=hl-8-10><a class=lnlinks href=#hl-8-10>10</a>
+</span><span class=lnt id=hl-8-11><a class=lnlinks href=#hl-8-11>11</a>
+</span><span class=lnt id=hl-8-12><a class=lnlinks href=#hl-8-12>12</a>
+</span><span class=lnt id=hl-8-13><a class=lnlinks href=#hl-8-13>13</a>
+</span><span class=lnt id=hl-8-14><a class=lnlinks href=#hl-8-14>14</a>
+</span><span class=lnt id=hl-8-15><a class=lnlinks href=#hl-8-15>15</a>
+</span><span class=lnt id=hl-8-16><a class=lnlinks href=#hl-8-16>16</a>
+</span><span class=lnt id=hl-8-17><a class=lnlinks href=#hl-8-17>17</a>
+</span><span class=lnt id=hl-8-18><a class=lnlinks href=#hl-8-18>18</a>
+</span><span class=lnt id=hl-8-19><a class=lnlinks href=#hl-8-19>19</a>
+</span><span class=lnt id=hl-8-20><a class=lnlinks href=#hl-8-20>20</a>
+</span><span class=lnt id=hl-8-21><a class=lnlinks href=#hl-8-21>21</a>
+</span><span class=lnt id=hl-8-22><a class=lnlinks href=#hl-8-22>22</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// GraphQL 예제 - 클라이언트가 요청한 필드만 계산
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>const</span> <span class=nx>resolvers</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>User</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 기본 필드는 DB에서 직접 가져옴
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>id</span><span class=o>:</span> <span class=p>(</span><span class=nx>user</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=nx>user</span><span class=p>.</span><span class=nx>id</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>name</span><span class=o>:</span> <span class=p>(</span><span class=nx>user</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=nx>user</span><span class=p>.</span><span class=nx>name</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 계산 비용이 높은 필드는 요청될 때만 계산
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>friendsCount</span><span class=o>:</span> <span class=kr>async</span> <span class=p>(</span><span class=nx>user</span><span class=p>,</span> <span class=nx>args</span><span class=p>,</span> <span class=nx>context</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=c1>// 요청에 포함된 경우에만 계산
+</span></span></span><span class=line><span class=cl><span class=c1></span>      <span class=kr>const</span> <span class=nx>count</span> <span class=o>=</span> <span class=kr>await</span> <span class=nx>context</span><span class=p>.</span><span class=nx>db</span><span class=p>.</span><span class=nx>friendship</span><span class=p>.</span><span class=nx>count</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>        <span class=nx>where</span><span class=o>:</span> <span class=p>{</span> <span class=nx>userId</span><span class=o>:</span> <span class=nx>user</span><span class=p>.</span><span class=nx>id</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl>      <span class=p>});</span>
+</span></span><span class=line><span class=cl>      <span class=k>return</span> <span class=nx>count</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 매우 비용이 높은 필드
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>recommendedProducts</span><span class=o>:</span> <span class=kr>async</span> <span class=p>(</span><span class=nx>user</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=c1>// 복잡한 추천 알고리즘 실행
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span></code></pre></td></tr></table></div></div><h5 id=데이터베이스-쿼리-최적화>데이터베이스 쿼리 최적화<a hidden class=anchor aria-hidden=true href=#데이터베이스-쿼리-최적화>#</a></h5><p>복잡한 계산의 상당 부분은 데이터베이스에서 발생한다. 쿼리를 최적화하면 서버 부하를 크게 줄일 수 있다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-9-1><a class=lnlinks href=#hl-9-1> 1</a>
+</span><span class=lnt id=hl-9-2><a class=lnlinks href=#hl-9-2> 2</a>
+</span><span class=lnt id=hl-9-3><a class=lnlinks href=#hl-9-3> 3</a>
+</span><span class=lnt id=hl-9-4><a class=lnlinks href=#hl-9-4> 4</a>
+</span><span class=lnt id=hl-9-5><a class=lnlinks href=#hl-9-5> 5</a>
+</span><span class=lnt id=hl-9-6><a class=lnlinks href=#hl-9-6> 6</a>
+</span><span class=lnt id=hl-9-7><a class=lnlinks href=#hl-9-7> 7</a>
+</span><span class=lnt id=hl-9-8><a class=lnlinks href=#hl-9-8> 8</a>
+</span><span class=lnt id=hl-9-9><a class=lnlinks href=#hl-9-9> 9</a>
+</span><span class=lnt id=hl-9-10><a class=lnlinks href=#hl-9-10>10</a>
+</span><span class=lnt id=hl-9-11><a class=lnlinks href=#hl-9-11>11</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sql data-lang=sql><span class=line><span class=cl><span class=c1>-- 비효율적인 쿼리
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>SELECT</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=k>FROM</span><span class=w> </span><span class=n>orders</span><span class=w> 
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>WHERE</span><span class=w> </span><span class=n>customer_id</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mi>123</span><span class=w> 
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>ORDER</span><span class=w> </span><span class=k>BY</span><span class=w> </span><span class=n>created_at</span><span class=w> </span><span class=k>DESC</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c1>-- 최적화된 쿼리
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>SELECT</span><span class=w> </span><span class=n>id</span><span class=p>,</span><span class=w> </span><span class=n>status</span><span class=p>,</span><span class=w> </span><span class=n>total_amount</span><span class=p>,</span><span class=w> </span><span class=n>created_at</span><span class=w> 
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>FROM</span><span class=w> </span><span class=n>orders</span><span class=w> 
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>WHERE</span><span class=w> </span><span class=n>customer_id</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mi>123</span><span class=w> 
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>ORDER</span><span class=w> </span><span class=k>BY</span><span class=w> </span><span class=n>created_at</span><span class=w> </span><span class=k>DESC</span><span class=w> 
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>LIMIT</span><span class=w> </span><span class=mi>10</span><span class=p>;</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h4 id=성능-모니터링-및-병목-식별>성능 모니터링 및 병목 식별<a hidden class=anchor aria-hidden=true href=#성능-모니터링-및-병목-식별>#</a></h4><p>서버의 불필요한 계산을 식별하려면 성능 모니터링이 필수적이다:</p><ul><li><strong>프로파일링 도구</strong>: Node.js의 경우 clinic.js, 0x 같은 도구를 사용한다.</li><li><strong>APM(애플리케이션 성능 모니터링) 솔루션</strong>: New Relic, Datadog 등을 활용한다.</li><li><strong>로깅 및 메트릭스</strong>: 핵심 작업의 실행 시간을 로깅하고 추적한다.</li></ul><h3 id=api-응답-형식-최적화>API 응답 형식 최적화<a hidden class=anchor aria-hidden=true href=#api-응답-형식-최적화>#</a></h3><p>API 응답의 형식과 구조도 성능에 상당한 영향을 미친다.</p><h4 id=json-최적화>JSON 최적화<a hidden class=anchor aria-hidden=true href=#json-최적화>#</a></h4><p>대부분의 API는 JSON 형식으로 응답한다.</p><p>JSON 구조를 최적화하면 응답 크기를 줄일 수 있다:</p><ul><li><strong>불필요한 데이터 제거</strong>: 클라이언트가 필요로 하지 않는 필드는 포함하지 않는다.</li><li><strong>중첩 줄이기</strong>: 깊이 중첩된 구조는 파싱 비용이 증가한다.</li><li><strong>일관된 명명 규칙</strong>: 짧고 의미 있는 속성 이름을 사용한다.</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-10-1><a class=lnlinks href=#hl-10-1> 1</a>
+</span><span class=lnt id=hl-10-2><a class=lnlinks href=#hl-10-2> 2</a>
+</span><span class=lnt id=hl-10-3><a class=lnlinks href=#hl-10-3> 3</a>
+</span><span class=lnt id=hl-10-4><a class=lnlinks href=#hl-10-4> 4</a>
+</span><span class=lnt id=hl-10-5><a class=lnlinks href=#hl-10-5> 5</a>
+</span><span class=lnt id=hl-10-6><a class=lnlinks href=#hl-10-6> 6</a>
+</span><span class=lnt id=hl-10-7><a class=lnlinks href=#hl-10-7> 7</a>
+</span><span class=lnt id=hl-10-8><a class=lnlinks href=#hl-10-8> 8</a>
+</span><span class=lnt id=hl-10-9><a class=lnlinks href=#hl-10-9> 9</a>
+</span><span class=lnt id=hl-10-10><a class=lnlinks href=#hl-10-10>10</a>
+</span><span class=lnt id=hl-10-11><a class=lnlinks href=#hl-10-11>11</a>
+</span><span class=lnt id=hl-10-12><a class=lnlinks href=#hl-10-12>12</a>
+</span><span class=lnt id=hl-10-13><a class=lnlinks href=#hl-10-13>13</a>
+</span><span class=lnt id=hl-10-14><a class=lnlinks href=#hl-10-14>14</a>
+</span><span class=lnt id=hl-10-15><a class=lnlinks href=#hl-10-15>15</a>
+</span><span class=lnt id=hl-10-16><a class=lnlinks href=#hl-10-16>16</a>
+</span><span class=lnt id=hl-10-17><a class=lnlinks href=#hl-10-17>17</a>
+</span><span class=lnt id=hl-10-18><a class=lnlinks href=#hl-10-18>18</a>
+</span><span class=lnt id=hl-10-19><a class=lnlinks href=#hl-10-19>19</a>
+</span><span class=lnt id=hl-10-20><a class=lnlinks href=#hl-10-20>20</a>
+</span><span class=lnt id=hl-10-21><a class=lnlinks href=#hl-10-21>21</a>
+</span><span class=lnt id=hl-10-22><a class=lnlinks href=#hl-10-22>22</a>
+</span><span class=lnt id=hl-10-23><a class=lnlinks href=#hl-10-23>23</a>
+</span><span class=lnt id=hl-10-24><a class=lnlinks href=#hl-10-24>24</a>
+</span><span class=lnt id=hl-10-25><a class=lnlinks href=#hl-10-25>25</a>
+</span><span class=lnt id=hl-10-26><a class=lnlinks href=#hl-10-26>26</a>
+</span><span class=lnt id=hl-10-27><a class=lnlinks href=#hl-10-27>27</a>
+</span><span class=lnt id=hl-10-28><a class=lnlinks href=#hl-10-28>28</a>
+</span><span class=lnt id=hl-10-29><a class=lnlinks href=#hl-10-29>29</a>
+</span><span class=lnt id=hl-10-30><a class=lnlinks href=#hl-10-30>30</a>
+</span><span class=lnt id=hl-10-31><a class=lnlinks href=#hl-10-31>31</a>
+</span><span class=lnt id=hl-10-32><a class=lnlinks href=#hl-10-32>32</a>
+</span><span class=lnt id=hl-10-33><a class=lnlinks href=#hl-10-33>33</a>
+</span><span class=lnt id=hl-10-34><a class=lnlinks href=#hl-10-34>34</a>
+</span><span class=lnt id=hl-10-35><a class=lnlinks href=#hl-10-35>35</a>
+</span><span class=lnt id=hl-10-36><a class=lnlinks href=#hl-10-36>36</a>
+</span><span class=lnt id=hl-10-37><a class=lnlinks href=#hl-10-37>37</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 최적화되지 않은 응답
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;userData&#34;</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;userIdentifier&#34;</span><span class=o>:</span> <span class=s2>&#34;u123456&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;userFullName&#34;</span><span class=o>:</span> <span class=s2>&#34;홍길동&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;userEmailAddress&#34;</span><span class=o>:</span> <span class=s2>&#34;hong@example.com&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;userRegistrationDate&#34;</span><span class=o>:</span> <span class=s2>&#34;2023-04-15T08:30:45Z&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;userLastLoginTimestamp&#34;</span><span class=o>:</span> <span class=s2>&#34;2023-05-10T14:22:33Z&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;userPreferences&#34;</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;userPreferredLanguage&#34;</span><span class=o>:</span> <span class=s2>&#34;ko&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;userPreferredTheme&#34;</span><span class=o>:</span> <span class=s2>&#34;dark&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;userNotificationSettings&#34;</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;emailNotificationsEnabled&#34;</span><span class=o>:</span> <span class=kc>true</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;pushNotificationsEnabled&#34;</span><span class=o>:</span> <span class=kc>false</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 최적화된 응답
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;user&#34;</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;id&#34;</span><span class=o>:</span> <span class=s2>&#34;u123456&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;name&#34;</span><span class=o>:</span> <span class=s2>&#34;홍길동&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;email&#34;</span><span class=o>:</span> <span class=s2>&#34;hong@example.com&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;registered&#34;</span><span class=o>:</span> <span class=s2>&#34;2023-04-15T08:30:45Z&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;lastLogin&#34;</span><span class=o>:</span> <span class=s2>&#34;2023-05-10T14:22:33Z&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;prefs&#34;</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;lang&#34;</span><span class=o>:</span> <span class=s2>&#34;ko&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;theme&#34;</span><span class=o>:</span> <span class=s2>&#34;dark&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;notifications&#34;</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;email&#34;</span><span class=o>:</span> <span class=kc>true</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;push&#34;</span><span class=o>:</span> <span class=kc>false</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=부분-응답-및-필드-선택>부분 응답 및 필드 선택<a hidden class=anchor aria-hidden=true href=#부분-응답-및-필드-선택>#</a></h4><p>클라이언트가 필요한 데이터만 요청할 수 있도록 하면 응답 크기를 줄일 수 있다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-11-1><a class=lnlinks href=#hl-11-1> 1</a>
+</span><span class=lnt id=hl-11-2><a class=lnlinks href=#hl-11-2> 2</a>
+</span><span class=lnt id=hl-11-3><a class=lnlinks href=#hl-11-3> 3</a>
+</span><span class=lnt id=hl-11-4><a class=lnlinks href=#hl-11-4> 4</a>
+</span><span class=lnt id=hl-11-5><a class=lnlinks href=#hl-11-5> 5</a>
+</span><span class=lnt id=hl-11-6><a class=lnlinks href=#hl-11-6> 6</a>
+</span><span class=lnt id=hl-11-7><a class=lnlinks href=#hl-11-7> 7</a>
+</span><span class=lnt id=hl-11-8><a class=lnlinks href=#hl-11-8> 8</a>
+</span><span class=lnt id=hl-11-9><a class=lnlinks href=#hl-11-9> 9</a>
+</span><span class=lnt id=hl-11-10><a class=lnlinks href=#hl-11-10>10</a>
+</span><span class=lnt id=hl-11-11><a class=lnlinks href=#hl-11-11>11</a>
+</span><span class=lnt id=hl-11-12><a class=lnlinks href=#hl-11-12>12</a>
+</span><span class=lnt id=hl-11-13><a class=lnlinks href=#hl-11-13>13</a>
+</span><span class=lnt id=hl-11-14><a class=lnlinks href=#hl-11-14>14</a>
+</span><span class=lnt id=hl-11-15><a class=lnlinks href=#hl-11-15>15</a>
+</span><span class=lnt id=hl-11-16><a class=lnlinks href=#hl-11-16>16</a>
+</span><span class=lnt id=hl-11-17><a class=lnlinks href=#hl-11-17>17</a>
+</span><span class=lnt id=hl-11-18><a class=lnlinks href=#hl-11-18>18</a>
+</span><span class=lnt id=hl-11-19><a class=lnlinks href=#hl-11-19>19</a>
+</span><span class=lnt id=hl-11-20><a class=lnlinks href=#hl-11-20>20</a>
+</span><span class=lnt id=hl-11-21><a class=lnlinks href=#hl-11-21>21</a>
+</span><span class=lnt id=hl-11-22><a class=lnlinks href=#hl-11-22>22</a>
+</span><span class=lnt id=hl-11-23><a class=lnlinks href=#hl-11-23>23</a>
+</span><span class=lnt id=hl-11-24><a class=lnlinks href=#hl-11-24>24</a>
+</span><span class=lnt id=hl-11-25><a class=lnlinks href=#hl-11-25>25</a>
+</span><span class=lnt id=hl-11-26><a class=lnlinks href=#hl-11-26>26</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// Express.js에서 필드 선택 구현 예제
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>app</span><span class=p>.</span><span class=nx>get</span><span class=p>(</span><span class=s1>&#39;/users/:id&#39;</span><span class=p>,</span> <span class=p>(</span><span class=nx>req</span><span class=p>,</span> <span class=nx>res</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>userId</span> <span class=o>=</span> <span class=nx>req</span><span class=p>.</span><span class=nx>params</span><span class=p>.</span><span class=nx>id</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>fields</span> <span class=o>=</span> <span class=nx>req</span><span class=p>.</span><span class=nx>query</span><span class=p>.</span><span class=nx>fields</span> <span class=o>?</span> <span class=nx>req</span><span class=p>.</span><span class=nx>query</span><span class=p>.</span><span class=nx>fields</span><span class=p>.</span><span class=nx>split</span><span class=p>(</span><span class=s1>&#39;,&#39;</span><span class=p>)</span> <span class=o>:</span> <span class=kc>null</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// 데이터베이스에서 사용자 정보 조회
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>getUserById</span><span class=p>(</span><span class=nx>userId</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>.</span><span class=nx>then</span><span class=p>(</span><span class=nx>user</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=c1>// 요청된 필드만 포함
+</span></span></span><span class=line><span class=cl><span class=c1></span>      <span class=k>if</span> <span class=p>(</span><span class=nx>fields</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kr>const</span> <span class=nx>filteredUser</span> <span class=o>=</span> <span class=p>{};</span>
+</span></span><span class=line><span class=cl>        <span class=nx>fields</span><span class=p>.</span><span class=nx>forEach</span><span class=p>(</span><span class=nx>field</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>          <span class=k>if</span> <span class=p>(</span><span class=nx>user</span><span class=p>[</span><span class=nx>field</span><span class=p>]</span> <span class=o>!==</span> <span class=kc>undefined</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>filteredUser</span><span class=p>[</span><span class=nx>field</span><span class=p>]</span> <span class=o>=</span> <span class=nx>user</span><span class=p>[</span><span class=nx>field</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>          <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=p>});</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>res</span><span class=p>.</span><span class=nx>json</span><span class=p>(</span><span class=nx>filteredUser</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span>
+</span></span><span class=line><span class=cl>      
+</span></span><span class=line><span class=cl>      <span class=c1>// 필드가 지정되지 않은 경우 전체 응답
+</span></span></span><span class=line><span class=cl><span class=c1></span>      <span class=nx>res</span><span class=p>.</span><span class=nx>json</span><span class=p>(</span><span class=nx>user</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>})</span>
+</span></span><span class=line><span class=cl>    <span class=p>.</span><span class=k>catch</span><span class=p>(</span><span class=nx>error</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>res</span><span class=p>.</span><span class=nx>status</span><span class=p>(</span><span class=mi>500</span><span class=p>).</span><span class=nx>json</span><span class=p>({</span> <span class=nx>error</span><span class=o>:</span> <span class=nx>error</span><span class=p>.</span><span class=nx>message</span> <span class=p>});</span>
+</span></span><span class=line><span class=cl>    <span class=p>});</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><p>사용 예: <code>/users/123?fields=id,name,email</code></p><h4 id=응답-버전-관리>응답 버전 관리<a hidden class=anchor aria-hidden=true href=#응답-버전-관리>#</a></h4><p>API가 발전함에 따라 응답 형식도 변경될 수 있다. 버전 관리를 통해 클라이언트 호환성을 유지하면서도 응답을 최적화할 수 있다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-12-1><a class=lnlinks href=#hl-12-1>1</a>
+</span><span class=lnt id=hl-12-2><a class=lnlinks href=#hl-12-2>2</a>
+</span><span class=lnt id=hl-12-3><a class=lnlinks href=#hl-12-3>3</a>
+</span><span class=lnt id=hl-12-4><a class=lnlinks href=#hl-12-4>4</a>
+</span><span class=lnt id=hl-12-5><a class=lnlinks href=#hl-12-5>5</a>
+</span><span class=lnt id=hl-12-6><a class=lnlinks href=#hl-12-6>6</a>
+</span><span class=lnt id=hl-12-7><a class=lnlinks href=#hl-12-7>7</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=nx>app</span><span class=p>.</span><span class=nx>get</span><span class=p>(</span><span class=s1>&#39;/api/v1/users/:id&#39;</span><span class=p>,</span> <span class=p>(</span><span class=nx>req</span><span class=p>,</span> <span class=nx>res</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 기존 형식의 응답
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>app</span><span class=p>.</span><span class=nx>get</span><span class=p>(</span><span class=s1>&#39;/api/v2/users/:id&#39;</span><span class=p>,</span> <span class=p>(</span><span class=nx>req</span><span class=p>,</span> <span class=nx>res</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 최적화된 새 형식의 응답
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=고급-api-최적화-기법>고급 API 최적화 기법<a hidden class=anchor aria-hidden=true href=#고급-api-최적화-기법>#</a></h3><h4 id=http2-및-http3-활용>HTTP/2 및 HTTP/3 활용<a hidden class=anchor aria-hidden=true href=#http2-및-http3-활용>#</a></h4><p>최신 HTTP 프로토콜은 성능 향상을 위한 다양한 기능을 제공한다:</p><ul><li><strong>멀티플렉싱</strong>: 단일 연결로 여러 요청/응답을 병렬 처리</li><li><strong>헤더 압축</strong>: 요청/응답 헤더 크기 축소</li><li><strong>서버 푸시</strong>: 클라이언트가 요청하기 전에 리소스 전송</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-13-1><a class=lnlinks href=#hl-13-1> 1</a>
+</span><span class=lnt id=hl-13-2><a class=lnlinks href=#hl-13-2> 2</a>
+</span><span class=lnt id=hl-13-3><a class=lnlinks href=#hl-13-3> 3</a>
+</span><span class=lnt id=hl-13-4><a class=lnlinks href=#hl-13-4> 4</a>
+</span><span class=lnt id=hl-13-5><a class=lnlinks href=#hl-13-5> 5</a>
+</span><span class=lnt id=hl-13-6><a class=lnlinks href=#hl-13-6> 6</a>
+</span><span class=lnt id=hl-13-7><a class=lnlinks href=#hl-13-7> 7</a>
+</span><span class=lnt id=hl-13-8><a class=lnlinks href=#hl-13-8> 8</a>
+</span><span class=lnt id=hl-13-9><a class=lnlinks href=#hl-13-9> 9</a>
+</span><span class=lnt id=hl-13-10><a class=lnlinks href=#hl-13-10>10</a>
+</span><span class=lnt id=hl-13-11><a class=lnlinks href=#hl-13-11>11</a>
+</span><span class=lnt id=hl-13-12><a class=lnlinks href=#hl-13-12>12</a>
+</span><span class=lnt id=hl-13-13><a class=lnlinks href=#hl-13-13>13</a>
+</span><span class=lnt id=hl-13-14><a class=lnlinks href=#hl-13-14>14</a>
+</span><span class=lnt id=hl-13-15><a class=lnlinks href=#hl-13-15>15</a>
+</span><span class=lnt id=hl-13-16><a class=lnlinks href=#hl-13-16>16</a>
+</span><span class=lnt id=hl-13-17><a class=lnlinks href=#hl-13-17>17</a>
+</span><span class=lnt id=hl-13-18><a class=lnlinks href=#hl-13-18>18</a>
+</span><span class=lnt id=hl-13-19><a class=lnlinks href=#hl-13-19>19</a>
+</span><span class=lnt id=hl-13-20><a class=lnlinks href=#hl-13-20>20</a>
+</span><span class=lnt id=hl-13-21><a class=lnlinks href=#hl-13-21>21</a>
+</span><span class=lnt id=hl-13-22><a class=lnlinks href=#hl-13-22>22</a>
+</span><span class=lnt id=hl-13-23><a class=lnlinks href=#hl-13-23>23</a>
+</span><span class=lnt id=hl-13-24><a class=lnlinks href=#hl-13-24>24</a>
+</span><span class=lnt id=hl-13-25><a class=lnlinks href=#hl-13-25>25</a>
+</span><span class=lnt id=hl-13-26><a class=lnlinks href=#hl-13-26>26</a>
+</span><span class=lnt id=hl-13-27><a class=lnlinks href=#hl-13-27>27</a>
+</span><span class=lnt id=hl-13-28><a class=lnlinks href=#hl-13-28>28</a>
+</span><span class=lnt id=hl-13-29><a class=lnlinks href=#hl-13-29>29</a>
+</span><span class=lnt id=hl-13-30><a class=lnlinks href=#hl-13-30>30</a>
+</span><span class=lnt id=hl-13-31><a class=lnlinks href=#hl-13-31>31</a>
+</span><span class=lnt id=hl-13-32><a class=lnlinks href=#hl-13-32>32</a>
+</span><span class=lnt id=hl-13-33><a class=lnlinks href=#hl-13-33>33</a>
+</span><span class=lnt id=hl-13-34><a class=lnlinks href=#hl-13-34>34</a>
+</span><span class=lnt id=hl-13-35><a class=lnlinks href=#hl-13-35>35</a>
+</span><span class=lnt id=hl-13-36><a class=lnlinks href=#hl-13-36>36</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// Node.js에서 HTTP/2 서버 예제
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>const</span> <span class=nx>http2</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;http2&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kr>const</span> <span class=nx>fs</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;fs&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kr>const</span> <span class=nx>server</span> <span class=o>=</span> <span class=nx>http2</span><span class=p>.</span><span class=nx>createSecureServer</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>  <span class=nx>key</span><span class=o>:</span> <span class=nx>fs</span><span class=p>.</span><span class=nx>readFileSync</span><span class=p>(</span><span class=s1>&#39;server.key&#39;</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>  <span class=nx>cert</span><span class=o>:</span> <span class=nx>fs</span><span class=p>.</span><span class=nx>readFileSync</span><span class=p>(</span><span class=s1>&#39;server.crt&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>server</span><span class=p>.</span><span class=nx>on</span><span class=p>(</span><span class=s1>&#39;stream&#39;</span><span class=p>,</span> <span class=p>(</span><span class=nx>stream</span><span class=p>,</span> <span class=nx>headers</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>path</span> <span class=o>=</span> <span class=nx>headers</span><span class=p>[</span><span class=s1>&#39;:path&#39;</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=p>(</span><span class=nx>path</span> <span class=o>===</span> <span class=s1>&#39;/api/users&#39;</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 사용자 데이터 응답
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>stream</span><span class=p>.</span><span class=nx>respond</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>      <span class=s1>&#39;content-type&#39;</span><span class=o>:</span> <span class=s1>&#39;application/json&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s1>&#39;:status&#39;</span><span class=o>:</span> <span class=mi>200</span>
+</span></span><span class=line><span class=cl>    <span class=p>});</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 사용자 데이터를 응답하면서
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>stream</span><span class=p>.</span><span class=nx>end</span><span class=p>(</span><span class=nx>JSON</span><span class=p>.</span><span class=nx>stringify</span><span class=p>({</span> <span class=nx>users</span><span class=o>:</span> <span class=p>[</span><span class=err>…</span><span class=p>]</span> <span class=p>}));</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 관련 리소스를 미리 푸시
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kr>const</span> <span class=nx>pushStream</span> <span class=o>=</span> <span class=nx>stream</span><span class=p>.</span><span class=nx>pushStream</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>      <span class=s1>&#39;:path&#39;</span><span class=o>:</span> <span class=s1>&#39;/api/user-preferences&#39;</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span> <span class=p>(</span><span class=nx>err</span><span class=p>,</span> <span class=nx>pushStream</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>pushStream</span><span class=p>.</span><span class=nx>respond</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;content-type&#39;</span><span class=o>:</span> <span class=s1>&#39;application/json&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;:status&#39;</span><span class=o>:</span> <span class=mi>200</span>
+</span></span><span class=line><span class=cl>      <span class=p>});</span>
+</span></span><span class=line><span class=cl>      <span class=nx>pushStream</span><span class=p>.</span><span class=nx>end</span><span class=p>(</span><span class=nx>JSON</span><span class=p>.</span><span class=nx>stringify</span><span class=p>({</span> <span class=nx>preferences</span><span class=o>:</span> <span class=p>[</span><span class=err>…</span><span class=p>]</span> <span class=p>}));</span>
+</span></span><span class=line><span class=cl>    <span class=p>});</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>server</span><span class=p>.</span><span class=nx>listen</span><span class=p>(</span><span class=mi>8443</span><span class=p>);</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=스트리밍-응답>스트리밍 응답<a hidden class=anchor aria-hidden=true href=#스트리밍-응답>#</a></h4><p>대용량 응답을 처리할 때는 전체 응답을 메모리에 로드하지 않고 청크 단위로 스트리밍하면 메모리 사용량을 줄이고 응답 시간을 단축할 수 있다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-14-1><a class=lnlinks href=#hl-14-1> 1</a>
+</span><span class=lnt id=hl-14-2><a class=lnlinks href=#hl-14-2> 2</a>
+</span><span class=lnt id=hl-14-3><a class=lnlinks href=#hl-14-3> 3</a>
+</span><span class=lnt id=hl-14-4><a class=lnlinks href=#hl-14-4> 4</a>
+</span><span class=lnt id=hl-14-5><a class=lnlinks href=#hl-14-5> 5</a>
+</span><span class=lnt id=hl-14-6><a class=lnlinks href=#hl-14-6> 6</a>
+</span><span class=lnt id=hl-14-7><a class=lnlinks href=#hl-14-7> 7</a>
+</span><span class=lnt id=hl-14-8><a class=lnlinks href=#hl-14-8> 8</a>
+</span><span class=lnt id=hl-14-9><a class=lnlinks href=#hl-14-9> 9</a>
+</span><span class=lnt id=hl-14-10><a class=lnlinks href=#hl-14-10>10</a>
+</span><span class=lnt id=hl-14-11><a class=lnlinks href=#hl-14-11>11</a>
+</span><span class=lnt id=hl-14-12><a class=lnlinks href=#hl-14-12>12</a>
+</span><span class=lnt id=hl-14-13><a class=lnlinks href=#hl-14-13>13</a>
+</span><span class=lnt id=hl-14-14><a class=lnlinks href=#hl-14-14>14</a>
+</span><span class=lnt id=hl-14-15><a class=lnlinks href=#hl-14-15>15</a>
+</span><span class=lnt id=hl-14-16><a class=lnlinks href=#hl-14-16>16</a>
+</span><span class=lnt id=hl-14-17><a class=lnlinks href=#hl-14-17>17</a>
+</span><span class=lnt id=hl-14-18><a class=lnlinks href=#hl-14-18>18</a>
+</span><span class=lnt id=hl-14-19><a class=lnlinks href=#hl-14-19>19</a>
+</span><span class=lnt id=hl-14-20><a class=lnlinks href=#hl-14-20>20</a>
+</span><span class=lnt id=hl-14-21><a class=lnlinks href=#hl-14-21>21</a>
+</span><span class=lnt id=hl-14-22><a class=lnlinks href=#hl-14-22>22</a>
+</span><span class=lnt id=hl-14-23><a class=lnlinks href=#hl-14-23>23</a>
+</span><span class=lnt id=hl-14-24><a class=lnlinks href=#hl-14-24>24</a>
+</span><span class=lnt id=hl-14-25><a class=lnlinks href=#hl-14-25>25</a>
+</span><span class=lnt id=hl-14-26><a class=lnlinks href=#hl-14-26>26</a>
+</span><span class=lnt id=hl-14-27><a class=lnlinks href=#hl-14-27>27</a>
+</span><span class=lnt id=hl-14-28><a class=lnlinks href=#hl-14-28>28</a>
+</span><span class=lnt id=hl-14-29><a class=lnlinks href=#hl-14-29>29</a>
+</span><span class=lnt id=hl-14-30><a class=lnlinks href=#hl-14-30>30</a>
+</span><span class=lnt id=hl-14-31><a class=lnlinks href=#hl-14-31>31</a>
+</span><span class=lnt id=hl-14-32><a class=lnlinks href=#hl-14-32>32</a>
+</span><span class=lnt id=hl-14-33><a class=lnlinks href=#hl-14-33>33</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// Express.js와 MongoDB에서 스트리밍 응답 예제
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>app</span><span class=p>.</span><span class=nx>get</span><span class=p>(</span><span class=s1>&#39;/api/logs&#39;</span><span class=p>,</span> <span class=p>(</span><span class=nx>req</span><span class=p>,</span> <span class=nx>res</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>res</span><span class=p>.</span><span class=nx>setHeader</span><span class=p>(</span><span class=s1>&#39;Content-Type&#39;</span><span class=p>,</span> <span class=s1>&#39;application/json&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=nx>res</span><span class=p>.</span><span class=nx>write</span><span class=p>(</span><span class=s1>&#39;{&#34;logs&#34;:[&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=kd>let</span> <span class=nx>first</span> <span class=o>=</span> <span class=kc>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>cursor</span> <span class=o>=</span> <span class=nx>db</span><span class=p>.</span><span class=nx>collection</span><span class=p>(</span><span class=s1>&#39;logs&#39;</span><span class=p>).</span><span class=nx>find</span><span class=p>().</span><span class=nx>stream</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=nx>cursor</span><span class=p>.</span><span class=nx>on</span><span class=p>(</span><span class=s1>&#39;data&#39;</span><span class=p>,</span> <span class=p>(</span><span class=nx>log</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 최초 항목이 아닌 경우 쉼표 추가
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=nx>first</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>res</span><span class=p>.</span><span class=nx>write</span><span class=p>(</span><span class=s1>&#39;,&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span> <span class=k>else</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>first</span> <span class=o>=</span> <span class=kc>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=nx>res</span><span class=p>.</span><span class=nx>write</span><span class=p>(</span><span class=nx>JSON</span><span class=p>.</span><span class=nx>stringify</span><span class=p>(</span><span class=nx>log</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=nx>cursor</span><span class=p>.</span><span class=nx>on</span><span class=p>(</span><span class=s1>&#39;end&#39;</span><span class=p>,</span> <span class=p>()</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>res</span><span class=p>.</span><span class=nx>write</span><span class=p>(</span><span class=s1>&#39;]}&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nx>res</span><span class=p>.</span><span class=nx>end</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=nx>cursor</span><span class=p>.</span><span class=nx>on</span><span class=p>(</span><span class=s1>&#39;error&#39;</span><span class=p>,</span> <span class=p>(</span><span class=nx>err</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 오류 처리
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>res</span><span class=p>.</span><span class=nx>end</span><span class=p>(</span><span class=sb>`],&#34;error&#34;:&#34;</span><span class=si>${</span><span class=nx>err</span><span class=p>.</span><span class=nx>message</span><span class=si>}</span><span class=sb>&#34;}`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// 클라이언트 연결이 끊어지면 스트림도 종료
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>req</span><span class=p>.</span><span class=nx>on</span><span class=p>(</span><span class=s1>&#39;close&#39;</span><span class=p>,</span> <span class=p>()</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>cursor</span><span class=p>.</span><span class=nx>close</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=응답-캐싱-계층>응답 캐싱 계층<a hidden class=anchor aria-hidden=true href=#응답-캐싱-계층>#</a></h4><p>API 응답을 캐싱하면 서버 부하를 크게 줄이고 응답 시간을 단축할 수 있다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-15-1><a class=lnlinks href=#hl-15-1> 1</a>
+</span><span class=lnt id=hl-15-2><a class=lnlinks href=#hl-15-2> 2</a>
+</span><span class=lnt id=hl-15-3><a class=lnlinks href=#hl-15-3> 3</a>
+</span><span class=lnt id=hl-15-4><a class=lnlinks href=#hl-15-4> 4</a>
+</span><span class=lnt id=hl-15-5><a class=lnlinks href=#hl-15-5> 5</a>
+</span><span class=lnt id=hl-15-6><a class=lnlinks href=#hl-15-6> 6</a>
+</span><span class=lnt id=hl-15-7><a class=lnlinks href=#hl-15-7> 7</a>
+</span><span class=lnt id=hl-15-8><a class=lnlinks href=#hl-15-8> 8</a>
+</span><span class=lnt id=hl-15-9><a class=lnlinks href=#hl-15-9> 9</a>
+</span><span class=lnt id=hl-15-10><a class=lnlinks href=#hl-15-10>10</a>
+</span><span class=lnt id=hl-15-11><a class=lnlinks href=#hl-15-11>11</a>
+</span><span class=lnt id=hl-15-12><a class=lnlinks href=#hl-15-12>12</a>
+</span><span class=lnt id=hl-15-13><a class=lnlinks href=#hl-15-13>13</a>
+</span><span class=lnt id=hl-15-14><a class=lnlinks href=#hl-15-14>14</a>
+</span><span class=lnt id=hl-15-15><a class=lnlinks href=#hl-15-15>15</a>
+</span><span class=lnt id=hl-15-16><a class=lnlinks href=#hl-15-16>16</a>
+</span><span class=lnt id=hl-15-17><a class=lnlinks href=#hl-15-17>17</a>
+</span><span class=lnt id=hl-15-18><a class=lnlinks href=#hl-15-18>18</a>
+</span><span class=lnt id=hl-15-19><a class=lnlinks href=#hl-15-19>19</a>
+</span><span class=lnt id=hl-15-20><a class=lnlinks href=#hl-15-20>20</a>
+</span><span class=lnt id=hl-15-21><a class=lnlinks href=#hl-15-21>21</a>
+</span><span class=lnt id=hl-15-22><a class=lnlinks href=#hl-15-22>22</a>
+</span><span class=lnt id=hl-15-23><a class=lnlinks href=#hl-15-23>23</a>
+</span><span class=lnt id=hl-15-24><a class=lnlinks href=#hl-15-24>24</a>
+</span><span class=lnt id=hl-15-25><a class=lnlinks href=#hl-15-25>25</a>
+</span><span class=lnt id=hl-15-26><a class=lnlinks href=#hl-15-26>26</a>
+</span><span class=lnt id=hl-15-27><a class=lnlinks href=#hl-15-27>27</a>
+</span><span class=lnt id=hl-15-28><a class=lnlinks href=#hl-15-28>28</a>
+</span><span class=lnt id=hl-15-29><a class=lnlinks href=#hl-15-29>29</a>
+</span><span class=lnt id=hl-15-30><a class=lnlinks href=#hl-15-30>30</a>
+</span><span class=lnt id=hl-15-31><a class=lnlinks href=#hl-15-31>31</a>
+</span><span class=lnt id=hl-15-32><a class=lnlinks href=#hl-15-32>32</a>
+</span><span class=lnt id=hl-15-33><a class=lnlinks href=#hl-15-33>33</a>
+</span><span class=lnt id=hl-15-34><a class=lnlinks href=#hl-15-34>34</a>
+</span><span class=lnt id=hl-15-35><a class=lnlinks href=#hl-15-35>35</a>
+</span><span class=lnt id=hl-15-36><a class=lnlinks href=#hl-15-36>36</a>
+</span><span class=lnt id=hl-15-37><a class=lnlinks href=#hl-15-37>37</a>
+</span><span class=lnt id=hl-15-38><a class=lnlinks href=#hl-15-38>38</a>
+</span><span class=lnt id=hl-15-39><a class=lnlinks href=#hl-15-39>39</a>
+</span><span class=lnt id=hl-15-40><a class=lnlinks href=#hl-15-40>40</a>
+</span><span class=lnt id=hl-15-41><a class=lnlinks href=#hl-15-41>41</a>
+</span><span class=lnt id=hl-15-42><a class=lnlinks href=#hl-15-42>42</a>
+</span><span class=lnt id=hl-15-43><a class=lnlinks href=#hl-15-43>43</a>
+</span><span class=lnt id=hl-15-44><a class=lnlinks href=#hl-15-44>44</a>
+</span><span class=lnt id=hl-15-45><a class=lnlinks href=#hl-15-45>45</a>
+</span><span class=lnt id=hl-15-46><a class=lnlinks href=#hl-15-46>46</a>
+</span><span class=lnt id=hl-15-47><a class=lnlinks href=#hl-15-47>47</a>
+</span><span class=lnt id=hl-15-48><a class=lnlinks href=#hl-15-48>48</a>
+</span><span class=lnt id=hl-15-49><a class=lnlinks href=#hl-15-49>49</a>
+</span><span class=lnt id=hl-15-50><a class=lnlinks href=#hl-15-50>50</a>
+</span><span class=lnt id=hl-15-51><a class=lnlinks href=#hl-15-51>51</a>
+</span><span class=lnt id=hl-15-52><a class=lnlinks href=#hl-15-52>52</a>
+</span><span class=lnt id=hl-15-53><a class=lnlinks href=#hl-15-53>53</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// Redis를 사용한 API 응답 캐싱 예제
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>const</span> <span class=nx>express</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;express&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kr>const</span> <span class=nx>redis</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;redis&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kr>const</span> <span class=p>{</span> <span class=nx>promisify</span> <span class=p>}</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;util&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kr>const</span> <span class=nx>app</span> <span class=o>=</span> <span class=nx>express</span><span class=p>();</span>
+</span></span><span class=line><span class=cl><span class=kr>const</span> <span class=nx>client</span> <span class=o>=</span> <span class=nx>redis</span><span class=p>.</span><span class=nx>createClient</span><span class=p>();</span>
+</span></span><span class=line><span class=cl><span class=kr>const</span> <span class=nx>getAsync</span> <span class=o>=</span> <span class=nx>promisify</span><span class=p>(</span><span class=nx>client</span><span class=p>.</span><span class=nx>get</span><span class=p>).</span><span class=nx>bind</span><span class=p>(</span><span class=nx>client</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kr>const</span> <span class=nx>setAsync</span> <span class=o>=</span> <span class=nx>promisify</span><span class=p>(</span><span class=nx>client</span><span class=p>.</span><span class=nx>set</span><span class=p>).</span><span class=nx>bind</span><span class=p>(</span><span class=nx>client</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 캐싱 미들웨어
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>async</span> <span class=kd>function</span> <span class=nx>cacheMiddleware</span><span class=p>(</span><span class=nx>req</span><span class=p>,</span> <span class=nx>res</span><span class=p>,</span> <span class=nx>next</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// URL을 캐시 키로 사용
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=kr>const</span> <span class=nx>cacheKey</span> <span class=o>=</span> <span class=sb>`api:</span><span class=si>${</span><span class=nx>req</span><span class=p>.</span><span class=nx>originalUrl</span><span class=si>}</span><span class=sb>`</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=k>try</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 캐시에서 응답 확인
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kr>const</span> <span class=nx>cachedResponse</span> <span class=o>=</span> <span class=kr>await</span> <span class=nx>getAsync</span><span class=p>(</span><span class=nx>cacheKey</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=nx>cachedResponse</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=c1>// 캐시된 응답이 있으면 즉시 반환
+</span></span></span><span class=line><span class=cl><span class=c1></span>      <span class=kr>const</span> <span class=nx>data</span> <span class=o>=</span> <span class=nx>JSON</span><span class=p>.</span><span class=nx>parse</span><span class=p>(</span><span class=nx>cachedResponse</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>      <span class=k>return</span> <span class=nx>res</span><span class=p>.</span><span class=nx>json</span><span class=p>(</span><span class=nx>data</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 원본 res.json 메서드를 저장
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kr>const</span> <span class=nx>originalJson</span> <span class=o>=</span> <span class=nx>res</span><span class=p>.</span><span class=nx>json</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// res.json 메서드를 오버라이드하여 응답을 캐싱
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>res</span><span class=p>.</span><span class=nx>json</span> <span class=o>=</span> <span class=kd>function</span><span class=p>(</span><span class=nx>data</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=c1>// 응답 캐싱 (5분 유효)
+</span></span></span><span class=line><span class=cl><span class=c1></span>      <span class=nx>setAsync</span><span class=p>(</span><span class=nx>cacheKey</span><span class=p>,</span> <span class=nx>JSON</span><span class=p>.</span><span class=nx>stringify</span><span class=p>(</span><span class=nx>data</span><span class=p>),</span> <span class=s1>&#39;EX&#39;</span><span class=p>,</span> <span class=mi>300</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=p>.</span><span class=k>catch</span><span class=p>(</span><span class=nx>err</span> <span class=p>=&gt;</span> <span class=nx>console</span><span class=p>.</span><span class=nx>error</span><span class=p>(</span><span class=s1>&#39;캐싱 오류:&#39;</span><span class=p>,</span> <span class=nx>err</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>      
+</span></span><span class=line><span class=cl>      <span class=c1>// 원본 메서드 호출
+</span></span></span><span class=line><span class=cl><span class=c1></span>      <span class=k>return</span> <span class=nx>originalJson</span><span class=p>.</span><span class=nx>call</span><span class=p>(</span><span class=k>this</span><span class=p>,</span> <span class=nx>data</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>};</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=nx>next</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span> <span class=k>catch</span> <span class=p>(</span><span class=nx>error</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>error</span><span class=p>(</span><span class=s1>&#39;캐시 미들웨어 오류:&#39;</span><span class=p>,</span> <span class=nx>error</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nx>next</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 읽기 전용 API에 캐싱 적용
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>app</span><span class=p>.</span><span class=nx>get</span><span class=p>(</span><span class=s1>&#39;/api/products&#39;</span><span class=p>,</span> <span class=nx>cacheMiddleware</span><span class=p>,</span> <span class=p>(</span><span class=nx>req</span><span class=p>,</span> <span class=nx>res</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 제품 목록 조회 및 응답
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>app</span><span class=p>.</span><span class=nx>get</span><span class=p>(</span><span class=s1>&#39;/api/categories&#39;</span><span class=p>,</span> <span class=nx>cacheMiddleware</span><span class=p>,</span> <span class=p>(</span><span class=nx>req</span><span class=p>,</span> <span class=nx>res</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 카테고리 목록 조회 및 응답
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><hr><h2 id=용어-정리>용어 정리<a hidden class=anchor aria-hidden=true href=#용어-정리>#</a></h2><table><thead><tr><th>용어</th><th>설명</th></tr></thead><tbody><tr><td></td><td></td></tr></tbody></table><hr><h2 id=참고-및-출처>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처>#</a></h2></div><footer class=post-footer><ul class=post-tags><li><a href=https://buenhyden.github.io/tags/backend-development/>Backend-Development</a></li><li><a href=https://buenhyden.github.io/tags/best-practices/>Best-Practices</a></li><li><a href=https://buenhyden.github.io/tags/optimize-api-response/>Optimize-API-Response</a></li></ul><nav class=paginav><a class=prev href=https://buenhyden.github.io/posts/software-engineering/application-development/api-design-and-implementation/api-monitoring-and-analytics/performance-metrics/><span class=title>« Prev</span><br><span>Performance Metrics</span>
+</a><a class=next href=https://buenhyden.github.io/posts/software-engineering/application-development/backend-development/backend-performance/asynchronism/><span class=title>Next »</span><br><span>Asynchronism</span></a></nav></footer><div class=comments><script>const getStoredTheme=()=>localStorage.getItem("pref-theme")==="dark"?"dark":"light",setGiscusTheme=()=>{const e=e=>{const t=document.querySelector("iframe.giscus-frame");t&&t.contentWindow.postMessage({giscus:e},"https://giscus.app")};e({setConfig:{theme:getStoredTheme()}})};document.addEventListener("DOMContentLoaded",()=>{const n={src:"https://giscus.app/client.js","data-repo":"buenhyden/buenhyden.github.io","data-repo-id":"R_kgDONsSnFQ","data-category":"General","data-category-id":"DIC_kwDONsSnFc4CmK-R","data-mapping":"pathname","data-strict":"0","data-reactions-enabled":"1","data-emit-metadata":"0","data-input-position":"bottom","data-theme":getStoredTheme(),"data-lang":"en","data-loading":"lazy",crossorigin:"anonymous",async:""},e=document.createElement("script");Object.entries(n).forEach(([t,n])=>e.setAttribute(t,n)),console.log(e),document.querySelector(".comments").appendChild(e);const t=document.querySelector("#theme-toggle");t&&t.addEventListener("click",setGiscusTheme)})</script></div></article></main><footer class=footer><span>&copy; 2025 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script><script>document.querySelectorAll("pre > code").forEach(e=>{const n=e.parentNode.parentNode,t=document.createElement("button");t.classList.add("copy-code"),t.innerHTML="copy";function s(){t.innerHTML="copied!",setTimeout(()=>{t.innerHTML="copy"},2e3)}t.addEventListener("click",t=>{if("clipboard"in navigator){navigator.clipboard.writeText(e.textContent),s();return}const n=document.createRange();n.selectNodeContents(e);const o=window.getSelection();o.removeAllRanges(),o.addRange(n);try{document.execCommand("copy"),s()}catch{}o.removeRange(n)}),n.classList.contains("highlight")?n.appendChild(t):n.parentNode.firstChild==n||(e.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName=="TABLE"?e.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(t):e.parentNode.appendChild(t))})</script></body></html>

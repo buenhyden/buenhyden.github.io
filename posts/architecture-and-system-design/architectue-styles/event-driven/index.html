@@ -1,0 +1,396 @@
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Event Driven Architecture | hyunyoun's Blog</title><meta name=keywords content="System-and-Software-Architecture,Architecture,Architecture-Styles,Event-Driven-Architecture"><meta name=description content="이벤트 기반 아키텍처는 시스템 내에서 발생하는 상태 변화나 중요한 사건을 '이벤트'로 정의하고, 이러한 이벤트의 생성, 전송, 처리를 중심으로 시스템을 구성하는 방식이다."><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/architecture-and-system-design/architectue-styles/event-driven/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.a9863521b3bd3c240bc506f46b95e3c06ccef2ae37f529d5f99bdaef442bccce.css integrity="sha256-qYY1IbO9PCQLxQb0a5XjwGzO8q439SnV+Zva70QrzM4=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate type=application/rss+xml href=https://buenhyden.github.io/posts/architecture-and-system-design/architectue-styles/event-driven/index.xml><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/architecture-and-system-design/architectue-styles/event-driven/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/architecture-and-system-design/architectue-styles/event-driven/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="Event Driven Architecture"><meta property="og:description" content="이벤트 기반 아키텍처는 시스템 내에서 발생하는 상태 변화나 중요한 사건을 '이벤트'로 정의하고, 이러한 이벤트의 생성, 전송, 처리를 중심으로 시스템을 구성하는 방식이다."><meta property="og:locale" content="en"><meta property="og:type" content="website"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="Event Driven Architecture"><meta name=twitter:description content="이벤트 기반 아키텍처는 시스템 내에서 발생하는 상태 변화나 중요한 사건을 '이벤트'로 정의하고, 이러한 이벤트의 생성, 전송, 처리를 중심으로 시스템을 구성하는 방식이다."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Event Driven Architecture","item":"https://buenhyden.github.io/posts/architecture-and-system-design/architectue-styles/event-driven/"}]}</script></head><body class=list id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><header class=page-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a></div><h1>Event Driven Architecture</h1><div class=post-description>이벤트 기반 아키텍처는 시스템 내에서 발생하는 상태 변화나 중요한 사건을 &lsquo;이벤트&rsquo;로 정의하고, 이러한 이벤트의 생성, 전송, 처리를 중심으로 시스템을 구성하는 방식이다.</div></header><div class=post-content><h2 id=event-driven>Event Driven<a hidden class=anchor aria-hidden=true href=#event-driven>#</a></h2><p>이벤트 기반 아키텍처(Event-Driven Architecture, EDA)는 현대 API 설계에서 중요한 통합 패턴으로서, 시스템 간의 효율적인 통신과 확장성을 크게 향상시킬 수 있는 접근 방식이다.</p><p>이벤트 기반 아키텍처는 현대적인 API 통합 패턴으로, 특히 복잡하고 확장 가능한 분산 시스템에서 큰 가치를 제공한다. 이 접근 방식은 시스템 구성 요소 간의 느슨한 결합을 촉진하고, 실시간 데이터 처리와 확장성을 향상시키며, 변화하는 비즈니스 요구사항에 더 유연하게 대응할 수 있게 한다.</p><p>성공적인 이벤트 기반 아키텍처 구현을 위해서는 적절한 이벤트 설계, 명확한 문서화, 효과적인 오류 처리 및 복원력 전략, 그리고 일관된 이벤트 스키마 관리가 필수적이다. 이러한 원칙과 패턴을 적용함으로써, 개발자는 확장 가능하고 유연하며 반응성이 뛰어난 시스템을 구축할 수 있다.</p><h3 id=이벤트-기반-아키텍처의-핵심-개념>이벤트 기반 아키텍처의 핵심 개념<a hidden class=anchor aria-hidden=true href=#이벤트-기반-아키텍처의-핵심-개념>#</a></h3><p>이벤트 기반 아키텍처는 시스템 내에서 발생하는 상태 변화나 중요한 사건을 &lsquo;이벤트&rsquo;로 정의하고, 이러한 이벤트의 생성, 전송, 처리를 중심으로 시스템을 구성하는 방식이다.</p><p>이벤트는 &ldquo;무엇이 일어났는가"에 대한 통지이며, 이벤트를 생성하는 생산자(Producer)와 이벤트를 수신하는 소비자(Consumer) 사이의 느슨한 결합(Loose Coupling)을 통해 시스템의 유연성과 확장성을 제공한다.</p><h3 id=이벤트-기반-아키텍처의-주요-구성-요소>이벤트 기반 아키텍처의 주요 구성 요소<a hidden class=anchor aria-hidden=true href=#이벤트-기반-아키텍처의-주요-구성-요소>#</a></h3><ol><li><p>이벤트 생산자(Event Producer)</p><ul><li>시스템 내에서 상태 변화를 감지하고 이벤트를 생성하는 역할</li><li>예: 사용자 등록 서비스, 주문 처리 시스템, IoT 센서 등</li></ul></li><li><p>이벤트 채널(Event Channel)</p><ul><li>생산자로부터 소비자로 이벤트를 전달하는 통로</li><li>구현 형태: 메시지 큐, 이벤트 버스, 스트림 처리 플랫폼</li></ul></li><li><p>이벤트 소비자(Event Consumer)</p><ul><li>이벤트를 수신하고 적절한 처리를 수행하는 서비스</li><li>이벤트에 반응하여 비즈니스 로직을 실행</li></ul></li><li><p>이벤트 스토어(Event Store)</p><ul><li>이벤트의 지속적인 저장소로서, 이벤트 소싱(Event Sourcing) 패턴에서 중요한 역할</li><li>시스템의 상태 변화 이력을 이벤트 시퀀스로 보존</li></ul></li></ol><h3 id=api-통합에서의-이벤트-기반-아키텍처-구현-방식>API 통합에서의 이벤트 기반 아키텍처 구현 방식<a hidden class=anchor aria-hidden=true href=#api-통합에서의-이벤트-기반-아키텍처-구현-방식>#</a></h3><h4 id=웹훅webhook-기반-이벤트-전달>웹훅(Webhook) 기반 이벤트 전달<a hidden class=anchor aria-hidden=true href=#웹훅webhook-기반-이벤트-전달>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-0-1><a class=lnlinks href=#hl-0-1> 1</a>
+</span><span class=lnt id=hl-0-2><a class=lnlinks href=#hl-0-2> 2</a>
+</span><span class=lnt id=hl-0-3><a class=lnlinks href=#hl-0-3> 3</a>
+</span><span class=lnt id=hl-0-4><a class=lnlinks href=#hl-0-4> 4</a>
+</span><span class=lnt id=hl-0-5><a class=lnlinks href=#hl-0-5> 5</a>
+</span><span class=lnt id=hl-0-6><a class=lnlinks href=#hl-0-6> 6</a>
+</span><span class=lnt id=hl-0-7><a class=lnlinks href=#hl-0-7> 7</a>
+</span><span class=lnt id=hl-0-8><a class=lnlinks href=#hl-0-8> 8</a>
+</span><span class=lnt id=hl-0-9><a class=lnlinks href=#hl-0-9> 9</a>
+</span><span class=lnt id=hl-0-10><a class=lnlinks href=#hl-0-10>10</a>
+</span><span class=lnt id=hl-0-11><a class=lnlinks href=#hl-0-11>11</a>
+</span><span class=lnt id=hl-0-12><a class=lnlinks href=#hl-0-12>12</a>
+</span><span class=lnt id=hl-0-13><a class=lnlinks href=#hl-0-13>13</a>
+</span><span class=lnt id=hl-0-14><a class=lnlinks href=#hl-0-14>14</a>
+</span><span class=lnt id=hl-0-15><a class=lnlinks href=#hl-0-15>15</a>
+</span><span class=lnt id=hl-0-16><a class=lnlinks href=#hl-0-16>16</a>
+</span><span class=lnt id=hl-0-17><a class=lnlinks href=#hl-0-17>17</a>
+</span><span class=lnt id=hl-0-18><a class=lnlinks href=#hl-0-18>18</a>
+</span><span class=lnt id=hl-0-19><a class=lnlinks href=#hl-0-19>19</a>
+</span><span class=lnt id=hl-0-20><a class=lnlinks href=#hl-0-20>20</a>
+</span><span class=lnt id=hl-0-21><a class=lnlinks href=#hl-0-21>21</a>
+</span><span class=lnt id=hl-0-22><a class=lnlinks href=#hl-0-22>22</a>
+</span><span class=lnt id=hl-0-23><a class=lnlinks href=#hl-0-23>23</a>
+</span><span class=lnt id=hl-0-24><a class=lnlinks href=#hl-0-24>24</a>
+</span><span class=lnt id=hl-0-25><a class=lnlinks href=#hl-0-25>25</a>
+</span><span class=lnt id=hl-0-26><a class=lnlinks href=#hl-0-26>26</a>
+</span><span class=lnt id=hl-0-27><a class=lnlinks href=#hl-0-27>27</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 웹훅 이벤트 수신 엔드포인트 예시 (Node.js/Express)
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>app</span><span class=p>.</span><span class=nx>post</span><span class=p>(</span><span class=s1>&#39;/api/webhooks/orders&#39;</span><span class=p>,</span> <span class=p>(</span><span class=nx>req</span><span class=p>,</span> <span class=nx>res</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>event</span> <span class=o>=</span> <span class=nx>req</span><span class=p>.</span><span class=nx>body</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// 이벤트 유효성 검증
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=nx>event</span><span class=p>.</span><span class=nx>type</span> <span class=o>||</span> <span class=o>!</span><span class=nx>event</span><span class=p>.</span><span class=nx>payload</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>res</span><span class=p>.</span><span class=nx>status</span><span class=p>(</span><span class=mi>400</span><span class=p>).</span><span class=nx>send</span><span class=p>(</span><span class=s1>&#39;Invalid event format&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// 이벤트 타입에 따른 처리
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=k>switch</span> <span class=p>(</span><span class=nx>event</span><span class=p>.</span><span class=nx>type</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>case</span> <span class=s1>&#39;order.created&#39;</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>      <span class=nx>processNewOrder</span><span class=p>(</span><span class=nx>event</span><span class=p>.</span><span class=nx>payload</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>      <span class=k>break</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>case</span> <span class=s1>&#39;order.updated&#39;</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>      <span class=nx>updateOrderStatus</span><span class=p>(</span><span class=nx>event</span><span class=p>.</span><span class=nx>payload</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>      <span class=k>break</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>case</span> <span class=s1>&#39;order.cancelled&#39;</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>      <span class=nx>handleOrderCancellation</span><span class=p>(</span><span class=nx>event</span><span class=p>.</span><span class=nx>payload</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>      <span class=k>break</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>default</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>      <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=sb>`Unhandled event type: </span><span class=si>${</span><span class=nx>event</span><span class=p>.</span><span class=nx>type</span><span class=si>}</span><span class=sb>`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// 202 Accepted 응답 (비동기 처리를 나타냄)
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>res</span><span class=p>.</span><span class=nx>status</span><span class=p>(</span><span class=mi>202</span><span class=p>).</span><span class=nx>end</span><span class=p>();</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=서버-전송-이벤트server-sent-events-sse>서버-전송 이벤트(Server-Sent Events, SSE)<a hidden class=anchor aria-hidden=true href=#서버-전송-이벤트server-sent-events-sse>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-1-1><a class=lnlinks href=#hl-1-1> 1</a>
+</span><span class=lnt id=hl-1-2><a class=lnlinks href=#hl-1-2> 2</a>
+</span><span class=lnt id=hl-1-3><a class=lnlinks href=#hl-1-3> 3</a>
+</span><span class=lnt id=hl-1-4><a class=lnlinks href=#hl-1-4> 4</a>
+</span><span class=lnt id=hl-1-5><a class=lnlinks href=#hl-1-5> 5</a>
+</span><span class=lnt id=hl-1-6><a class=lnlinks href=#hl-1-6> 6</a>
+</span><span class=lnt id=hl-1-7><a class=lnlinks href=#hl-1-7> 7</a>
+</span><span class=lnt id=hl-1-8><a class=lnlinks href=#hl-1-8> 8</a>
+</span><span class=lnt id=hl-1-9><a class=lnlinks href=#hl-1-9> 9</a>
+</span><span class=lnt id=hl-1-10><a class=lnlinks href=#hl-1-10>10</a>
+</span><span class=lnt id=hl-1-11><a class=lnlinks href=#hl-1-11>11</a>
+</span><span class=lnt id=hl-1-12><a class=lnlinks href=#hl-1-12>12</a>
+</span><span class=lnt id=hl-1-13><a class=lnlinks href=#hl-1-13>13</a>
+</span><span class=lnt id=hl-1-14><a class=lnlinks href=#hl-1-14>14</a>
+</span><span class=lnt id=hl-1-15><a class=lnlinks href=#hl-1-15>15</a>
+</span><span class=lnt id=hl-1-16><a class=lnlinks href=#hl-1-16>16</a>
+</span><span class=lnt id=hl-1-17><a class=lnlinks href=#hl-1-17>17</a>
+</span><span class=lnt id=hl-1-18><a class=lnlinks href=#hl-1-18>18</a>
+</span><span class=lnt id=hl-1-19><a class=lnlinks href=#hl-1-19>19</a>
+</span><span class=lnt id=hl-1-20><a class=lnlinks href=#hl-1-20>20</a>
+</span><span class=lnt id=hl-1-21><a class=lnlinks href=#hl-1-21>21</a>
+</span><span class=lnt id=hl-1-22><a class=lnlinks href=#hl-1-22>22</a>
+</span><span class=lnt id=hl-1-23><a class=lnlinks href=#hl-1-23>23</a>
+</span><span class=lnt id=hl-1-24><a class=lnlinks href=#hl-1-24>24</a>
+</span><span class=lnt id=hl-1-25><a class=lnlinks href=#hl-1-25>25</a>
+</span><span class=lnt id=hl-1-26><a class=lnlinks href=#hl-1-26>26</a>
+</span><span class=lnt id=hl-1-27><a class=lnlinks href=#hl-1-27>27</a>
+</span><span class=lnt id=hl-1-28><a class=lnlinks href=#hl-1-28>28</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 서버 측 코드 (Node.js/Express)
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>app</span><span class=p>.</span><span class=nx>get</span><span class=p>(</span><span class=s1>&#39;/api/events/stream&#39;</span><span class=p>,</span> <span class=p>(</span><span class=nx>req</span><span class=p>,</span> <span class=nx>res</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// SSE 설정
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>res</span><span class=p>.</span><span class=nx>setHeader</span><span class=p>(</span><span class=s1>&#39;Content-Type&#39;</span><span class=p>,</span> <span class=s1>&#39;text/event-stream&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=nx>res</span><span class=p>.</span><span class=nx>setHeader</span><span class=p>(</span><span class=s1>&#39;Cache-Control&#39;</span><span class=p>,</span> <span class=s1>&#39;no-cache&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=nx>res</span><span class=p>.</span><span class=nx>setHeader</span><span class=p>(</span><span class=s1>&#39;Connection&#39;</span><span class=p>,</span> <span class=s1>&#39;keep-alive&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// 클라이언트에 이벤트 전송 함수
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=kr>const</span> <span class=nx>sendEvent</span> <span class=o>=</span> <span class=p>(</span><span class=nx>eventType</span><span class=p>,</span> <span class=nx>data</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>res</span><span class=p>.</span><span class=nx>write</span><span class=p>(</span><span class=sb>`event: </span><span class=si>${</span><span class=nx>eventType</span><span class=si>}</span><span class=sb>\n`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nx>res</span><span class=p>.</span><span class=nx>write</span><span class=p>(</span><span class=sb>`data: </span><span class=si>${</span><span class=nx>JSON</span><span class=p>.</span><span class=nx>stringify</span><span class=p>(</span><span class=nx>data</span><span class=p>)</span><span class=si>}</span><span class=sb>\n\n`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=p>};</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// 주기적인 이벤트 전송 예시
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=kr>const</span> <span class=nx>intervalId</span> <span class=o>=</span> <span class=nx>setInterval</span><span class=p>(()</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>sendEvent</span><span class=p>(</span><span class=s1>&#39;heartbeat&#39;</span><span class=p>,</span> <span class=p>{</span> <span class=nx>timestamp</span><span class=o>:</span> <span class=nb>Date</span><span class=p>.</span><span class=nx>now</span><span class=p>()</span> <span class=p>});</span>
+</span></span><span class=line><span class=cl>  <span class=p>},</span> <span class=mi>30000</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// 새 주문 발생 시 이벤트 전송 (가상의 이벤트 리스너)
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>orderEmitter</span><span class=p>.</span><span class=nx>on</span><span class=p>(</span><span class=s1>&#39;new-order&#39;</span><span class=p>,</span> <span class=p>(</span><span class=nx>order</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>sendEvent</span><span class=p>(</span><span class=s1>&#39;order.created&#39;</span><span class=p>,</span> <span class=nx>order</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// 연결 종료 시 정리
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>req</span><span class=p>.</span><span class=nx>on</span><span class=p>(</span><span class=s1>&#39;close&#39;</span><span class=p>,</span> <span class=p>()</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>clearInterval</span><span class=p>(</span><span class=nx>intervalId</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=메시지-브로커를-활용한-이벤트-기반-통합>메시지 브로커를 활용한 이벤트 기반 통합<a hidden class=anchor aria-hidden=true href=#메시지-브로커를-활용한-이벤트-기반-통합>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-2-1><a class=lnlinks href=#hl-2-1> 1</a>
+</span><span class=lnt id=hl-2-2><a class=lnlinks href=#hl-2-2> 2</a>
+</span><span class=lnt id=hl-2-3><a class=lnlinks href=#hl-2-3> 3</a>
+</span><span class=lnt id=hl-2-4><a class=lnlinks href=#hl-2-4> 4</a>
+</span><span class=lnt id=hl-2-5><a class=lnlinks href=#hl-2-5> 5</a>
+</span><span class=lnt id=hl-2-6><a class=lnlinks href=#hl-2-6> 6</a>
+</span><span class=lnt id=hl-2-7><a class=lnlinks href=#hl-2-7> 7</a>
+</span><span class=lnt id=hl-2-8><a class=lnlinks href=#hl-2-8> 8</a>
+</span><span class=lnt id=hl-2-9><a class=lnlinks href=#hl-2-9> 9</a>
+</span><span class=lnt id=hl-2-10><a class=lnlinks href=#hl-2-10>10</a>
+</span><span class=lnt id=hl-2-11><a class=lnlinks href=#hl-2-11>11</a>
+</span><span class=lnt id=hl-2-12><a class=lnlinks href=#hl-2-12>12</a>
+</span><span class=lnt id=hl-2-13><a class=lnlinks href=#hl-2-13>13</a>
+</span><span class=lnt id=hl-2-14><a class=lnlinks href=#hl-2-14>14</a>
+</span><span class=lnt id=hl-2-15><a class=lnlinks href=#hl-2-15>15</a>
+</span><span class=lnt id=hl-2-16><a class=lnlinks href=#hl-2-16>16</a>
+</span><span class=lnt id=hl-2-17><a class=lnlinks href=#hl-2-17>17</a>
+</span><span class=lnt id=hl-2-18><a class=lnlinks href=#hl-2-18>18</a>
+</span><span class=lnt id=hl-2-19><a class=lnlinks href=#hl-2-19>19</a>
+</span><span class=lnt id=hl-2-20><a class=lnlinks href=#hl-2-20>20</a>
+</span><span class=lnt id=hl-2-21><a class=lnlinks href=#hl-2-21>21</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 이벤트 생산자 예시 (Python with Kafka)</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>kafka</span> <span class=kn>import</span> <span class=n>KafkaProducer</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>json</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>producer</span> <span class=o>=</span> <span class=n>KafkaProducer</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>bootstrap_servers</span><span class=o>=</span><span class=p>[</span><span class=s1>&#39;kafka:9092&#39;</span><span class=p>],</span>
+</span></span><span class=line><span class=cl>    <span class=n>value_serializer</span><span class=o>=</span><span class=k>lambda</span> <span class=n>v</span><span class=p>:</span> <span class=n>json</span><span class=o>.</span><span class=n>dumps</span><span class=p>(</span><span class=n>v</span><span class=p>)</span><span class=o>.</span><span class=n>encode</span><span class=p>(</span><span class=s1>&#39;utf-8&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>publish_order_event</span><span class=p>(</span><span class=n>order_id</span><span class=p>,</span> <span class=n>event_type</span><span class=p>,</span> <span class=n>data</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>event</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;event_id&#39;</span><span class=p>:</span> <span class=nb>str</span><span class=p>(</span><span class=n>uuid</span><span class=o>.</span><span class=n>uuid4</span><span class=p>()),</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;event_type&#39;</span><span class=p>:</span> <span class=n>event_type</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;timestamp&#39;</span><span class=p>:</span> <span class=n>datetime</span><span class=o>.</span><span class=n>utcnow</span><span class=p>()</span><span class=o>.</span><span class=n>isoformat</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;order_id&#39;</span><span class=p>:</span> <span class=n>order_id</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;data&#39;</span><span class=p>:</span> <span class=n>data</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 주문 이벤트 토픽으로 메시지 전송</span>
+</span></span><span class=line><span class=cl>    <span class=n>producer</span><span class=o>.</span><span class=n>send</span><span class=p>(</span><span class=s1>&#39;order-events&#39;</span><span class=p>,</span> <span class=n>event</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>producer</span><span class=o>.</span><span class=n>flush</span><span class=p>()</span>
+</span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-3-1><a class=lnlinks href=#hl-3-1> 1</a>
+</span><span class=lnt id=hl-3-2><a class=lnlinks href=#hl-3-2> 2</a>
+</span><span class=lnt id=hl-3-3><a class=lnlinks href=#hl-3-3> 3</a>
+</span><span class=lnt id=hl-3-4><a class=lnlinks href=#hl-3-4> 4</a>
+</span><span class=lnt id=hl-3-5><a class=lnlinks href=#hl-3-5> 5</a>
+</span><span class=lnt id=hl-3-6><a class=lnlinks href=#hl-3-6> 6</a>
+</span><span class=lnt id=hl-3-7><a class=lnlinks href=#hl-3-7> 7</a>
+</span><span class=lnt id=hl-3-8><a class=lnlinks href=#hl-3-8> 8</a>
+</span><span class=lnt id=hl-3-9><a class=lnlinks href=#hl-3-9> 9</a>
+</span><span class=lnt id=hl-3-10><a class=lnlinks href=#hl-3-10>10</a>
+</span><span class=lnt id=hl-3-11><a class=lnlinks href=#hl-3-11>11</a>
+</span><span class=lnt id=hl-3-12><a class=lnlinks href=#hl-3-12>12</a>
+</span><span class=lnt id=hl-3-13><a class=lnlinks href=#hl-3-13>13</a>
+</span><span class=lnt id=hl-3-14><a class=lnlinks href=#hl-3-14>14</a>
+</span><span class=lnt id=hl-3-15><a class=lnlinks href=#hl-3-15>15</a>
+</span><span class=lnt id=hl-3-16><a class=lnlinks href=#hl-3-16>16</a>
+</span><span class=lnt id=hl-3-17><a class=lnlinks href=#hl-3-17>17</a>
+</span><span class=lnt id=hl-3-18><a class=lnlinks href=#hl-3-18>18</a>
+</span><span class=lnt id=hl-3-19><a class=lnlinks href=#hl-3-19>19</a>
+</span><span class=lnt id=hl-3-20><a class=lnlinks href=#hl-3-20>20</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 이벤트 소비자 예시 (Python with Kafka)</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>kafka</span> <span class=kn>import</span> <span class=n>KafkaConsumer</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>json</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>consumer</span> <span class=o>=</span> <span class=n>KafkaConsumer</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;order-events&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>bootstrap_servers</span><span class=o>=</span><span class=p>[</span><span class=s1>&#39;kafka:9092&#39;</span><span class=p>],</span>
+</span></span><span class=line><span class=cl>    <span class=n>value_deserializer</span><span class=o>=</span><span class=k>lambda</span> <span class=n>m</span><span class=p>:</span> <span class=n>json</span><span class=o>.</span><span class=n>loads</span><span class=p>(</span><span class=n>m</span><span class=o>.</span><span class=n>decode</span><span class=p>(</span><span class=s1>&#39;utf-8&#39;</span><span class=p>)),</span>
+</span></span><span class=line><span class=cl>    <span class=n>group_id</span><span class=o>=</span><span class=s1>&#39;order-processing-service&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>auto_offset_reset</span><span class=o>=</span><span class=s1>&#39;earliest&#39;</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>message</span> <span class=ow>in</span> <span class=n>consumer</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>event</span> <span class=o>=</span> <span class=n>message</span><span class=o>.</span><span class=n>value</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 이벤트 타입에 따른 처리</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>event</span><span class=p>[</span><span class=s1>&#39;event_type&#39;</span><span class=p>]</span> <span class=o>==</span> <span class=s1>&#39;order.created&#39;</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>process_new_order</span><span class=p>(</span><span class=n>event</span><span class=p>[</span><span class=s1>&#39;data&#39;</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>    <span class=k>elif</span> <span class=n>event</span><span class=p>[</span><span class=s1>&#39;event_type&#39;</span><span class=p>]</span> <span class=o>==</span> <span class=s1>&#39;order.payment_confirmed&#39;</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>initiate_shipment</span><span class=p>(</span><span class=n>event</span><span class=p>[</span><span class=s1>&#39;data&#39;</span><span class=p>])</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=이벤트-기반-api의-설계-원칙>이벤트 기반 API의 설계 원칙<a hidden class=anchor aria-hidden=true href=#이벤트-기반-api의-설계-원칙>#</a></h3><h4 id=이벤트-스키마-정의와-버전-관리>이벤트 스키마 정의와 버전 관리<a hidden class=anchor aria-hidden=true href=#이벤트-스키마-정의와-버전-관리>#</a></h4><p>이벤트의 구조와 의미를 명확히 정의하고 버전 관리하여 생산자와 소비자 간의 호환성을 유지한다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-4-1><a class=lnlinks href=#hl-4-1> 1</a>
+</span><span class=lnt id=hl-4-2><a class=lnlinks href=#hl-4-2> 2</a>
+</span><span class=lnt id=hl-4-3><a class=lnlinks href=#hl-4-3> 3</a>
+</span><span class=lnt id=hl-4-4><a class=lnlinks href=#hl-4-4> 4</a>
+</span><span class=lnt id=hl-4-5><a class=lnlinks href=#hl-4-5> 5</a>
+</span><span class=lnt id=hl-4-6><a class=lnlinks href=#hl-4-6> 6</a>
+</span><span class=lnt id=hl-4-7><a class=lnlinks href=#hl-4-7> 7</a>
+</span><span class=lnt id=hl-4-8><a class=lnlinks href=#hl-4-8> 8</a>
+</span><span class=lnt id=hl-4-9><a class=lnlinks href=#hl-4-9> 9</a>
+</span><span class=lnt id=hl-4-10><a class=lnlinks href=#hl-4-10>10</a>
+</span><span class=lnt id=hl-4-11><a class=lnlinks href=#hl-4-11>11</a>
+</span><span class=lnt id=hl-4-12><a class=lnlinks href=#hl-4-12>12</a>
+</span><span class=lnt id=hl-4-13><a class=lnlinks href=#hl-4-13>13</a>
+</span><span class=lnt id=hl-4-14><a class=lnlinks href=#hl-4-14>14</a>
+</span><span class=lnt id=hl-4-15><a class=lnlinks href=#hl-4-15>15</a>
+</span><span class=lnt id=hl-4-16><a class=lnlinks href=#hl-4-16>16</a>
+</span><span class=lnt id=hl-4-17><a class=lnlinks href=#hl-4-17>17</a>
+</span><span class=lnt id=hl-4-18><a class=lnlinks href=#hl-4-18>18</a>
+</span><span class=lnt id=hl-4-19><a class=lnlinks href=#hl-4-19>19</a>
+</span><span class=lnt id=hl-4-20><a class=lnlinks href=#hl-4-20>20</a>
+</span><span class=lnt id=hl-4-21><a class=lnlinks href=#hl-4-21>21</a>
+</span><span class=lnt id=hl-4-22><a class=lnlinks href=#hl-4-22>22</a>
+</span><span class=lnt id=hl-4-23><a class=lnlinks href=#hl-4-23>23</a>
+</span><span class=lnt id=hl-4-24><a class=lnlinks href=#hl-4-24>24</a>
+</span><span class=lnt id=hl-4-25><a class=lnlinks href=#hl-4-25>25</a>
+</span><span class=lnt id=hl-4-26><a class=lnlinks href=#hl-4-26>26</a>
+</span><span class=lnt id=hl-4-27><a class=lnlinks href=#hl-4-27>27</a>
+</span><span class=lnt id=hl-4-28><a class=lnlinks href=#hl-4-28>28</a>
+</span><span class=lnt id=hl-4-29><a class=lnlinks href=#hl-4-29>29</a>
+</span><span class=lnt id=hl-4-30><a class=lnlinks href=#hl-4-30>30</a>
+</span><span class=lnt id=hl-4-31><a class=lnlinks href=#hl-4-31>31</a>
+</span><span class=lnt id=hl-4-32><a class=lnlinks href=#hl-4-32>32</a>
+</span><span class=lnt id=hl-4-33><a class=lnlinks href=#hl-4-33>33</a>
+</span><span class=lnt id=hl-4-34><a class=lnlinks href=#hl-4-34>34</a>
+</span><span class=lnt id=hl-4-35><a class=lnlinks href=#hl-4-35>35</a>
+</span><span class=lnt id=hl-4-36><a class=lnlinks href=#hl-4-36>36</a>
+</span><span class=lnt id=hl-4-37><a class=lnlinks href=#hl-4-37>37</a>
+</span><span class=lnt id=hl-4-38><a class=lnlinks href=#hl-4-38>38</a>
+</span><span class=lnt id=hl-4-39><a class=lnlinks href=#hl-4-39>39</a>
+</span><span class=lnt id=hl-4-40><a class=lnlinks href=#hl-4-40>40</a>
+</span><span class=lnt id=hl-4-41><a class=lnlinks href=#hl-4-41>41</a>
+</span><span class=lnt id=hl-4-42><a class=lnlinks href=#hl-4-42>42</a>
+</span><span class=lnt id=hl-4-43><a class=lnlinks href=#hl-4-43>43</a>
+</span><span class=lnt id=hl-4-44><a class=lnlinks href=#hl-4-44>44</a>
+</span><span class=lnt id=hl-4-45><a class=lnlinks href=#hl-4-45>45</a>
+</span><span class=lnt id=hl-4-46><a class=lnlinks href=#hl-4-46>46</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-json data-lang=json><span class=line><span class=cl><span class=c1>// 이벤트 스키마 예시 (JSON Schema)
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;$schema&#34;</span><span class=p>:</span> <span class=s2>&#34;http://json-schema.org/draft-07/schema#&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;title&#34;</span><span class=p>:</span> <span class=s2>&#34;OrderCreatedEvent&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;version&#34;</span><span class=p>:</span> <span class=s2>&#34;1.0&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;type&#34;</span><span class=p>:</span> <span class=s2>&#34;object&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;required&#34;</span><span class=p>:</span> <span class=p>[</span><span class=s2>&#34;event_id&#34;</span><span class=p>,</span> <span class=s2>&#34;event_type&#34;</span><span class=p>,</span> <span class=s2>&#34;timestamp&#34;</span><span class=p>,</span> <span class=s2>&#34;data&#34;</span><span class=p>],</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;properties&#34;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;event_id&#34;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nt>&#34;type&#34;</span><span class=p>:</span> <span class=s2>&#34;string&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nt>&#34;format&#34;</span><span class=p>:</span> <span class=s2>&#34;uuid&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nt>&#34;description&#34;</span><span class=p>:</span> <span class=s2>&#34;이벤트의 고유 식별자&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;event_type&#34;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nt>&#34;type&#34;</span><span class=p>:</span> <span class=s2>&#34;string&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nt>&#34;enum&#34;</span><span class=p>:</span> <span class=p>[</span><span class=s2>&#34;order.created&#34;</span><span class=p>],</span>
+</span></span><span class=line><span class=cl>      <span class=nt>&#34;description&#34;</span><span class=p>:</span> <span class=s2>&#34;이벤트 유형&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;timestamp&#34;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nt>&#34;type&#34;</span><span class=p>:</span> <span class=s2>&#34;string&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nt>&#34;format&#34;</span><span class=p>:</span> <span class=s2>&#34;date-time&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nt>&#34;description&#34;</span><span class=p>:</span> <span class=s2>&#34;이벤트 발생 시간 (ISO 8601 형식)&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;data&#34;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nt>&#34;type&#34;</span><span class=p>:</span> <span class=s2>&#34;object&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nt>&#34;required&#34;</span><span class=p>:</span> <span class=p>[</span><span class=s2>&#34;order_id&#34;</span><span class=p>,</span> <span class=s2>&#34;customer_id&#34;</span><span class=p>,</span> <span class=s2>&#34;items&#34;</span><span class=p>,</span> <span class=s2>&#34;total_amount&#34;</span><span class=p>],</span>
+</span></span><span class=line><span class=cl>      <span class=nt>&#34;properties&#34;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nt>&#34;order_id&#34;</span><span class=p>:</span> <span class=p>{</span> <span class=nt>&#34;type&#34;</span><span class=p>:</span> <span class=s2>&#34;string&#34;</span> <span class=p>},</span>
+</span></span><span class=line><span class=cl>        <span class=nt>&#34;customer_id&#34;</span><span class=p>:</span> <span class=p>{</span> <span class=nt>&#34;type&#34;</span><span class=p>:</span> <span class=s2>&#34;string&#34;</span> <span class=p>},</span>
+</span></span><span class=line><span class=cl>        <span class=nt>&#34;items&#34;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>          <span class=nt>&#34;type&#34;</span><span class=p>:</span> <span class=s2>&#34;array&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>          <span class=nt>&#34;items&#34;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nt>&#34;type&#34;</span><span class=p>:</span> <span class=s2>&#34;object&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=nt>&#34;required&#34;</span><span class=p>:</span> <span class=p>[</span><span class=s2>&#34;product_id&#34;</span><span class=p>,</span> <span class=s2>&#34;quantity&#34;</span><span class=p>,</span> <span class=s2>&#34;price&#34;</span><span class=p>],</span>
+</span></span><span class=line><span class=cl>            <span class=nt>&#34;properties&#34;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>              <span class=nt>&#34;product_id&#34;</span><span class=p>:</span> <span class=p>{</span> <span class=nt>&#34;type&#34;</span><span class=p>:</span> <span class=s2>&#34;string&#34;</span> <span class=p>},</span>
+</span></span><span class=line><span class=cl>              <span class=nt>&#34;quantity&#34;</span><span class=p>:</span> <span class=p>{</span> <span class=nt>&#34;type&#34;</span><span class=p>:</span> <span class=s2>&#34;integer&#34;</span><span class=p>,</span> <span class=nt>&#34;minimum&#34;</span><span class=p>:</span> <span class=mi>1</span> <span class=p>},</span>
+</span></span><span class=line><span class=cl>              <span class=nt>&#34;price&#34;</span><span class=p>:</span> <span class=p>{</span> <span class=nt>&#34;type&#34;</span><span class=p>:</span> <span class=s2>&#34;number&#34;</span><span class=p>,</span> <span class=nt>&#34;minimum&#34;</span><span class=p>:</span> <span class=mi>0</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span>
+</span></span><span class=line><span class=cl>          <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=p>},</span>
+</span></span><span class=line><span class=cl>        <span class=nt>&#34;total_amount&#34;</span><span class=p>:</span> <span class=p>{</span> <span class=nt>&#34;type&#34;</span><span class=p>:</span> <span class=s2>&#34;number&#34;</span><span class=p>,</span> <span class=nt>&#34;minimum&#34;</span><span class=p>:</span> <span class=mi>0</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=이벤트-기반-api-문서화>이벤트 기반 API 문서화<a hidden class=anchor aria-hidden=true href=#이벤트-기반-api-문서화>#</a></h4><p>이벤트 기반 API의 효과적인 문서화는 이벤트 타입, 페이로드 구조, 발생 조건 등을 명확하게 설명해야 한다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-5-1><a class=lnlinks href=#hl-5-1> 1</a>
+</span><span class=lnt id=hl-5-2><a class=lnlinks href=#hl-5-2> 2</a>
+</span><span class=lnt id=hl-5-3><a class=lnlinks href=#hl-5-3> 3</a>
+</span><span class=lnt id=hl-5-4><a class=lnlinks href=#hl-5-4> 4</a>
+</span><span class=lnt id=hl-5-5><a class=lnlinks href=#hl-5-5> 5</a>
+</span><span class=lnt id=hl-5-6><a class=lnlinks href=#hl-5-6> 6</a>
+</span><span class=lnt id=hl-5-7><a class=lnlinks href=#hl-5-7> 7</a>
+</span><span class=lnt id=hl-5-8><a class=lnlinks href=#hl-5-8> 8</a>
+</span><span class=lnt id=hl-5-9><a class=lnlinks href=#hl-5-9> 9</a>
+</span><span class=lnt id=hl-5-10><a class=lnlinks href=#hl-5-10>10</a>
+</span><span class=lnt id=hl-5-11><a class=lnlinks href=#hl-5-11>11</a>
+</span><span class=lnt id=hl-5-12><a class=lnlinks href=#hl-5-12>12</a>
+</span><span class=lnt id=hl-5-13><a class=lnlinks href=#hl-5-13>13</a>
+</span><span class=lnt id=hl-5-14><a class=lnlinks href=#hl-5-14>14</a>
+</span><span class=lnt id=hl-5-15><a class=lnlinks href=#hl-5-15>15</a>
+</span><span class=lnt id=hl-5-16><a class=lnlinks href=#hl-5-16>16</a>
+</span><span class=lnt id=hl-5-17><a class=lnlinks href=#hl-5-17>17</a>
+</span><span class=lnt id=hl-5-18><a class=lnlinks href=#hl-5-18>18</a>
+</span><span class=lnt id=hl-5-19><a class=lnlinks href=#hl-5-19>19</a>
+</span><span class=lnt id=hl-5-20><a class=lnlinks href=#hl-5-20>20</a>
+</span><span class=lnt id=hl-5-21><a class=lnlinks href=#hl-5-21>21</a>
+</span><span class=lnt id=hl-5-22><a class=lnlinks href=#hl-5-22>22</a>
+</span><span class=lnt id=hl-5-23><a class=lnlinks href=#hl-5-23>23</a>
+</span><span class=lnt id=hl-5-24><a class=lnlinks href=#hl-5-24>24</a>
+</span><span class=lnt id=hl-5-25><a class=lnlinks href=#hl-5-25>25</a>
+</span><span class=lnt id=hl-5-26><a class=lnlinks href=#hl-5-26>26</a>
+</span><span class=lnt id=hl-5-27><a class=lnlinks href=#hl-5-27>27</a>
+</span><span class=lnt id=hl-5-28><a class=lnlinks href=#hl-5-28>28</a>
+</span><span class=lnt id=hl-5-29><a class=lnlinks href=#hl-5-29>29</a>
+</span><span class=lnt id=hl-5-30><a class=lnlinks href=#hl-5-30>30</a>
+</span><span class=lnt id=hl-5-31><a class=lnlinks href=#hl-5-31>31</a>
+</span><span class=lnt id=hl-5-32><a class=lnlinks href=#hl-5-32>32</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># AsyncAPI 명세 예시</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>asyncapi</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;2.4.0&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>info</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>title</span><span class=p>:</span><span class=w> </span><span class=l>주문 관리 시스템 이벤트 API</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>version</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;1.0.0&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>description</span><span class=p>:</span><span class=w> </span><span class=l>주문 처리 워크플로우에서 발생하는 이벤트</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>channels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>order/events</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>publish</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>summary</span><span class=p>:</span><span class=w> </span><span class=l>주문 관련 이벤트를 발행하는 채널</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>operationId</span><span class=p>:</span><span class=w> </span><span class=l>publishOrderEvent</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>message</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>oneOf</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span>- <span class=nt>$ref</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;#/components/messages/OrderCreated&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span>- <span class=nt>$ref</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;#/components/messages/OrderPaid&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span>- <span class=nt>$ref</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;#/components/messages/OrderShipped&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>components</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>messages</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>OrderCreated</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>order.created</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>title</span><span class=p>:</span><span class=w> </span><span class=l>주문 생성 이벤트</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>contentType</span><span class=p>:</span><span class=w> </span><span class=l>application/json</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>payload</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>$ref</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;#/components/schemas/OrderCreatedPayload&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>schemas</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>OrderCreatedPayload</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>type</span><span class=p>:</span><span class=w> </span><span class=l>object</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>properties</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>order_id</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>type</span><span class=p>:</span><span class=w> </span><span class=l>string</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>description</span><span class=p>:</span><span class=w> </span><span class=l>생성된 주문의 고유 식별자</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c># 추가 필드...</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h4 id=멱등성idempotency-보장>멱등성(Idempotency) 보장<a hidden class=anchor aria-hidden=true href=#멱등성idempotency-보장>#</a></h4><p>동일 이벤트가 중복 처리되는 것을 방지하기 위한 멱등성 구현은 이벤트 기반 시스템에서 중요하다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-6-1><a class=lnlinks href=#hl-6-1> 1</a>
+</span><span class=lnt id=hl-6-2><a class=lnlinks href=#hl-6-2> 2</a>
+</span><span class=lnt id=hl-6-3><a class=lnlinks href=#hl-6-3> 3</a>
+</span><span class=lnt id=hl-6-4><a class=lnlinks href=#hl-6-4> 4</a>
+</span><span class=lnt id=hl-6-5><a class=lnlinks href=#hl-6-5> 5</a>
+</span><span class=lnt id=hl-6-6><a class=lnlinks href=#hl-6-6> 6</a>
+</span><span class=lnt id=hl-6-7><a class=lnlinks href=#hl-6-7> 7</a>
+</span><span class=lnt id=hl-6-8><a class=lnlinks href=#hl-6-8> 8</a>
+</span><span class=lnt id=hl-6-9><a class=lnlinks href=#hl-6-9> 9</a>
+</span><span class=lnt id=hl-6-10><a class=lnlinks href=#hl-6-10>10</a>
+</span><span class=lnt id=hl-6-11><a class=lnlinks href=#hl-6-11>11</a>
+</span><span class=lnt id=hl-6-12><a class=lnlinks href=#hl-6-12>12</a>
+</span><span class=lnt id=hl-6-13><a class=lnlinks href=#hl-6-13>13</a>
+</span><span class=lnt id=hl-6-14><a class=lnlinks href=#hl-6-14>14</a>
+</span><span class=lnt id=hl-6-15><a class=lnlinks href=#hl-6-15>15</a>
+</span><span class=lnt id=hl-6-16><a class=lnlinks href=#hl-6-16>16</a>
+</span><span class=lnt id=hl-6-17><a class=lnlinks href=#hl-6-17>17</a>
+</span><span class=lnt id=hl-6-18><a class=lnlinks href=#hl-6-18>18</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 멱등성 처리 예시 (Python)</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>process_order_event</span><span class=p>(</span><span class=n>event</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>event_id</span> <span class=o>=</span> <span class=n>event</span><span class=p>[</span><span class=s1>&#39;event_id&#39;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 이미 처리된 이벤트인지 확인</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>redis_client</span><span class=o>.</span><span class=n>exists</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;processed_event:</span><span class=si>{</span><span class=n>event_id</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>logger</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;이벤트 </span><span class=si>{</span><span class=n>event_id</span><span class=si>}</span><span class=s2>는 이미 처리되었습니다. 건너뜁니다.&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 이벤트 처리 로직</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>event</span><span class=p>[</span><span class=s1>&#39;event_type&#39;</span><span class=p>]</span> <span class=o>==</span> <span class=s1>&#39;order.created&#39;</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>process_new_order</span><span class=p>(</span><span class=n>event</span><span class=p>[</span><span class=s1>&#39;data&#39;</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 처리 완료 표시 (24시간 동안 유지)</span>
+</span></span><span class=line><span class=cl>        <span class=n>redis_client</span><span class=o>.</span><span class=n>setex</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;processed_event:</span><span class=si>{</span><span class=n>event_id</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>,</span> <span class=mi>86400</span><span class=p>,</span> <span class=s2>&#34;1&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>except</span> <span class=ne>Exception</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>logger</span><span class=o>.</span><span class=n>error</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;이벤트 처리 실패: </span><span class=si>{</span><span class=nb>str</span><span class=p>(</span><span class=n>e</span><span class=p>)</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=이벤트-기반-아키텍처의-실제-활용-사례>이벤트 기반 아키텍처의 실제 활용 사례<a hidden class=anchor aria-hidden=true href=#이벤트-기반-아키텍처의-실제-활용-사례>#</a></h3><ol><li><p>마이크로서비스 간 통합<br>여러 마이크로서비스가 이벤트를 통해 느슨하게 결합되어 독립적으로 개발, 배포, 확장될 수 있다.</p></li><li><p>실시간 대시보드 및 분석<br>시스템에서 발생하는 이벤트를 실시간으로 수집, 분석하여 비즈니스 인사이트를 제공한다.</p></li><li><p>IoT 애플리케이션<br>수많은 IoT 장치에서 생성되는 센서 데이터를 이벤트로 처리하여 확장성 있는 시스템을 구축한다.</p></li></ol><h3 id=이벤트-기반-아키텍처의-장점>이벤트 기반 아키텍처의 장점<a hidden class=anchor aria-hidden=true href=#이벤트-기반-아키텍처의-장점>#</a></h3><ol><li><p>느슨한 결합(Loose Coupling)<br>서비스 간의 직접적인 의존성을 제거하여 변경이 다른 서비스에 미치는 영향을 최소화한다.</p></li><li><p>확장성(Scalability)<br>이벤트 소비자를 독립적으로 확장할 수 있으며, 새로운 기능을 기존 시스템에 영향 없이 추가할 수 있다.</p></li><li><p>회복력(Resilience)<br>서비스 간 비동기 통신으로 일부 서비스 장애가 전체 시스템에 미치는 영향을 제한한다.</p></li><li><p>실시간 처리(Real-time Processing)<br>이벤트가 발생하는 즉시 처리하여 실시간 반응성을 제공한다.</p></li></ol><h3 id=이벤트-기반-아키텍처의-과제와-해결-방안>이벤트 기반 아키텍처의 과제와 해결 방안<a hidden class=anchor aria-hidden=true href=#이벤트-기반-아키텍처의-과제와-해결-방안>#</a></h3><ol><li><p>복잡성 관리<br><strong>과제:</strong> 이벤트 흐름이 복잡해지면 시스템 동작 이해와 디버깅이 어려워질 수 있다.<br><strong>해결 방안:</strong></p><ul><li>이벤트 스키마 레지스트리 구축</li><li>분산 추적(Distributed Tracing) 시스템 도입</li><li>이벤트 흐름 시각화 도구 활용</li></ul></li><li><p>이벤트 순서 보장<br><strong>과제:</strong> 분산 시스템에서 이벤트 순서 보장이 어려울 수 있다.<br><strong>해결 방안:</strong></p><ul><li>이벤트에 순차적 번호나 타임스탬프 포함</li><li>단일 파티션 키를 사용하여 관련 이벤트의 순서 보장</li><li>이벤트 소싱 패턴 적용</li></ul></li><li><p>데이터 일관성<br><strong>과제:</strong> 분산 시스템에서 즉각적인 일관성 달성이 어려울 수 있다.<br><strong>해결 방안:</strong></p><ul><li>결과적 일관성(Eventual Consistency) 모델 채택</li><li>SAGA 패턴을 통한 분산 트랜잭션 관리</li><li>보상 트랜잭션(Compensating Transaction) 구현</li></ul></li></ol><h3 id=이벤트-기반-아키텍처-구현을-위한-기술-스택>이벤트 기반 아키텍처 구현을 위한 기술 스택<a hidden class=anchor aria-hidden=true href=#이벤트-기반-아키텍처-구현을-위한-기술-스택>#</a></h3><h4 id=메시지-브로커-및-이벤트-스트리밍-플랫폼>메시지 브로커 및 이벤트 스트리밍 플랫폼<a hidden class=anchor aria-hidden=true href=#메시지-브로커-및-이벤트-스트리밍-플랫폼>#</a></h4><ul><li>Apache Kafka: 고성능 분산 이벤트 스트리밍 플랫폼</li><li>RabbitMQ: 다양한 메시징 패턴을 지원하는 메시지 브로커</li><li>Amazon SNS/SQS: AWS의 메시징 서비스</li><li>Google Pub/Sub: GCP의 메시징 서비스</li></ul><h4 id=이벤트-처리-프레임워크>이벤트 처리 프레임워크<a hidden class=anchor aria-hidden=true href=#이벤트-처리-프레임워크>#</a></h4><ul><li>Spring Cloud Stream: 스프링 기반 이벤트 처리 추상화</li><li>Akka: 액터 모델 기반 분산 이벤트 처리</li><li>Apache Flink: 스트림 처리 및 이벤트 시간 처리</li><li>Serverless Functions: AWS Lambda, Google Cloud Functions 등</li></ul><h4 id=이벤트-스키마-관리>이벤트 스키마 관리<a hidden class=anchor aria-hidden=true href=#이벤트-스키마-관리>#</a></h4><ul><li>Schema Registry: 이벤트 스키마 버전 관리</li><li>Protocol Buffers, Avro: 효율적인 이벤트 직렬화/역직렬화</li><li>AsyncAPI: 이벤트 기반 API 명세</li></ul><hr><h2 id=용어-정리>용어 정리<a hidden class=anchor aria-hidden=true href=#용어-정리>#</a></h2><table><thead><tr><th>용어</th><th>설명</th></tr></thead><tbody><tr><td></td><td></td></tr></tbody></table><hr><h2 id=참고-및-출처>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처>#</a></h2></div><article class=post-entry><header class=entry-header><h2 class=entry-hint-parent>Event-Driven Pattern</h2></header><div class=entry-content><p>Event-Driven Pattern 이 패턴은 시스템의 상태 변화를 이벤트로 표현하고, 이를 기반으로 서비스 간 통신을 구현하는 방식이다.
+Event-Driven Pattern은 시스템에서 발생하는 중요한 변화나 행동을 이벤트로 정의하고, 이를 중심으로 시스템을 설계하는 아키텍처 패턴이다.
+이 패턴에서는 이벤트의 생성, 전파, 처리가 시스템의 핵심 동작이 된다.
+주요 특징:
+비동기 통신을 기반으로 함 서비스 간 느슨한 결합 제공 실시간 데이터 처리와 반응성 향상 확장성과 유연성 증대 주요 구성 요소 Event-Driven Pattern의 주요 구성 요소는 다음과 같다:
+...</p></div><footer class=entry-footer><span title='2024-12-28 10:05:00 +0000 UTC'>December 28, 2024</span>&nbsp;·&nbsp;6 min&nbsp;·&nbsp;Me</footer><a class=entry-link aria-label="post link to Event-Driven Pattern" href=https://buenhyden.github.io/posts/architecture-and-system-design/architectue-styles/event-driven/event-driven-pattern/></a></article></main><footer class=footer><span>&copy; 2025 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>
