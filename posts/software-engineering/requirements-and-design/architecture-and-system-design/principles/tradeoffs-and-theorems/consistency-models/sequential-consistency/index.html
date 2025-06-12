@@ -1,0 +1,983 @@
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Sequential Consistency | hyunyoun's Blog</title><meta name=keywords content="System-Design,Fundamentals,Consistency-Patterns,Sequential-Consistency"><meta name=description content="Sequential Consistency 는 분산 시스템에서 연산이 실행된 순서를 유지하여, 모든 프로세스가 동일한 순서로 연산을 관찰하도록 보장하는 일관성 모델이다. 이는 시스템의 예측 가능성과 신뢰성을 높이지만, 구현 복잡성과 성능 저하를 초래할 수 있다."><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/software-engineering/requirements-and-design/architecture-and-system-design/principles/tradeoffs-and-theorems/consistency-models/sequential-consistency/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.a9863521b3bd3c240bc506f46b95e3c06ccef2ae37f529d5f99bdaef442bccce.css integrity="sha256-qYY1IbO9PCQLxQb0a5XjwGzO8q439SnV+Zva70QrzM4=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate type=application/rss+xml href=https://buenhyden.github.io/posts/software-engineering/requirements-and-design/architecture-and-system-design/principles/tradeoffs-and-theorems/consistency-models/sequential-consistency/index.xml><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/software-engineering/requirements-and-design/architecture-and-system-design/principles/tradeoffs-and-theorems/consistency-models/sequential-consistency/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/software-engineering/requirements-and-design/architecture-and-system-design/principles/tradeoffs-and-theorems/consistency-models/sequential-consistency/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="Sequential Consistency"><meta property="og:description" content="Sequential Consistency 는 분산 시스템에서 연산이 실행된 순서를 유지하여, 모든 프로세스가 동일한 순서로 연산을 관찰하도록 보장하는 일관성 모델이다. 이는 시스템의 예측 가능성과 신뢰성을 높이지만, 구현 복잡성과 성능 저하를 초래할 수 있다."><meta property="og:locale" content="en"><meta property="og:type" content="website"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="Sequential Consistency"><meta name=twitter:description content="Sequential Consistency 는 분산 시스템에서 연산이 실행된 순서를 유지하여, 모든 프로세스가 동일한 순서로 연산을 관찰하도록 보장하는 일관성 모델이다. 이는 시스템의 예측 가능성과 신뢰성을 높이지만, 구현 복잡성과 성능 저하를 초래할 수 있다."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Computer Science and Engineering","item":"https://buenhyden.github.io/posts/"},{"@type":"ListItem","position":2,"name":"Software Engineering","item":"https://buenhyden.github.io/posts/software-engineering/"},{"@type":"ListItem","position":4,"name":"Architecture and System Design","item":"https://buenhyden.github.io/posts/software-engineering/requirements-and-design/architecture-and-system-design/"},{"@type":"ListItem","position":5,"name":"Principles","item":"https://buenhyden.github.io/posts/software-engineering/requirements-and-design/architecture-and-system-design/principles/"},{"@type":"ListItem","position":6,"name":"Tradeoffs and Theorems","item":""},{"@type":"ListItem","position":7,"name":"Consistency Patterns","item":"https://buenhyden.github.io/posts/software-engineering/requirements-and-design/architecture-and-system-design/principles/tradeoffs-and-theorems/consistency-models/"},{"@type":"ListItem","position":8,"name":"Sequential Consistency","item":"https://buenhyden.github.io/posts/software-engineering/requirements-and-design/architecture-and-system-design/principles/tradeoffs-and-theorems/consistency-models/sequential-consistency/"}]}</script></head><body class=list id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><header class=page-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/>Computer Science and Engineering</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/software-engineering/>Software Engineering</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/software-engineering/requirements-and-design/architecture-and-system-design/>Architecture and System Design</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/software-engineering/requirements-and-design/architecture-and-system-design/principles/>Principles</a>&nbsp;»&nbsp;<a href>Tradeoffs and Theorems</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/software-engineering/requirements-and-design/architecture-and-system-design/principles/tradeoffs-and-theorems/consistency-models/>Consistency Patterns</a></div><h1>Sequential Consistency</h1><div class=post-description>Sequential Consistency 는 분산 시스템에서 연산이 실행된 순서를 유지하여, 모든 프로세스가 동일한 순서로 연산을 관찰하도록 보장하는 일관성 모델이다. 이는 시스템의 예측 가능성과 신뢰성을 높이지만, 구현 복잡성과 성능 저하를 초래할 수 있다.</div></header><div class=post-content><h2 id=순차적-일관성-sequential-consistency>순차적 일관성 (Sequential Consistency)<a hidden class=anchor aria-hidden=true href=#순차적-일관성-sequential-consistency>#</a></h2><p>순차적 일관성은 분산 시스템에서 데이터 일관성 문제를 해결하기 위한 모델로, 모든 프로세스의 연산이 하나의 글로벌 순서에 따라 실행된 것처럼 보이게 하며 각 개별 프로세스의 연산은 프로그램에 명시된 순서대로 유지된다. 강력한 일관성보다는 약하지만 인과적 일관성보다는 강력한 이 모델은 공유 메모리 시스템, 분산 데이터 저장소, 협업 애플리케이션 등에서 널리 활용된다.</p><h3 id=핵심-개념>핵심 개념<a hidden class=anchor aria-hidden=true href=#핵심-개념>#</a></h3><p>순차적 일관성 (Sequential Consistency) 은 분산 시스템에서 알아야 하는 일관성 모델이다. 레슬리 램포트 (Leslie Lamport) 가 1979 년 &ldquo;How to Make a Multiprocessor Computer That Correctly Executes Multiprocess Programs&rdquo; 논문에서 제안한 이 개념은 다음과 같이 정의된다:</p><p>" 모든 프로세서의 연산들이 어떤 순차적인 순서로 실행된 것과 같은 결과를 가지며, 각 개별 프로세서의 연산은 프로그램에 명시된 순서대로 이 시퀀스에 나타나는 것 "</p><p>이 정의는 두 가지 핵심 요소로 구성된다:</p><ol><li><strong>프로그램 순서 준수</strong>: 각 프로세스 내의 연산은 프로그램에 지정된 순서대로 실행된다.</li><li><strong>전역 순서 존재</strong>: 모든 프로세스의 연산들이 어떤 단일 순서로 인터리빙되어 실행된 것처럼 보인다.</li></ol><p>순차적 일관성은 실시간 (real-time) 제약 조건을 강제하지 않는다는 점에서 선형화 가능성 (Linearizability) 과 구별된다. 즉, 실제로 A 연산이 B 연산보다 먼저 완료되었더라도, 시스템은 B 가 A 보다 먼저 수행된 것처럼 동작할 수 있다. 그러나 모든 프로세스는 이 순서에 동의해야 한다.</p><p>실무 관점에서 순차적 일관성은 분산 데이터베이스, 분산 파일 시스템, 분산 공유 메모리 등 다양한 시스템에서 중요한 역할을 하며, 개발자들에게 직관적이고 예측 가능한 동작 모델을 제공한다.</p><h3 id=목적-및-필요성>목적 및 필요성<a hidden class=anchor aria-hidden=true href=#목적-및-필요성>#</a></h3><p>순차적 일관성 (Sequential Consistency) 의 주요 목적은 분산 시스템에서 다수의 프로세스가 공유 데이터에 접근할 때 일관된 뷰를 제공하는 것이다.</p><p>이 모델은 다음과 같은 필요성을 해결한다:</p><ol><li><strong>예측 가능성 제공</strong>: 개발자와 사용자에게 예측 가능한 시스템 동작을 보장한다.</li><li><strong>프로그래밍 단순화</strong>: 복잡한 분산 환경에서도 직관적인 프로그래밍 모델을 제공한다.</li><li><strong>데이터 일관성 관리</strong>: 여러 노드에 걸쳐 데이터가 복제될 때 일관성 문제를 해결한다.</li><li><strong>동시성 제어</strong>: 동시에 발생하는 작업들 사이의 순서를 논리적으로 관리한다.</li><li><strong>버그 감소</strong>: 복잡한 경쟁 조건과 타이밍 관련 버그의 발생 가능성을 줄인다.</li></ol><h3 id=주요-기능-및-역할>주요 기능 및 역할<a hidden class=anchor aria-hidden=true href=#주요-기능-및-역할>#</a></h3><ol><li><strong>글로벌 순서 보장</strong>: 모든 연산이 전체 시스템에서 일관된 순서로 관찰되도록 한다.</li><li><strong>프로그램 순서 유지</strong>: 각 개별 프로세스 내의 연산 순서를 유지한다.</li><li><strong>동시 작업 조정</strong>: 여러 프로세스의 동시 접근을 조정하여 데이터 일관성을 유지한다.</li><li><strong>데이터 가시성 관리</strong>: 업데이트된 데이터가 모든 프로세스에 일관된 방식으로 보이도록 한다.</li><li><strong>프로세스 간 통신 단순화</strong>: 복잡한 메시지 전달 없이도 일관된 상태 공유가 가능하게 한다.</li></ol><h3 id=특징>특징<a hidden class=anchor aria-hidden=true href=#특징>#</a></h3><ol><li><strong>프로그램 순서 보존</strong>: 각 프로세스의 개별 연산은 프로그램에 명시된 순서대로 유지된다.</li><li><strong>글로벌 시퀀스 존재</strong>: 모든 프로세스의 연산이 단일 시퀀스로 정렬된다.</li><li><strong>실시간 제약 없음</strong>: 실제 시간 순서와 관계없이 논리적 순서만 유지한다.</li><li><strong>원자적 연산</strong>: 각 연산은 다른 프로세스들에게 원자적으로 보인다.</li><li><strong>인터리빙 허용</strong>: 다른 프로세스의 연산들은 자유롭게 인터리빙될 수 있다.</li><li><strong>가시성 보장</strong>: 모든 프로세스는 동일한 글로벌 순서의 연산들을 관찰한다.</li></ol><h3 id=핵심-원칙>핵심 원칙<a hidden class=anchor aria-hidden=true href=#핵심-원칙>#</a></h3><ol><li><strong>단일 시퀀스 원칙</strong>: 모든 연산은 단일 시퀀스로 정렬되어야 한다.</li><li><strong>프로그램 순서 원칙</strong>: 각 프로세스의 연산은 프로그램 순서를 준수해야 한다.</li><li><strong>일관된 관찰 원칙</strong>: 모든 프로세스는 동일한 연산 순서를 관찰해야 한다.</li><li><strong>최신 값 읽기 원칙</strong>: 읽기 연산은 해당 위치에 대한 마지막 쓰기 연산의 값을 반환해야 한다.</li><li><strong>원자성 유지 원칙</strong>: 연산은 다른 프로세스에게 원자적으로 보여야 한다.</li></ol><h3 id=주요-원리-및-작동-원리>주요 원리 및 작동 원리<a hidden class=anchor aria-hidden=true href=#주요-원리-및-작동-원리>#</a></h3><p>순차적 일관성의 작동 원리는 다음과 같다:</p><ol><li><strong>글로벌 순서 유지</strong>: 시스템은 모든 프로세스의 연산을 단일 글로벌 순서로 정렬한다.</li><li><strong>로컬 순서 준수</strong>: 각 프로세스 내의 연산은 프로그램에 지정된 순서를 따른다.</li><li><strong>읽기 연산 동작</strong>: 읽기 연산은 해당 위치에 대한 가장 최근의 쓰기 연산 값을 반환한다.</li><li><strong>시스템 동기화</strong>: 연산의 글로벌 순서를 유지하기 위해 프로세스 간 동기화 메커니즘이 사용된다.</li></ol><p>순차적 일관성의 구현을 보여주는 다이어그램:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-0-1><a class=lnlinks href=#hl-0-1>1</a>
+</span><span class=lnt id=hl-0-2><a class=lnlinks href=#hl-0-2>2</a>
+</span><span class=lnt id=hl-0-3><a class=lnlinks href=#hl-0-3>3</a>
+</span><span class=lnt id=hl-0-4><a class=lnlinks href=#hl-0-4>4</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>P1: W(x) ----&gt; R(y)
+</span></span><span class=line><span class=cl>P2:      W(y) ----&gt; R(x)
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>가능한 글로벌 순서: W(x) -&gt; W(y) -&gt; R(x) -&gt; R(y)
+</span></span></code></pre></td></tr></table></div></div><p>이 다이어그램에서:</p><ul><li>P1 은 x 에 1 을 쓰고 y 를 읽는다 (결과 0).</li><li>P2 는 y 에 1 을 쓰고 x 를 읽는다 (결과 1).</li><li>글로벌 순서는 각 프로세스의 프로그램 순서를 유지하면서 모든 연산의 단일 순서를 보여준다.</li></ul><h3 id=구현-기법>구현 기법<a hidden class=anchor aria-hidden=true href=#구현-기법>#</a></h3><h4 id=중앙-시퀀서-central-sequencer>중앙 시퀀서 (Central Sequencer)<a hidden class=anchor aria-hidden=true href=#중앙-시퀀서-central-sequencer>#</a></h4><p>중앙 노드가 모든 작업에 순서를 할당하고, 이 순서에 따라 모든 노드가 작업을 수행하는 방식.</p><p><strong>구성</strong>:</p><ul><li>중앙 시퀀서 노드</li><li>작업 순서 할당 메커니즘</li><li>순서 브로드캐스트 프로토콜</li><li>순서 기반 실행 엔진</li></ul><p><strong>목적</strong>: 간단한 구현으로 모든 노드의 일관된 실행 순서 보장</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-1-1><a class=lnlinks href=#hl-1-1> 1</a>
+</span><span class=lnt id=hl-1-2><a class=lnlinks href=#hl-1-2> 2</a>
+</span><span class=lnt id=hl-1-3><a class=lnlinks href=#hl-1-3> 3</a>
+</span><span class=lnt id=hl-1-4><a class=lnlinks href=#hl-1-4> 4</a>
+</span><span class=lnt id=hl-1-5><a class=lnlinks href=#hl-1-5> 5</a>
+</span><span class=lnt id=hl-1-6><a class=lnlinks href=#hl-1-6> 6</a>
+</span><span class=lnt id=hl-1-7><a class=lnlinks href=#hl-1-7> 7</a>
+</span><span class=lnt id=hl-1-8><a class=lnlinks href=#hl-1-8> 8</a>
+</span><span class=lnt id=hl-1-9><a class=lnlinks href=#hl-1-9> 9</a>
+</span><span class=lnt id=hl-1-10><a class=lnlinks href=#hl-1-10>10</a>
+</span><span class=lnt id=hl-1-11><a class=lnlinks href=#hl-1-11>11</a>
+</span><span class=lnt id=hl-1-12><a class=lnlinks href=#hl-1-12>12</a>
+</span><span class=lnt id=hl-1-13><a class=lnlinks href=#hl-1-13>13</a>
+</span><span class=lnt id=hl-1-14><a class=lnlinks href=#hl-1-14>14</a>
+</span><span class=lnt id=hl-1-15><a class=lnlinks href=#hl-1-15>15</a>
+</span><span class=lnt id=hl-1-16><a class=lnlinks href=#hl-1-16>16</a>
+</span><span class=lnt id=hl-1-17><a class=lnlinks href=#hl-1-17>17</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>시스템 구성: 중앙 시퀀서 S와 복제 노드 R1, R2, R3
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>1. 클라이언트 C1이 R1에 쓰기 요청: &#34;x = 1&#34;
+</span></span><span class=line><span class=cl>2. R1이 요청을 시퀀서 S에 전달
+</span></span><span class=line><span class=cl>3. S가 요청에 순서 번호 10 할당
+</span></span><span class=line><span class=cl>4. S가 &#34;op(10): x = 1&#34;을 모든 복제 노드에 브로드캐스트
+</span></span><span class=line><span class=cl>5. 클라이언트 C2가 R2에 쓰기 요청: &#34;x = 2&#34;
+</span></span><span class=line><span class=cl>6. R2가 요청을 S에 전달, S가 순서 번호 11 할당
+</span></span><span class=line><span class=cl>7. S가 &#34;op(11): x = 2&#34;를 모든 노드에 브로드캐스트
+</span></span><span class=line><span class=cl>8. 클라이언트 C3가 R3에 읽기 요청: &#34;read x&#34;
+</span></span><span class=line><span class=cl>9. R3가 요청을 S에 전달, S가 순서 번호 12 할당
+</span></span><span class=line><span class=cl>10. 각 노드는 순서 번호에 따라 작업 실행:
+</span></span><span class=line><span class=cl>    - 모든 노드: op(10) 실행 → x = 1
+</span></span><span class=line><span class=cl>    - 모든 노드: op(11) 실행 → x = 2
+</span></span><span class=line><span class=cl>    - 모든 노드: op(12) 실행 → x = 2 반환
+</span></span><span class=line><span class=cl>11. R3가 C3에게 결과 &#34;x = 2&#34; 반환
+</span></span></code></pre></td></tr></table></div></div><h4 id=토탈-오더-멀티캐스트-total-order-multicast>토탈 오더 멀티캐스트 (Total Order Multicast)<a hidden class=anchor aria-hidden=true href=#토탈-오더-멀티캐스트-total-order-multicast>#</a></h4><p>모든 노드가 동일한 순서로 메시지를 전달받고 처리하는 그룹 통신 메커니즘.</p><p><strong>구성</strong>:</p><ul><li>멀티캐스트 그룹 멤버십 관리</li><li>메시지 순서 결정 프로토콜</li><li>신뢰성 있는 전달 메커니즘</li><li>메시지 순차 처리 보장</li></ul><p><strong>목적</strong>: 분산 환경에서 메시지의 일관된 순서 보장</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-2-1><a class=lnlinks href=#hl-2-1> 1</a>
+</span><span class=lnt id=hl-2-2><a class=lnlinks href=#hl-2-2> 2</a>
+</span><span class=lnt id=hl-2-3><a class=lnlinks href=#hl-2-3> 3</a>
+</span><span class=lnt id=hl-2-4><a class=lnlinks href=#hl-2-4> 4</a>
+</span><span class=lnt id=hl-2-5><a class=lnlinks href=#hl-2-5> 5</a>
+</span><span class=lnt id=hl-2-6><a class=lnlinks href=#hl-2-6> 6</a>
+</span><span class=lnt id=hl-2-7><a class=lnlinks href=#hl-2-7> 7</a>
+</span><span class=lnt id=hl-2-8><a class=lnlinks href=#hl-2-8> 8</a>
+</span><span class=lnt id=hl-2-9><a class=lnlinks href=#hl-2-9> 9</a>
+</span><span class=lnt id=hl-2-10><a class=lnlinks href=#hl-2-10>10</a>
+</span><span class=lnt id=hl-2-11><a class=lnlinks href=#hl-2-11>11</a>
+</span><span class=lnt id=hl-2-12><a class=lnlinks href=#hl-2-12>12</a>
+</span><span class=lnt id=hl-2-13><a class=lnlinks href=#hl-2-13>13</a>
+</span><span class=lnt id=hl-2-14><a class=lnlinks href=#hl-2-14>14</a>
+</span><span class=lnt id=hl-2-15><a class=lnlinks href=#hl-2-15>15</a>
+</span><span class=lnt id=hl-2-16><a class=lnlinks href=#hl-2-16>16</a>
+</span><span class=lnt id=hl-2-17><a class=lnlinks href=#hl-2-17>17</a>
+</span><span class=lnt id=hl-2-18><a class=lnlinks href=#hl-2-18>18</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>시스템 구성: 4개 노드(N1, N2, N3, N4)의 분산 캐시 시스템, ISIS 프로토콜 사용
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>1. 클라이언트 A가 N1을 통해 SET(k1, v1) 요청
+</span></span><span class=line><span class=cl>2. N1이 멀티캐스트 그룹에 메시지 M1: {op: SET, key: k1, value: v1} 전송
+</span></span><span class=line><span class=cl>   - 멀티캐스트 계층이 메시지 시퀀스 번호 할당 과정 수행
+</span></span><span class=line><span class=cl>   - 순서 합의 프로토콜 실행
+</span></span><span class=line><span class=cl>   - M1에 시퀀스 번호 100 할당
+</span></span><span class=line><span class=cl>3. 동시에 클라이언트 B가 N3를 통해 SET(k1, v2) 요청
+</span></span><span class=line><span class=cl>4. N3가 멀티캐스트 그룹에 메시지 M2: {op: SET, key: k1, value: v2} 전송
+</span></span><span class=line><span class=cl>   - 순서 합의 후 M2에 시퀀스 번호 101 할당
+</span></span><span class=line><span class=cl>5. 노드 N1, N2, N3, N4 모두 M1(100)과 M2(101)를 동일한 순서로 수신
+</span></span><span class=line><span class=cl>6. 모든 노드가 동일한 순서로 작업 실행:
+</span></span><span class=line><span class=cl>   - 시퀀스 100: k1 = v1 설정
+</span></span><span class=line><span class=cl>   - 시퀀스 101: k1 = v2 설정 (이전 값 덮어씀)
+</span></span><span class=line><span class=cl>7. 클라이언트 C가 N2에서 GET(k1) 요청
+</span></span><span class=line><span class=cl>8. N2가 로컬에서 k1 = v2 반환
+</span></span><span class=line><span class=cl>9. 모든 노드의 k1 값이 v2로 동일
+</span></span></code></pre></td></tr></table></div></div><h4 id=람포트-타임스탬프-lamport-timestamps>람포트 타임스탬프 (Lamport Timestamps)<a hidden class=anchor aria-hidden=true href=#람포트-타임스탬프-lamport-timestamps>#</a></h4><p>논리적 시계를 사용하여 이벤트에 타임스탬프를 할당하고, 타임스탬프와 노드 ID 를 조합하여 전체 순서를 결정하는 방식.</p><p><strong>구성</strong>:</p><ul><li>각 노드의 논리적 시계 유지</li><li>이벤트 발생 시 시계 증가</li><li>메시지 전송 시 타임스탬프 포함</li><li>수신 시 로컬 시계 업데이트 (max(local, received) + 1)</li></ul><p><strong>목적</strong>: 분산 시스템에서 이벤트 간 인과관계 및 일관된 순서 유지</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-3-1><a class=lnlinks href=#hl-3-1> 1</a>
+</span><span class=lnt id=hl-3-2><a class=lnlinks href=#hl-3-2> 2</a>
+</span><span class=lnt id=hl-3-3><a class=lnlinks href=#hl-3-3> 3</a>
+</span><span class=lnt id=hl-3-4><a class=lnlinks href=#hl-3-4> 4</a>
+</span><span class=lnt id=hl-3-5><a class=lnlinks href=#hl-3-5> 5</a>
+</span><span class=lnt id=hl-3-6><a class=lnlinks href=#hl-3-6> 6</a>
+</span><span class=lnt id=hl-3-7><a class=lnlinks href=#hl-3-7> 7</a>
+</span><span class=lnt id=hl-3-8><a class=lnlinks href=#hl-3-8> 8</a>
+</span><span class=lnt id=hl-3-9><a class=lnlinks href=#hl-3-9> 9</a>
+</span><span class=lnt id=hl-3-10><a class=lnlinks href=#hl-3-10>10</a>
+</span><span class=lnt id=hl-3-11><a class=lnlinks href=#hl-3-11>11</a>
+</span><span class=lnt id=hl-3-12><a class=lnlinks href=#hl-3-12>12</a>
+</span><span class=lnt id=hl-3-13><a class=lnlinks href=#hl-3-13>13</a>
+</span><span class=lnt id=hl-3-14><a class=lnlinks href=#hl-3-14>14</a>
+</span><span class=lnt id=hl-3-15><a class=lnlinks href=#hl-3-15>15</a>
+</span><span class=lnt id=hl-3-16><a class=lnlinks href=#hl-3-16>16</a>
+</span><span class=lnt id=hl-3-17><a class=lnlinks href=#hl-3-17>17</a>
+</span><span class=lnt id=hl-3-18><a class=lnlinks href=#hl-3-18>18</a>
+</span><span class=lnt id=hl-3-19><a class=lnlinks href=#hl-3-19>19</a>
+</span><span class=lnt id=hl-3-20><a class=lnlinks href=#hl-3-20>20</a>
+</span><span class=lnt id=hl-3-21><a class=lnlinks href=#hl-3-21>21</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>시스템 구성: 3개 노드(A, B, C)를 가진 분산 시스템
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>1. 초기 논리적 시계: A=0, B=0, C=0
+</span></span><span class=line><span class=cl>2. 노드 A에서 이벤트 발생: A의 시계 증가 → A=1
+</span></span><span class=line><span class=cl>3. A가 노드 B에 메시지 전송: 타임스탬프 1 포함
+</span></span><span class=line><span class=cl>4. B가 메시지 수신: 
+</span></span><span class=line><span class=cl>   - B의 시계 업데이트: max(B=0, received=1) + 1 = 2
+</span></span><span class=line><span class=cl>   - B=2
+</span></span><span class=line><span class=cl>5. B에서 이벤트 발생: B의 시계 증가 → B=3
+</span></span><span class=line><span class=cl>6. C에서 이벤트 발생: C의 시계 증가 → C=1
+</span></span><span class=line><span class=cl>7. C가 B에 메시지 전송: 타임스탬프 1 포함
+</span></span><span class=line><span class=cl>8. B가 C의 메시지 수신:
+</span></span><span class=line><span class=cl>   - B의 시계 업데이트: max(B=3, received=1) + 1 = 4
+</span></span><span class=line><span class=cl>   - B=4
+</span></span><span class=line><span class=cl>9. 작업 순서 결정 시 (타임스탬프, 노드ID) 튜플 비교:
+</span></span><span class=line><span class=cl>   - A의 작업: (1, A)
+</span></span><span class=line><span class=cl>   - B의 첫 작업: (3, B)
+</span></span><span class=line><span class=cl>   - C의 작업: (1, C)
+</span></span><span class=line><span class=cl>   - B의 두 번째 작업: (4, B)
+</span></span><span class=line><span class=cl>10. 튜플 순서: (1, A) &lt; (1, C) &lt; (3, B) &lt; (4, B)
+</span></span></code></pre></td></tr></table></div></div><h4 id=기본---백업-복제-primary-backup-replication>기본 - 백업 복제 (Primary-Backup Replication)<a hidden class=anchor aria-hidden=true href=#기본---백업-복제-primary-backup-replication>#</a></h4><p>하나의 기본 노드가 모든 쓰기 작업을 처리하고 변경사항을 백업 노드에 전파하는 방식.</p><p><strong>구성</strong>:</p><ul><li>하나의 기본 (primary) 노드와 여러 백업 노드</li><li>모든 쓰기는 기본 노드로 라우팅</li><li>기본 노드의 상태 변경 로그 유지</li><li>백업 노드로의 로그 전파 메커니즘</li></ul><p><strong>목적</strong>: 단순한 복제 모델로 순차적 일관성 제공</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-4-1><a class=lnlinks href=#hl-4-1> 1</a>
+</span><span class=lnt id=hl-4-2><a class=lnlinks href=#hl-4-2> 2</a>
+</span><span class=lnt id=hl-4-3><a class=lnlinks href=#hl-4-3> 3</a>
+</span><span class=lnt id=hl-4-4><a class=lnlinks href=#hl-4-4> 4</a>
+</span><span class=lnt id=hl-4-5><a class=lnlinks href=#hl-4-5> 5</a>
+</span><span class=lnt id=hl-4-6><a class=lnlinks href=#hl-4-6> 6</a>
+</span><span class=lnt id=hl-4-7><a class=lnlinks href=#hl-4-7> 7</a>
+</span><span class=lnt id=hl-4-8><a class=lnlinks href=#hl-4-8> 8</a>
+</span><span class=lnt id=hl-4-9><a class=lnlinks href=#hl-4-9> 9</a>
+</span><span class=lnt id=hl-4-10><a class=lnlinks href=#hl-4-10>10</a>
+</span><span class=lnt id=hl-4-11><a class=lnlinks href=#hl-4-11>11</a>
+</span><span class=lnt id=hl-4-12><a class=lnlinks href=#hl-4-12>12</a>
+</span><span class=lnt id=hl-4-13><a class=lnlinks href=#hl-4-13>13</a>
+</span><span class=lnt id=hl-4-14><a class=lnlinks href=#hl-4-14>14</a>
+</span><span class=lnt id=hl-4-15><a class=lnlinks href=#hl-4-15>15</a>
+</span><span class=lnt id=hl-4-16><a class=lnlinks href=#hl-4-16>16</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>시스템 구성: 기본 노드 P와 백업 노드 B1, B2
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>1. 초기 상태: 모든 노드의 x = 0, y = 0
+</span></span><span class=line><span class=cl>2. 클라이언트 C1이 P에 쓰기 요청: &#34;x = 1&#34;
+</span></span><span class=line><span class=cl>3. P가 로컬 상태 업데이트: x = 1
+</span></span><span class=line><span class=cl>4. P가 업데이트 로그 {op: &#34;SET&#34;, key: &#34;x&#34;, value: 1, seq: 1}를 B1, B2에 전송
+</span></span><span class=line><span class=cl>5. B1, B2가 로그 적용: x = 1
+</span></span><span class=line><span class=cl>6. 클라이언트 C2가 P에 쓰기 요청: &#34;y = x + 1&#34; (y = 2)
+</span></span><span class=line><span class=cl>7. P가 로컬 상태 업데이트: y = 2
+</span></span><span class=line><span class=cl>8. P가 업데이트 로그 {op: &#34;SET&#34;, key: &#34;y&#34;, value: 2, seq: 2}를 B1, B2에 전송
+</span></span><span class=line><span class=cl>9. B1, B2가 로그 적용: y = 2
+</span></span><span class=line><span class=cl>10. 기본 노드 P에 장애 발생
+</span></span><span class=line><span class=cl>11. B1이 새 기본 노드로 승격
+</span></span><span class=line><span class=cl>12. 클라이언트 C3가 B1(새 기본)에 읽기 요청: &#34;read y&#34;
+</span></span><span class=line><span class=cl>13. B1이 &#34;y = 2&#34; 반환
+</span></span></code></pre></td></tr></table></div></div><h4 id=쓰기---시퀀싱-write-sequencing>쓰기 - 시퀀싱 (Write Sequencing)<a hidden class=anchor aria-hidden=true href=#쓰기---시퀀싱-write-sequencing>#</a></h4><p>각 쓰기 작업에 전역 시퀀스 번호를 할당하고, 모든 복제본이 이 시퀀스 번호 순서대로 쓰기를 적용하는 방식.</p><p><strong>구성</strong>:</p><ul><li>중앙 또는 분산 시퀀스 번호 할당자</li><li>쓰기 작업의 순서 기록</li><li>시퀀스 번호 기반 실행 메커니즘</li></ul><p><strong>목적</strong>: 쓰기 작업의 일관된 순서 보장</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-5-1><a class=lnlinks href=#hl-5-1> 1</a>
+</span><span class=lnt id=hl-5-2><a class=lnlinks href=#hl-5-2> 2</a>
+</span><span class=lnt id=hl-5-3><a class=lnlinks href=#hl-5-3> 3</a>
+</span><span class=lnt id=hl-5-4><a class=lnlinks href=#hl-5-4> 4</a>
+</span><span class=lnt id=hl-5-5><a class=lnlinks href=#hl-5-5> 5</a>
+</span><span class=lnt id=hl-5-6><a class=lnlinks href=#hl-5-6> 6</a>
+</span><span class=lnt id=hl-5-7><a class=lnlinks href=#hl-5-7> 7</a>
+</span><span class=lnt id=hl-5-8><a class=lnlinks href=#hl-5-8> 8</a>
+</span><span class=lnt id=hl-5-9><a class=lnlinks href=#hl-5-9> 9</a>
+</span><span class=lnt id=hl-5-10><a class=lnlinks href=#hl-5-10>10</a>
+</span><span class=lnt id=hl-5-11><a class=lnlinks href=#hl-5-11>11</a>
+</span><span class=lnt id=hl-5-12><a class=lnlinks href=#hl-5-12>12</a>
+</span><span class=lnt id=hl-5-13><a class=lnlinks href=#hl-5-13>13</a>
+</span><span class=lnt id=hl-5-14><a class=lnlinks href=#hl-5-14>14</a>
+</span><span class=lnt id=hl-5-15><a class=lnlinks href=#hl-5-15>15</a>
+</span><span class=lnt id=hl-5-16><a class=lnlinks href=#hl-5-16>16</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>시스템 구성: 시퀀스 관리자 S와 데이터 노드 N1, N2, N3
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>1. 클라이언트 A가 N1에 키 K의 값을 &#34;value1&#34;로 설정 요청
+</span></span><span class=line><span class=cl>2. N1이 시퀀스 관리자 S에 시퀀스 번호 요청
+</span></span><span class=line><span class=cl>3. S가 시퀀스 번호 100 할당
+</span></span><span class=line><span class=cl>4. N1이 로컬에 (K, &#34;value1&#34;, seq=100) 저장 및 다른 노드에 복제 요청 전송
+</span></span><span class=line><span class=cl>5. 클라이언트 B가 N2에 같은 키 K의 값을 &#34;value2&#34;로 설정 요청
+</span></span><span class=line><span class=cl>6. N2가 S에 시퀀스 번호 요청, S가 101 할당
+</span></span><span class=line><span class=cl>7. N2가 로컬에 (K, &#34;value2&#34;, seq=101) 저장 및 복제 요청 전송
+</span></span><span class=line><span class=cl>8. 노드 N3가 시퀀스 100과 101인 두 쓰기 작업을 수신:
+</span></span><span class=line><span class=cl>   - 시퀀스 번호 순서대로 적용
+</span></span><span class=line><span class=cl>   - 먼저 K = &#34;value1&#34; (seq=100) 설정
+</span></span><span class=line><span class=cl>   - 그 다음 K = &#34;value2&#34; (seq=101) 설정
+</span></span><span class=line><span class=cl>9. 클라이언트 C가 N3에 키 K 읽기 요청
+</span></span><span class=line><span class=cl>10. N3가 최종 값 &#34;value2&#34; 반환
+</span></span></code></pre></td></tr></table></div></div><h4 id=소켓-순서-활용-socket-order-utilization>소켓 순서 활용 (Socket Order Utilization)<a hidden class=anchor aria-hidden=true href=#소켓-순서-활용-socket-order-utilization>#</a></h4><p>TCP 같은 순서 보장 프로토콜의 특성을 활용하여 메시지 순서를 보존하는 방식.</p><p><strong>구성</strong>:</p><ul><li>순서 보장 소켓 연결 (TCP)</li><li>소켓 연결당 하나의 전송 스레드</li><li>원자적 메시지 전송 및 수신</li></ul><p><strong>목적</strong>: 네트워크 프로토콜의 순서 보장 특성을 활용한 단순 구현</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-6-1><a class=lnlinks href=#hl-6-1> 1</a>
+</span><span class=lnt id=hl-6-2><a class=lnlinks href=#hl-6-2> 2</a>
+</span><span class=lnt id=hl-6-3><a class=lnlinks href=#hl-6-3> 3</a>
+</span><span class=lnt id=hl-6-4><a class=lnlinks href=#hl-6-4> 4</a>
+</span><span class=lnt id=hl-6-5><a class=lnlinks href=#hl-6-5> 5</a>
+</span><span class=lnt id=hl-6-6><a class=lnlinks href=#hl-6-6> 6</a>
+</span><span class=lnt id=hl-6-7><a class=lnlinks href=#hl-6-7> 7</a>
+</span><span class=lnt id=hl-6-8><a class=lnlinks href=#hl-6-8> 8</a>
+</span><span class=lnt id=hl-6-9><a class=lnlinks href=#hl-6-9> 9</a>
+</span><span class=lnt id=hl-6-10><a class=lnlinks href=#hl-6-10>10</a>
+</span><span class=lnt id=hl-6-11><a class=lnlinks href=#hl-6-11>11</a>
+</span><span class=lnt id=hl-6-12><a class=lnlinks href=#hl-6-12>12</a>
+</span><span class=lnt id=hl-6-13><a class=lnlinks href=#hl-6-13>13</a>
+</span><span class=lnt id=hl-6-14><a class=lnlinks href=#hl-6-14>14</a>
+</span><span class=lnt id=hl-6-15><a class=lnlinks href=#hl-6-15>15</a>
+</span><span class=lnt id=hl-6-16><a class=lnlinks href=#hl-6-16>16</a>
+</span><span class=lnt id=hl-6-17><a class=lnlinks href=#hl-6-17>17</a>
+</span><span class=lnt id=hl-6-18><a class=lnlinks href=#hl-6-18>18</a>
+</span><span class=lnt id=hl-6-19><a class=lnlinks href=#hl-6-19>19</a>
+</span><span class=lnt id=hl-6-20><a class=lnlinks href=#hl-6-20>20</a>
+</span><span class=lnt id=hl-6-21><a class=lnlinks href=#hl-6-21>21</a>
+</span><span class=lnt id=hl-6-22><a class=lnlinks href=#hl-6-22>22</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>시스템 구성: 마스터 노드 M과 복제 노드 R1, R2
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>1. 마스터 M이 각 복제 노드와 전용 TCP 연결 유지
+</span></span><span class=line><span class=cl>2. 클라이언트가 M에 쓰기 요청 시퀀스 전송:
+</span></span><span class=line><span class=cl>   - &#34;x = 10&#34;
+</span></span><span class=line><span class=cl>   - &#34;y = 20&#34;
+</span></span><span class=line><span class=cl>   - &#34;z = x + y&#34; (= 30)
+</span></span><span class=line><span class=cl>3. M이 로컬에서 명령 실행:
+</span></span><span class=line><span class=cl>   - x = 10
+</span></span><span class=line><span class=cl>   - y = 20
+</span></span><span class=line><span class=cl>   - z = 30
+</span></span><span class=line><span class=cl>4. M이 동일한 명령을 TCP 연결을 통해 R1, R2에 전송
+</span></span><span class=line><span class=cl>5. TCP의 순서 보장 특성으로 R1, R2는 메시지를 정확한 순서로 수신:
+</span></span><span class=line><span class=cl>   - &#34;x = 10&#34;
+</span></span><span class=line><span class=cl>   - &#34;y = 20&#34;
+</span></span><span class=line><span class=cl>   - &#34;z = x + y&#34;
+</span></span><span class=line><span class=cl>6. R1, R2가 수신 순서대로 명령 실행:
+</span></span><span class=line><span class=cl>   - x = 10
+</span></span><span class=line><span class=cl>   - y = 20
+</span></span><span class=line><span class=cl>   - z = 30
+</span></span><span class=line><span class=cl>7. 결과적으로 M, R1, R2 모두 동일한 상태: x=10, y=20, z=30
+</span></span></code></pre></td></tr></table></div></div><h4 id=캐주얼-메시지-전달-causal-message-delivery>캐주얼 메시지 전달 (Causal Message Delivery)<a hidden class=anchor aria-hidden=true href=#캐주얼-메시지-전달-causal-message-delivery>#</a></h4><p>인과적으로 연관된 메시지들이 모든 노드에서 인과관계 순서대로 전달되도록 보장하는 방식.</p><p><strong>구성</strong>:</p><ul><li>벡터 클럭 또는 의존성 추적 메커니즘</li><li>메시지 전송 시 의존성 정보 포함</li><li>의존성 충족 시까지 메시지 전달 지연</li></ul><p><strong>목적</strong>: 인과적 관계가 있는 작업의 순서 유지</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-7-1><a class=lnlinks href=#hl-7-1> 1</a>
+</span><span class=lnt id=hl-7-2><a class=lnlinks href=#hl-7-2> 2</a>
+</span><span class=lnt id=hl-7-3><a class=lnlinks href=#hl-7-3> 3</a>
+</span><span class=lnt id=hl-7-4><a class=lnlinks href=#hl-7-4> 4</a>
+</span><span class=lnt id=hl-7-5><a class=lnlinks href=#hl-7-5> 5</a>
+</span><span class=lnt id=hl-7-6><a class=lnlinks href=#hl-7-6> 6</a>
+</span><span class=lnt id=hl-7-7><a class=lnlinks href=#hl-7-7> 7</a>
+</span><span class=lnt id=hl-7-8><a class=lnlinks href=#hl-7-8> 8</a>
+</span><span class=lnt id=hl-7-9><a class=lnlinks href=#hl-7-9> 9</a>
+</span><span class=lnt id=hl-7-10><a class=lnlinks href=#hl-7-10>10</a>
+</span><span class=lnt id=hl-7-11><a class=lnlinks href=#hl-7-11>11</a>
+</span><span class=lnt id=hl-7-12><a class=lnlinks href=#hl-7-12>12</a>
+</span><span class=lnt id=hl-7-13><a class=lnlinks href=#hl-7-13>13</a>
+</span><span class=lnt id=hl-7-14><a class=lnlinks href=#hl-7-14>14</a>
+</span><span class=lnt id=hl-7-15><a class=lnlinks href=#hl-7-15>15</a>
+</span><span class=lnt id=hl-7-16><a class=lnlinks href=#hl-7-16>16</a>
+</span><span class=lnt id=hl-7-17><a class=lnlinks href=#hl-7-17>17</a>
+</span><span class=lnt id=hl-7-18><a class=lnlinks href=#hl-7-18>18</a>
+</span><span class=lnt id=hl-7-19><a class=lnlinks href=#hl-7-19>19</a>
+</span><span class=lnt id=hl-7-20><a class=lnlinks href=#hl-7-20>20</a>
+</span><span class=lnt id=hl-7-21><a class=lnlinks href=#hl-7-21>21</a>
+</span><span class=lnt id=hl-7-22><a class=lnlinks href=#hl-7-22>22</a>
+</span><span class=lnt id=hl-7-23><a class=lnlinks href=#hl-7-23>23</a>
+</span><span class=lnt id=hl-7-24><a class=lnlinks href=#hl-7-24>24</a>
+</span><span class=lnt id=hl-7-25><a class=lnlinks href=#hl-7-25>25</a>
+</span><span class=lnt id=hl-7-26><a class=lnlinks href=#hl-7-26>26</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>시스템 구성: 3개 프로세스(P1, P2, P3)로 구성된 분산 시스템
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>1. 초기 벡터 클럭: P1[1,0,0], P2[0,1,0], P3[0,0,1]
+</span></span><span class=line><span class=cl>2. P1이 메시지 M1(&#34;x = 1&#34;) 브로드캐스트:
+</span></span><span class=line><span class=cl>   - M1에 벡터 클럭 [2,0,0] 첨부
+</span></span><span class=line><span class=cl>3. P2가 M1 수신:
+</span></span><span class=line><span class=cl>   - P2의 벡터 클럭 업데이트: max([2,0,0], [0,1,0]) = [2,1,0]
+</span></span><span class=line><span class=cl>4. P2가 메시지 M2(&#34;y = x + 1&#34;) 브로드캐스트:
+</span></span><span class=line><span class=cl>   - M2에 벡터 클럭 [2,2,0] 첨부
+</span></span><span class=line><span class=cl>5. P3가 M2를 M1보다 먼저 수신:
+</span></span><span class=line><span class=cl>   - P3의 벡터 클럭: [0,0,1]
+</span></span><span class=line><span class=cl>   - M2의 벡터 클럭 [2,2,0] 확인
+</span></span><span class=line><span class=cl>   - [0,0,1]가 [2,2,0]보다 작으므로 M2의 의존성 충족되지 않음
+</span></span><span class=line><span class=cl>   - M2 전달 지연 및 버퍼에 저장
+</span></span><span class=line><span class=cl>6. P3가 M1 수신:
+</span></span><span class=line><span class=cl>   - P3의 벡터 클럭 업데이트: max([2,0,0], [0,0,1]) = [2,0,1]
+</span></span><span class=line><span class=cl>   - M1(&#34;x = 1&#34;) 전달 및 적용
+</span></span><span class=line><span class=cl>7. P3가 버퍼의 M2 재확인:
+</span></span><span class=line><span class=cl>   - P3의 벡터 클럭 [2,0,1]
+</span></span><span class=line><span class=cl>   - M2의 의존성 [2,2,0] 확인
+</span></span><span class=line><span class=cl>   - 아직 충족되지 않음(P3가 P2의 로컬 이벤트 아직 미수신)
+</span></span><span class=line><span class=cl>8. P2의 로컬 이벤트 메시지가 P3에 도달:
+</span></span><span class=line><span class=cl>   - P3의 벡터 클럭 업데이트: [2,2,1]
+</span></span><span class=line><span class=cl>   - M2의 의존성 충족됨
+</span></span><span class=line><span class=cl>   - M2(&#34;y = x + 1&#34;) 전달 및 적용
+</span></span></code></pre></td></tr></table></div></div><h4 id=가중치-기반-복제-weighted-replication>가중치 기반 복제 (Weighted Replication)<a hidden class=anchor aria-hidden=true href=#가중치-기반-복제-weighted-replication>#</a></h4><p>각 노드에 가중치를 할당하고, 충분한 가중치의 노드가 작업을 승인하면 실행하는 방식.</p><p><strong>구성</strong>:</p><ul><li>각 노드에 가중치 값 할당</li><li>쿼럼 기반 읽기/쓰기 프로토콜</li><li>버전 관리 및 충돌 해결 메커니즘</li></ul><p><strong>목적</strong>: 노드 간 중요도를 고려한 유연한 순차적 일관성 제공</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-8-1><a class=lnlinks href=#hl-8-1> 1</a>
+</span><span class=lnt id=hl-8-2><a class=lnlinks href=#hl-8-2> 2</a>
+</span><span class=lnt id=hl-8-3><a class=lnlinks href=#hl-8-3> 3</a>
+</span><span class=lnt id=hl-8-4><a class=lnlinks href=#hl-8-4> 4</a>
+</span><span class=lnt id=hl-8-5><a class=lnlinks href=#hl-8-5> 5</a>
+</span><span class=lnt id=hl-8-6><a class=lnlinks href=#hl-8-6> 6</a>
+</span><span class=lnt id=hl-8-7><a class=lnlinks href=#hl-8-7> 7</a>
+</span><span class=lnt id=hl-8-8><a class=lnlinks href=#hl-8-8> 8</a>
+</span><span class=lnt id=hl-8-9><a class=lnlinks href=#hl-8-9> 9</a>
+</span><span class=lnt id=hl-8-10><a class=lnlinks href=#hl-8-10>10</a>
+</span><span class=lnt id=hl-8-11><a class=lnlinks href=#hl-8-11>11</a>
+</span><span class=lnt id=hl-8-12><a class=lnlinks href=#hl-8-12>12</a>
+</span><span class=lnt id=hl-8-13><a class=lnlinks href=#hl-8-13>13</a>
+</span><span class=lnt id=hl-8-14><a class=lnlinks href=#hl-8-14>14</a>
+</span><span class=lnt id=hl-8-15><a class=lnlinks href=#hl-8-15>15</a>
+</span><span class=lnt id=hl-8-16><a class=lnlinks href=#hl-8-16>16</a>
+</span><span class=lnt id=hl-8-17><a class=lnlinks href=#hl-8-17>17</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>시스템 구성: 4개 노드, 가중치 N1=2, N2=2, N3=1, N4=1 (총 6)
+</span></span><span class=line><span class=cl>             쓰기 쿼럼 W=4, 읽기 쿼럼 R=3
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>1. 클라이언트가 키 K를 &#34;value1&#34;로 설정 요청
+</span></span><span class=line><span class=cl>2. 시스템이 쓰기 쿼럼(W=4) 충족을 위해 노드 선택:
+</span></span><span class=line><span class=cl>   - N1(가중치 2)과 N2(가중치 2) 선택(총 가중치 4)
+</span></span><span class=line><span class=cl>   - N1, N2에 (K, &#34;value1&#34;, version=1) 쓰기
+</span></span><span class=line><span class=cl>3. 클라이언트가 K 읽기 요청
+</span></span><span class=line><span class=cl>4. 시스템이 읽기 쿼럼(R=3) 충족을 위해 노드 선택:
+</span></span><span class=line><span class=cl>   - N3(가중치 1)과 N4(가중치 1) 선택(총 가중치 2)
+</span></span><span class=line><span class=cl>   - 쿼럼 부족으로 N1(가중치 2) 추가(총 가중치 4)
+</span></span><span class=line><span class=cl>5. 읽기 결과 비교:
+</span></span><span class=line><span class=cl>   - N1: (K, &#34;value1&#34;, version=1)
+</span></span><span class=line><span class=cl>   - N3, N4: 값 없음 또는 이전 버전
+</span></span><span class=line><span class=cl>6. 가장 높은 버전의 값 &#34;value1&#34; 반환
+</span></span><span class=line><span class=cl>7. 배경에서 N3, N4에 최신 값 전파
+</span></span></code></pre></td></tr></table></div></div><h4 id=복제-로그-기반-정렬-replicated-log-ordering>복제 로그 기반 정렬 (Replicated Log Ordering)<a hidden class=anchor aria-hidden=true href=#복제-로그-기반-정렬-replicated-log-ordering>#</a></h4><p>모든 작업을 로그에 기록하고, 모든 복제본이 로그 순서대로 작업을 실행하는 방식입니다.</p><p><strong>구성</strong>:</p><ul><li>공유 또는 복제된 작업 로그</li><li>로그 항목 순서 결정 메커니즘</li><li>로그 기반 상태 머신 실행</li></ul><p><strong>목적</strong>: 로그를 통한 작업 순서 정렬 및 일관성 보장</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-9-1><a class=lnlinks href=#hl-9-1> 1</a>
+</span><span class=lnt id=hl-9-2><a class=lnlinks href=#hl-9-2> 2</a>
+</span><span class=lnt id=hl-9-3><a class=lnlinks href=#hl-9-3> 3</a>
+</span><span class=lnt id=hl-9-4><a class=lnlinks href=#hl-9-4> 4</a>
+</span><span class=lnt id=hl-9-5><a class=lnlinks href=#hl-9-5> 5</a>
+</span><span class=lnt id=hl-9-6><a class=lnlinks href=#hl-9-6> 6</a>
+</span><span class=lnt id=hl-9-7><a class=lnlinks href=#hl-9-7> 7</a>
+</span><span class=lnt id=hl-9-8><a class=lnlinks href=#hl-9-8> 8</a>
+</span><span class=lnt id=hl-9-9><a class=lnlinks href=#hl-9-9> 9</a>
+</span><span class=lnt id=hl-9-10><a class=lnlinks href=#hl-9-10>10</a>
+</span><span class=lnt id=hl-9-11><a class=lnlinks href=#hl-9-11>11</a>
+</span><span class=lnt id=hl-9-12><a class=lnlinks href=#hl-9-12>12</a>
+</span><span class=lnt id=hl-9-13><a class=lnlinks href=#hl-9-13>13</a>
+</span><span class=lnt id=hl-9-14><a class=lnlinks href=#hl-9-14>14</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>시스템 구성: Kafka와 같은 분산 로그 시스템과 여러 소비자 노드
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>1. 클라이언트 A가 작업 &#34;x = 1&#34; 제출
+</span></span><span class=line><span class=cl>2. 시스템이 작업을 로그의 인덱스 100에 기록
+</span></span><span class=line><span class=cl>3. 클라이언트 B가 작업 &#34;y = x * 2&#34; 제출
+</span></span><span class=line><span class=cl>4. 시스템이 작업을 로그의 인덱스 101에 기록
+</span></span><span class=line><span class=cl>5. 클라이언트 C가 작업 &#34;z = y + 3&#34; 제출
+</span></span><span class=line><span class=cl>6. 시스템이 작업을 로그의 인덱스 102에 기록
+</span></span><span class=line><span class=cl>7. 소비자 노드 N1, N2, N3가 로그를 순차적으로 소비:
+</span></span><span class=line><span class=cl>   - 인덱스 100: &#34;x = 1&#34; 실행 → x = 1
+</span></span><span class=line><span class=cl>   - 인덱스 101: &#34;y = x * 2&#34; 실행 → y = 2
+</span></span><span class=line><span class=cl>   - 인덱스 102: &#34;z = y + 3&#34; 실행 → z = 5
+</span></span><span class=line><span class=cl>8. 결과적으로 모든 노드가 같은 상태: x=1, y=2, z=5
+</span></span></code></pre></td></tr></table></div></div><h4 id=타임스탬프-기반-동시성-제어-timestamp-based-concurrency-control>타임스탬프 기반 동시성 제어 (Timestamp-based Concurrency Control)<a hidden class=anchor aria-hidden=true href=#타임스탬프-기반-동시성-제어-timestamp-based-concurrency-control>#</a></h4><p>논리적 또는 물리적 타임스탬프를 사용하여 작업의 순서를 결정하고 충돌을 해결하는 방식.</p><p><strong>구성</strong>:</p><ul><li>중앙 또는 분산 타임스탬프 할당</li><li>각 데이터 항목에 최신 타임스탬프 유지</li><li>타임스탬프 기반 실행 규칙</li></ul><p><strong>목적</strong>: 타임스탬프를 활용한 전역 순서 부여</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-10-1><a class=lnlinks href=#hl-10-1> 1</a>
+</span><span class=lnt id=hl-10-2><a class=lnlinks href=#hl-10-2> 2</a>
+</span><span class=lnt id=hl-10-3><a class=lnlinks href=#hl-10-3> 3</a>
+</span><span class=lnt id=hl-10-4><a class=lnlinks href=#hl-10-4> 4</a>
+</span><span class=lnt id=hl-10-5><a class=lnlinks href=#hl-10-5> 5</a>
+</span><span class=lnt id=hl-10-6><a class=lnlinks href=#hl-10-6> 6</a>
+</span><span class=lnt id=hl-10-7><a class=lnlinks href=#hl-10-7> 7</a>
+</span><span class=lnt id=hl-10-8><a class=lnlinks href=#hl-10-8> 8</a>
+</span><span class=lnt id=hl-10-9><a class=lnlinks href=#hl-10-9> 9</a>
+</span><span class=lnt id=hl-10-10><a class=lnlinks href=#hl-10-10>10</a>
+</span><span class=lnt id=hl-10-11><a class=lnlinks href=#hl-10-11>11</a>
+</span><span class=lnt id=hl-10-12><a class=lnlinks href=#hl-10-12>12</a>
+</span><span class=lnt id=hl-10-13><a class=lnlinks href=#hl-10-13>13</a>
+</span><span class=lnt id=hl-10-14><a class=lnlinks href=#hl-10-14>14</a>
+</span><span class=lnt id=hl-10-15><a class=lnlinks href=#hl-10-15>15</a>
+</span><span class=lnt id=hl-10-16><a class=lnlinks href=#hl-10-16>16</a>
+</span><span class=lnt id=hl-10-17><a class=lnlinks href=#hl-10-17>17</a>
+</span><span class=lnt id=hl-10-18><a class=lnlinks href=#hl-10-18>18</a>
+</span><span class=lnt id=hl-10-19><a class=lnlinks href=#hl-10-19>19</a>
+</span><span class=lnt id=hl-10-20><a class=lnlinks href=#hl-10-20>20</a>
+</span><span class=lnt id=hl-10-21><a class=lnlinks href=#hl-10-21>21</a>
+</span><span class=lnt id=hl-10-22><a class=lnlinks href=#hl-10-22>22</a>
+</span><span class=lnt id=hl-10-23><a class=lnlinks href=#hl-10-23>23</a>
+</span><span class=lnt id=hl-10-24><a class=lnlinks href=#hl-10-24>24</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>시스템 구성: 3개 노드(N1, N2, N3)의 분산 데이터베이스
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>1. 각 노드가 로컬 논리적 시계 유지
+</span></span><span class=line><span class=cl>2. 트랜잭션 T1이 N1에서 시작: 
+</span></span><span class=line><span class=cl>   - N1의 시계 = 10
+</span></span><span class=line><span class=cl>   - T1에 타임스탬프 TS(T1) = 10 할당
+</span></span><span class=line><span class=cl>3. T1이 데이터 항목 D 읽기 (현재 값 = &#34;old&#34;, TS(D) = 5)
+</span></span><span class=line><span class=cl>4. T1이 D를 &#34;new1&#34;로 업데이트:
+</span></span><span class=line><span class=cl>   - TS(T1) = 10 &gt; TS(D) = 5이므로 업데이트 성공
+</span></span><span class=line><span class=cl>   - D = &#34;new1&#34;, TS(D) = 10으로 업데이트
+</span></span><span class=line><span class=cl>5. 트랜잭션 T2가 N2에서 시작:
+</span></span><span class=line><span class=cl>   - N2의 시계 = 8
+</span></span><span class=line><span class=cl>   - T2에 타임스탬프 TS(T2) = 8 할당
+</span></span><span class=line><span class=cl>6. T2가 D 읽기 시도:
+</span></span><span class=line><span class=cl>   - 이미 TS(D) = 10 &gt; TS(T2) = 8로 T2의 타임스탬프보다 최신 값이 있음
+</span></span><span class=line><span class=cl>   - 시스템이 T2를 중단하거나 재시작
+</span></span><span class=line><span class=cl>7. 트랜잭션 T3가 N3에서 시작:
+</span></span><span class=line><span class=cl>   - N3의 시계 = 15
+</span></span><span class=line><span class=cl>   - T3에 타임스탬프 TS(T3) = 15 할당
+</span></span><span class=line><span class=cl>8. T3가 D 읽기 및 &#34;new2&#34;로 업데이트:
+</span></span><span class=line><span class=cl>   - TS(T3) = 15 &gt; TS(D) = 10이므로 성공
+</span></span><span class=line><span class=cl>   - D = &#34;new2&#34;, TS(D) = 15
+</span></span><span class=line><span class=cl>9. 복제 과정에서 모든 노드가 최종적으로 D = &#34;new2&#34;, TS(D) = 15로 수렴
+</span></span></code></pre></td></tr></table></div></div><h4 id=fifo-전송-기반-일관성-fifo-delivery-based-consistency>FIFO 전송 기반 일관성 (FIFO Delivery-based Consistency)<a hidden class=anchor aria-hidden=true href=#fifo-전송-기반-일관성-fifo-delivery-based-consistency>#</a></h4><p>각 노드에서 발생한 메시지가 모든 수신자에게 보낸 순서 그대로 도착하도록 보장하는 방식.</p><p><strong>구성</strong>:</p><ul><li>송신자별 순서 번호 부여</li><li>순서 기반 메시지 버퍼링</li><li>순차적 메시지 전달</li></ul><p><strong>목적</strong>: 단일 송신자 관점에서의 메시지 순서 보존</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-11-1><a class=lnlinks href=#hl-11-1> 1</a>
+</span><span class=lnt id=hl-11-2><a class=lnlinks href=#hl-11-2> 2</a>
+</span><span class=lnt id=hl-11-3><a class=lnlinks href=#hl-11-3> 3</a>
+</span><span class=lnt id=hl-11-4><a class=lnlinks href=#hl-11-4> 4</a>
+</span><span class=lnt id=hl-11-5><a class=lnlinks href=#hl-11-5> 5</a>
+</span><span class=lnt id=hl-11-6><a class=lnlinks href=#hl-11-6> 6</a>
+</span><span class=lnt id=hl-11-7><a class=lnlinks href=#hl-11-7> 7</a>
+</span><span class=lnt id=hl-11-8><a class=lnlinks href=#hl-11-8> 8</a>
+</span><span class=lnt id=hl-11-9><a class=lnlinks href=#hl-11-9> 9</a>
+</span><span class=lnt id=hl-11-10><a class=lnlinks href=#hl-11-10>10</a>
+</span><span class=lnt id=hl-11-11><a class=lnlinks href=#hl-11-11>11</a>
+</span><span class=lnt id=hl-11-12><a class=lnlinks href=#hl-11-12>12</a>
+</span><span class=lnt id=hl-11-13><a class=lnlinks href=#hl-11-13>13</a>
+</span><span class=lnt id=hl-11-14><a class=lnlinks href=#hl-11-14>14</a>
+</span><span class=lnt id=hl-11-15><a class=lnlinks href=#hl-11-15>15</a>
+</span><span class=lnt id=hl-11-16><a class=lnlinks href=#hl-11-16>16</a>
+</span><span class=lnt id=hl-11-17><a class=lnlinks href=#hl-11-17>17</a>
+</span><span class=lnt id=hl-11-18><a class=lnlinks href=#hl-11-18>18</a>
+</span><span class=lnt id=hl-11-19><a class=lnlinks href=#hl-11-19>19</a>
+</span><span class=lnt id=hl-11-20><a class=lnlinks href=#hl-11-20>20</a>
+</span><span class=lnt id=hl-11-21><a class=lnlinks href=#hl-11-21>21</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>시스템 구성: 3개 프로세스(P1, P2, P3)의 분산 시스템
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>1. P1이 메시지 시퀀스 전송:
+</span></span><span class=line><span class=cl>   - M1: &#34;x = 1&#34; (순서 번호 1)
+</span></span><span class=line><span class=cl>   - M2: &#34;y = 2&#34; (순서 번호 2)
+</span></span><span class=line><span class=cl>2. P2도 메시지 시퀀스 전송:
+</span></span><span class=line><span class=cl>   - N1: &#34;a = 3&#34; (순서 번호 1)
+</span></span><span class=line><span class=cl>   - N2: &#34;b = 4&#34; (순서 번호 2)
+</span></span><span class=line><span class=cl>3. 네트워크 지연으로 메시지가 P3에 다음 순서로 도착:
+</span></span><span class=line><span class=cl>   - M2(P1, 순서 2), N1(P2, 순서 1), M1(P1, 순서 1), N2(P2, 순서 2)
+</span></span><span class=line><span class=cl>4. FIFO 전달 계층 동작:
+</span></span><span class=line><span class=cl>   - M2는 P1에서 온 첫 메시지지만 순서 번호가 2
+</span></span><span class=line><span class=cl>   - M2를 버퍼에 보관(P1의 순서 1 메시지 대기)
+</span></span><span class=line><span class=cl>   - N1은 P2에서 온 첫 메시지고 순서 번호가 1이므로 전달
+</span></span><span class=line><span class=cl>   - M1이 도착, P1의 순서 1 메시지이므로 전달
+</span></span><span class=line><span class=cl>   - 버퍼의 M2도 이제 전달 가능하므로 전달
+</span></span><span class=line><span class=cl>   - N2는 P2의 순서 2 메시지이고 이전 메시지 모두 전달되었으므로 전달
+</span></span><span class=line><span class=cl>5. P3에서의 최종 메시지 전달 순서:
+</span></span><span class=line><span class=cl>   - N1(&#34;a = 3&#34;), M1(&#34;x = 1&#34;), M2(&#34;y = 2&#34;), N2(&#34;b = 4&#34;)
+</span></span><span class=line><span class=cl>6. 각 송신자의 메시지는 송신 순서대로 처리됨
+</span></span></code></pre></td></tr></table></div></div><h4 id=스냅샷-격리-snapshot-isolation>스냅샷 격리 (Snapshot Isolation)<a hidden class=anchor aria-hidden=true href=#스냅샷-격리-snapshot-isolation>#</a></h4><p>트랜잭션이 시작 시점의 일관된 스냅샷을 보고 작업하며, 쓰기 충돌이 없는 경우에만 커밋하는 방식.</p><p><strong>구성</strong>:</p><ul><li>트랜잭션 시작 시 스냅샷 생성</li><li>다중 버전 동시성 제어 (MVCC)</li><li>쓰기 - 쓰기 충돌 감지</li></ul><p><strong>목적</strong>: 높은 동시성과 일관된 읽기 보장</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-12-1><a class=lnlinks href=#hl-12-1> 1</a>
+</span><span class=lnt id=hl-12-2><a class=lnlinks href=#hl-12-2> 2</a>
+</span><span class=lnt id=hl-12-3><a class=lnlinks href=#hl-12-3> 3</a>
+</span><span class=lnt id=hl-12-4><a class=lnlinks href=#hl-12-4> 4</a>
+</span><span class=lnt id=hl-12-5><a class=lnlinks href=#hl-12-5> 5</a>
+</span><span class=lnt id=hl-12-6><a class=lnlinks href=#hl-12-6> 6</a>
+</span><span class=lnt id=hl-12-7><a class=lnlinks href=#hl-12-7> 7</a>
+</span><span class=lnt id=hl-12-8><a class=lnlinks href=#hl-12-8> 8</a>
+</span><span class=lnt id=hl-12-9><a class=lnlinks href=#hl-12-9> 9</a>
+</span><span class=lnt id=hl-12-10><a class=lnlinks href=#hl-12-10>10</a>
+</span><span class=lnt id=hl-12-11><a class=lnlinks href=#hl-12-11>11</a>
+</span><span class=lnt id=hl-12-12><a class=lnlinks href=#hl-12-12>12</a>
+</span><span class=lnt id=hl-12-13><a class=lnlinks href=#hl-12-13>13</a>
+</span><span class=lnt id=hl-12-14><a class=lnlinks href=#hl-12-14>14</a>
+</span><span class=lnt id=hl-12-15><a class=lnlinks href=#hl-12-15>15</a>
+</span><span class=lnt id=hl-12-16><a class=lnlinks href=#hl-12-16>16</a>
+</span><span class=lnt id=hl-12-17><a class=lnlinks href=#hl-12-17>17</a>
+</span><span class=lnt id=hl-12-18><a class=lnlinks href=#hl-12-18>18</a>
+</span><span class=lnt id=hl-12-19><a class=lnlinks href=#hl-12-19>19</a>
+</span><span class=lnt id=hl-12-20><a class=lnlinks href=#hl-12-20>20</a>
+</span><span class=lnt id=hl-12-21><a class=lnlinks href=#hl-12-21>21</a>
+</span><span class=lnt id=hl-12-22><a class=lnlinks href=#hl-12-22>22</a>
+</span><span class=lnt id=hl-12-23><a class=lnlinks href=#hl-12-23>23</a>
+</span><span class=lnt id=hl-12-24><a class=lnlinks href=#hl-12-24>24</a>
+</span><span class=lnt id=hl-12-25><a class=lnlinks href=#hl-12-25>25</a>
+</span><span class=lnt id=hl-12-26><a class=lnlinks href=#hl-12-26>26</a>
+</span><span class=lnt id=hl-12-27><a class=lnlinks href=#hl-12-27>27</a>
+</span><span class=lnt id=hl-12-28><a class=lnlinks href=#hl-12-28>28</a>
+</span><span class=lnt id=hl-12-29><a class=lnlinks href=#hl-12-29>29</a>
+</span><span class=lnt id=hl-12-30><a class=lnlinks href=#hl-12-30>30</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>시스템 구성: 스냅샷 격리를 구현한 분산 데이터베이스
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>1. 초기 상태: 계정 A = 1000, 계정 B = 500
+</span></span><span class=line><span class=cl>2. 트랜잭션 T1 시작(타임스탬프 100):
+</span></span><span class=line><span class=cl>   - T1이 A와 B의 스냅샷 생성: A = 1000, B = 500
+</span></span><span class=line><span class=cl>3. 트랜잭션 T2 시작(타임스탬프 101):
+</span></span><span class=line><span class=cl>   - T2도 같은 스냅샷 확인: A = 1000, B = 500
+</span></span><span class=line><span class=cl>4. T1이 A에서 B로 300 이체 시도:
+</span></span><span class=line><span class=cl>   - 읽기 집합: {A = 1000, B = 500}
+</span></span><span class=line><span class=cl>   - 쓰기 집합: {A = 700, B = 800}
+</span></span><span class=line><span class=cl>5. 동시에 T2가 A에서 200 인출 시도:
+</span></span><span class=line><span class=cl>   - 읽기 집합: {A = 1000}
+</span></span><span class=line><span class=cl>   - 쓰기 집합: {A = 800}
+</span></span><span class=line><span class=cl>6. T1이 먼저 커밋 시도:
+</span></span><span class=line><span class=cl>   - 쓰기-쓰기 충돌 없음
+</span></span><span class=line><span class=cl>   - 커밋 성공, 버전 정보 업데이트:
+</span></span><span class=line><span class=cl>     * A: 버전 100: 1000, 버전 102: 700
+</span></span><span class=line><span class=cl>     * B: 버전 100: 500, 버전 102: 800
+</span></span><span class=line><span class=cl>7. T2가 커밋 시도:
+</span></span><span class=line><span class=cl>   - 쓰기 집합 {A}가 T1의 쓰기 집합과 충돌
+</span></span><span class=line><span class=cl>   - 시스템 정책에 따라 T2 중단 또는 재시도
+</span></span><span class=line><span class=cl>8. T2가 재시도(타임스탬프 103):
+</span></span><span class=line><span class=cl>   - 새 스냅샷 생성: A = 700, B = 800
+</span></span><span class=line><span class=cl>   - A에서 200 인출: A = 500
+</span></span><span class=line><span class=cl>   - 커밋 성공, 새 버전 정보:
+</span></span><span class=line><span class=cl>     * A: 버전 102: 700, 버전 104: 500
+</span></span><span class=line><span class=cl>9. 트랜잭션 T3 시작(타임스탬프 105):
+</span></span><span class=line><span class=cl>   - T3의 스냅샷: A = 500, B = 800
+</span></span><span class=line><span class=cl>   - 모든 이전 커밋된 변경사항이 반영된 일관된 뷰
+</span></span></code></pre></td></tr></table></div></div><h4 id=활성-복제-active-replication>활성 복제 (Active Replication)<a hidden class=anchor aria-hidden=true href=#활성-복제-active-replication>#</a></h4><p>모든 복제본이 동일한 입력 순서로 동일한 작업을 독립적으로 실행하는 방식.</p><p><strong>구성</strong>:</p><ul><li>결정적 상태 머신 복제</li><li>원자적 브로드캐스트 프로토콜</li><li>모든 작업에 대한 전체 순서 합의</li></ul><p><strong>목적</strong>: 독립적인 실행으로 동일한 상태 도달</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-13-1><a class=lnlinks href=#hl-13-1> 1</a>
+</span><span class=lnt id=hl-13-2><a class=lnlinks href=#hl-13-2> 2</a>
+</span><span class=lnt id=hl-13-3><a class=lnlinks href=#hl-13-3> 3</a>
+</span><span class=lnt id=hl-13-4><a class=lnlinks href=#hl-13-4> 4</a>
+</span><span class=lnt id=hl-13-5><a class=lnlinks href=#hl-13-5> 5</a>
+</span><span class=lnt id=hl-13-6><a class=lnlinks href=#hl-13-6> 6</a>
+</span><span class=lnt id=hl-13-7><a class=lnlinks href=#hl-13-7> 7</a>
+</span><span class=lnt id=hl-13-8><a class=lnlinks href=#hl-13-8> 8</a>
+</span><span class=lnt id=hl-13-9><a class=lnlinks href=#hl-13-9> 9</a>
+</span><span class=lnt id=hl-13-10><a class=lnlinks href=#hl-13-10>10</a>
+</span><span class=lnt id=hl-13-11><a class=lnlinks href=#hl-13-11>11</a>
+</span><span class=lnt id=hl-13-12><a class=lnlinks href=#hl-13-12>12</a>
+</span><span class=lnt id=hl-13-13><a class=lnlinks href=#hl-13-13>13</a>
+</span><span class=lnt id=hl-13-14><a class=lnlinks href=#hl-13-14>14</a>
+</span><span class=lnt id=hl-13-15><a class=lnlinks href=#hl-13-15>15</a>
+</span><span class=lnt id=hl-13-16><a class=lnlinks href=#hl-13-16>16</a>
+</span><span class=lnt id=hl-13-17><a class=lnlinks href=#hl-13-17>17</a>
+</span><span class=lnt id=hl-13-18><a class=lnlinks href=#hl-13-18>18</a>
+</span><span class=lnt id=hl-13-19><a class=lnlinks href=#hl-13-19>19</a>
+</span><span class=lnt id=hl-13-20><a class=lnlinks href=#hl-13-20>20</a>
+</span><span class=lnt id=hl-13-21><a class=lnlinks href=#hl-13-21>21</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>시스템 구성: 3개 복제 서버(R1, R2, R3)를 가진 분산 데이터 저장소
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>1. 클라이언트가 입력 I1(&#34;set x=5&#34;) 전송
+</span></span><span class=line><span class=cl>2. 입력이 원자적 브로드캐스트 프로토콜을 통해 모든 복제본에 전달됨
+</span></span><span class=line><span class=cl>   - 브로드캐스트 프로토콜이 I1에 순서 번호 1 할당
+</span></span><span class=line><span class=cl>3. 각 복제본이 독립적으로 입력 처리:
+</span></span><span class=line><span class=cl>   - R1, R2, R3 모두 &#34;set x=5&#34; 실행 → x = 5
+</span></span><span class=line><span class=cl>4. 클라이언트가 입력 I2(&#34;increment x&#34;) 전송
+</span></span><span class=line><span class=cl>   - 브로드캐스트 프로토콜이 I2에 순서 번호 2 할당
+</span></span><span class=line><span class=cl>5. 각 복제본이 독립적으로 I2 처리:
+</span></span><span class=line><span class=cl>   - R1, R2, R3 모두 &#34;increment x&#34; 실행 → x = 6
+</span></span><span class=line><span class=cl>6. 복제본 R2가 일시적으로 네트워크에서 분리됨
+</span></span><span class=line><span class=cl>7. 클라이언트가 입력 I3(&#34;set y=x*2&#34;) 전송
+</span></span><span class=line><span class=cl>   - 브로드캐스트 프로토콜이 I3에 순서 번호 3 할당
+</span></span><span class=line><span class=cl>8. 활성 복제본 R1, R3이 I3 처리:
+</span></span><span class=line><span class=cl>   - &#34;set y=x*2&#34; 실행 → y = 12
+</span></span><span class=line><span class=cl>9. R2가 네트워크에 다시 연결됨
+</span></span><span class=line><span class=cl>10. R2가 놓친 작업 I3 수신 및 처리:
+</span></span><span class=line><span class=cl>    - &#34;set y=x*2&#34; 실행 → y = 12
+</span></span><span class=line><span class=cl>11. 최종적으로 모든 복제본이 동일한 상태: x=6, y=12
+</span></span></code></pre></td></tr></table></div></div><h4 id=소프트웨어-거래-메모리-software-transactional-memory-stm>소프트웨어 거래 메모리 (Software Transactional Memory, STM)<a hidden class=anchor aria-hidden=true href=#소프트웨어-거래-메모리-software-transactional-memory-stm>#</a></h4><p>메모리 접근을 트랜잭션으로 그룹화하여 원자성과 일관성을 보장하는 프로그래밍 추상화.</p><p><strong>구성</strong>:</p><ul><li>트랜잭션 경계 지정 메커니즘</li><li>읽기/쓰기 집합 추적</li><li>충돌 감지 및 재시도 로직</li></ul><p><strong>목적</strong>: 프로그래머에게 순차적 일관성 추상화 제공</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-14-1><a class=lnlinks href=#hl-14-1> 1</a>
+</span><span class=lnt id=hl-14-2><a class=lnlinks href=#hl-14-2> 2</a>
+</span><span class=lnt id=hl-14-3><a class=lnlinks href=#hl-14-3> 3</a>
+</span><span class=lnt id=hl-14-4><a class=lnlinks href=#hl-14-4> 4</a>
+</span><span class=lnt id=hl-14-5><a class=lnlinks href=#hl-14-5> 5</a>
+</span><span class=lnt id=hl-14-6><a class=lnlinks href=#hl-14-6> 6</a>
+</span><span class=lnt id=hl-14-7><a class=lnlinks href=#hl-14-7> 7</a>
+</span><span class=lnt id=hl-14-8><a class=lnlinks href=#hl-14-8> 8</a>
+</span><span class=lnt id=hl-14-9><a class=lnlinks href=#hl-14-9> 9</a>
+</span><span class=lnt id=hl-14-10><a class=lnlinks href=#hl-14-10>10</a>
+</span><span class=lnt id=hl-14-11><a class=lnlinks href=#hl-14-11>11</a>
+</span><span class=lnt id=hl-14-12><a class=lnlinks href=#hl-14-12>12</a>
+</span><span class=lnt id=hl-14-13><a class=lnlinks href=#hl-14-13>13</a>
+</span><span class=lnt id=hl-14-14><a class=lnlinks href=#hl-14-14>14</a>
+</span><span class=lnt id=hl-14-15><a class=lnlinks href=#hl-14-15>15</a>
+</span><span class=lnt id=hl-14-16><a class=lnlinks href=#hl-14-16>16</a>
+</span><span class=lnt id=hl-14-17><a class=lnlinks href=#hl-14-17>17</a>
+</span><span class=lnt id=hl-14-18><a class=lnlinks href=#hl-14-18>18</a>
+</span><span class=lnt id=hl-14-19><a class=lnlinks href=#hl-14-19>19</a>
+</span><span class=lnt id=hl-14-20><a class=lnlinks href=#hl-14-20>20</a>
+</span><span class=lnt id=hl-14-21><a class=lnlinks href=#hl-14-21>21</a>
+</span><span class=lnt id=hl-14-22><a class=lnlinks href=#hl-14-22>22</a>
+</span><span class=lnt id=hl-14-23><a class=lnlinks href=#hl-14-23>23</a>
+</span><span class=lnt id=hl-14-24><a class=lnlinks href=#hl-14-24>24</a>
+</span><span class=lnt id=hl-14-25><a class=lnlinks href=#hl-14-25>25</a>
+</span><span class=lnt id=hl-14-26><a class=lnlinks href=#hl-14-26>26</a>
+</span><span class=lnt id=hl-14-27><a class=lnlinks href=#hl-14-27>27</a>
+</span><span class=lnt id=hl-14-28><a class=lnlinks href=#hl-14-28>28</a>
+</span><span class=lnt id=hl-14-29><a class=lnlinks href=#hl-14-29>29</a>
+</span><span class=lnt id=hl-14-30><a class=lnlinks href=#hl-14-30>30</a>
+</span><span class=lnt id=hl-14-31><a class=lnlinks href=#hl-14-31>31</a>
+</span><span class=lnt id=hl-14-32><a class=lnlinks href=#hl-14-32>32</a>
+</span><span class=lnt id=hl-14-33><a class=lnlinks href=#hl-14-33>33</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>시스템 구성: STM 기반 분산 인메모리 객체 저장소
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>1. 프로그램 코드:
+</span></span><span class=line><span class=cl>   ```java
+</span></span><span class=line><span class=cl>   atomic {
+</span></span><span class=line><span class=cl>       // 트랜잭션 시작
+</span></span><span class=line><span class=cl>       int x = objects.get(&#34;x&#34;); // 읽기 집합에 x 추가
+</span></span><span class=line><span class=cl>       int y = objects.get(&#34;y&#34;); // 읽기 집합에 y 추가
+</span></span><span class=line><span class=cl>       objects.put(&#34;x&#34;, x + 1);  // 쓰기 집합에 x 추가
+</span></span><span class=line><span class=cl>       objects.put(&#34;z&#34;, x + y);  // 쓰기 집합에 z 추가
+</span></span><span class=line><span class=cl>   } // 트랜잭션 커밋 시도
+</span></span><span class=line><span class=cl>	```
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>2. 초기 상태: x = 5, y = 10, z = 0
+</span></span><span class=line><span class=cl>3. 스레드 T1이 위 코드 실행, 읽기 집합 {x=5, y=10}, 쓰기 집합 {x=6, z=15}
+</span></span><span class=line><span class=cl>4. 동시에 스레드 T2가 다른 코드 실행:
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    ```java
+</span></span><span class=line><span class=cl>    atomic {    int x = objects.get(&#34;x&#34;);    objects.put(&#34;y&#34;, x * 2);}
+</span></span><span class=line><span class=cl>    ```
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>5. T2의 읽기 집합 {x=5}, 쓰기 집합 {y=10}
+</span></span><span class=line><span class=cl>6. T1이 먼저 커밋 시도:
+</span></span><span class=line><span class=cl>    - 읽기/쓰기 집합 검증: 아직 충돌 없음
+</span></span><span class=line><span class=cl>    - 성공적으로 커밋: x=6, z=15 (y는 변경 없음)
+</span></span><span class=line><span class=cl>7. T2가 커밋 시도:
+</span></span><span class=line><span class=cl>    - 읽기 집합 검증: x=5로 읽었지만 현재 x=6
+</span></span><span class=line><span class=cl>    - 검증 실패, 트랜잭션 재시도
+</span></span><span class=line><span class=cl>8. T2 재시도:
+</span></span><span class=line><span class=cl>    - 새 읽기 집합 {x=6}, 쓰기 집합 {y=12}
+</span></span><span class=line><span class=cl>    - 검증 성공, 커밋: y=12
+</span></span><span class=line><span class=cl>9. 최종 상태: x=6, y=12, z=15
+</span></span></code></pre></td></tr></table></div></div><h4 id=프로세스-직렬화-process-serialization>프로세스 직렬화 (Process Serialization)<a hidden class=anchor aria-hidden=true href=#프로세스-직렬화-process-serialization>#</a></h4><p>프로세스를 하나씩 순차적으로 실행하여 모든 작업이 직렬화된 것처럼 보이게 하는 방식.</p><p><strong>구성</strong>:</p><ul><li>프로세스 실행 순서 결정 메커니즘</li><li>프로세스 간 전환 프로토콜</li><li>공유 상태 일관성 유지</li></ul><p><strong>목적</strong>: 직접적인 직렬화를 통한 일관성 보장</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-15-1><a class=lnlinks href=#hl-15-1> 1</a>
+</span><span class=lnt id=hl-15-2><a class=lnlinks href=#hl-15-2> 2</a>
+</span><span class=lnt id=hl-15-3><a class=lnlinks href=#hl-15-3> 3</a>
+</span><span class=lnt id=hl-15-4><a class=lnlinks href=#hl-15-4> 4</a>
+</span><span class=lnt id=hl-15-5><a class=lnlinks href=#hl-15-5> 5</a>
+</span><span class=lnt id=hl-15-6><a class=lnlinks href=#hl-15-6> 6</a>
+</span><span class=lnt id=hl-15-7><a class=lnlinks href=#hl-15-7> 7</a>
+</span><span class=lnt id=hl-15-8><a class=lnlinks href=#hl-15-8> 8</a>
+</span><span class=lnt id=hl-15-9><a class=lnlinks href=#hl-15-9> 9</a>
+</span><span class=lnt id=hl-15-10><a class=lnlinks href=#hl-15-10>10</a>
+</span><span class=lnt id=hl-15-11><a class=lnlinks href=#hl-15-11>11</a>
+</span><span class=lnt id=hl-15-12><a class=lnlinks href=#hl-15-12>12</a>
+</span><span class=lnt id=hl-15-13><a class=lnlinks href=#hl-15-13>13</a>
+</span><span class=lnt id=hl-15-14><a class=lnlinks href=#hl-15-14>14</a>
+</span><span class=lnt id=hl-15-15><a class=lnlinks href=#hl-15-15>15</a>
+</span><span class=lnt id=hl-15-16><a class=lnlinks href=#hl-15-16>16</a>
+</span><span class=lnt id=hl-15-17><a class=lnlinks href=#hl-15-17>17</a>
+</span><span class=lnt id=hl-15-18><a class=lnlinks href=#hl-15-18>18</a>
+</span><span class=lnt id=hl-15-19><a class=lnlinks href=#hl-15-19>19</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시스템 구성: 3개 프로세스(P1, P2, P3)와 토큰 기반 조정자
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>1. 초기 상태: 공유 객체 O = {x: 0, y: 0}
+</span></span><span class=line><span class=cl>2. 조정자가 실행 순서 결정: P1 → P2 → P3
+</span></span><span class=line><span class=cl>3. 프로세스 P1이 토큰 획득 및 활성화:
+</span></span><span class=line><span class=cl>    - P1이 객체 수정: O.x = 10
+</span></span><span class=line><span class=cl>    - P1이 토큰 반환
+</span></span><span class=line><span class=cl>4. 프로세스 P2가 토큰 획득 및 활성화:
+</span></span><span class=line><span class=cl>    - P2가 객체 읽기: O.x = 10
+</span></span><span class=line><span class=cl>    - P2가 객체 수정: O.y = O.x * 2 = 20
+</span></span><span class=line><span class=cl>    - P2가 토큰 반환
+</span></span><span class=line><span class=cl>5. 프로세스 P3가 토큰 획득 및 활성화:
+</span></span><span class=line><span class=cl>    - P3가 객체 읽기: O.x = 10, O.y = 20
+</span></span><span class=line><span class=cl>    - P3가 객체 수정: O.z = O.x + O.y = 30
+</span></span><span class=line><span class=cl>    - P3가 토큰 반환
+</span></span><span class=line><span class=cl>6. 모든 프로세스가 O = {x: 10, y: 20, z: 30}의 일관된 상태 관찰
+</span></span></code></pre></td></tr></table></div></div><h4 id=논리적-시계-동기화-logical-clock-synchronization>논리적 시계 동기화 (Logical Clock Synchronization)<a hidden class=anchor aria-hidden=true href=#논리적-시계-동기화-logical-clock-synchronization>#</a></h4><p>노드 간에 논리적 시계를 동기화하여 이벤트 순서를 보존하는 방식.</p><p><strong>구성</strong>:</p><ul><li>논리적 시계 구현 (Lamport, 벡터 등)</li><li>메시지 교환을 통한 시계 동기화</li><li>일관된 타임스탬프 기반 순서화</li></ul><p><strong>목적</strong>: 물리적 시계 없이도 이벤트 순서 보존</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-16-1><a class=lnlinks href=#hl-16-1> 1</a>
+</span><span class=lnt id=hl-16-2><a class=lnlinks href=#hl-16-2> 2</a>
+</span><span class=lnt id=hl-16-3><a class=lnlinks href=#hl-16-3> 3</a>
+</span><span class=lnt id=hl-16-4><a class=lnlinks href=#hl-16-4> 4</a>
+</span><span class=lnt id=hl-16-5><a class=lnlinks href=#hl-16-5> 5</a>
+</span><span class=lnt id=hl-16-6><a class=lnlinks href=#hl-16-6> 6</a>
+</span><span class=lnt id=hl-16-7><a class=lnlinks href=#hl-16-7> 7</a>
+</span><span class=lnt id=hl-16-8><a class=lnlinks href=#hl-16-8> 8</a>
+</span><span class=lnt id=hl-16-9><a class=lnlinks href=#hl-16-9> 9</a>
+</span><span class=lnt id=hl-16-10><a class=lnlinks href=#hl-16-10>10</a>
+</span><span class=lnt id=hl-16-11><a class=lnlinks href=#hl-16-11>11</a>
+</span><span class=lnt id=hl-16-12><a class=lnlinks href=#hl-16-12>12</a>
+</span><span class=lnt id=hl-16-13><a class=lnlinks href=#hl-16-13>13</a>
+</span><span class=lnt id=hl-16-14><a class=lnlinks href=#hl-16-14>14</a>
+</span><span class=lnt id=hl-16-15><a class=lnlinks href=#hl-16-15>15</a>
+</span><span class=lnt id=hl-16-16><a class=lnlinks href=#hl-16-16>16</a>
+</span><span class=lnt id=hl-16-17><a class=lnlinks href=#hl-16-17>17</a>
+</span><span class=lnt id=hl-16-18><a class=lnlinks href=#hl-16-18>18</a>
+</span><span class=lnt id=hl-16-19><a class=lnlinks href=#hl-16-19>19</a>
+</span><span class=lnt id=hl-16-20><a class=lnlinks href=#hl-16-20>20</a>
+</span><span class=lnt id=hl-16-21><a class=lnlinks href=#hl-16-21>21</a>
+</span><span class=lnt id=hl-16-22><a class=lnlinks href=#hl-16-22>22</a>
+</span><span class=lnt id=hl-16-23><a class=lnlinks href=#hl-16-23>23</a>
+</span><span class=lnt id=hl-16-24><a class=lnlinks href=#hl-16-24>24</a>
+</span><span class=lnt id=hl-16-25><a class=lnlinks href=#hl-16-25>25</a>
+</span><span class=lnt id=hl-16-26><a class=lnlinks href=#hl-16-26>26</a>
+</span><span class=lnt id=hl-16-27><a class=lnlinks href=#hl-16-27>27</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시스템 구성: 4개 노드(A, B, C, D)를 가진 분산 시스템
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>1. 초기 논리적 시계: A=1, B=1, C=1, D=1
+</span></span><span class=line><span class=cl>2. 노드 A에서 로컬 이벤트 e1 발생: A=2
+</span></span><span class=line><span class=cl>3. A가 B에 메시지 m1 전송: 타임스탬프 2 포함
+</span></span><span class=line><span class=cl>4. B가 m1 수신:
+</span></span><span class=line><span class=cl>    - B의 시계 업데이트: max(B=1, received=2) + 1 = 3
+</span></span><span class=line><span class=cl>    - B=3
+</span></span><span class=line><span class=cl>5. 노드 C에서 로컬 이벤트 e2 발생: C=2
+</span></span><span class=line><span class=cl>6. C가 D에 메시지 m2 전송: 타임스탬프 2 포함
+</span></span><span class=line><span class=cl>7. D가 m2 수신:
+</span></span><span class=line><span class=cl>    - D의 시계 업데이트: max(D=1, received=2) + 1 = 3
+</span></span><span class=line><span class=cl>    - D=3
+</span></span><span class=line><span class=cl>8. B가 C에 메시지 m3 전송: 타임스탬프 3 포함
+</span></span><span class=line><span class=cl>9. C가 m3 수신:
+</span></span><span class=line><span class=cl>    - C의 시계 업데이트: max(C=2, received=3) + 1 = 4
+</span></span><span class=line><span class=cl>    - C=4
+</span></span><span class=line><span class=cl>10. 모든 이벤트에 할당된 논리적 타임스탬프:
+</span></span><span class=line><span class=cl>    - e1: (A, 2)
+</span></span><span class=line><span class=cl>    - 메시지 m1 수신: (B, 3)
+</span></span><span class=line><span class=cl>    - e2: (C, 2)
+</span></span><span class=line><span class=cl>    - 메시지 m2 수신: (D, 3)
+</span></span><span class=line><span class=cl>    - 메시지 m3 수신: (C, 4)
+</span></span><span class=line><span class=cl>11. 타임스탬프 순서: (A) &lt; (C) &lt; (B) = (D) &lt; (C)
+</span></span></code></pre></td></tr></table></div></div><h4 id=합의-기반-순서화-consensus-based-ordering>합의 기반 순서화 (Consensus-based Ordering)<a hidden class=anchor aria-hidden=true href=#합의-기반-순서화-consensus-based-ordering>#</a></h4><p>분산 합의 알고리즘을 사용하여 작업 순서에 대한 합의를 도출하는 방식.</p><p><strong>구성</strong>:</p><ul><li>작업 제안 메커니즘</li><li>합의 프로토콜 (Paxos, Raft 등)</li><li>합의된 순서에 따른 실행</li></ul><p><strong>목적</strong>: 분산 환경에서 작업 순서에 대한 합의 달성</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-17-1><a class=lnlinks href=#hl-17-1> 1</a>
+</span><span class=lnt id=hl-17-2><a class=lnlinks href=#hl-17-2> 2</a>
+</span><span class=lnt id=hl-17-3><a class=lnlinks href=#hl-17-3> 3</a>
+</span><span class=lnt id=hl-17-4><a class=lnlinks href=#hl-17-4> 4</a>
+</span><span class=lnt id=hl-17-5><a class=lnlinks href=#hl-17-5> 5</a>
+</span><span class=lnt id=hl-17-6><a class=lnlinks href=#hl-17-6> 6</a>
+</span><span class=lnt id=hl-17-7><a class=lnlinks href=#hl-17-7> 7</a>
+</span><span class=lnt id=hl-17-8><a class=lnlinks href=#hl-17-8> 8</a>
+</span><span class=lnt id=hl-17-9><a class=lnlinks href=#hl-17-9> 9</a>
+</span><span class=lnt id=hl-17-10><a class=lnlinks href=#hl-17-10>10</a>
+</span><span class=lnt id=hl-17-11><a class=lnlinks href=#hl-17-11>11</a>
+</span><span class=lnt id=hl-17-12><a class=lnlinks href=#hl-17-12>12</a>
+</span><span class=lnt id=hl-17-13><a class=lnlinks href=#hl-17-13>13</a>
+</span><span class=lnt id=hl-17-14><a class=lnlinks href=#hl-17-14>14</a>
+</span><span class=lnt id=hl-17-15><a class=lnlinks href=#hl-17-15>15</a>
+</span><span class=lnt id=hl-17-16><a class=lnlinks href=#hl-17-16>16</a>
+</span><span class=lnt id=hl-17-17><a class=lnlinks href=#hl-17-17>17</a>
+</span><span class=lnt id=hl-17-18><a class=lnlinks href=#hl-17-18>18</a>
+</span><span class=lnt id=hl-17-19><a class=lnlinks href=#hl-17-19>19</a>
+</span><span class=lnt id=hl-17-20><a class=lnlinks href=#hl-17-20>20</a>
+</span><span class=lnt id=hl-17-21><a class=lnlinks href=#hl-17-21>21</a>
+</span><span class=lnt id=hl-17-22><a class=lnlinks href=#hl-17-22>22</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시스템 구성: 5개 노드(N1-N5)로 구성된 Raft 기반 분산 시스템
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>1. 초기 상태: N1이 리더, 임기(term) 1
+</span></span><span class=line><span class=cl>2. 클라이언트가 명령 C1(&#34;set x=5&#34;) 전송
+</span></span><span class=line><span class=cl>3. 리더 N1이 로그 인덱스 10에 C1 추가
+</span></span><span class=line><span class=cl>4. N1이 팔로워들에게 AppendEntries RPC 전송
+</span></span><span class=line><span class=cl>5. 팔로워들(N2-N5)이 각자의 로그에 C1 추가
+</span></span><span class=line><span class=cl>6. 과반수 확인(N1, N2, N3) 후 N1이 커밋 인덱스를 10으로 업데이트
+</span></span><span class=line><span class=cl>7. 클라이언트가 명령 C2(&#34;set y=10&#34;) 전송
+</span></span><span class=line><span class=cl>8. 리더 N1이 로그 인덱스 11에 C2 추가 및 복제
+</span></span><span class=line><span class=cl>9. N1에 장애 발생, 새 리더 선출
+</span></span><span class=line><span class=cl>10. N3가 새 리더로 선출됨(임기 2)
+</span></span><span class=line><span class=cl>11. N3가 이전에 커밋된 로그 확인 및 상태 유지
+</span></span><span class=line><span class=cl>12. 클라이언트가 명령 C3(&#34;set z=x+y&#34;) 전송
+</span></span><span class=line><span class=cl>13. 새 리더 N3가 로그 인덱스 12에 C3 추가 및 복제
+</span></span><span class=line><span class=cl>14. 모든 노드가 최종적으로 동일한 명령 시퀀스 실행:
+</span></span><span class=line><span class=cl>    - C1: x = 5
+</span></span><span class=line><span class=cl>    - C2: y = 10
+</span></span><span class=line><span class=cl>    - C3: z = 15
+</span></span></code></pre></td></tr></table></div></div><h4 id=메시지-큐-기반-순서화-message-queue-based-ordering>메시지 큐 기반 순서화 (Message Queue-based Ordering)<a hidden class=anchor aria-hidden=true href=#메시지-큐-기반-순서화-message-queue-based-ordering>#</a></h4><p>중앙 메시지 큐를 통해 모든 작업을 순차적으로 처리하는 방식.</p><p><strong>구성</strong>:</p><ul><li>중앙 또는 분산 메시지 큐</li><li>작업의 FIFO 처리</li><li>일관된 소비자 처리</li></ul><p><strong>목적</strong>: 메시지 큐의 FIFO 특성을 활용한 순서 보장</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-18-1><a class=lnlinks href=#hl-18-1> 1</a>
+</span><span class=lnt id=hl-18-2><a class=lnlinks href=#hl-18-2> 2</a>
+</span><span class=lnt id=hl-18-3><a class=lnlinks href=#hl-18-3> 3</a>
+</span><span class=lnt id=hl-18-4><a class=lnlinks href=#hl-18-4> 4</a>
+</span><span class=lnt id=hl-18-5><a class=lnlinks href=#hl-18-5> 5</a>
+</span><span class=lnt id=hl-18-6><a class=lnlinks href=#hl-18-6> 6</a>
+</span><span class=lnt id=hl-18-7><a class=lnlinks href=#hl-18-7> 7</a>
+</span><span class=lnt id=hl-18-8><a class=lnlinks href=#hl-18-8> 8</a>
+</span><span class=lnt id=hl-18-9><a class=lnlinks href=#hl-18-9> 9</a>
+</span><span class=lnt id=hl-18-10><a class=lnlinks href=#hl-18-10>10</a>
+</span><span class=lnt id=hl-18-11><a class=lnlinks href=#hl-18-11>11</a>
+</span><span class=lnt id=hl-18-12><a class=lnlinks href=#hl-18-12>12</a>
+</span><span class=lnt id=hl-18-13><a class=lnlinks href=#hl-18-13>13</a>
+</span><span class=lnt id=hl-18-14><a class=lnlinks href=#hl-18-14>14</a>
+</span><span class=lnt id=hl-18-15><a class=lnlinks href=#hl-18-15>15</a>
+</span><span class=lnt id=hl-18-16><a class=lnlinks href=#hl-18-16>16</a>
+</span><span class=lnt id=hl-18-17><a class=lnlinks href=#hl-18-17>17</a>
+</span><span class=lnt id=hl-18-18><a class=lnlinks href=#hl-18-18>18</a>
+</span><span class=lnt id=hl-18-19><a class=lnlinks href=#hl-18-19>19</a>
+</span><span class=lnt id=hl-18-20><a class=lnlinks href=#hl-18-20>20</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시스템 구성: 메시지 큐 MQ와 여러 작업자 노드(W1, W2, W3)
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>1. 클라이언트가 MQ에 작업 시퀀스 제출:
+</span></span><span class=line><span class=cl>    - 작업 A: &#34;create user X&#34;
+</span></span><span class=line><span class=cl>    - 작업 B: &#34;add user X to group Y&#34;
+</span></span><span class=line><span class=cl>    - 작업 C: &#34;send welcome email to X&#34;
+</span></span><span class=line><span class=cl>2. MQ가 작업을 FIFO 순서로 유지
+</span></span><span class=line><span class=cl>3. 작업자 W1이 작업 A를 큐에서 가져와 처리:
+</span></span><span class=line><span class=cl>    - 데이터베이스에 사용자 X 생성
+</span></span><span class=line><span class=cl>    - 처리 완료 표시
+</span></span><span class=line><span class=cl>4. 작업자 W2가 작업 B를 큐에서 가져와 처리:
+</span></span><span class=line><span class=cl>    - 사용자 X를 그룹 Y에 추가
+</span></span><span class=line><span class=cl>    - 처리 완료 표시
+</span></span><span class=line><span class=cl>5. 작업자 W3가 작업 C를 큐에서 가져와 처리:
+</span></span><span class=line><span class=cl>    - 사용자 X에게 환영 이메일 전송
+</span></span><span class=line><span class=cl>    - 처리 완료 표시
+</span></span><span class=line><span class=cl>6. 모든 작업이 클라이언트가 제출한 순서대로 실행됨
+</span></span></code></pre></td></tr></table></div></div><h4 id=이벤트-소싱-event-sourcing>이벤트 소싱 (Event Sourcing)<a hidden class=anchor aria-hidden=true href=#이벤트-소싱-event-sourcing>#</a></h4><p>상태 변경을 직접 저장하는 대신 변경을 초래한 이벤트 시퀀스를 저장하고, 이벤트를 재생하여 현재 상태를 구성하는 방식.</p><p><strong>구성</strong>:</p><ul><li>이벤트 저장소</li><li>이벤트 발행 메커니즘</li><li>이벤트 핸들러 및 투영 (projection)</li></ul><p><strong>목적</strong>: 이벤트 기록을 통한 상태 재구성 및 일관성 유지</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-19-1><a class=lnlinks href=#hl-19-1> 1</a>
+</span><span class=lnt id=hl-19-2><a class=lnlinks href=#hl-19-2> 2</a>
+</span><span class=lnt id=hl-19-3><a class=lnlinks href=#hl-19-3> 3</a>
+</span><span class=lnt id=hl-19-4><a class=lnlinks href=#hl-19-4> 4</a>
+</span><span class=lnt id=hl-19-5><a class=lnlinks href=#hl-19-5> 5</a>
+</span><span class=lnt id=hl-19-6><a class=lnlinks href=#hl-19-6> 6</a>
+</span><span class=lnt id=hl-19-7><a class=lnlinks href=#hl-19-7> 7</a>
+</span><span class=lnt id=hl-19-8><a class=lnlinks href=#hl-19-8> 8</a>
+</span><span class=lnt id=hl-19-9><a class=lnlinks href=#hl-19-9> 9</a>
+</span><span class=lnt id=hl-19-10><a class=lnlinks href=#hl-19-10>10</a>
+</span><span class=lnt id=hl-19-11><a class=lnlinks href=#hl-19-11>11</a>
+</span><span class=lnt id=hl-19-12><a class=lnlinks href=#hl-19-12>12</a>
+</span><span class=lnt id=hl-19-13><a class=lnlinks href=#hl-19-13>13</a>
+</span><span class=lnt id=hl-19-14><a class=lnlinks href=#hl-19-14>14</a>
+</span><span class=lnt id=hl-19-15><a class=lnlinks href=#hl-19-15>15</a>
+</span><span class=lnt id=hl-19-16><a class=lnlinks href=#hl-19-16>16</a>
+</span><span class=lnt id=hl-19-17><a class=lnlinks href=#hl-19-17>17</a>
+</span><span class=lnt id=hl-19-18><a class=lnlinks href=#hl-19-18>18</a>
+</span><span class=lnt id=hl-19-19><a class=lnlinks href=#hl-19-19>19</a>
+</span><span class=lnt id=hl-19-20><a class=lnlinks href=#hl-19-20>20</a>
+</span><span class=lnt id=hl-19-21><a class=lnlinks href=#hl-19-21>21</a>
+</span><span class=lnt id=hl-19-22><a class=lnlinks href=#hl-19-22>22</a>
+</span><span class=lnt id=hl-19-23><a class=lnlinks href=#hl-19-23>23</a>
+</span><span class=lnt id=hl-19-24><a class=lnlinks href=#hl-19-24>24</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시스템 구성: 이벤트 저장소와 여러 서비스(주문, 재고, 결제 등)
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>1. 클라이언트가 주문 생성 요청
+</span></span><span class=line><span class=cl>2. 시스템이 이벤트 &#34;OrderCreated&#34; 생성 및 저장:
+</span></span><span class=line><span class=cl>    - {id: &#34;event-1&#34;, type: &#34;OrderCreated&#34;, data: {orderId: &#34;O1&#34;, items: […], customerId: &#34;C1&#34;}, timestamp: t1}
+</span></span><span class=line><span class=cl>3. 이벤트가 관련 서비스에 발행됨
+</span></span><span class=line><span class=cl>4. 재고 서비스가 이벤트 수신 및 처리:
+</span></span><span class=line><span class=cl>    - 재고 확인 및 할당
+</span></span><span class=line><span class=cl>    - 이벤트 &#34;InventoryAllocated&#34; 생성 및 저장:
+</span></span><span class=line><span class=cl>    - {id: &#34;event-2&#34;, type: &#34;InventoryAllocated&#34;, data: {orderId: &#34;O1&#34;, items: […]}, timestamp: t2}
+</span></span><span class=line><span class=cl>5. 결제 서비스가 &#34;OrderCreated&#34; 이벤트 수신 및 처리:
+</span></span><span class=line><span class=cl>    - 결제 처리
+</span></span><span class=line><span class=cl>    - 이벤트 &#34;PaymentProcessed&#34; 생성 및 저장:
+</span></span><span class=line><span class=cl>    - {id: &#34;event-3&#34;, type: &#34;PaymentProcessed&#34;, data: {orderId: &#34;O1&#34;, amount: 100}, timestamp: t3}
+</span></span><span class=line><span class=cl>6. 주문 서비스가 &#34;InventoryAllocated&#34;와 &#34;PaymentProcessed&#34; 이벤트 수신:
+</span></span><span class=line><span class=cl>    - 주문 상태 업데이트
+</span></span><span class=line><span class=cl>    - 이벤트 &#34;OrderCompleted&#34; 생성 및 저장:
+</span></span><span class=line><span class=cl>    - {id: &#34;event-4&#34;, type: &#34;OrderCompleted&#34;, data: {orderId: &#34;O1&#34;}, timestamp: t4}
+</span></span><span class=line><span class=cl>7. 시스템 복구 시:
+</span></span><span class=line><span class=cl>    - 저장된 모든 이벤트를 타임스탬프 순서대로 재생
+</span></span><span class=line><span class=cl>    - 모든 서비스가 동일한 상태로 복원됨
+</span></span></code></pre></td></tr></table></div></div><h4 id=세마포어-기반-동기화-semaphore-based-synchronization>세마포어 기반 동기화 (Semaphore-based Synchronization)<a hidden class=anchor aria-hidden=true href=#세마포어-기반-동기화-semaphore-based-synchronization>#</a></h4><p>세마포어와 같은 동기화 프리미티브를 사용하여 분산 작업의 순서를 제어하는 방식.</p><p><strong>구성</strong>:</p><ul><li>분산 세마포어 구현</li><li>세마포어 획득/해제 프로토콜</li><li>작업 간 의존성 관리</li></ul><p><strong>목적</strong>: 동기화 프리미티브를 통한 작업 순서 제어</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-20-1><a class=lnlinks href=#hl-20-1> 1</a>
+</span><span class=lnt id=hl-20-2><a class=lnlinks href=#hl-20-2> 2</a>
+</span><span class=lnt id=hl-20-3><a class=lnlinks href=#hl-20-3> 3</a>
+</span><span class=lnt id=hl-20-4><a class=lnlinks href=#hl-20-4> 4</a>
+</span><span class=lnt id=hl-20-5><a class=lnlinks href=#hl-20-5> 5</a>
+</span><span class=lnt id=hl-20-6><a class=lnlinks href=#hl-20-6> 6</a>
+</span><span class=lnt id=hl-20-7><a class=lnlinks href=#hl-20-7> 7</a>
+</span><span class=lnt id=hl-20-8><a class=lnlinks href=#hl-20-8> 8</a>
+</span><span class=lnt id=hl-20-9><a class=lnlinks href=#hl-20-9> 9</a>
+</span><span class=lnt id=hl-20-10><a class=lnlinks href=#hl-20-10>10</a>
+</span><span class=lnt id=hl-20-11><a class=lnlinks href=#hl-20-11>11</a>
+</span><span class=lnt id=hl-20-12><a class=lnlinks href=#hl-20-12>12</a>
+</span><span class=lnt id=hl-20-13><a class=lnlinks href=#hl-20-13>13</a>
+</span><span class=lnt id=hl-20-14><a class=lnlinks href=#hl-20-14>14</a>
+</span><span class=lnt id=hl-20-15><a class=lnlinks href=#hl-20-15>15</a>
+</span><span class=lnt id=hl-20-16><a class=lnlinks href=#hl-20-16>16</a>
+</span><span class=lnt id=hl-20-17><a class=lnlinks href=#hl-20-17>17</a>
+</span><span class=lnt id=hl-20-18><a class=lnlinks href=#hl-20-18>18</a>
+</span><span class=lnt id=hl-20-19><a class=lnlinks href=#hl-20-19>19</a>
+</span><span class=lnt id=hl-20-20><a class=lnlinks href=#hl-20-20>20</a>
+</span><span class=lnt id=hl-20-21><a class=lnlinks href=#hl-20-21>21</a>
+</span><span class=lnt id=hl-20-22><a class=lnlinks href=#hl-20-22>22</a>
+</span><span class=lnt id=hl-20-23><a class=lnlinks href=#hl-20-23>23</a>
+</span><span class=lnt id=hl-20-24><a class=lnlinks href=#hl-20-24>24</a>
+</span><span class=lnt id=hl-20-25><a class=lnlinks href=#hl-20-25>25</a>
+</span><span class=lnt id=hl-20-26><a class=lnlinks href=#hl-20-26>26</a>
+</span><span class=lnt id=hl-20-27><a class=lnlinks href=#hl-20-27>27</a>
+</span><span class=lnt id=hl-20-28><a class=lnlinks href=#hl-20-28>28</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시스템 구성: ZooKeeper로 구현된 분산 세마포어와 여러 작업자 노드
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>1. 초기 상태: 세마포어 S = 1(이진 세마포어)
+</span></span><span class=line><span class=cl>2. 작업자 W1이 연산 &#34;x = x + 1&#34; 실행 요청:
+</span></span><span class=line><span class=cl>    - W1이 세마포어 S 획득 시도
+</span></span><span class=line><span class=cl>    - 세마포어 획득 성공(S = 0)
+</span></span><span class=line><span class=cl>    - W1이 현재 값 x = 5 읽기
+</span></span><span class=line><span class=cl>    - W1이 연산 수행: x = 5 + 1 = 6
+</span></span><span class=line><span class=cl>    - W1이 x = 6 쓰기
+</span></span><span class=line><span class=cl>    - W1이 세마포어 해제(S = 1)
+</span></span><span class=line><span class=cl>3. 작업자 W2가 연산 &#34;y = x * 2&#34; 실행 요청:
+</span></span><span class=line><span class=cl>    - W2가 세마포어 S 획득 시도
+</span></span><span class=line><span class=cl>    - 세마포어 획득 성공(S = 0)
+</span></span><span class=line><span class=cl>    - W2가 현재 값 x = 6 읽기
+</span></span><span class=line><span class=cl>    - W2가 연산 수행: y = 6 * 2 = 12
+</span></span><span class=line><span class=cl>    - W2가 y = 12 쓰기
+</span></span><span class=line><span class=cl>    - W2가 세마포어 해제(S = 1)
+</span></span><span class=line><span class=cl>4. 작업자 W3가 연산 &#34;x = x - 1&#34; 실행 요청:
+</span></span><span class=line><span class=cl>    - W3가 세마포어 S 획득 시도
+</span></span><span class=line><span class=cl>    - 세마포어 획득 성공(S = 0)
+</span></span><span class=line><span class=cl>    - W3가 현재 값 x = 6 읽기
+</span></span><span class=line><span class=cl>    - W3가 연산 수행: x = 6 - 1 = 5
+</span></span><span class=line><span class=cl>    - W3가 x = 5 쓰기
+</span></span><span class=line><span class=cl>    - W3가 세마포어 해제(S = 1)
+</span></span><span class=line><span class=cl>5. 결과적으로 연산들이 순차적으로 실행됨: x = 5, y = 12
+</span></span></code></pre></td></tr></table></div></div><h3 id=구조-및-아키텍처>구조 및 아키텍처<a hidden class=anchor aria-hidden=true href=#구조-및-아키텍처>#</a></h3><ul><li><p><strong>구성 요소</strong>:</p><ul><li><p><strong>클라이언트</strong>: 연산을 요청하고 결과를 받습니다.</p></li><li><p><strong>서버</strong>: 연산을 처리하고 데이터를 저장합니다.</p></li><li><p><strong>메타데이터 저장소</strong>: 연산의 순서를 추적하기 위한 메타데이터를 저장합니다.</p></li></ul></li></ul><h4 id=구조-및-아키텍처-1>구조 및 아키텍처<a hidden class=anchor aria-hidden=true href=#구조-및-아키텍처-1>#</a></h4><p>순차적 일관성을 지원하는 시스템은 다음과 같은 구조적 요소를 포함합니다:</p><ol><li><p><strong>중앙 조정자 (선택적)</strong>: 일부 구현에서는 모든 연산의 순서를 조정하는 중앙 엔티티를 사용합니다.</p><ul><li><strong>기능</strong>: 글로벌 순서 생성 및 유지</li><li><strong>역할</strong>: 연산 순서 조정, 경쟁 상태 해결</li></ul></li><li><p><strong>분산 합의 메커니즘</strong>: 중앙 조정자 없이 노드 간 합의를 이루는 프로토콜</p><ul><li><strong>기능</strong>: 노드 간 합의를 통한 일관된 순서 유지</li><li><strong>역할</strong>: 분산 환경에서 글로벌 순서 구축</li></ul></li><li><p><strong>동기화 계층</strong>: 연산 순서를 강제하기 위한 동기화 메커니즘</p><ul><li><strong>기능</strong>: 프로세스 간 동기화 제공</li><li><strong>역할</strong>: 일관된 글로벌 뷰 보장</li></ul></li><li><p><strong>순서 유지 메커니즘</strong>: 연산 순서를 보존하는 데이터 구조 및 알고리즘</p><ul><li><strong>기능</strong>: 연산의 논리적 순서 관리</li><li><strong>역할</strong>: 프로그램 순서 및 글로벌 순서 유지</li></ul></li></ol><p>아키텍처 다이어그램:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-21-1><a class=lnlinks href=#hl-21-1>1</a>
+</span><span class=lnt id=hl-21-2><a class=lnlinks href=#hl-21-2>2</a>
+</span><span class=lnt id=hl-21-3><a class=lnlinks href=#hl-21-3>3</a>
+</span><span class=lnt id=hl-21-4><a class=lnlinks href=#hl-21-4>4</a>
+</span><span class=lnt id=hl-21-5><a class=lnlinks href=#hl-21-5>5</a>
+</span><span class=lnt id=hl-21-6><a class=lnlinks href=#hl-21-6>6</a>
+</span><span class=lnt id=hl-21-7><a class=lnlinks href=#hl-21-7>7</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>[클라이언트 1] --- [순서 관리 계층] --- [복제된 데이터 노드 1]
+</span></span><span class=line><span class=cl>     |                  |                     |
+</span></span><span class=line><span class=cl>     |                  |                     |
+</span></span><span class=line><span class=cl>[클라이언트 2] --- [합의 프로토콜] --- [복제된 데이터 노드 2]
+</span></span><span class=line><span class=cl>     |                  |                     |
+</span></span><span class=line><span class=cl>     |                  |                     |
+</span></span><span class=line><span class=cl>[클라이언트 3] --- [동기화 메커니즘] --- [복제된 데이터 노드 3]
+</span></span></code></pre></td></tr></table></div></div><h4 id=구성-요소>구성 요소<a hidden class=anchor aria-hidden=true href=#구성-요소>#</a></h4><p>순차적 일관성 구현의 주요 구성 요소는 다음과 같습니다:</p><ol><li><p><strong>글로벌 시퀀서 (Global Sequencer)</strong>:</p><ul><li><strong>기능</strong>: 연산에 글로벌 타임스탬프 또는 순서 번호 할당</li><li><strong>역할</strong>: 모든 프로세스에서 일관된 연산 순서 보장</li></ul></li><li><p><strong>로컬 순서 관리자 (Local Order Manager)</strong>:</p><ul><li><strong>기능</strong>: 각 프로세스 내의 연산 순서 추적</li><li><strong>역할</strong>: 프로그램 순서 준수 보장</li></ul></li><li><p><strong>동기화 프로토콜 (Synchronization Protocol)</strong>:</p><ul><li><strong>기능</strong>: 프로세스 간 상태 동기화</li><li><strong>역할</strong>: 일관된 글로벌 뷰 유지</li></ul></li><li><p><strong>일관성 검사기 (Consistency Checker)</strong>:</p><ul><li><strong>기능</strong>: 연산의 순서가 순차적 일관성 요구사항을 충족하는지 검증</li><li><strong>역할</strong>: 일관성 위반 감지 및 해결</li></ul></li><li><p><strong>타임스탬핑 메커니즘 (Timestamping Mechanism)</strong>:</p><ul><li><strong>기능</strong>: 논리적 또는 벡터 시계를 사용한 이벤트 순서 지정</li><li><strong>역할</strong>: 프로세스 간 이벤트의 부분 순서 제공</li></ul></li></ol><p>이러한 구성 요소를 나타내는 다이어그램:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-22-1><a class=lnlinks href=#hl-22-1> 1</a>
+</span><span class=lnt id=hl-22-2><a class=lnlinks href=#hl-22-2> 2</a>
+</span><span class=lnt id=hl-22-3><a class=lnlinks href=#hl-22-3> 3</a>
+</span><span class=lnt id=hl-22-4><a class=lnlinks href=#hl-22-4> 4</a>
+</span><span class=lnt id=hl-22-5><a class=lnlinks href=#hl-22-5> 5</a>
+</span><span class=lnt id=hl-22-6><a class=lnlinks href=#hl-22-6> 6</a>
+</span><span class=lnt id=hl-22-7><a class=lnlinks href=#hl-22-7> 7</a>
+</span><span class=lnt id=hl-22-8><a class=lnlinks href=#hl-22-8> 8</a>
+</span><span class=lnt id=hl-22-9><a class=lnlinks href=#hl-22-9> 9</a>
+</span><span class=lnt id=hl-22-10><a class=lnlinks href=#hl-22-10>10</a>
+</span><span class=lnt id=hl-22-11><a class=lnlinks href=#hl-22-11>11</a>
+</span><span class=lnt id=hl-22-12><a class=lnlinks href=#hl-22-12>12</a>
+</span><span class=lnt id=hl-22-13><a class=lnlinks href=#hl-22-13>13</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>   [클라이언트 요청]
+</span></span><span class=line><span class=cl>          |
+</span></span><span class=line><span class=cl>          v
+</span></span><span class=line><span class=cl>   [글로벌 시퀀서]
+</span></span><span class=line><span class=cl>          |
+</span></span><span class=line><span class=cl>          v
+</span></span><span class=line><span class=cl>  [로컬 순서 관리자] &lt;---&gt; [동기화 프로토콜]
+</span></span><span class=line><span class=cl>          |                    |
+</span></span><span class=line><span class=cl>          v                    v
+</span></span><span class=line><span class=cl>  [일관성 검사기] &lt;---&gt; [타임스탬핑 메커니즘]
+</span></span><span class=line><span class=cl>          |
+</span></span><span class=line><span class=cl>          v
+</span></span><span class=line><span class=cl>   [응답 클라이언트]
+</span></span></code></pre></td></tr></table></div></div><h4 id=장점과-단점>장점과 단점<a hidden class=anchor aria-hidden=true href=#장점과-단점>#</a></h4><table><thead><tr><th>구분</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>✅ 장점</td><td>직관적인 프로그래밍 모델</td><td>개발자가 시스템 동작을 쉽게 이해하고 추론할 수 있도록 함</td></tr><tr><td></td><td>프로그램 순서 보존</td><td>각 프로세스의 로컬 연산 순서가 유지되어 프로그램의 의도대로 동작</td></tr><tr><td></td><td>버그 감소</td><td>복잡한 동시성 버그와 경쟁 조건을 줄여 보다 안정적인 시스템 구축 가능</td></tr><tr><td></td><td>합리적인 성능</td><td>선형화 가능성보다 실시간 제약이 적어 더 나은 성능 제공</td></tr><tr><td></td><td>분산 알고리즘 단순화</td><td>일관된 글로벌 뷰가 보장되므로 분산 알고리즘 설계 단순화</td></tr><tr><td>⚠ 단점</td><td>구현 복잡성</td><td>분산 환경에서 글로벌 순서를 강제하기 위한 메커니즘 구현이 복잡함</td></tr><tr><td></td><td>성능 오버헤드</td><td>글로벌 순서를 유지하기 위한 동기화 비용이 발생</td></tr><tr><td></td><td>확장성 제한</td><td>노드 수가 증가할수록 글로벌 순서 유지 비용이 증가하여 확장성 제한</td></tr><tr><td></td><td>네트워크 지연 민감성</td><td>분산 시스템의 네트워크 지연으로 인한 성능 저하 위험</td></tr><tr><td></td><td>합성 가능성 부족</td><td>서로 다른 객체 또는 시스템에 적용될 때 합성 가능성 (composability) 이 보장되지 않음</td></tr></tbody></table><h4 id=도전-과제>도전 과제<a hidden class=anchor aria-hidden=true href=#도전-과제>#</a></h4><ol><li><strong>글로벌 순서 유지</strong>: 분산 환경에서 모든 노드 간의 글로벌 연산 순서를 효율적으로 유지하는 것은 어렵습니다.</li><li><strong>네트워크 지연 처리</strong>: 네트워크 지연과 파티션이 발생할 때도 일관성을 유지해야 합니다.</li><li><strong>확장성 문제</strong>: 시스템 규모가 커질수록 글로벌 순서를 유지하는 비용이 증가합니다.</li><li><strong>동시 접근 제어</strong>: 여러 프로세스의 동시 접근을 효율적으로 관리해야 합니다.</li><li><strong>노드 실패 관리</strong>: 노드 실패 시 일관성을 유지하면서 시스템 가용성도 보장해야 합니다.</li><li><strong>타협 최적화</strong>: 성능과 일관성 사이의 적절한 타협점을 찾아야 합니다.</li><li><strong>구현 복잡성</strong>: 실제 시스템에서 순차적 일관성을 구현하는 것은 복잡한 작업입니다.</li><li><strong>합성 가능성 부족</strong>: 서로 다른 객체에 순차적 일관성을 적용할 때 합성 가능성 문제가 발생합니다.</li></ol><h4 id=분류에-따른-종류-및-유형>분류에 따른 종류 및 유형<a hidden class=anchor aria-hidden=true href=#분류에-따른-종류-및-유형>#</a></h4><table><thead><tr><th>유형</th><th>설명</th><th>주요 특징</th></tr></thead><tbody><tr><td>기본 순차적 일관성</td><td>램포트의 원래 정의에 따른 순차적 일관성</td><td>프로그램 순서 보존, 글로벌 뷰 일관성</td></tr><tr><td>프로세서 일관성</td><td>순차적 일관성보다 약화된 모델로, PRAM 일관성보다 강함</td><td>같은 메모리 위치에 대한 쓰기 연산의 순서 유지</td></tr><tr><td>인과적 순차 일관성</td><td>인과적으로 관련된 이벤트만 같은 순서로 보는 혼합 모델</td><td>인과 관계 보존, 비인과적 이벤트는 다른 순서 가능</td></tr><tr><td>구간 순차 일관성</td><td>실시간 간격 순서를 고려한 순차적 일관성의 변형</td><td>이벤트의 시작과 끝 시간 고려, 합성 가능성 개선</td></tr><tr><td>확률적 순차 일관성</td><td>일관성 위반 횟수를 정확히 추정하고 최적화하는 접근법</td><td>성능, 자원 사용, 일관성 위반 사이의 균형</td></tr><tr><td>소셜 일관성</td><td>사회적으로 연결된 사용자끼리만 순차적 일관성을 제공하는 최적화 모델</td><td>사용자 그룹별 차별화된 일관성 제공</td></tr><tr><td>약화된 순차 일관성</td><td>특정 상황에서 순차적 일관성 요구 사항을 완화한 모델</td><td>성능 향상을 위한 제한적 위반 허용</td></tr></tbody></table><h4 id=실무-적용-예시>실무 적용 예시<a hidden class=anchor aria-hidden=true href=#실무-적용-예시>#</a></h4><table><thead><tr><th>적용 분야</th><th>구체적 예시</th><th>구현 방식</th></tr></thead><tbody><tr><td>분산 데이터베이스</td><td>MySQL 의 단일 스레드 복제</td><td>프라이머리 노드에서 순차적 쓰기 명령 로그 생성 및 복제</td></tr><tr><td>분산 버전 관리 시스템</td><td>Git 의 중앙 저장소 모델</td><td>중앙 노드를 통한 변경 사항 순서 관리</td></tr><tr><td>분산 파일 시스템</td><td>HDFS(Hadoop Distributed File System)</td><td>네임노드를 통한 쓰기 접근 순서 제어</td></tr><tr><td>분산 메시징 시스템</td><td>카프카 (Kafka) 의 토픽 파티션</td><td>각 파티션 내 메시지 순서 보장</td></tr><tr><td>분산 캐시 시스템</td><td>Hazelcast 의 CP 서브시스템</td><td>강력한 일관성을 위한 합의 프로토콜 활용</td></tr><tr><td>협업 편집 애플리케이션</td><td>구글 독스의 협업 편집</td><td>중앙 서버를 통한 편집 연산 순서 관리</td></tr><tr><td>분산 게임 서버</td><td>멀티플레이어 게임의 이벤트 처리</td><td>중앙 서버를 통한 게임 이벤트 순서 결정</td></tr><tr><td>금융 거래 시스템</td><td>증권 거래 플랫폼</td><td>타임스탬프 기반 트랜잭션 순서 보장</td></tr></tbody></table><h4 id=활용-사례>활용 사례<a hidden class=anchor aria-hidden=true href=#활용-사례>#</a></h4><p><strong>분산 소셜 미디어 플랫폼의 순차적 일관성 구현</strong></p><p>소셜 미디어 플랫폼에서는 다수의 사용자가 포스트, 댓글, 좋아요 등의 상호작용을 하며, 이러한 상호작용이 모든 사용자에게 일관된 순서로 보여야 합니다.</p><p>구현 방식:</p><ol><li>각 사용자 액션 (포스트, 댓글, 좋아요) 에 글로벌 타임스탬프 할당</li><li>중앙 이벤트 순서 관리자를 통해 모든 액션의 순서 결정</li><li>복제된 데이터베이스에 타임스탬프 순서대로 액션 적용</li><li>사용자별 피드 생성 시 글로벌 순서에 따라 이벤트 정렬</li><li>사용자 인터페이스에서 이벤트 순서 일관되게 표시</li></ol><p>이 접근법은 사용자가 댓글과 원본 포스트의 관계를 논리적으로 이해할 수 있게 해주며, 여러 기기에서 액세스하더라도 일관된 뷰를 제공합니다.</p><p>다이어그램:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-23-1><a class=lnlinks href=#hl-23-1> 1</a>
+</span><span class=lnt id=hl-23-2><a class=lnlinks href=#hl-23-2> 2</a>
+</span><span class=lnt id=hl-23-3><a class=lnlinks href=#hl-23-3> 3</a>
+</span><span class=lnt id=hl-23-4><a class=lnlinks href=#hl-23-4> 4</a>
+</span><span class=lnt id=hl-23-5><a class=lnlinks href=#hl-23-5> 5</a>
+</span><span class=lnt id=hl-23-6><a class=lnlinks href=#hl-23-6> 6</a>
+</span><span class=lnt id=hl-23-7><a class=lnlinks href=#hl-23-7> 7</a>
+</span><span class=lnt id=hl-23-8><a class=lnlinks href=#hl-23-8> 8</a>
+</span><span class=lnt id=hl-23-9><a class=lnlinks href=#hl-23-9> 9</a>
+</span><span class=lnt id=hl-23-10><a class=lnlinks href=#hl-23-10>10</a>
+</span><span class=lnt id=hl-23-11><a class=lnlinks href=#hl-23-11>11</a>
+</span><span class=lnt id=hl-23-12><a class=lnlinks href=#hl-23-12>12</a>
+</span><span class=lnt id=hl-23-13><a class=lnlinks href=#hl-23-13>13</a>
+</span><span class=lnt id=hl-23-14><a class=lnlinks href=#hl-23-14>14</a>
+</span><span class=lnt id=hl-23-15><a class=lnlinks href=#hl-23-15>15</a>
+</span><span class=lnt id=hl-23-16><a class=lnlinks href=#hl-23-16>16</a>
+</span><span class=lnt id=hl-23-17><a class=lnlinks href=#hl-23-17>17</a>
+</span><span class=lnt id=hl-23-18><a class=lnlinks href=#hl-23-18>18</a>
+</span><span class=lnt id=hl-23-19><a class=lnlinks href=#hl-23-19>19</a>
+</span><span class=lnt id=hl-23-20><a class=lnlinks href=#hl-23-20>20</a>
+</span><span class=lnt id=hl-23-21><a class=lnlinks href=#hl-23-21>21</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>[사용자 A]    [사용자 B]    [사용자 C]
+</span></span><span class=line><span class=cl>    |             |             |
+</span></span><span class=line><span class=cl>    v             v             v
+</span></span><span class=line><span class=cl>[클라이언트 인터페이스]  [클라이언트 인터페이스]  [클라이언트 인터페이스]
+</span></span><span class=line><span class=cl>    |             |             |
+</span></span><span class=line><span class=cl>    v             v             v
+</span></span><span class=line><span class=cl>   [이벤트 수집 레이어]
+</span></span><span class=line><span class=cl>            |
+</span></span><span class=line><span class=cl>            v
+</span></span><span class=line><span class=cl>   [중앙 순서 관리자]
+</span></span><span class=line><span class=cl>   /        |        \
+</span></span><span class=line><span class=cl>  /         |         \
+</span></span><span class=line><span class=cl>[데이터     [데이터     [데이터
+</span></span><span class=line><span class=cl> 노드 1]     노드 2]     노드 3]
+</span></span><span class=line><span class=cl>  \         |         /
+</span></span><span class=line><span class=cl>   \        |        /
+</span></span><span class=line><span class=cl>   [피드 생성 서비스]
+</span></span><span class=line><span class=cl>   /        |        \
+</span></span><span class=line><span class=cl>  /         |         \
+</span></span><span class=line><span class=cl>[사용자 A   [사용자 B   [사용자 C
+</span></span><span class=line><span class=cl> 피드]       피드]       피드]
+</span></span></code></pre></td></tr></table></div></div><h4 id=실무에서-효과적으로-적용하기-위한-고려사항-및-주의할-점>실무에서 효과적으로 적용하기 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#실무에서-효과적으로-적용하기-위한-고려사항-및-주의할-점>#</a></h4><table><thead><tr><th>고려사항</th><th>설명</th><th>권장 사항</th></tr></thead><tbody><tr><td>성능과 일관성 균형</td><td>순차적 일관성은 성능 오버헤드를 발생시킬 수 있음</td><td>애플리케이션 요구사항에 따라 적절한 타협점 찾기</td></tr><tr><td>네트워크 지연 고려</td><td>지리적으로 분산된 시스템에서는 네트워크 지연이 순차적 일관성 구현을 어렵게 함</td><td>지역적 클러스터링과 계층적 접근법 고려</td></tr><tr><td>확장성 계획</td><td>시스템 규모가 커질수록 글로벌 순서 유지가 어려워짐</td><td>샤딩, 파티셔닝 전략 구현</td></tr><tr><td>장애 대응 전략</td><td>노드 실패 시 순차적 일관성을 유지하면서 가용성 보장</td><td>장애 복구 메커니즘과 리더 선출 프로토콜 구현</td></tr><tr><td>동기화 오버헤드 관리</td><td>과도한 동기화는 성능을 저하시킬 수 있음</td><td>배치 처리와 효율적인 동기화 프로토콜 사용</td></tr><tr><td>일관성 모니터링</td><td>일관성 위반을 감지하고 진단하기 어려울 수 있음</td><td>일관성 모니터링 도구와 테스트 프레임워크 구현</td></tr><tr><td>클라이언트 측 최적화</td><td>클라이언트 경험 개선을 위한 최적화 필요</td><td>클라이언트 캐싱 및 지능형 동기화 전략 구현</td></tr><tr><td>하이브리드 접근법 고려</td><td>모든 데이터에 동일한 일관성 수준이 필요하지 않을 수 있음</td><td>데이터 유형별 다양한 일관성 모델 적용</td></tr></tbody></table><h4 id=최적화하기-위한-고려사항-및-주의할-점>최적화하기 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#최적화하기-위한-고려사항-및-주의할-점>#</a></h4><table><thead><tr><th>고려사항</th><th>설명</th><th>최적화 전략</th></tr></thead><tbody><tr><td>동기화 빈도 최적화</td><td>빈번한 동기화는 성능을 저하시킬 수 있음</td><td>배치 업데이트와 비동기 동기화 활용</td></tr><tr><td>로컬 캐싱 활용</td><td>잦은 원격 접근은 지연 시간을 증가시킴</td><td>로컬 캐시와 효율적인 캐시 무효화 전략 구현</td></tr><tr><td>데이터 파티셔닝</td><td>단일 글로벌 순서는 확장성 병목이 될 수 있음</td><td>데이터를 독립적인 파티션으로 나누어 관리</td></tr><tr><td>읽기 쓰기 분리</td><td>읽기 연산과 쓰기 연산의 요구사항이 다를 수 있음</td><td>읽기 전용 복제본과 쓰기 전용 프라이머리 구조 구현</td></tr><tr><td>논리적 시계 최적화</td><td>물리적 시</td><td></td></tr></tbody></table><h4 id=최적화하기-위한-고려사항-및-주의할-점-계속>최적화하기 위한 고려사항 및 주의할 점 (계속)<a hidden class=anchor aria-hidden=true href=#최적화하기-위한-고려사항-및-주의할-점-계속>#</a></h4><table><thead><tr><th>고려사항</th><th>설명</th><th>최적화 전략</th></tr></thead><tbody><tr><td>논리적 시계 최적화</td><td>물리적 시계 동기화는 오버헤드가 클 수 있음</td><td>램포트 시계 또는 벡터 시계와 같은 효율적인 논리적 시계 사용</td></tr><tr><td>비동기 프로세싱</td><td>동기식 처리는 지연 시간을 증가시킬 수 있음</td><td>가능한 경우 비동기 처리와 이벤트 기반 아키텍처 채택</td></tr><tr><td>쓰기 버퍼링</td><td>즉각적인 동기화는 성능을 저하시킬 수 있음</td><td>쓰기 작업을 버퍼링하고 배치로 처리</td></tr><tr><td>네트워크 최적화</td><td>네트워크 병목 현상이 성능을 제한할 수 있음</td><td>효율적인 프로토콜과 압축 기법 사용</td></tr><tr><td>합의 프로토콜 선택</td><td>무거운 합의 프로토콜은 지연 시간을 증가시킬 수 있음</td><td>사용 사례에 적합한 경량 합의 프로토콜 선택</td></tr></tbody></table><h3 id=구성-요소-1>구성 요소<a hidden class=anchor aria-hidden=true href=#구성-요소-1>#</a></h3><ul><li><p><strong>클라이언트</strong>: 연산을 요청하고 결과를 받습니다.</p></li><li><p><strong>서버</strong>: 연산을 처리하고 데이터를 저장합니다.</p></li><li><p><strong>메타데이터 저장소</strong>: 연산의 순서를 추적하기 위한 메타데이터를 저장합니다.</p></li></ul><h3 id=4-구조-및-작동-원리>4. <strong>구조 및 작동 원리</strong><a hidden class=anchor aria-hidden=true href=#4-구조-및-작동-원리>#</a></h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-24-1><a class=lnlinks href=#hl-24-1>1</a>
+</span><span class=lnt id=hl-24-2><a class=lnlinks href=#hl-24-2>2</a>
+</span><span class=lnt id=hl-24-3><a class=lnlinks href=#hl-24-3>3</a>
+</span><span class=lnt id=hl-24-4><a class=lnlinks href=#hl-24-4>4</a>
+</span><span class=lnt id=hl-24-5><a class=lnlinks href=#hl-24-5>5</a>
+</span><span class=lnt id=hl-24-6><a class=lnlinks href=#hl-24-6>6</a>
+</span><span class=lnt id=hl-24-7><a class=lnlinks href=#hl-24-7>7</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-plaintext data-lang=plaintext><span class=line><span class=cl>[Client]
+</span></span><span class=line><span class=cl>   │
+</span></span><span class=line><span class=cl>   ▼
+</span></span><span class=line><span class=cl>[연산 로그] ← 연산 순서 기록
+</span></span><span class=line><span class=cl>   │
+</span></span><span class=line><span class=cl>   ▼
+</span></span><span class=line><span class=cl>[순서 관리 모듈] → 동기화 메커니즘
+</span></span></code></pre></td></tr></table></div></div><ul><li><strong>주요 구성 요소</strong>:<ul><li><strong>연산 로그</strong>: 각 노드의 연산 이력 저장.</li><li><strong>동기화 메커니즘</strong>: 노드 간 순서 일치 보장.</li></ul></li></ul><h3 id=장점과-단점-1>장점과 단점<a hidden class=anchor aria-hidden=true href=#장점과-단점-1>#</a></h3><table><thead><tr><th>구분</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>✅ 장점</td><td>예측 가능성 향상</td><td>모든 프로세스가 동일한 순서로 연산을 관찰하여 시스템의 예측 가능성이 향상됩니다.</td></tr><tr><td></td><td>신뢰성 향상</td><td>연산의 실행 순서를 유지하여 시스템의 신뢰성이 향상됩니다.</td></tr><tr><td>⚠ 단점</td><td>구현 복잡성</td><td>연산의 순서를 유지하기 위한 메타데이터 관리가 복잡합니다.</td></tr><tr><td></td><td>성능 저하</td><td>연산의 순서를 유지하기 위한 추가적인 통신으로 인해 시스템의 성능이 저하될 수 있습니다.</td></tr></tbody></table><h3 id=도전-과제-1>도전 과제<a hidden class=anchor aria-hidden=true href=#도전-과제-1>#</a></h3><ul><li><p>연산의 순서를 유지하기 위한 메타데이터 관리의 복잡성</p></li><li><p>시스템 확장 시 연산 순서 유지의 어려움</p></li></ul><h3 id=분류에-따른-종류-및-유형-1>분류에 따른 종류 및 유형<a hidden class=anchor aria-hidden=true href=#분류에-따른-종류-및-유형-1>#</a></h3><table><thead><tr><th>유형</th><th>설명</th></tr></thead><tbody><tr><td><strong>Sequential Consistency</strong></td><td>연산이 실행된 순서를 유지하여, 모든 프로세스가 동일한 순서로 연산을 관찰하도록 보장합니다.</td></tr><tr><td><strong>Linearizability</strong></td><td>연산이 호출과 응답 사이의 어느 한 시점에 즉시 효과를 발휘하는 것처럼 보이도록 보장합니다.</td></tr></tbody></table><h3 id=실무-적용-예시-1>실무 적용 예시<a hidden class=anchor aria-hidden=true href=#실무-적용-예시-1>#</a></h3><table><thead><tr><th>시스템</th><th>적용 방식</th></tr></thead><tbody><tr><td><strong>Zookeeper</strong></td><td>연산의 순서를 유지하여 분산 시스템의 일관성을 보장합니다.</td></tr><tr><td><strong>Etcd</strong></td><td>연산의 순서를 유지하여 분산 시스템의 일관성을 보장합니다.</td></tr></tbody></table><h3 id=5-실무-적용-예시>5. <strong>실무 적용 예시</strong><a hidden class=anchor aria-hidden=true href=#5-실무-적용-예시>#</a></h3><table><thead><tr><th>분야</th><th>사례</th><th>설명</th></tr></thead><tbody><tr><td><strong>분산 캐시</strong></td><td>Redis Cluster</td><td>다중 노드에서 일관된 데이터 읽기 보장.</td></tr><tr><td><strong>멀티프로세서</strong></td><td>CPU 메모리 모델</td><td>코어 간 메모리 접근 순서 통일.</td></tr></tbody></table><h3 id=활용-사례-1>활용 사례<a hidden class=anchor aria-hidden=true href=#활용-사례-1>#</a></h3><ul><li><p><strong>분산 락 서비스</strong>: 연산의 순서를 유지하여 분산 시스템에서의 락 서비스를 제공합니다.</p></li><li><p><strong>분산 로그 시스템</strong>: 연산의 순서를 유지하여 분산 로그 시스템의 일관성을 보장합니다.</p></li></ul><h3 id=실무에서-효과적으로-적용하기-위한-고려사항-및-주의할-점-1>실무에서 효과적으로 적용하기 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#실무에서-효과적으로-적용하기-위한-고려사항-및-주의할-점-1>#</a></h3><table><thead><tr><th>고려사항</th><th>설명</th></tr></thead><tbody><tr><td><strong>메타데이터 관리</strong></td><td>연산의 순서를 추적하기 위한 메타데이터의 크기와 복잡성을 관리해야 합니다.</td></tr><tr><td><strong>시스템 확장성</strong></td><td>노드 수가 증가함에 따라 연산 순서 유지의 어려움이 증가합니다.</td></tr></tbody></table><h3 id=최적화하기-위한-고려사항-및-주의할-점-1>최적화하기 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#최적화하기-위한-고려사항-및-주의할-점-1>#</a></h3><table><thead><tr><th>고려사항</th><th>설명</th></tr></thead><tbody><tr><td><strong>메타데이터 최적화</strong></td><td>연산의 순서를 추적하기 위한 메타데이터의 크기를 줄이거나 효율적인 구조를 사용하여 성능을 향상시킬 수 있습니다.</td></tr><tr><td><strong>캐시 활용</strong></td><td>자주 사용하는 데이터를 캐시에 저장하여 접근 속도를 높일 수 있습니다.</td></tr></tbody></table><h3 id=6-2025-년-최신-동향>6. <strong>2025 년 최신 동향</strong><a hidden class=anchor aria-hidden=true href=#6-2025-년-최신-동향>#</a></h3><table><thead><tr><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td><strong>AI 통합</strong></td><td>동적 순서 예측</td><td>머신러닝을 활용한 연산 순서 최적화.</td></tr><tr><td><strong>에지 컴퓨팅</strong></td><td>지연 감소</td><td>에지 노드 간 부분적 일관성 적용 확대.</td></tr></tbody></table><h3 id=7-2025-년-기준-최신-동향>7. 2025 년 기준 최신 동향<a hidden class=anchor aria-hidden=true href=#7-2025-년-기준-최신-동향>#</a></h3><table><thead><tr><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>하이브리드 일관성 모델</td><td>선택적 순차적 일관성</td><td>2025 년에는 데이터 특성과 요구사항에 따라 선택적으로 순차적 일관성을 적용하는 하이브리드 접근법이 인기를 끌고 있습니다. Hazelcast 와 같은 분산 시스템은 동일 플랫폼 내에서 AP(가용성 우선) 와 CP(일관성 우선) 서브시스템을 함께 제공합니다.</td></tr><tr><td>확률적 일관성</td><td>소셜 일관성</td><td>모든 사용자에게 순차적 일관성을 제공하는 대신, 사회적으로 연결된 사용자 그룹 내에서만 순차적 일관성을 보장하는 " 소셜 일관성 " 개념이 연구되고 있습니다. 이는 성능과 자원 사용을 최적화하면서 사용자 경험을 향상시킵니다.</td></tr><tr><td>엣지 컴퓨팅 최적화</td><td>지역적 일관성 계층</td><td>엣지 컴퓨팅 환경에서 순차적 일관성을 효율적으로 구현하기 위한 계층화된 접근법이 개발되고 있습니다. 지역 클러스터 내에서는 강력한 일관성을, 지역 간에는 약화된 일관성 모델을 적용합니다.</td></tr><tr><td>양자 컴퓨팅 영향</td><td>양자 내성 일관성</td><td>양자 컴퓨팅의 발전에 따라 기존 암호화 기반 합의 프로토콜을 양자 내성 버전으로 대체하려는 연구가 진행 중입니다. 이는 순차적 일관성을 제공하는 시스템의 장기적 보안을 강화합니다.</td></tr><tr><td>순차적 일관성 검증</td><td>자동화된 테스트 도구</td><td>분산 시스템에서 순차적 일관성 위반을 자동으로 감지하고 테스트하는 도구가 발전하고 있습니다. Jepsen 과 같은 프레임워크는 2025 년에 더욱 정교화되어 일관성 버그를 효과적으로 발견합니다.</td></tr></tbody></table><h3 id=8-주제와-관련하여-주목할-내용>8. 주제와 관련하여 주목할 내용<a hidden class=anchor aria-hidden=true href=#8-주제와-관련하여-주목할-내용>#</a></h3><table><thead><tr><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>CAP 이론과의 관계</td><td>네트워크 파티션 대응</td><td>순차적 일관성은 CAP 이론의 맥락에서 일관성 (C) 에 해당하며, 네트워크 파티션 (P) 상황에서 가용성 (A) 과 트레이드오프 관계에 있습니다. 최신 연구는 이 트레이드오프를 세밀하게 조정하는 방법에 초점을 맞추고 있습니다.</td></tr><tr><td>쿼럼 기반 접근법</td><td>부분 쿼럼 일관성</td><td>쿼럼 기반 시스템에서 순차적 일관성을 효율적으로 구현하기 위한 새로운 접근법이 연구되고 있으며, 읽기와 쓰기 연산에 대해 다른 쿼럼 크기를 적용하는 최적화가 주목받고 있습니다.</td></tr><tr><td>분산 원장 기술</td><td>합의 알고리즘 혁신</td><td>블록체인과 같은 분산 원장 기술에서 순차적 일관성을 보장하면서도 높은 처리량을 달성하기 위한 새로운 합의 알고리즘이 개발되고 있습니다.</td></tr><tr><td>기계 학습 응용</td><td>예측적 일관성</td><td>기계 학습을 활용하여 사용자 패턴을 분석하고 예상 접근을 미리 동기화함으로써 순차적 일관성의 성능 오버헤드를 줄이는 " 예측적 일관성 " 기법이 연구되고 있습니다.</td></tr><tr><td>형식적 검증</td><td>증명 가능한 일관성</td><td>형식적 방법을 사용하여 순차적 일관성 구현이 정확함을 수학적으로 증명하는 연구가 확대되고 있으며, 이는 미션 크리티컬 시스템의 신뢰성을 높이는 데 기여합니다.</td></tr></tbody></table><h3 id=9-앞으로의-전망>9. 앞으로의 전망<a hidden class=anchor aria-hidden=true href=#9-앞으로의-전망>#</a></h3><table><thead><tr><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>지능형 적응 일관성</td><td>컨텍스트 인식 일관성</td><td>미래 시스템은 사용자 상황, 네트워크 상태, 데이터 중요도에 따라 실시간으로 일관성 수준을 조정하는 지능형 메커니즘을 도입할 것으로 예상됩니다.</td></tr><tr><td>양자 통신 활용</td><td>양자 기반 순차적 일관성</td><td>양자 통신 기술의 발전으로 기존의 순차적 일관성 구현에서 불가능했던 수준의 신속한 합의와 동기화가 가능해질 전망입니다.</td></tr><tr><td>하드웨어 지원 강화</td><td>하드웨어 가속 일관성</td><td>순차적 일관성을 효율적으로 지원하는 전용 하드웨어 가속기가 개발되어 성능 오버헤드를 크게 줄일 것으로 예상됩니다.</td></tr><tr><td>도메인 특화 일관성</td><td>산업별 맞춤형 모델</td><td>금융, 의료, 게임 등 특정 도메인의 요구사항에 맞춘 특화된 순차적 일관성 변형이 등장할 전망입니다.</td></tr><tr><td>글로벌 분산 시스템</td><td>대륙간 일관성 최적화</td><td>전 세계적으로 분산된 시스템에서 지리적 거리로 인한 지연을 극복하면서도 순차적 일관성을 제공하는 혁신적인 접근법이 발전할 것입니다.</td></tr></tbody></table><h3 id=7-주목할-기술>7. <strong>주목할 기술</strong><a hidden class=anchor aria-hidden=true href=#7-주목할-기술>#</a></h3><table><thead><tr><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td><strong>분산 트랜잭션</strong></td><td>효율적 관리</td><td>2 단계 커밋 프로토콜 개선.</td></tr><tr><td><strong>시간 동기화</strong></td><td>NTPv5</td><td>나노초 단위 정밀도 구현.</td></tr></tbody></table><h3 id=10-추가-학습-주제>10. 추가 학습 주제<a hidden class=anchor aria-hidden=true href=#10-추가-학습-주제>#</a></h3><table><thead><tr><th>카테고리</th><th>주제</th><th>간략한 설명</th></tr></thead><tbody><tr><td>이론적 기초</td><td>분산 시스템 이론</td><td>분산 컴퓨팅의 기본 원리와 모델에 대한 이해</td></tr><tr><td></td><td>일관성 모델 계층</td><td>다양한 일관성 모델 간의 관계와 계층 구조</td></tr><tr><td></td><td>분산 알고리즘</td><td>순차적 일관성을 구현하는 알고리즘의 이론적 기초</td></tr><tr><td>구현 기술</td><td>합의 프로토콜</td><td>Paxos, Raft, PBFT 등 분산 합의 알고리즘</td></tr><tr><td></td><td>논리적 시계</td><td>램포트 시계, 벡터 시계 등 논리적 시간 추적 메커니즘</td></tr><tr><td></td><td>동기화 기법</td><td>분산 환경에서의 효율적인 동기화 방법</td></tr><tr><td>성능 최적화</td><td>캐싱 전략</td><td>순차적 일관성을 유지하면서 성능을 개선하는 캐싱 기법</td></tr><tr><td></td><td>파티셔닝 기법</td><td>데이터 파티셔닝을 통한 확장성 향상 방법</td></tr><tr><td></td><td>지연 최소화</td><td>네트워크 지연을 최소화하는 토폴로지 설계</td></tr><tr><td>실제 응용</td><td>분산 데이터베이스</td><td>순차적 일관성을 구현하는 데이터베이스 시스템 설계</td></tr><tr><td></td><td>분산 파일 시스템</td><td>순차적 일관성을 지원하는 파일 시스템 아키텍처</td></tr><tr><td></td><td>멀티플레이어 게임</td><td>게임 상태의 일관성을 유지하는 기법</td></tr></tbody></table><h3 id=11-관련-학습-분야>11. 관련 학습 분야<a hidden class=anchor aria-hidden=true href=#11-관련-학습-분야>#</a></h3><table><thead><tr><th>카테고리</th><th>주제</th><th>간략한 설명</th></tr></thead><tbody><tr><td>컴퓨터 과학</td><td>병렬 컴퓨팅</td><td>여러 프로세서가 동시에 작업을 처리하는 컴퓨팅 패러다임</td></tr><tr><td></td><td>동시성 제어</td><td>동시 접근을 관리하는 기법과 패턴</td></tr><tr><td></td><td>분산 시스템 아키텍처</td><td>분산 시스템의 설계 원칙과 패턴</td></tr><tr><td>네트워킹</td><td>네트워크 프로토콜</td><td>분산 노드 간 통신을 위한 프로토콜</td></tr><tr><td></td><td>네트워크 파티션 처리</td><td>네트워크 분할 상황에서의 대응 전략</td></tr><tr><td></td><td>P2P 네트워킹</td><td>중앙 서버 없는 피어 간 통신 모델</td></tr><tr><td>데이터베이스</td><td>트랜잭션 처리</td><td>ACID 속성과 트랜잭션 관리</td></tr><tr><td></td><td>복제 전략</td><td>데이터베이스 복제와 동기화 전략</td></tr><tr><td></td><td>쿼리 처리 최적화</td><td>분산 환경에서의 쿼리 처리 최적화</td></tr><tr><td>보안</td><td>분산 인증</td><td>분산 환경에서의 안전한 인증 메커니즘</td></tr><tr><td></td><td>보안 프로토콜</td><td>안전한 분산 통신을 위한 프로토콜</td></tr><tr><td></td><td>접근 제어</td><td>분산 리소스에 대한 접근 관리</td></tr></tbody></table><h3 id=8-학습-추천-주제>8. <strong>학습 추천 주제</strong><a hidden class=anchor aria-hidden=true href=#8-학습-추천-주제>#</a></h3><table><thead><tr><th>주제</th><th>카테고리</th><th>설명</th></tr></thead><tbody><tr><td><strong>벡터 클록</strong></td><td>분산 시스템</td><td>부분적 순서 추적 메커니즘.</td></tr><tr><td><strong>CRDTs</strong></td><td>데이터 구조</td><td>충돌 없는 복제 데이터 타입.</td></tr></tbody></table><hr><h2 id=용어-정리>용어 정리<a hidden class=anchor aria-hidden=true href=#용어-정리>#</a></h2><table><thead><tr><th>용어</th><th>설명</th></tr></thead><tbody><tr><td><strong>CAP 이론</strong></td><td>일관성, 가용성, 분할 내성 간 트레이드오프.</td></tr><tr><td><strong>Paxos</strong></td><td>분산 합의 알고리즘의 표준 모델.</td></tr></tbody></table><h2 id=용어-정리-1>용어 정리<a hidden class=anchor aria-hidden=true href=#용어-정리-1>#</a></h2><table><thead><tr><th>용어</th><th>설명</th></tr></thead><tbody><tr><td><strong>Sequential Consistency</strong></td><td>연산이 실행된 순서를 유지하여, 모든 프로세스가 동일한 순서로 연산을 관찰하도록 보장하는 일관성 모델</td></tr><tr><td><strong>Linearizability</strong></td><td>연산이 호출과 응답 사이의 어느 한 시점에 즉시 효과를 발휘하는 것처럼 보이도록 보장하는 일관성 모델</td></tr><tr><td><strong>메타데이터</strong></td><td>연산의 순서를 추적하기 위한 데이터</td></tr></tbody></table><h3 id=용어-정리-2>용어 정리<a hidden class=anchor aria-hidden=true href=#용어-정리-2>#</a></h3><table><thead><tr><th>용어</th><th>설명</th></tr></thead><tbody><tr><td>글로벌 순서 (Global Order)</td><td>모든 프로세스가 동의하는 연산들의 단일 시퀀스</td></tr><tr><td>프로그램 순서 (Program Order)</td><td>각 프로세스 내에서 프로그램에 지정된 연산 순서</td></tr><tr><td>벡터 시계 (Vector Clock)</td><td>분산 시스템에서 이벤트의 인과 관계를 추적하기 위한 논리적 시계 구조</td></tr><tr><td>램포트 시계 (Lamport Clock)</td><td>분산 시스템에서 이벤트 순서화를 위한 단순한 논리적 시계</td></tr><tr><td>합의 프로토콜 (Consensus Protocol)</td><td>분산 시스템의 노드들이 특정 값이나 순서에 합의하기 위한 프로토콜</td></tr><tr><td>인과적 일관성 (Causal Consistency)</td><td>인과적으로 관련된 연산들만 동일한 순서로 보이는 약화된 일관성 모델</td></tr><tr><td>파티션 내성 (Partition Tolerance)</td><td>네트워크 파티션 상황에서도 시스템이 계속 작동할 수 있는 능력</td></tr><tr><td>타임스탬프 순서화 (Timestamp Ordering)</td><td>타임스탬프를 기반으로 연산의 실행 순서를 결정하는 기법</td></tr><tr><td>이상 단계 잠금 (Two-Phase Locking)</td><td>트랜잭션의 일관성을 보장하기 위한 잠금 프로토콜</td></tr><tr><td>글로벌 시퀀서 (Global Sequencer)</td><td>분산 시스템에서 모든 연산에 고유한 순서 번호를 할당하는 구성 요소</td></tr><tr><td>선형화 가능성 (Linearizability)</td><td>순차적 일관성보다 강력한 일관성 모델로 실시간 제약 추가</td></tr></tbody></table><hr><h2 id=참고-및-출처>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처>#</a></h2><ul><li><p><a href=https://www.geeksforgeeks.org/sequential-consistency-in-distributive-systems/>GeeksforGeeks: Sequential Consistency In Distributed Systems</a></p></li><li><p><a href=https://www.educative.io/blog/understanding-sequential-consistency-model>Educative.io: Understanding the Sequential Consistency Model</a></p></li><li><p><a href=https://jepsen.io/consistency/models/sequential>Jepsen: Sequential Consistency</a></p></li></ul><h2 id=참고-및-출처-1>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처-1>#</a></h2><ul><li><a href=https://en.wikipedia.org/wiki/Sequential_consistency>Sequential Consistency - Wikipedia</a></li><li><a href=https://www.amazon.com/Distributed-Systems-Principles-Andrew-Tanenbaum/dp/153028175X>분산 시스템 설계 원칙</a></li><li><a href=https://redis.io/docs/management/scaling/>Redis Cluster 문서</a></li></ul><h3 id=참고-및-출처-2>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처-2>#</a></h3><ul><li><a href=https://jepsen.io/consistency/models/sequential>Leslie Lamport의 순차적 일관성 정의(1979)</a></li><li><a href=https://www.geeksforgeeks.org/consistency-model-in-distributed-system/>GeeksforGeeks의 분산 시스템 일관성 모델</a></li><li><a href=https://www.geeksforgeeks.org/sequential-consistency-in-distributive-systems/>분산 시스템의 순차적 일관성</a></li><li><a href=https://www.baeldung.com/cs/consistency-models>일관성 모델의 개요</a></li><li><a href=https://www.educative.io/blog/understanding-sequential-consistency-model>순차적 일관성 이해하기</a></li><li><a href=https://www.scylladb.com/glossary/consistency-models/>분산 시스템의 일관성 모델 정의 및 FAQ</a></li><li><a href=https://jepsen.io/consistency>분산 시스템에서의 일관성 탐색</a></li><li><a href=https://hazelcast.com/blog/navigating-consistency-in-distributed-systems-choosing-the-right-trade-offs/>분산 시스템의 일관성 선택</a></li><li><a href=https://www.sciencedirect.com/topics/computer-science/sequential-consistency>ScienceDirect의 순차적 일관성 개요</a></li><li><a href=https://www.geeksforgeeks.org/latest-trends-in-distributed-systems/>분산 시스템 최신 트렌드</a></li></ul><hr></div></main><footer class=footer><span>&copy; 2025 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>
