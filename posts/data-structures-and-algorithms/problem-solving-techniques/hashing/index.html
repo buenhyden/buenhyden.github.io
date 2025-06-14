@@ -1,0 +1,997 @@
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Hashing | hyunyoun's Blog</title><meta name=keywords content="Data-Structures-and-Algorithms,Problem-Solving-Techniques,Hashing"><meta name=description content="해싱은 임의의 크기를 가진 데이터를 고정된 크기의 값으로 변환하는 과정이다."><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/data-structures-and-algorithms/problem-solving-techniques/hashing/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.a9863521b3bd3c240bc506f46b95e3c06ccef2ae37f529d5f99bdaef442bccce.css integrity="sha256-qYY1IbO9PCQLxQb0a5XjwGzO8q439SnV+Zva70QrzM4=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate type=application/rss+xml href=https://buenhyden.github.io/posts/data-structures-and-algorithms/problem-solving-techniques/hashing/index.xml><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/data-structures-and-algorithms/problem-solving-techniques/hashing/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/data-structures-and-algorithms/problem-solving-techniques/hashing/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="Hashing"><meta property="og:description" content="해싱은 임의의 크기를 가진 데이터를 고정된 크기의 값으로 변환하는 과정이다."><meta property="og:locale" content="en"><meta property="og:type" content="website"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="Hashing"><meta name=twitter:description content="해싱은 임의의 크기를 가진 데이터를 고정된 크기의 값으로 변환하는 과정이다."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Computer Science and Engineering","item":"https://buenhyden.github.io/posts/"},{"@type":"ListItem","position":2,"name":"Data Structures and Algorithms","item":""},{"@type":"ListItem","position":3,"name":"Problem Solving Techniques","item":"https://buenhyden.github.io/posts/data-structures-and-algorithms/problem-solving-techniques/"},{"@type":"ListItem","position":4,"name":"Hashing","item":"https://buenhyden.github.io/posts/data-structures-and-algorithms/problem-solving-techniques/hashing/"}]}</script></head><body class=list id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><header class=page-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/>Computer Science and Engineering</a>&nbsp;»&nbsp;<a href>Data Structures and Algorithms</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/data-structures-and-algorithms/problem-solving-techniques/>Problem Solving Techniques</a></div><h1>Hashing</h1><div class=post-description>해싱은 임의의 크기를 가진 데이터를 고정된 크기의 값으로 변환하는 과정이다.</div></header><div class=post-content><h2 id=hashing>Hashing<a hidden class=anchor aria-hidden=true href=#hashing>#</a></h2><p>해싱(Hashing)은 현대 컴퓨터 과학과 프로그래밍에서 가장 중요한 데이터 처리 기법 중 하나이다.<br>효율적인 데이터 검색과 저장을 가능하게 하는 이 기술은 다양한 애플리케이션에서 핵심적인 역할을 한다.</p><p>실제 프로젝트에서는 대부분 언어나 라이브러리에서 제공하는 최적화된 해시 테이블 구현체(파이썬의 딕셔너리나 집합 등)를 사용하게 되지만, 그 내부 동작 원리를 이해하는 것은 여전히 중요하다. 이러한 이해를 바탕으로 더 효율적인 코드를 작성하고, 필요에 따라 커스텀 해싱 솔루션을 개발할 수 있을 것이다.</p><p>해싱은 단순한 데이터 구조를 넘어 암호화, 데이터 무결성 검증, 분산 시스템 등 다양한 분야에서 핵심적인 역할을 한다.</p><h3 id=해싱이란-무엇인가>해싱이란 무엇인가?<a hidden class=anchor aria-hidden=true href=#해싱이란-무엇인가>#</a></h3><p>해싱은 임의의 크기를 가진 데이터를 고정된 크기의 값으로 변환하는 과정이다.<br>이 변환을 수행하는 함수를 해시 함수(Hash Function)라고 하며, 이 함수가 반환하는 값을 해시 값(Hash Value) 또는 해시 코드(Hash Code)라고 한다.</p><p>쉽게 이해하기 위해 실생활 예시를 생각해보면,<br>도서관에서 책을 찾을 때, 우리는 도서 분류 번호를 사용한다. 이 번호는 책의 제목, 저자, 내용 등 다양한 정보를 바탕으로 생성된 고유한 식별자이다.<br>이처럼 해시 함수는 데이터의 특성을 바탕으로 고유한 &lsquo;주소&rsquo;를 생성하여 데이터를 빠르게 찾을 수 있게 해준다.</p><h3 id=해싱의-주요-구성-요소>해싱의 주요 구성 요소<a hidden class=anchor aria-hidden=true href=#해싱의-주요-구성-요소>#</a></h3><p>해싱 시스템의 핵심 구성 요소는 다음과 같다:</p><ol><li>해시 함수(Hash Function)<br>해시 함수는 입력 데이터(키)를 고정된 크기의 해시 값으로 변환하는 함수이다.<br>좋은 해시 함수는 다음 특성을 가져야 한다:<ol><li><strong>결정적(Deterministic)</strong>: 같은 입력에 대해 항상 같은 해시 값을 반환해야 한다.</li><li><strong>균일 분포(Uniform Distribution)</strong>: 서로 다른 입력이 동일한 해시 값을 가질 확률을 최소화해야 한다.</li><li><strong>효율적(Efficient)</strong>: 계산이 빠르고 간단해야 한다.</li><li><strong>충돌 저항성(Collision Resistance)</strong>: 서로 다른 입력이 같은 해시 값을 가지는 충돌을 최소화해야 한다.</li></ol></li><li>해시 테이블(Hash Table)<br>해시 테이블은 키-값 쌍을 저장하는 데이터 구조로, 해시 함수를 사용하여 키를 배열의 인덱스로 변환한다.<br>이 인덱스는 값을 저장하거나, 값이 저장된 위치를 가리키는 포인터가 될 수 있다.<br>해시 테이블의 구조는 다음과 같다:<ul><li><strong>버킷(Bucket)</strong>: 데이터가 저장되는 배열의 각 요소를 버킷이라고 한다.</li><li><strong>슬롯(Slot)</strong>: 각 버킷에 저장될 수 있는 키-값 쌍의 공간을 슬롯이라고 한다.</li></ul></li></ol><h3 id=해싱의-작동-원리>해싱의 작동 원리<a hidden class=anchor aria-hidden=true href=#해싱의-작동-원리>#</a></h3><p>해싱의 기본 작동 원리는 다음과 같다:</p><ol><li><strong>키 생성</strong>: 저장하거나 검색하려는 데이터의 키를 결정한다.</li><li><strong>해시 계산</strong>: 해시 함수에 키를 입력하여 해시 값을 계산한다.</li><li><strong>인덱스 매핑</strong>: 해시 값을 해시 테이블의 크기에 맞게 조정하여 인덱스를 생성한다(일반적으로 나머지 연산 사용).</li><li><strong>데이터 저장/검색</strong>: 계산된 인덱스 위치에 데이터를 저장하거나 검색한다.</li></ol><p>예를 들어, 문자열 &ldquo;apple"을 해싱한다고 가정해보면:</p><ol><li>키: &ldquo;apple&rdquo;</li><li>간단한 해시 함수: 각 문자의 ASCII 값을 더하기<ul><li>a (97) + p (112) + p (112) + l (108) + e (101) = 530</li></ul></li><li>테이블 크기가 100인 경우, 인덱스 = 530 % 100 = 30</li><li>&ldquo;apple&rdquo; 관련 데이터는 해시 테이블의 30번 위치에 저장된다.</li></ol><h3 id=해시-충돌hash-collision과-해결-방법>해시 충돌(Hash Collision)과 해결 방법<a hidden class=anchor aria-hidden=true href=#해시-충돌hash-collision과-해결-방법>#</a></h3><p>해시 충돌은 서로 다른 두 개 이상의 키가 동일한 해시 값을 생성할 때 발생한다.<br>앞서 예시에서 다른 문자열 &ldquo;mango"가 같은 해시 값 530을 생성한다면, 충돌이 발생하게 된다.</p><p>충돌 해결을 위한 주요 방법으로는 다음과 같은 것들이 있다:</p><h4 id=개방-주소법open-addressing>개방 주소법(Open Addressing)<a hidden class=anchor aria-hidden=true href=#개방-주소법open-addressing>#</a></h4><p>충돌이 발생하면 다른 빈 버킷을 찾아 데이터를 저장하는 방식이다.<br>주요 기법으로는:</p><ol><li><p>선형 탐사(Linear Probing)<br>충돌 발생 시 순차적으로 다음 버킷을 확인하여 빈 공간을 찾는다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-0-1><a class=lnlinks href=#hl-0-1> 1</a>
+</span><span class=lnt id=hl-0-2><a class=lnlinks href=#hl-0-2> 2</a>
+</span><span class=lnt id=hl-0-3><a class=lnlinks href=#hl-0-3> 3</a>
+</span><span class=lnt id=hl-0-4><a class=lnlinks href=#hl-0-4> 4</a>
+</span><span class=lnt id=hl-0-5><a class=lnlinks href=#hl-0-5> 5</a>
+</span><span class=lnt id=hl-0-6><a class=lnlinks href=#hl-0-6> 6</a>
+</span><span class=lnt id=hl-0-7><a class=lnlinks href=#hl-0-7> 7</a>
+</span><span class=lnt id=hl-0-8><a class=lnlinks href=#hl-0-8> 8</a>
+</span><span class=lnt id=hl-0-9><a class=lnlinks href=#hl-0-9> 9</a>
+</span><span class=lnt id=hl-0-10><a class=lnlinks href=#hl-0-10>10</a>
+</span><span class=lnt id=hl-0-11><a class=lnlinks href=#hl-0-11>11</a>
+</span><span class=lnt id=hl-0-12><a class=lnlinks href=#hl-0-12>12</a>
+</span><span class=lnt id=hl-0-13><a class=lnlinks href=#hl-0-13>13</a>
+</span><span class=lnt id=hl-0-14><a class=lnlinks href=#hl-0-14>14</a>
+</span><span class=lnt id=hl-0-15><a class=lnlinks href=#hl-0-15>15</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>insert</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>,</span> <span class=n>table</span><span class=p>,</span> <span class=n>hash_func</span><span class=p>,</span> <span class=n>size</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>index</span> <span class=o>=</span> <span class=n>hash_func</span><span class=p>(</span><span class=n>key</span><span class=p>)</span> <span class=o>%</span> <span class=n>size</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 충돌 발생 시 선형 탐사</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 이미 같은 키가 있으면 값만 업데이트</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>][</span><span class=mi>0</span><span class=p>]</span> <span class=o>==</span> <span class=n>key</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=o>=</span> <span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 다음 버킷으로 이동</span>
+</span></span><span class=line><span class=cl>        <span class=n>index</span> <span class=o>=</span> <span class=p>(</span><span class=n>index</span> <span class=o>+</span> <span class=mi>1</span><span class=p>)</span> <span class=o>%</span> <span class=n>size</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 빈 버킷에 키-값 쌍 저장</span>
+</span></span><span class=line><span class=cl>    <span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=o>=</span> <span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>이차 탐사(Quadratic Probing)<br>충돌 발생 시 제곱수만큼 떨어진 버킷을 확인한다.<br>이는 선형 탐사에서 발생하는 밀집(clustering) 문제를 줄여준다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-1-1><a class=lnlinks href=#hl-1-1> 1</a>
+</span><span class=lnt id=hl-1-2><a class=lnlinks href=#hl-1-2> 2</a>
+</span><span class=lnt id=hl-1-3><a class=lnlinks href=#hl-1-3> 3</a>
+</span><span class=lnt id=hl-1-4><a class=lnlinks href=#hl-1-4> 4</a>
+</span><span class=lnt id=hl-1-5><a class=lnlinks href=#hl-1-5> 5</a>
+</span><span class=lnt id=hl-1-6><a class=lnlinks href=#hl-1-6> 6</a>
+</span><span class=lnt id=hl-1-7><a class=lnlinks href=#hl-1-7> 7</a>
+</span><span class=lnt id=hl-1-8><a class=lnlinks href=#hl-1-8> 8</a>
+</span><span class=lnt id=hl-1-9><a class=lnlinks href=#hl-1-9> 9</a>
+</span><span class=lnt id=hl-1-10><a class=lnlinks href=#hl-1-10>10</a>
+</span><span class=lnt id=hl-1-11><a class=lnlinks href=#hl-1-11>11</a>
+</span><span class=lnt id=hl-1-12><a class=lnlinks href=#hl-1-12>12</a>
+</span><span class=lnt id=hl-1-13><a class=lnlinks href=#hl-1-13>13</a>
+</span><span class=lnt id=hl-1-14><a class=lnlinks href=#hl-1-14>14</a>
+</span><span class=lnt id=hl-1-15><a class=lnlinks href=#hl-1-15>15</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>insert</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>,</span> <span class=n>table</span><span class=p>,</span> <span class=n>hash_func</span><span class=p>,</span> <span class=n>size</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>index</span> <span class=o>=</span> <span class=n>hash_func</span><span class=p>(</span><span class=n>key</span><span class=p>)</span> <span class=o>%</span> <span class=n>size</span>
+</span></span><span class=line><span class=cl>    <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 충돌 발생 시 이차 탐사</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>][</span><span class=mi>0</span><span class=p>]</span> <span class=o>==</span> <span class=n>key</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=o>=</span> <span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 다음 위치로 이동 (이차 함수 사용)</span>
+</span></span><span class=line><span class=cl>        <span class=n>i</span> <span class=o>+=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>        <span class=n>index</span> <span class=o>=</span> <span class=p>(</span><span class=n>hash_func</span><span class=p>(</span><span class=n>key</span><span class=p>)</span> <span class=o>+</span> <span class=n>i</span><span class=o>*</span><span class=n>i</span><span class=p>)</span> <span class=o>%</span> <span class=n>size</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=o>=</span> <span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>이중 해싱(Double Hashing)<br>두 개의 해시 함수를 사용하여 충돌 시 두 번째 해시 함수로 계산한 값만큼 건너뛰며 탐색한다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-2-1><a class=lnlinks href=#hl-2-1> 1</a>
+</span><span class=lnt id=hl-2-2><a class=lnlinks href=#hl-2-2> 2</a>
+</span><span class=lnt id=hl-2-3><a class=lnlinks href=#hl-2-3> 3</a>
+</span><span class=lnt id=hl-2-4><a class=lnlinks href=#hl-2-4> 4</a>
+</span><span class=lnt id=hl-2-5><a class=lnlinks href=#hl-2-5> 5</a>
+</span><span class=lnt id=hl-2-6><a class=lnlinks href=#hl-2-6> 6</a>
+</span><span class=lnt id=hl-2-7><a class=lnlinks href=#hl-2-7> 7</a>
+</span><span class=lnt id=hl-2-8><a class=lnlinks href=#hl-2-8> 8</a>
+</span><span class=lnt id=hl-2-9><a class=lnlinks href=#hl-2-9> 9</a>
+</span><span class=lnt id=hl-2-10><a class=lnlinks href=#hl-2-10>10</a>
+</span><span class=lnt id=hl-2-11><a class=lnlinks href=#hl-2-11>11</a>
+</span><span class=lnt id=hl-2-12><a class=lnlinks href=#hl-2-12>12</a>
+</span><span class=lnt id=hl-2-13><a class=lnlinks href=#hl-2-13>13</a>
+</span><span class=lnt id=hl-2-14><a class=lnlinks href=#hl-2-14>14</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>insert</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>,</span> <span class=n>table</span><span class=p>,</span> <span class=n>hash_func1</span><span class=p>,</span> <span class=n>hash_func2</span><span class=p>,</span> <span class=n>size</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>index</span> <span class=o>=</span> <span class=n>hash_func1</span><span class=p>(</span><span class=n>key</span><span class=p>)</span> <span class=o>%</span> <span class=n>size</span>
+</span></span><span class=line><span class=cl>    <span class=n>step</span> <span class=o>=</span> <span class=n>hash_func2</span><span class=p>(</span><span class=n>key</span><span class=p>)</span> <span class=o>%</span> <span class=p>(</span><span class=n>size</span> <span class=o>-</span> <span class=mi>1</span><span class=p>)</span> <span class=o>+</span> <span class=mi>1</span>  <span class=c1># 0이 아닌 값 보장</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 충돌 발생 시 이중 해싱</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>][</span><span class=mi>0</span><span class=p>]</span> <span class=o>==</span> <span class=n>key</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=o>=</span> <span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 두 번째 해시 함수로 계산한 간격만큼 이동</span>
+</span></span><span class=line><span class=cl>        <span class=n>index</span> <span class=o>=</span> <span class=p>(</span><span class=n>index</span> <span class=o>+</span> <span class=n>step</span><span class=p>)</span> <span class=o>%</span> <span class=n>size</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=o>=</span> <span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div></li></ol><h4 id=체이닝chaining>체이닝(Chaining)<a hidden class=anchor aria-hidden=true href=#체이닝chaining>#</a></h4><p>각 버킷에 연결 리스트(또는 다른 자료구조)를 사용하여 충돌이 발생한 여러 키-값 쌍을 저장하는 방식이다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-3-1><a class=lnlinks href=#hl-3-1> 1</a>
+</span><span class=lnt id=hl-3-2><a class=lnlinks href=#hl-3-2> 2</a>
+</span><span class=lnt id=hl-3-3><a class=lnlinks href=#hl-3-3> 3</a>
+</span><span class=lnt id=hl-3-4><a class=lnlinks href=#hl-3-4> 4</a>
+</span><span class=lnt id=hl-3-5><a class=lnlinks href=#hl-3-5> 5</a>
+</span><span class=lnt id=hl-3-6><a class=lnlinks href=#hl-3-6> 6</a>
+</span><span class=lnt id=hl-3-7><a class=lnlinks href=#hl-3-7> 7</a>
+</span><span class=lnt id=hl-3-8><a class=lnlinks href=#hl-3-8> 8</a>
+</span><span class=lnt id=hl-3-9><a class=lnlinks href=#hl-3-9> 9</a>
+</span><span class=lnt id=hl-3-10><a class=lnlinks href=#hl-3-10>10</a>
+</span><span class=lnt id=hl-3-11><a class=lnlinks href=#hl-3-11>11</a>
+</span><span class=lnt id=hl-3-12><a class=lnlinks href=#hl-3-12>12</a>
+</span><span class=lnt id=hl-3-13><a class=lnlinks href=#hl-3-13>13</a>
+</span><span class=lnt id=hl-3-14><a class=lnlinks href=#hl-3-14>14</a>
+</span><span class=lnt id=hl-3-15><a class=lnlinks href=#hl-3-15>15</a>
+</span><span class=lnt id=hl-3-16><a class=lnlinks href=#hl-3-16>16</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>insert</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>,</span> <span class=n>table</span><span class=p>,</span> <span class=n>hash_func</span><span class=p>,</span> <span class=n>size</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>index</span> <span class=o>=</span> <span class=n>hash_func</span><span class=p>(</span><span class=n>key</span><span class=p>)</span> <span class=o>%</span> <span class=n>size</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 해당 인덱스에 아직 연결 리스트가 없으면 생성</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 이미 같은 키가 있는지 확인</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>i</span><span class=p>,</span> <span class=p>(</span><span class=n>k</span><span class=p>,</span> <span class=n>v</span><span class=p>)</span> <span class=ow>in</span> <span class=nb>enumerate</span><span class=p>(</span><span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>]):</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>k</span> <span class=o>==</span> <span class=n>key</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 키가 있으면 값만 업데이트</span>
+</span></span><span class=line><span class=cl>            <span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>][</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 키가 없으면 리스트에 새 키-값 쌍 추가</span>
+</span></span><span class=line><span class=cl>    <span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>]</span><span class=o>.</span><span class=n>append</span><span class=p>((</span><span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>))</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=일반적인-해시-함수들>일반적인 해시 함수들<a hidden class=anchor aria-hidden=true href=#일반적인-해시-함수들>#</a></h3><p>다양한 데이터 유형에 대한 해시 함수가 있다.</p><p>몇 가지 대표적인 예를 살펴보면:</p><ol><li><p>정수를 위한 해시 함수:<br>정수 값을 해싱하는 가장 간단한 방법은 모듈로(modulo) 연산을 사용하는 것:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-4-1><a class=lnlinks href=#hl-4-1>1</a>
+</span><span class=lnt id=hl-4-2><a class=lnlinks href=#hl-4-2>2</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>hash_integer</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>size</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>key</span> <span class=o>%</span> <span class=n>size</span>
+</span></span></code></pre></td></tr></table></div></div><p>하지만 이 방법은 크기가 2의 거듭제곱인 테이블에서 하위 비트만 사용하는 문제가 있다.<br>이를 개선한 방법으로는:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-5-1><a class=lnlinks href=#hl-5-1>1</a>
+</span><span class=lnt id=hl-5-2><a class=lnlinks href=#hl-5-2>2</a>
+</span><span class=lnt id=hl-5-3><a class=lnlinks href=#hl-5-3>3</a>
+</span><span class=lnt id=hl-5-4><a class=lnlinks href=#hl-5-4>4</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>improved_hash_integer</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>size</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 곱셈 해시 방법</span>
+</span></span><span class=line><span class=cl>    <span class=n>A</span> <span class=o>=</span> <span class=p>(</span><span class=n>math</span><span class=o>.</span><span class=n>sqrt</span><span class=p>(</span><span class=mi>5</span><span class=p>)</span> <span class=o>-</span> <span class=mi>1</span><span class=p>)</span> <span class=o>/</span> <span class=mi>2</span>  <span class=c1># 황금 비율에 가까운 값</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nb>int</span><span class=p>(</span><span class=n>size</span> <span class=o>*</span> <span class=p>((</span><span class=n>key</span> <span class=o>*</span> <span class=n>A</span><span class=p>)</span> <span class=o>%</span> <span class=mi>1</span><span class=p>))</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>문자열을 위한 해시 함수<br>문자열 해싱의 기본 방법은 각 문자의 ASCII 값을 사용하는 것:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-6-1><a class=lnlinks href=#hl-6-1>1</a>
+</span><span class=lnt id=hl-6-2><a class=lnlinks href=#hl-6-2>2</a>
+</span><span class=lnt id=hl-6-3><a class=lnlinks href=#hl-6-3>3</a>
+</span><span class=lnt id=hl-6-4><a class=lnlinks href=#hl-6-4>4</a>
+</span><span class=lnt id=hl-6-5><a class=lnlinks href=#hl-6-5>5</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>hash_string_simple</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>size</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>hash_value</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>char</span> <span class=ow>in</span> <span class=n>key</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>hash_value</span> <span class=o>+=</span> <span class=nb>ord</span><span class=p>(</span><span class=n>char</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>hash_value</span> <span class=o>%</span> <span class=n>size</span>
+</span></span></code></pre></td></tr></table></div></div><p>더 효과적인 방법은 다항식 롤링 해시(Polynomial Rolling Hash):</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-7-1><a class=lnlinks href=#hl-7-1>1</a>
+</span><span class=lnt id=hl-7-2><a class=lnlinks href=#hl-7-2>2</a>
+</span><span class=lnt id=hl-7-3><a class=lnlinks href=#hl-7-3>3</a>
+</span><span class=lnt id=hl-7-4><a class=lnlinks href=#hl-7-4>4</a>
+</span><span class=lnt id=hl-7-5><a class=lnlinks href=#hl-7-5>5</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>hash_string_polynomial</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>size</span><span class=p>,</span> <span class=n>prime</span><span class=o>=</span><span class=mi>31</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>hash_value</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>char</span> <span class=ow>in</span> <span class=n>key</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>hash_value</span> <span class=o>=</span> <span class=p>(</span><span class=n>hash_value</span> <span class=o>*</span> <span class=n>prime</span> <span class=o>+</span> <span class=nb>ord</span><span class=p>(</span><span class=n>char</span><span class=p>))</span> <span class=o>%</span> <span class=n>size</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>hash_value</span>
+</span></span></code></pre></td></tr></table></div></div></li></ol><h3 id=해시-테이블-구현하기>해시 테이블 구현하기<a hidden class=anchor aria-hidden=true href=#해시-테이블-구현하기>#</a></h3><p>이제 앞서 배운 개념을 바탕으로 간단한 해시 테이블을 파이썬으로 구현해보면:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-8-1><a class=lnlinks href=#hl-8-1>  1</a>
+</span><span class=lnt id=hl-8-2><a class=lnlinks href=#hl-8-2>  2</a>
+</span><span class=lnt id=hl-8-3><a class=lnlinks href=#hl-8-3>  3</a>
+</span><span class=lnt id=hl-8-4><a class=lnlinks href=#hl-8-4>  4</a>
+</span><span class=lnt id=hl-8-5><a class=lnlinks href=#hl-8-5>  5</a>
+</span><span class=lnt id=hl-8-6><a class=lnlinks href=#hl-8-6>  6</a>
+</span><span class=lnt id=hl-8-7><a class=lnlinks href=#hl-8-7>  7</a>
+</span><span class=lnt id=hl-8-8><a class=lnlinks href=#hl-8-8>  8</a>
+</span><span class=lnt id=hl-8-9><a class=lnlinks href=#hl-8-9>  9</a>
+</span><span class=lnt id=hl-8-10><a class=lnlinks href=#hl-8-10> 10</a>
+</span><span class=lnt id=hl-8-11><a class=lnlinks href=#hl-8-11> 11</a>
+</span><span class=lnt id=hl-8-12><a class=lnlinks href=#hl-8-12> 12</a>
+</span><span class=lnt id=hl-8-13><a class=lnlinks href=#hl-8-13> 13</a>
+</span><span class=lnt id=hl-8-14><a class=lnlinks href=#hl-8-14> 14</a>
+</span><span class=lnt id=hl-8-15><a class=lnlinks href=#hl-8-15> 15</a>
+</span><span class=lnt id=hl-8-16><a class=lnlinks href=#hl-8-16> 16</a>
+</span><span class=lnt id=hl-8-17><a class=lnlinks href=#hl-8-17> 17</a>
+</span><span class=lnt id=hl-8-18><a class=lnlinks href=#hl-8-18> 18</a>
+</span><span class=lnt id=hl-8-19><a class=lnlinks href=#hl-8-19> 19</a>
+</span><span class=lnt id=hl-8-20><a class=lnlinks href=#hl-8-20> 20</a>
+</span><span class=lnt id=hl-8-21><a class=lnlinks href=#hl-8-21> 21</a>
+</span><span class=lnt id=hl-8-22><a class=lnlinks href=#hl-8-22> 22</a>
+</span><span class=lnt id=hl-8-23><a class=lnlinks href=#hl-8-23> 23</a>
+</span><span class=lnt id=hl-8-24><a class=lnlinks href=#hl-8-24> 24</a>
+</span><span class=lnt id=hl-8-25><a class=lnlinks href=#hl-8-25> 25</a>
+</span><span class=lnt id=hl-8-26><a class=lnlinks href=#hl-8-26> 26</a>
+</span><span class=lnt id=hl-8-27><a class=lnlinks href=#hl-8-27> 27</a>
+</span><span class=lnt id=hl-8-28><a class=lnlinks href=#hl-8-28> 28</a>
+</span><span class=lnt id=hl-8-29><a class=lnlinks href=#hl-8-29> 29</a>
+</span><span class=lnt id=hl-8-30><a class=lnlinks href=#hl-8-30> 30</a>
+</span><span class=lnt id=hl-8-31><a class=lnlinks href=#hl-8-31> 31</a>
+</span><span class=lnt id=hl-8-32><a class=lnlinks href=#hl-8-32> 32</a>
+</span><span class=lnt id=hl-8-33><a class=lnlinks href=#hl-8-33> 33</a>
+</span><span class=lnt id=hl-8-34><a class=lnlinks href=#hl-8-34> 34</a>
+</span><span class=lnt id=hl-8-35><a class=lnlinks href=#hl-8-35> 35</a>
+</span><span class=lnt id=hl-8-36><a class=lnlinks href=#hl-8-36> 36</a>
+</span><span class=lnt id=hl-8-37><a class=lnlinks href=#hl-8-37> 37</a>
+</span><span class=lnt id=hl-8-38><a class=lnlinks href=#hl-8-38> 38</a>
+</span><span class=lnt id=hl-8-39><a class=lnlinks href=#hl-8-39> 39</a>
+</span><span class=lnt id=hl-8-40><a class=lnlinks href=#hl-8-40> 40</a>
+</span><span class=lnt id=hl-8-41><a class=lnlinks href=#hl-8-41> 41</a>
+</span><span class=lnt id=hl-8-42><a class=lnlinks href=#hl-8-42> 42</a>
+</span><span class=lnt id=hl-8-43><a class=lnlinks href=#hl-8-43> 43</a>
+</span><span class=lnt id=hl-8-44><a class=lnlinks href=#hl-8-44> 44</a>
+</span><span class=lnt id=hl-8-45><a class=lnlinks href=#hl-8-45> 45</a>
+</span><span class=lnt id=hl-8-46><a class=lnlinks href=#hl-8-46> 46</a>
+</span><span class=lnt id=hl-8-47><a class=lnlinks href=#hl-8-47> 47</a>
+</span><span class=lnt id=hl-8-48><a class=lnlinks href=#hl-8-48> 48</a>
+</span><span class=lnt id=hl-8-49><a class=lnlinks href=#hl-8-49> 49</a>
+</span><span class=lnt id=hl-8-50><a class=lnlinks href=#hl-8-50> 50</a>
+</span><span class=lnt id=hl-8-51><a class=lnlinks href=#hl-8-51> 51</a>
+</span><span class=lnt id=hl-8-52><a class=lnlinks href=#hl-8-52> 52</a>
+</span><span class=lnt id=hl-8-53><a class=lnlinks href=#hl-8-53> 53</a>
+</span><span class=lnt id=hl-8-54><a class=lnlinks href=#hl-8-54> 54</a>
+</span><span class=lnt id=hl-8-55><a class=lnlinks href=#hl-8-55> 55</a>
+</span><span class=lnt id=hl-8-56><a class=lnlinks href=#hl-8-56> 56</a>
+</span><span class=lnt id=hl-8-57><a class=lnlinks href=#hl-8-57> 57</a>
+</span><span class=lnt id=hl-8-58><a class=lnlinks href=#hl-8-58> 58</a>
+</span><span class=lnt id=hl-8-59><a class=lnlinks href=#hl-8-59> 59</a>
+</span><span class=lnt id=hl-8-60><a class=lnlinks href=#hl-8-60> 60</a>
+</span><span class=lnt id=hl-8-61><a class=lnlinks href=#hl-8-61> 61</a>
+</span><span class=lnt id=hl-8-62><a class=lnlinks href=#hl-8-62> 62</a>
+</span><span class=lnt id=hl-8-63><a class=lnlinks href=#hl-8-63> 63</a>
+</span><span class=lnt id=hl-8-64><a class=lnlinks href=#hl-8-64> 64</a>
+</span><span class=lnt id=hl-8-65><a class=lnlinks href=#hl-8-65> 65</a>
+</span><span class=lnt id=hl-8-66><a class=lnlinks href=#hl-8-66> 66</a>
+</span><span class=lnt id=hl-8-67><a class=lnlinks href=#hl-8-67> 67</a>
+</span><span class=lnt id=hl-8-68><a class=lnlinks href=#hl-8-68> 68</a>
+</span><span class=lnt id=hl-8-69><a class=lnlinks href=#hl-8-69> 69</a>
+</span><span class=lnt id=hl-8-70><a class=lnlinks href=#hl-8-70> 70</a>
+</span><span class=lnt id=hl-8-71><a class=lnlinks href=#hl-8-71> 71</a>
+</span><span class=lnt id=hl-8-72><a class=lnlinks href=#hl-8-72> 72</a>
+</span><span class=lnt id=hl-8-73><a class=lnlinks href=#hl-8-73> 73</a>
+</span><span class=lnt id=hl-8-74><a class=lnlinks href=#hl-8-74> 74</a>
+</span><span class=lnt id=hl-8-75><a class=lnlinks href=#hl-8-75> 75</a>
+</span><span class=lnt id=hl-8-76><a class=lnlinks href=#hl-8-76> 76</a>
+</span><span class=lnt id=hl-8-77><a class=lnlinks href=#hl-8-77> 77</a>
+</span><span class=lnt id=hl-8-78><a class=lnlinks href=#hl-8-78> 78</a>
+</span><span class=lnt id=hl-8-79><a class=lnlinks href=#hl-8-79> 79</a>
+</span><span class=lnt id=hl-8-80><a class=lnlinks href=#hl-8-80> 80</a>
+</span><span class=lnt id=hl-8-81><a class=lnlinks href=#hl-8-81> 81</a>
+</span><span class=lnt id=hl-8-82><a class=lnlinks href=#hl-8-82> 82</a>
+</span><span class=lnt id=hl-8-83><a class=lnlinks href=#hl-8-83> 83</a>
+</span><span class=lnt id=hl-8-84><a class=lnlinks href=#hl-8-84> 84</a>
+</span><span class=lnt id=hl-8-85><a class=lnlinks href=#hl-8-85> 85</a>
+</span><span class=lnt id=hl-8-86><a class=lnlinks href=#hl-8-86> 86</a>
+</span><span class=lnt id=hl-8-87><a class=lnlinks href=#hl-8-87> 87</a>
+</span><span class=lnt id=hl-8-88><a class=lnlinks href=#hl-8-88> 88</a>
+</span><span class=lnt id=hl-8-89><a class=lnlinks href=#hl-8-89> 89</a>
+</span><span class=lnt id=hl-8-90><a class=lnlinks href=#hl-8-90> 90</a>
+</span><span class=lnt id=hl-8-91><a class=lnlinks href=#hl-8-91> 91</a>
+</span><span class=lnt id=hl-8-92><a class=lnlinks href=#hl-8-92> 92</a>
+</span><span class=lnt id=hl-8-93><a class=lnlinks href=#hl-8-93> 93</a>
+</span><span class=lnt id=hl-8-94><a class=lnlinks href=#hl-8-94> 94</a>
+</span><span class=lnt id=hl-8-95><a class=lnlinks href=#hl-8-95> 95</a>
+</span><span class=lnt id=hl-8-96><a class=lnlinks href=#hl-8-96> 96</a>
+</span><span class=lnt id=hl-8-97><a class=lnlinks href=#hl-8-97> 97</a>
+</span><span class=lnt id=hl-8-98><a class=lnlinks href=#hl-8-98> 98</a>
+</span><span class=lnt id=hl-8-99><a class=lnlinks href=#hl-8-99> 99</a>
+</span><span class=lnt id=hl-8-100><a class=lnlinks href=#hl-8-100>100</a>
+</span><span class=lnt id=hl-8-101><a class=lnlinks href=#hl-8-101>101</a>
+</span><span class=lnt id=hl-8-102><a class=lnlinks href=#hl-8-102>102</a>
+</span><span class=lnt id=hl-8-103><a class=lnlinks href=#hl-8-103>103</a>
+</span><span class=lnt id=hl-8-104><a class=lnlinks href=#hl-8-104>104</a>
+</span><span class=lnt id=hl-8-105><a class=lnlinks href=#hl-8-105>105</a>
+</span><span class=lnt id=hl-8-106><a class=lnlinks href=#hl-8-106>106</a>
+</span><span class=lnt id=hl-8-107><a class=lnlinks href=#hl-8-107>107</a>
+</span><span class=lnt id=hl-8-108><a class=lnlinks href=#hl-8-108>108</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>HashTable</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>size</span><span class=o>=</span><span class=mi>10</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>size</span> <span class=o>=</span> <span class=n>size</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>table</span> <span class=o>=</span> <span class=p>[</span><span class=kc>None</span><span class=p>]</span> <span class=o>*</span> <span class=n>size</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>count</span> <span class=o>=</span> <span class=mi>0</span>  <span class=c1># 저장된 항목 수</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>load_factor_threshold</span> <span class=o>=</span> <span class=mf>0.7</span>  <span class=c1># 재해싱 임계값</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>_hash_function</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>key</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 문자열인 경우 다항식 롤링 해시 사용</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=nb>str</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=n>hash_value</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>            <span class=k>for</span> <span class=n>char</span> <span class=ow>in</span> <span class=n>key</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=n>hash_value</span> <span class=o>=</span> <span class=p>(</span><span class=n>hash_value</span> <span class=o>*</span> <span class=mi>31</span> <span class=o>+</span> <span class=nb>ord</span><span class=p>(</span><span class=n>char</span><span class=p>))</span> <span class=o>%</span> <span class=bp>self</span><span class=o>.</span><span class=n>size</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=n>hash_value</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 숫자인 경우 간단한 모듈로 해시 사용</span>
+</span></span><span class=line><span class=cl>        <span class=k>elif</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=p>(</span><span class=nb>int</span><span class=p>,</span> <span class=nb>float</span><span class=p>)):</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=nb>int</span><span class=p>(</span><span class=n>key</span><span class=p>)</span> <span class=o>%</span> <span class=bp>self</span><span class=o>.</span><span class=n>size</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 기타 객체는 파이썬의 내장 해시 함수 사용</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=nb>hash</span><span class=p>(</span><span class=n>key</span><span class=p>)</span> <span class=o>%</span> <span class=bp>self</span><span class=o>.</span><span class=n>size</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>_resize</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>new_size</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 테이블 크기를 조정하고 모든 항목 재해싱</span>
+</span></span><span class=line><span class=cl>        <span class=n>old_table</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>table</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>size</span> <span class=o>=</span> <span class=n>new_size</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>table</span> <span class=o>=</span> <span class=p>[</span><span class=kc>None</span><span class=p>]</span> <span class=o>*</span> <span class=n>new_size</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>count</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 기존 항목들을 새 테이블에 재삽입</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>bucket</span> <span class=ow>in</span> <span class=n>old_table</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=n>bucket</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=k>for</span> <span class=n>key</span><span class=p>,</span> <span class=n>value</span> <span class=ow>in</span> <span class=n>bucket</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                    <span class=bp>self</span><span class=o>.</span><span class=n>put</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>put</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 해시 값을 계산하여 인덱스 결정</span>
+</span></span><span class=line><span class=cl>        <span class=n>index</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_hash_function</span><span class=p>(</span><span class=n>key</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 해당 버킷이 비어있으면 새 리스트 생성</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 이미 같은 키가 있는지 확인</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>i</span><span class=p>,</span> <span class=p>(</span><span class=n>k</span><span class=p>,</span> <span class=n>v</span><span class=p>)</span> <span class=ow>in</span> <span class=nb>enumerate</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>]):</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=n>k</span> <span class=o>==</span> <span class=n>key</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=c1># 키가 있으면 값만 업데이트하고 종료</span>
+</span></span><span class=line><span class=cl>                <span class=bp>self</span><span class=o>.</span><span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>][</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=k>return</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 새 키-값 쌍 추가</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>]</span><span class=o>.</span><span class=n>append</span><span class=p>((</span><span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>count</span> <span class=o>+=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 로드 팩터 확인 및 필요시 테이블 크기 조정</span>
+</span></span><span class=line><span class=cl>        <span class=n>load_factor</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>count</span> <span class=o>/</span> <span class=bp>self</span><span class=o>.</span><span class=n>size</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>load_factor</span> <span class=o>&gt;</span> <span class=bp>self</span><span class=o>.</span><span class=n>load_factor_threshold</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>_resize</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>size</span> <span class=o>*</span> <span class=mi>2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>get</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>key</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 해시 값을 계산하여 인덱스 결정</span>
+</span></span><span class=line><span class=cl>        <span class=n>index</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_hash_function</span><span class=p>(</span><span class=n>key</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 해당 버킷이 비어있으면 None 반환</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 버킷에서 키를 찾아 값 반환</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>k</span><span class=p>,</span> <span class=n>v</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>]:</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=n>k</span> <span class=o>==</span> <span class=n>key</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=k>return</span> <span class=n>v</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 키를 찾지 못하면 None 반환</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>remove</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>key</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 해시 값을 계산하여 인덱스 결정</span>
+</span></span><span class=line><span class=cl>        <span class=n>index</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_hash_function</span><span class=p>(</span><span class=n>key</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 해당 버킷이 비어있으면 False 반환</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>False</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 버킷에서 키를 찾아 제거</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>i</span><span class=p>,</span> <span class=p>(</span><span class=n>k</span><span class=p>,</span> <span class=n>v</span><span class=p>)</span> <span class=ow>in</span> <span class=nb>enumerate</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>]):</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=n>k</span> <span class=o>==</span> <span class=n>key</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=k>del</span> <span class=bp>self</span><span class=o>.</span><span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>][</span><span class=n>i</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>                <span class=bp>self</span><span class=o>.</span><span class=n>count</span> <span class=o>-=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>                
+</span></span><span class=line><span class=cl>                <span class=c1># 버킷이 비어있으면 None으로 설정</span>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>]:</span>
+</span></span><span class=line><span class=cl>                    <span class=bp>self</span><span class=o>.</span><span class=n>table</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>                
+</span></span><span class=line><span class=cl>                <span class=k>return</span> <span class=kc>True</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 키를 찾지 못하면 False 반환</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>False</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__contains__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>key</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=n>key</span><span class=p>)</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__str__</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 디버깅용 문자열 표현</span>
+</span></span><span class=line><span class=cl>        <span class=n>result</span> <span class=o>=</span> <span class=s2>&#34;{</span><span class=se>\n</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>i</span><span class=p>,</span> <span class=n>bucket</span> <span class=ow>in</span> <span class=nb>enumerate</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>table</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=n>bucket</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=n>result</span> <span class=o>+=</span> <span class=sa>f</span><span class=s2>&#34;  </span><span class=si>{</span><span class=n>i</span><span class=si>}</span><span class=s2>: </span><span class=si>{</span><span class=n>bucket</span><span class=si>}</span><span class=se>\n</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=n>result</span> <span class=o>+=</span> <span class=s2>&#34;}&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>result</span>
+</span></span></code></pre></td></tr></table></div></div><p>이 구현은 체이닝 방식을 사용하고, 로드 팩터에 따라 테이블 크기를 동적으로 조정한.<br>사용 예시:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-9-1><a class=lnlinks href=#hl-9-1> 1</a>
+</span><span class=lnt id=hl-9-2><a class=lnlinks href=#hl-9-2> 2</a>
+</span><span class=lnt id=hl-9-3><a class=lnlinks href=#hl-9-3> 3</a>
+</span><span class=lnt id=hl-9-4><a class=lnlinks href=#hl-9-4> 4</a>
+</span><span class=lnt id=hl-9-5><a class=lnlinks href=#hl-9-5> 5</a>
+</span><span class=lnt id=hl-9-6><a class=lnlinks href=#hl-9-6> 6</a>
+</span><span class=lnt id=hl-9-7><a class=lnlinks href=#hl-9-7> 7</a>
+</span><span class=lnt id=hl-9-8><a class=lnlinks href=#hl-9-8> 8</a>
+</span><span class=lnt id=hl-9-9><a class=lnlinks href=#hl-9-9> 9</a>
+</span><span class=lnt id=hl-9-10><a class=lnlinks href=#hl-9-10>10</a>
+</span><span class=lnt id=hl-9-11><a class=lnlinks href=#hl-9-11>11</a>
+</span><span class=lnt id=hl-9-12><a class=lnlinks href=#hl-9-12>12</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 해시 테이블 생성 및 사용 예시</span>
+</span></span><span class=line><span class=cl><span class=n>hash_table</span> <span class=o>=</span> <span class=n>HashTable</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=n>hash_table</span><span class=o>.</span><span class=n>put</span><span class=p>(</span><span class=s2>&#34;apple&#34;</span><span class=p>,</span> <span class=mi>5</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>hash_table</span><span class=o>.</span><span class=n>put</span><span class=p>(</span><span class=s2>&#34;banana&#34;</span><span class=p>,</span> <span class=mi>10</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>hash_table</span><span class=o>.</span><span class=n>put</span><span class=p>(</span><span class=s2>&#34;orange&#34;</span><span class=p>,</span> <span class=mi>15</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>hash_table</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=s2>&#34;apple&#34;</span><span class=p>))</span>  <span class=c1># 출력: 5</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=s2>&#34;banana&#34;</span> <span class=ow>in</span> <span class=n>hash_table</span><span class=p>)</span>   <span class=c1># 출력: True</span>
+</span></span><span class=line><span class=cl><span class=n>hash_table</span><span class=o>.</span><span class=n>remove</span><span class=p>(</span><span class=s2>&#34;orange&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>hash_table</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=s2>&#34;orange&#34;</span><span class=p>))</span> <span class=c1># 출력: None</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>hash_table</span><span class=p>)</span>  <span class=c1># 테이블 내용 출력</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=해싱의-성능-분석>해싱의 성능 분석<a hidden class=anchor aria-hidden=true href=#해싱의-성능-분석>#</a></h3><p>해시 테이블의 시간 복잡도는 다음과 같다:</p><ol><li>평균 시간 복잡도 (좋은 해시 함수 가정)<ul><li><strong>삽입(Insert)</strong>: O(1)</li><li><strong>조회(Lookup)</strong>: O(1)</li><li><strong>삭제(Delete)</strong>: O(1)</li></ul></li><li>최악의 시간 복잡도 (모든 키가 같은 버킷에 해싱되는 경우)<ul><li><strong>삽입(Insert)</strong>: O(n)</li><li><strong>조회(Lookup)</strong>: O(n)</li><li><strong>삭제(Delete)</strong>: O(n)</li></ul></li><li>공간 복잡도<ul><li><strong>체이닝</strong>: O(n) (n은 저장된 키-값 쌍의 수)</li><li><strong>개방 주소법</strong>: O(m) (m은 해시 테이블의 크기)</li></ul></li></ol><h3 id=고급-해싱-기법>고급 해싱 기법<a hidden class=anchor aria-hidden=true href=#고급-해싱-기법>#</a></h3><p>더 발전된 해싱 기법:</p><h4 id=일관된-해싱consistent-hashing>일관된 해싱(Consistent Hashing)<a hidden class=anchor aria-hidden=true href=#일관된-해싱consistent-hashing>#</a></h4><p>분산 시스템에서 데이터를 여러 서버에 고르게 분배하면서, 서버 추가/제거 시 데이터 재배치를 최소화하는 기법.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-10-1><a class=lnlinks href=#hl-10-1> 1</a>
+</span><span class=lnt id=hl-10-2><a class=lnlinks href=#hl-10-2> 2</a>
+</span><span class=lnt id=hl-10-3><a class=lnlinks href=#hl-10-3> 3</a>
+</span><span class=lnt id=hl-10-4><a class=lnlinks href=#hl-10-4> 4</a>
+</span><span class=lnt id=hl-10-5><a class=lnlinks href=#hl-10-5> 5</a>
+</span><span class=lnt id=hl-10-6><a class=lnlinks href=#hl-10-6> 6</a>
+</span><span class=lnt id=hl-10-7><a class=lnlinks href=#hl-10-7> 7</a>
+</span><span class=lnt id=hl-10-8><a class=lnlinks href=#hl-10-8> 8</a>
+</span><span class=lnt id=hl-10-9><a class=lnlinks href=#hl-10-9> 9</a>
+</span><span class=lnt id=hl-10-10><a class=lnlinks href=#hl-10-10>10</a>
+</span><span class=lnt id=hl-10-11><a class=lnlinks href=#hl-10-11>11</a>
+</span><span class=lnt id=hl-10-12><a class=lnlinks href=#hl-10-12>12</a>
+</span><span class=lnt id=hl-10-13><a class=lnlinks href=#hl-10-13>13</a>
+</span><span class=lnt id=hl-10-14><a class=lnlinks href=#hl-10-14>14</a>
+</span><span class=lnt id=hl-10-15><a class=lnlinks href=#hl-10-15>15</a>
+</span><span class=lnt id=hl-10-16><a class=lnlinks href=#hl-10-16>16</a>
+</span><span class=lnt id=hl-10-17><a class=lnlinks href=#hl-10-17>17</a>
+</span><span class=lnt id=hl-10-18><a class=lnlinks href=#hl-10-18>18</a>
+</span><span class=lnt id=hl-10-19><a class=lnlinks href=#hl-10-19>19</a>
+</span><span class=lnt id=hl-10-20><a class=lnlinks href=#hl-10-20>20</a>
+</span><span class=lnt id=hl-10-21><a class=lnlinks href=#hl-10-21>21</a>
+</span><span class=lnt id=hl-10-22><a class=lnlinks href=#hl-10-22>22</a>
+</span><span class=lnt id=hl-10-23><a class=lnlinks href=#hl-10-23>23</a>
+</span><span class=lnt id=hl-10-24><a class=lnlinks href=#hl-10-24>24</a>
+</span><span class=lnt id=hl-10-25><a class=lnlinks href=#hl-10-25>25</a>
+</span><span class=lnt id=hl-10-26><a class=lnlinks href=#hl-10-26>26</a>
+</span><span class=lnt id=hl-10-27><a class=lnlinks href=#hl-10-27>27</a>
+</span><span class=lnt id=hl-10-28><a class=lnlinks href=#hl-10-28>28</a>
+</span><span class=lnt id=hl-10-29><a class=lnlinks href=#hl-10-29>29</a>
+</span><span class=lnt id=hl-10-30><a class=lnlinks href=#hl-10-30>30</a>
+</span><span class=lnt id=hl-10-31><a class=lnlinks href=#hl-10-31>31</a>
+</span><span class=lnt id=hl-10-32><a class=lnlinks href=#hl-10-32>32</a>
+</span><span class=lnt id=hl-10-33><a class=lnlinks href=#hl-10-33>33</a>
+</span><span class=lnt id=hl-10-34><a class=lnlinks href=#hl-10-34>34</a>
+</span><span class=lnt id=hl-10-35><a class=lnlinks href=#hl-10-35>35</a>
+</span><span class=lnt id=hl-10-36><a class=lnlinks href=#hl-10-36>36</a>
+</span><span class=lnt id=hl-10-37><a class=lnlinks href=#hl-10-37>37</a>
+</span><span class=lnt id=hl-10-38><a class=lnlinks href=#hl-10-38>38</a>
+</span><span class=lnt id=hl-10-39><a class=lnlinks href=#hl-10-39>39</a>
+</span><span class=lnt id=hl-10-40><a class=lnlinks href=#hl-10-40>40</a>
+</span><span class=lnt id=hl-10-41><a class=lnlinks href=#hl-10-41>41</a>
+</span><span class=lnt id=hl-10-42><a class=lnlinks href=#hl-10-42>42</a>
+</span><span class=lnt id=hl-10-43><a class=lnlinks href=#hl-10-43>43</a>
+</span><span class=lnt id=hl-10-44><a class=lnlinks href=#hl-10-44>44</a>
+</span><span class=lnt id=hl-10-45><a class=lnlinks href=#hl-10-45>45</a>
+</span><span class=lnt id=hl-10-46><a class=lnlinks href=#hl-10-46>46</a>
+</span><span class=lnt id=hl-10-47><a class=lnlinks href=#hl-10-47>47</a>
+</span><span class=lnt id=hl-10-48><a class=lnlinks href=#hl-10-48>48</a>
+</span><span class=lnt id=hl-10-49><a class=lnlinks href=#hl-10-49>49</a>
+</span><span class=lnt id=hl-10-50><a class=lnlinks href=#hl-10-50>50</a>
+</span><span class=lnt id=hl-10-51><a class=lnlinks href=#hl-10-51>51</a>
+</span><span class=lnt id=hl-10-52><a class=lnlinks href=#hl-10-52>52</a>
+</span><span class=lnt id=hl-10-53><a class=lnlinks href=#hl-10-53>53</a>
+</span><span class=lnt id=hl-10-54><a class=lnlinks href=#hl-10-54>54</a>
+</span><span class=lnt id=hl-10-55><a class=lnlinks href=#hl-10-55>55</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>hashlib</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>bisect</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>ConsistentHash</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>nodes</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>replicas</span><span class=o>=</span><span class=mi>100</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>replicas</span> <span class=o>=</span> <span class=n>replicas</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>ring</span> <span class=o>=</span> <span class=p>{}</span>  <span class=c1># 해시 값 -&gt; 노드 매핑</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>sorted_keys</span> <span class=o>=</span> <span class=p>[]</span>  <span class=c1># 정렬된 해시 값 목록</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>nodes</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>for</span> <span class=n>node</span> <span class=ow>in</span> <span class=n>nodes</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=bp>self</span><span class=o>.</span><span class=n>add_node</span><span class=p>(</span><span class=n>node</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>_hash</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>key</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># MD5 해시 함수 사용</span>
+</span></span><span class=line><span class=cl>        <span class=n>key_str</span> <span class=o>=</span> <span class=nb>str</span><span class=p>(</span><span class=n>key</span><span class=p>)</span><span class=o>.</span><span class=n>encode</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nb>int</span><span class=p>(</span><span class=n>hashlib</span><span class=o>.</span><span class=n>md5</span><span class=p>(</span><span class=n>key_str</span><span class=p>)</span><span class=o>.</span><span class=n>hexdigest</span><span class=p>(),</span> <span class=mi>16</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>add_node</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>node</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 노드의 여러 복제본을 해시 링에 추가</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>replicas</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=n>key</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_hash</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>node</span><span class=si>}</span><span class=s2>:</span><span class=si>{</span><span class=n>i</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>ring</span><span class=p>[</span><span class=n>key</span><span class=p>]</span> <span class=o>=</span> <span class=n>node</span>
+</span></span><span class=line><span class=cl>            <span class=n>bisect</span><span class=o>.</span><span class=n>insort</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>sorted_keys</span><span class=p>,</span> <span class=n>key</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>remove_node</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>node</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 노드의 모든 복제본을 해시 링에서 제거</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>replicas</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=n>key</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_hash</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>node</span><span class=si>}</span><span class=s2>:</span><span class=si>{</span><span class=n>i</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=n>key</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>ring</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=k>del</span> <span class=bp>self</span><span class=o>.</span><span class=n>ring</span><span class=p>[</span><span class=n>key</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>                <span class=bp>self</span><span class=o>.</span><span class=n>sorted_keys</span><span class=o>.</span><span class=n>remove</span><span class=p>(</span><span class=n>key</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>get_node</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>key</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 키에 해당하는 노드 찾기</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>ring</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=n>hash_key</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_hash</span><span class=p>(</span><span class=n>key</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 이진 검색으로 해시 링에서 위치 찾기</span>
+</span></span><span class=line><span class=cl>        <span class=n>idx</span> <span class=o>=</span> <span class=n>bisect</span><span class=o>.</span><span class=n>bisect</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>sorted_keys</span><span class=p>,</span> <span class=n>hash_key</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 링의 끝에 도달하면 처음으로 돌아감</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>idx</span> <span class=o>==</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>sorted_keys</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=n>idx</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>ring</span><span class=p>[</span><span class=bp>self</span><span class=o>.</span><span class=n>sorted_keys</span><span class=p>[</span><span class=n>idx</span><span class=p>]]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 사용 예시</span>
+</span></span><span class=line><span class=cl><span class=n>ch</span> <span class=o>=</span> <span class=n>ConsistentHash</span><span class=p>([</span><span class=s2>&#34;server1&#34;</span><span class=p>,</span> <span class=s2>&#34;server2&#34;</span><span class=p>,</span> <span class=s2>&#34;server3&#34;</span><span class=p>])</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>ch</span><span class=o>.</span><span class=n>get_node</span><span class=p>(</span><span class=s2>&#34;user123&#34;</span><span class=p>))</span>  <span class=c1># 예: &#34;server2&#34;</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>ch</span><span class=o>.</span><span class=n>get_node</span><span class=p>(</span><span class=s2>&#34;file456&#34;</span><span class=p>))</span>  <span class=c1># 예: &#34;server1&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 노드 추가</span>
+</span></span><span class=line><span class=cl><span class=n>ch</span><span class=o>.</span><span class=n>add_node</span><span class=p>(</span><span class=s2>&#34;server4&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=c1># 대부분의 키는 여전히 같은 서버에 매핑됨</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=블룸-필터bloom-filter>블룸 필터(Bloom Filter)<a hidden class=anchor aria-hidden=true href=#블룸-필터bloom-filter>#</a></h4><p>원소가 집합에 속하는지 빠르게 판단하는 확률적 자료구조로, 거짓 긍정(false positive)은 가능하지만 거짓 부정(false negative)은 발생하지 않는다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-11-1><a class=lnlinks href=#hl-11-1> 1</a>
+</span><span class=lnt id=hl-11-2><a class=lnlinks href=#hl-11-2> 2</a>
+</span><span class=lnt id=hl-11-3><a class=lnlinks href=#hl-11-3> 3</a>
+</span><span class=lnt id=hl-11-4><a class=lnlinks href=#hl-11-4> 4</a>
+</span><span class=lnt id=hl-11-5><a class=lnlinks href=#hl-11-5> 5</a>
+</span><span class=lnt id=hl-11-6><a class=lnlinks href=#hl-11-6> 6</a>
+</span><span class=lnt id=hl-11-7><a class=lnlinks href=#hl-11-7> 7</a>
+</span><span class=lnt id=hl-11-8><a class=lnlinks href=#hl-11-8> 8</a>
+</span><span class=lnt id=hl-11-9><a class=lnlinks href=#hl-11-9> 9</a>
+</span><span class=lnt id=hl-11-10><a class=lnlinks href=#hl-11-10>10</a>
+</span><span class=lnt id=hl-11-11><a class=lnlinks href=#hl-11-11>11</a>
+</span><span class=lnt id=hl-11-12><a class=lnlinks href=#hl-11-12>12</a>
+</span><span class=lnt id=hl-11-13><a class=lnlinks href=#hl-11-13>13</a>
+</span><span class=lnt id=hl-11-14><a class=lnlinks href=#hl-11-14>14</a>
+</span><span class=lnt id=hl-11-15><a class=lnlinks href=#hl-11-15>15</a>
+</span><span class=lnt id=hl-11-16><a class=lnlinks href=#hl-11-16>16</a>
+</span><span class=lnt id=hl-11-17><a class=lnlinks href=#hl-11-17>17</a>
+</span><span class=lnt id=hl-11-18><a class=lnlinks href=#hl-11-18>18</a>
+</span><span class=lnt id=hl-11-19><a class=lnlinks href=#hl-11-19>19</a>
+</span><span class=lnt id=hl-11-20><a class=lnlinks href=#hl-11-20>20</a>
+</span><span class=lnt id=hl-11-21><a class=lnlinks href=#hl-11-21>21</a>
+</span><span class=lnt id=hl-11-22><a class=lnlinks href=#hl-11-22>22</a>
+</span><span class=lnt id=hl-11-23><a class=lnlinks href=#hl-11-23>23</a>
+</span><span class=lnt id=hl-11-24><a class=lnlinks href=#hl-11-24>24</a>
+</span><span class=lnt id=hl-11-25><a class=lnlinks href=#hl-11-25>25</a>
+</span><span class=lnt id=hl-11-26><a class=lnlinks href=#hl-11-26>26</a>
+</span><span class=lnt id=hl-11-27><a class=lnlinks href=#hl-11-27>27</a>
+</span><span class=lnt id=hl-11-28><a class=lnlinks href=#hl-11-28>28</a>
+</span><span class=lnt id=hl-11-29><a class=lnlinks href=#hl-11-29>29</a>
+</span><span class=lnt id=hl-11-30><a class=lnlinks href=#hl-11-30>30</a>
+</span><span class=lnt id=hl-11-31><a class=lnlinks href=#hl-11-31>31</a>
+</span><span class=lnt id=hl-11-32><a class=lnlinks href=#hl-11-32>32</a>
+</span><span class=lnt id=hl-11-33><a class=lnlinks href=#hl-11-33>33</a>
+</span><span class=lnt id=hl-11-34><a class=lnlinks href=#hl-11-34>34</a>
+</span><span class=lnt id=hl-11-35><a class=lnlinks href=#hl-11-35>35</a>
+</span><span class=lnt id=hl-11-36><a class=lnlinks href=#hl-11-36>36</a>
+</span><span class=lnt id=hl-11-37><a class=lnlinks href=#hl-11-37>37</a>
+</span><span class=lnt id=hl-11-38><a class=lnlinks href=#hl-11-38>38</a>
+</span><span class=lnt id=hl-11-39><a class=lnlinks href=#hl-11-39>39</a>
+</span><span class=lnt id=hl-11-40><a class=lnlinks href=#hl-11-40>40</a>
+</span><span class=lnt id=hl-11-41><a class=lnlinks href=#hl-11-41>41</a>
+</span><span class=lnt id=hl-11-42><a class=lnlinks href=#hl-11-42>42</a>
+</span><span class=lnt id=hl-11-43><a class=lnlinks href=#hl-11-43>43</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>math</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>mmh3</span>  <span class=c1># 설치 필요: pip install mmh3</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>BloomFilter</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>capacity</span><span class=p>,</span> <span class=n>error_rate</span><span class=o>=</span><span class=mf>0.001</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 최적의 비트 배열 크기와 해시 함수 수 계산</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>size</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_optimal_size</span><span class=p>(</span><span class=n>capacity</span><span class=p>,</span> <span class=n>error_rate</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>hash_count</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_optimal_hash_count</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>size</span><span class=p>,</span> <span class=n>capacity</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>bit_array</span> <span class=o>=</span> <span class=p>[</span><span class=mi>0</span><span class=p>]</span> <span class=o>*</span> <span class=bp>self</span><span class=o>.</span><span class=n>size</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>_optimal_size</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>capacity</span><span class=p>,</span> <span class=n>error_rate</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 최적의 비트 배열 크기 계산 공식</span>
+</span></span><span class=line><span class=cl>        <span class=n>size</span> <span class=o>=</span> <span class=o>-</span><span class=n>capacity</span> <span class=o>*</span> <span class=n>math</span><span class=o>.</span><span class=n>log</span><span class=p>(</span><span class=n>error_rate</span><span class=p>)</span> <span class=o>/</span> <span class=p>(</span><span class=n>math</span><span class=o>.</span><span class=n>log</span><span class=p>(</span><span class=mi>2</span><span class=p>)</span> <span class=o>**</span> <span class=mi>2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>math</span><span class=o>.</span><span class=n>ceil</span><span class=p>(</span><span class=n>size</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>_optimal_hash_count</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>size</span><span class=p>,</span> <span class=n>capacity</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 최적의 해시 함수 수 계산 공식</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>math</span><span class=o>.</span><span class=n>ceil</span><span class=p>((</span><span class=n>size</span> <span class=o>/</span> <span class=n>capacity</span><span class=p>)</span> <span class=o>*</span> <span class=n>math</span><span class=o>.</span><span class=n>log</span><span class=p>(</span><span class=mi>2</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>add</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>item</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 항목을 필터에 추가</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>hash_count</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 다양한 시드로 여러 해시 값 생성</span>
+</span></span><span class=line><span class=cl>            <span class=n>index</span> <span class=o>=</span> <span class=n>mmh3</span><span class=o>.</span><span class=n>hash</span><span class=p>(</span><span class=nb>str</span><span class=p>(</span><span class=n>item</span><span class=p>),</span> <span class=n>i</span><span class=p>)</span> <span class=o>%</span> <span class=bp>self</span><span class=o>.</span><span class=n>size</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>bit_array</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=o>=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>contains</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>item</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 항목이 필터에 있는지 확인</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>hash_count</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=n>index</span> <span class=o>=</span> <span class=n>mmh3</span><span class=o>.</span><span class=n>hash</span><span class=p>(</span><span class=nb>str</span><span class=p>(</span><span class=n>item</span><span class=p>),</span> <span class=n>i</span><span class=p>)</span> <span class=o>%</span> <span class=bp>self</span><span class=o>.</span><span class=n>size</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>bit_array</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=o>==</span> <span class=mi>0</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=k>return</span> <span class=kc>False</span>  <span class=c1># 확실히 존재하지 않음</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>True</span>  <span class=c1># 아마도 존재함</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 사용 예시</span>
+</span></span><span class=line><span class=cl><span class=n>bloom</span> <span class=o>=</span> <span class=n>BloomFilter</span><span class=p>(</span><span class=mi>1000</span><span class=p>)</span>  <span class=c1># 1000개 항목 저장 용량</span>
+</span></span><span class=line><span class=cl><span class=n>bloom</span><span class=o>.</span><span class=n>add</span><span class=p>(</span><span class=s2>&#34;apple&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>bloom</span><span class=o>.</span><span class=n>add</span><span class=p>(</span><span class=s2>&#34;banana&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>bloom</span><span class=o>.</span><span class=n>add</span><span class=p>(</span><span class=s2>&#34;orange&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>bloom</span><span class=o>.</span><span class=n>contains</span><span class=p>(</span><span class=s2>&#34;apple&#34;</span><span class=p>))</span>   <span class=c1># True</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>bloom</span><span class=o>.</span><span class=n>contains</span><span class=p>(</span><span class=s2>&#34;banana&#34;</span><span class=p>))</span>  <span class=c1># True</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>bloom</span><span class=o>.</span><span class=n>contains</span><span class=p>(</span><span class=s2>&#34;grape&#34;</span><span class=p>))</span>   <span class=c1># False (대부분의 경우)</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=쿠쿠-해싱cuckoo-hashing>쿠쿠 해싱(Cuckoo Hashing)<a hidden class=anchor aria-hidden=true href=#쿠쿠-해싱cuckoo-hashing>#</a></h4><p>두 개 이상의 해시 함수를 사용하여 충돌을 해결하는 기법으로, 최악의 경우에도 O(1) 조회 시간을 보장한다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-12-1><a class=lnlinks href=#hl-12-1>  1</a>
+</span><span class=lnt id=hl-12-2><a class=lnlinks href=#hl-12-2>  2</a>
+</span><span class=lnt id=hl-12-3><a class=lnlinks href=#hl-12-3>  3</a>
+</span><span class=lnt id=hl-12-4><a class=lnlinks href=#hl-12-4>  4</a>
+</span><span class=lnt id=hl-12-5><a class=lnlinks href=#hl-12-5>  5</a>
+</span><span class=lnt id=hl-12-6><a class=lnlinks href=#hl-12-6>  6</a>
+</span><span class=lnt id=hl-12-7><a class=lnlinks href=#hl-12-7>  7</a>
+</span><span class=lnt id=hl-12-8><a class=lnlinks href=#hl-12-8>  8</a>
+</span><span class=lnt id=hl-12-9><a class=lnlinks href=#hl-12-9>  9</a>
+</span><span class=lnt id=hl-12-10><a class=lnlinks href=#hl-12-10> 10</a>
+</span><span class=lnt id=hl-12-11><a class=lnlinks href=#hl-12-11> 11</a>
+</span><span class=lnt id=hl-12-12><a class=lnlinks href=#hl-12-12> 12</a>
+</span><span class=lnt id=hl-12-13><a class=lnlinks href=#hl-12-13> 13</a>
+</span><span class=lnt id=hl-12-14><a class=lnlinks href=#hl-12-14> 14</a>
+</span><span class=lnt id=hl-12-15><a class=lnlinks href=#hl-12-15> 15</a>
+</span><span class=lnt id=hl-12-16><a class=lnlinks href=#hl-12-16> 16</a>
+</span><span class=lnt id=hl-12-17><a class=lnlinks href=#hl-12-17> 17</a>
+</span><span class=lnt id=hl-12-18><a class=lnlinks href=#hl-12-18> 18</a>
+</span><span class=lnt id=hl-12-19><a class=lnlinks href=#hl-12-19> 19</a>
+</span><span class=lnt id=hl-12-20><a class=lnlinks href=#hl-12-20> 20</a>
+</span><span class=lnt id=hl-12-21><a class=lnlinks href=#hl-12-21> 21</a>
+</span><span class=lnt id=hl-12-22><a class=lnlinks href=#hl-12-22> 22</a>
+</span><span class=lnt id=hl-12-23><a class=lnlinks href=#hl-12-23> 23</a>
+</span><span class=lnt id=hl-12-24><a class=lnlinks href=#hl-12-24> 24</a>
+</span><span class=lnt id=hl-12-25><a class=lnlinks href=#hl-12-25> 25</a>
+</span><span class=lnt id=hl-12-26><a class=lnlinks href=#hl-12-26> 26</a>
+</span><span class=lnt id=hl-12-27><a class=lnlinks href=#hl-12-27> 27</a>
+</span><span class=lnt id=hl-12-28><a class=lnlinks href=#hl-12-28> 28</a>
+</span><span class=lnt id=hl-12-29><a class=lnlinks href=#hl-12-29> 29</a>
+</span><span class=lnt id=hl-12-30><a class=lnlinks href=#hl-12-30> 30</a>
+</span><span class=lnt id=hl-12-31><a class=lnlinks href=#hl-12-31> 31</a>
+</span><span class=lnt id=hl-12-32><a class=lnlinks href=#hl-12-32> 32</a>
+</span><span class=lnt id=hl-12-33><a class=lnlinks href=#hl-12-33> 33</a>
+</span><span class=lnt id=hl-12-34><a class=lnlinks href=#hl-12-34> 34</a>
+</span><span class=lnt id=hl-12-35><a class=lnlinks href=#hl-12-35> 35</a>
+</span><span class=lnt id=hl-12-36><a class=lnlinks href=#hl-12-36> 36</a>
+</span><span class=lnt id=hl-12-37><a class=lnlinks href=#hl-12-37> 37</a>
+</span><span class=lnt id=hl-12-38><a class=lnlinks href=#hl-12-38> 38</a>
+</span><span class=lnt id=hl-12-39><a class=lnlinks href=#hl-12-39> 39</a>
+</span><span class=lnt id=hl-12-40><a class=lnlinks href=#hl-12-40> 40</a>
+</span><span class=lnt id=hl-12-41><a class=lnlinks href=#hl-12-41> 41</a>
+</span><span class=lnt id=hl-12-42><a class=lnlinks href=#hl-12-42> 42</a>
+</span><span class=lnt id=hl-12-43><a class=lnlinks href=#hl-12-43> 43</a>
+</span><span class=lnt id=hl-12-44><a class=lnlinks href=#hl-12-44> 44</a>
+</span><span class=lnt id=hl-12-45><a class=lnlinks href=#hl-12-45> 45</a>
+</span><span class=lnt id=hl-12-46><a class=lnlinks href=#hl-12-46> 46</a>
+</span><span class=lnt id=hl-12-47><a class=lnlinks href=#hl-12-47> 47</a>
+</span><span class=lnt id=hl-12-48><a class=lnlinks href=#hl-12-48> 48</a>
+</span><span class=lnt id=hl-12-49><a class=lnlinks href=#hl-12-49> 49</a>
+</span><span class=lnt id=hl-12-50><a class=lnlinks href=#hl-12-50> 50</a>
+</span><span class=lnt id=hl-12-51><a class=lnlinks href=#hl-12-51> 51</a>
+</span><span class=lnt id=hl-12-52><a class=lnlinks href=#hl-12-52> 52</a>
+</span><span class=lnt id=hl-12-53><a class=lnlinks href=#hl-12-53> 53</a>
+</span><span class=lnt id=hl-12-54><a class=lnlinks href=#hl-12-54> 54</a>
+</span><span class=lnt id=hl-12-55><a class=lnlinks href=#hl-12-55> 55</a>
+</span><span class=lnt id=hl-12-56><a class=lnlinks href=#hl-12-56> 56</a>
+</span><span class=lnt id=hl-12-57><a class=lnlinks href=#hl-12-57> 57</a>
+</span><span class=lnt id=hl-12-58><a class=lnlinks href=#hl-12-58> 58</a>
+</span><span class=lnt id=hl-12-59><a class=lnlinks href=#hl-12-59> 59</a>
+</span><span class=lnt id=hl-12-60><a class=lnlinks href=#hl-12-60> 60</a>
+</span><span class=lnt id=hl-12-61><a class=lnlinks href=#hl-12-61> 61</a>
+</span><span class=lnt id=hl-12-62><a class=lnlinks href=#hl-12-62> 62</a>
+</span><span class=lnt id=hl-12-63><a class=lnlinks href=#hl-12-63> 63</a>
+</span><span class=lnt id=hl-12-64><a class=lnlinks href=#hl-12-64> 64</a>
+</span><span class=lnt id=hl-12-65><a class=lnlinks href=#hl-12-65> 65</a>
+</span><span class=lnt id=hl-12-66><a class=lnlinks href=#hl-12-66> 66</a>
+</span><span class=lnt id=hl-12-67><a class=lnlinks href=#hl-12-67> 67</a>
+</span><span class=lnt id=hl-12-68><a class=lnlinks href=#hl-12-68> 68</a>
+</span><span class=lnt id=hl-12-69><a class=lnlinks href=#hl-12-69> 69</a>
+</span><span class=lnt id=hl-12-70><a class=lnlinks href=#hl-12-70> 70</a>
+</span><span class=lnt id=hl-12-71><a class=lnlinks href=#hl-12-71> 71</a>
+</span><span class=lnt id=hl-12-72><a class=lnlinks href=#hl-12-72> 72</a>
+</span><span class=lnt id=hl-12-73><a class=lnlinks href=#hl-12-73> 73</a>
+</span><span class=lnt id=hl-12-74><a class=lnlinks href=#hl-12-74> 74</a>
+</span><span class=lnt id=hl-12-75><a class=lnlinks href=#hl-12-75> 75</a>
+</span><span class=lnt id=hl-12-76><a class=lnlinks href=#hl-12-76> 76</a>
+</span><span class=lnt id=hl-12-77><a class=lnlinks href=#hl-12-77> 77</a>
+</span><span class=lnt id=hl-12-78><a class=lnlinks href=#hl-12-78> 78</a>
+</span><span class=lnt id=hl-12-79><a class=lnlinks href=#hl-12-79> 79</a>
+</span><span class=lnt id=hl-12-80><a class=lnlinks href=#hl-12-80> 80</a>
+</span><span class=lnt id=hl-12-81><a class=lnlinks href=#hl-12-81> 81</a>
+</span><span class=lnt id=hl-12-82><a class=lnlinks href=#hl-12-82> 82</a>
+</span><span class=lnt id=hl-12-83><a class=lnlinks href=#hl-12-83> 83</a>
+</span><span class=lnt id=hl-12-84><a class=lnlinks href=#hl-12-84> 84</a>
+</span><span class=lnt id=hl-12-85><a class=lnlinks href=#hl-12-85> 85</a>
+</span><span class=lnt id=hl-12-86><a class=lnlinks href=#hl-12-86> 86</a>
+</span><span class=lnt id=hl-12-87><a class=lnlinks href=#hl-12-87> 87</a>
+</span><span class=lnt id=hl-12-88><a class=lnlinks href=#hl-12-88> 88</a>
+</span><span class=lnt id=hl-12-89><a class=lnlinks href=#hl-12-89> 89</a>
+</span><span class=lnt id=hl-12-90><a class=lnlinks href=#hl-12-90> 90</a>
+</span><span class=lnt id=hl-12-91><a class=lnlinks href=#hl-12-91> 91</a>
+</span><span class=lnt id=hl-12-92><a class=lnlinks href=#hl-12-92> 92</a>
+</span><span class=lnt id=hl-12-93><a class=lnlinks href=#hl-12-93> 93</a>
+</span><span class=lnt id=hl-12-94><a class=lnlinks href=#hl-12-94> 94</a>
+</span><span class=lnt id=hl-12-95><a class=lnlinks href=#hl-12-95> 95</a>
+</span><span class=lnt id=hl-12-96><a class=lnlinks href=#hl-12-96> 96</a>
+</span><span class=lnt id=hl-12-97><a class=lnlinks href=#hl-12-97> 97</a>
+</span><span class=lnt id=hl-12-98><a class=lnlinks href=#hl-12-98> 98</a>
+</span><span class=lnt id=hl-12-99><a class=lnlinks href=#hl-12-99> 99</a>
+</span><span class=lnt id=hl-12-100><a class=lnlinks href=#hl-12-100>100</a>
+</span><span class=lnt id=hl-12-101><a class=lnlinks href=#hl-12-101>101</a>
+</span><span class=lnt id=hl-12-102><a class=lnlinks href=#hl-12-102>102</a>
+</span><span class=lnt id=hl-12-103><a class=lnlinks href=#hl-12-103>103</a>
+</span><span class=lnt id=hl-12-104><a class=lnlinks href=#hl-12-104>104</a>
+</span><span class=lnt id=hl-12-105><a class=lnlinks href=#hl-12-105>105</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>CuckooHash</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>size</span><span class=o>=</span><span class=mi>16</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>size</span> <span class=o>=</span> <span class=n>size</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>tables</span> <span class=o>=</span> <span class=p>[</span><span class=kc>None</span><span class=p>]</span> <span class=o>*</span> <span class=n>size</span><span class=p>,</span> <span class=p>[</span><span class=kc>None</span><span class=p>]</span> <span class=o>*</span> <span class=n>size</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>max_relocations</span> <span class=o>=</span> <span class=n>size</span>  <span class=c1># 무한 루프 방지</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>_hash1</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>key</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 첫 번째 해시 함수</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nb>hash</span><span class=p>(</span><span class=n>key</span><span class=p>)</span> <span class=o>%</span> <span class=bp>self</span><span class=o>.</span><span class=n>size</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>_hash2</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>key</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 두 번째 해시 함수 (첫 번째와 달라야 함)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=p>(</span><span class=nb>hash</span><span class=p>(</span><span class=n>key</span><span class=p>)</span> <span class=o>//</span> <span class=bp>self</span><span class=o>.</span><span class=n>size</span><span class=p>)</span> <span class=o>%</span> <span class=bp>self</span><span class=o>.</span><span class=n>size</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>insert</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 이미 키가 있는지 확인</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>contains</span><span class=p>(</span><span class=n>key</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>remove</span><span class=p>(</span><span class=n>key</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 키-값 쌍 삽입 시도</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>_insert</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>,</span> <span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>_insert</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>,</span> <span class=n>count</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 최대 재배치 횟수 초과 시 재해싱</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>count</span> <span class=o>&gt;=</span> <span class=bp>self</span><span class=o>.</span><span class=n>max_relocations</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>_rehash</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>insert</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 첫 번째 테이블에 삽입</span>
+</span></span><span class=line><span class=cl>        <span class=n>pos</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_hash1</span><span class=p>(</span><span class=n>key</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>tables</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=n>pos</span><span class=p>]</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>tables</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=n>pos</span><span class=p>]</span> <span class=o>=</span> <span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>True</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 첫 번째 테이블에 있는 항목을 두 번째 테이블로 이동</span>
+</span></span><span class=line><span class=cl>        <span class=n>old_key</span><span class=p>,</span> <span class=n>old_value</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>tables</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=n>pos</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>tables</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=n>pos</span><span class=p>]</span> <span class=o>=</span> <span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>		<span class=c1># 두 번째 테이블에 이전 항목 삽입 (재귀적)</span>
+</span></span><span class=line><span class=cl>		<span class=n>pos</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_hash2</span><span class=p>(</span><span class=n>old_key</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>		<span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>tables</span><span class=p>[</span><span class=mi>1</span><span class=p>][</span><span class=n>pos</span><span class=p>]</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>			<span class=bp>self</span><span class=o>.</span><span class=n>tables</span><span class=p>[</span><span class=mi>1</span><span class=p>][</span><span class=n>pos</span><span class=p>]</span> <span class=o>=</span> <span class=p>(</span><span class=n>old_key</span><span class=p>,</span> <span class=n>old_value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>			<span class=k>return</span> <span class=kc>True</span>
+</span></span><span class=line><span class=cl>		<span class=c1># 두 번째 테이블의 항목을 방출하고 재귀적으로 다시 삽입</span>
+</span></span><span class=line><span class=cl>		<span class=n>old_key</span><span class=p>,</span> <span class=n>old_value</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>tables</span><span class=p>[</span><span class=mi>1</span><span class=p>][</span><span class=n>pos</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>		<span class=bp>self</span><span class=o>.</span><span class=n>tables</span><span class=p>[</span><span class=mi>1</span><span class=p>][</span><span class=n>pos</span><span class=p>]</span> <span class=o>=</span> <span class=p>(</span><span class=n>old_key</span><span class=p>,</span> <span class=n>old_value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>		
+</span></span><span class=line><span class=cl>		<span class=c1># 방출된 항목을 다시 첫 번째 테이블에 삽입 (재귀)</span>
+</span></span><span class=line><span class=cl>		<span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>_insert</span><span class=p>(</span><span class=n>old_key</span><span class=p>,</span> <span class=n>old_value</span><span class=p>,</span> <span class=n>count</span> <span class=o>+</span> <span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>get</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>key</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 첫 번째 테이블에서 검색</span>
+</span></span><span class=line><span class=cl>        <span class=n>pos</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_hash1</span><span class=p>(</span><span class=n>key</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>tables</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=n>pos</span><span class=p>]</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span> <span class=ow>and</span> <span class=bp>self</span><span class=o>.</span><span class=n>tables</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=n>pos</span><span class=p>][</span><span class=mi>0</span><span class=p>]</span> <span class=o>==</span> <span class=n>key</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>tables</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=n>pos</span><span class=p>][</span><span class=mi>1</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 두 번째 테이블에서 검색</span>
+</span></span><span class=line><span class=cl>        <span class=n>pos</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_hash2</span><span class=p>(</span><span class=n>key</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>tables</span><span class=p>[</span><span class=mi>1</span><span class=p>][</span><span class=n>pos</span><span class=p>]</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span> <span class=ow>and</span> <span class=bp>self</span><span class=o>.</span><span class=n>tables</span><span class=p>[</span><span class=mi>1</span><span class=p>][</span><span class=n>pos</span><span class=p>][</span><span class=mi>0</span><span class=p>]</span> <span class=o>==</span> <span class=n>key</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>tables</span><span class=p>[</span><span class=mi>1</span><span class=p>][</span><span class=n>pos</span><span class=p>][</span><span class=mi>1</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 키를 찾지 못함</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>contains</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>key</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=n>key</span><span class=p>)</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>remove</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>key</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 첫 번째 테이블에서 검색</span>
+</span></span><span class=line><span class=cl>        <span class=n>pos</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_hash1</span><span class=p>(</span><span class=n>key</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>tables</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=n>pos</span><span class=p>]</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span> <span class=ow>and</span> <span class=bp>self</span><span class=o>.</span><span class=n>tables</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=n>pos</span><span class=p>][</span><span class=mi>0</span><span class=p>]</span> <span class=o>==</span> <span class=n>key</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>tables</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=n>pos</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>True</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 두 번째 테이블에서 검색</span>
+</span></span><span class=line><span class=cl>        <span class=n>pos</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_hash2</span><span class=p>(</span><span class=n>key</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>tables</span><span class=p>[</span><span class=mi>1</span><span class=p>][</span><span class=n>pos</span><span class=p>]</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span> <span class=ow>and</span> <span class=bp>self</span><span class=o>.</span><span class=n>tables</span><span class=p>[</span><span class=mi>1</span><span class=p>][</span><span class=n>pos</span><span class=p>][</span><span class=mi>0</span><span class=p>]</span> <span class=o>==</span> <span class=n>key</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>tables</span><span class=p>[</span><span class=mi>1</span><span class=p>][</span><span class=n>pos</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>True</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 키를 찾지 못함</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>False</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>_rehash</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 테이블 크기를 두 배로 늘리고 모든 항목 재삽입</span>
+</span></span><span class=line><span class=cl>        <span class=n>old_tables</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>tables</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>size</span> <span class=o>*=</span> <span class=mi>2</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>tables</span> <span class=o>=</span> <span class=p>[</span><span class=kc>None</span><span class=p>]</span> <span class=o>*</span> <span class=bp>self</span><span class=o>.</span><span class=n>size</span><span class=p>,</span> <span class=p>[</span><span class=kc>None</span><span class=p>]</span> <span class=o>*</span> <span class=bp>self</span><span class=o>.</span><span class=n>size</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>max_relocations</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>size</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 모든 항목 재삽입</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>table</span> <span class=ow>in</span> <span class=n>old_tables</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>for</span> <span class=n>item</span> <span class=ow>in</span> <span class=n>table</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=n>item</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                    <span class=n>key</span><span class=p>,</span> <span class=n>value</span> <span class=o>=</span> <span class=n>item</span>
+</span></span><span class=line><span class=cl>                    <span class=bp>self</span><span class=o>.</span><span class=n>insert</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 사용 예시</span>
+</span></span><span class=line><span class=cl><span class=n>cuckoo</span> <span class=o>=</span> <span class=n>CuckooHash</span><span class=p>(</span><span class=mi>8</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>cuckoo</span><span class=o>.</span><span class=n>insert</span><span class=p>(</span><span class=s2>&#34;apple&#34;</span><span class=p>,</span> <span class=mi>5</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>cuckoo</span><span class=o>.</span><span class=n>insert</span><span class=p>(</span><span class=s2>&#34;banana&#34;</span><span class=p>,</span> <span class=mi>10</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>cuckoo</span><span class=o>.</span><span class=n>insert</span><span class=p>(</span><span class=s2>&#34;orange&#34;</span><span class=p>,</span> <span class=mi>15</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>cuckoo</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=s2>&#34;apple&#34;</span><span class=p>))</span>  <span class=c1># 5</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>cuckoo</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=s2>&#34;grape&#34;</span><span class=p>))</span>  <span class=c1># None</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=해싱-관련-문제-및-해결-전략>해싱 관련 문제 및 해결 전략<a hidden class=anchor aria-hidden=true href=#해싱-관련-문제-및-해결-전략>#</a></h3><p>해싱을 사용할 때 발생할 수 있는 주요 문제와 해결 전략을 살펴보면:</p><ol><li><p>충돌 최소화<br>충돌이 많이 발생하면 성능이 저하될 수 있다.<br>해결 방법:</p><ul><li>좋은 해시 함수 선택</li><li>적절한 테이블 크기 유지</li><li>로드 팩터 관리(일반적으로 0.7 이하)</li></ul></li><li><p>재해싱(Rehashing)<br>테이블이 너무 꽉 차면 검색 성능이 저하된다.<br>이를 해결하기 위해 테이블 크기를 조정하고 모든 항목을 재해싱하는 과정이 필요하다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-13-1><a class=lnlinks href=#hl-13-1> 1</a>
+</span><span class=lnt id=hl-13-2><a class=lnlinks href=#hl-13-2> 2</a>
+</span><span class=lnt id=hl-13-3><a class=lnlinks href=#hl-13-3> 3</a>
+</span><span class=lnt id=hl-13-4><a class=lnlinks href=#hl-13-4> 4</a>
+</span><span class=lnt id=hl-13-5><a class=lnlinks href=#hl-13-5> 5</a>
+</span><span class=lnt id=hl-13-6><a class=lnlinks href=#hl-13-6> 6</a>
+</span><span class=lnt id=hl-13-7><a class=lnlinks href=#hl-13-7> 7</a>
+</span><span class=lnt id=hl-13-8><a class=lnlinks href=#hl-13-8> 8</a>
+</span><span class=lnt id=hl-13-9><a class=lnlinks href=#hl-13-9> 9</a>
+</span><span class=lnt id=hl-13-10><a class=lnlinks href=#hl-13-10>10</a>
+</span><span class=lnt id=hl-13-11><a class=lnlinks href=#hl-13-11>11</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>_resize</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>new_size</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>old_table</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>table</span>
+</span></span><span class=line><span class=cl>    <span class=bp>self</span><span class=o>.</span><span class=n>size</span> <span class=o>=</span> <span class=n>new_size</span>
+</span></span><span class=line><span class=cl>    <span class=bp>self</span><span class=o>.</span><span class=n>table</span> <span class=o>=</span> <span class=p>[</span><span class=kc>None</span><span class=p>]</span> <span class=o>*</span> <span class=n>new_size</span>
+</span></span><span class=line><span class=cl>    <span class=bp>self</span><span class=o>.</span><span class=n>count</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 모든 항목 재삽입</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>bucket</span> <span class=ow>in</span> <span class=n>old_table</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>bucket</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>for</span> <span class=n>key</span><span class=p>,</span> <span class=n>value</span> <span class=ow>in</span> <span class=n>bucket</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=bp>self</span><span class=o>.</span><span class=n>put</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>보안 관련 문제<br>암호화 해시 함수를 사용할 때 다음 주의사항을 고려해야 한다:</p><ul><li>비밀번호 해싱 시 솔트(salt) 추가</li><li>보안에 중요한 용도로는 SHA-256 이상의 강력한 해시 함수 사용</li><li>해시 함수의 느린 버전(bcrypt, Argon2 등) 사용 고려</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-14-1><a class=lnlinks href=#hl-14-1> 1</a>
+</span><span class=lnt id=hl-14-2><a class=lnlinks href=#hl-14-2> 2</a>
+</span><span class=lnt id=hl-14-3><a class=lnlinks href=#hl-14-3> 3</a>
+</span><span class=lnt id=hl-14-4><a class=lnlinks href=#hl-14-4> 4</a>
+</span><span class=lnt id=hl-14-5><a class=lnlinks href=#hl-14-5> 5</a>
+</span><span class=lnt id=hl-14-6><a class=lnlinks href=#hl-14-6> 6</a>
+</span><span class=lnt id=hl-14-7><a class=lnlinks href=#hl-14-7> 7</a>
+</span><span class=lnt id=hl-14-8><a class=lnlinks href=#hl-14-8> 8</a>
+</span><span class=lnt id=hl-14-9><a class=lnlinks href=#hl-14-9> 9</a>
+</span><span class=lnt id=hl-14-10><a class=lnlinks href=#hl-14-10>10</a>
+</span><span class=lnt id=hl-14-11><a class=lnlinks href=#hl-14-11>11</a>
+</span><span class=lnt id=hl-14-12><a class=lnlinks href=#hl-14-12>12</a>
+</span><span class=lnt id=hl-14-13><a class=lnlinks href=#hl-14-13>13</a>
+</span><span class=lnt id=hl-14-14><a class=lnlinks href=#hl-14-14>14</a>
+</span><span class=lnt id=hl-14-15><a class=lnlinks href=#hl-14-15>15</a>
+</span><span class=lnt id=hl-14-16><a class=lnlinks href=#hl-14-16>16</a>
+</span><span class=lnt id=hl-14-17><a class=lnlinks href=#hl-14-17>17</a>
+</span><span class=lnt id=hl-14-18><a class=lnlinks href=#hl-14-18>18</a>
+</span><span class=lnt id=hl-14-19><a class=lnlinks href=#hl-14-19>19</a>
+</span><span class=lnt id=hl-14-20><a class=lnlinks href=#hl-14-20>20</a>
+</span><span class=lnt id=hl-14-21><a class=lnlinks href=#hl-14-21>21</a>
+</span><span class=lnt id=hl-14-22><a class=lnlinks href=#hl-14-22>22</a>
+</span><span class=lnt id=hl-14-23><a class=lnlinks href=#hl-14-23>23</a>
+</span><span class=lnt id=hl-14-24><a class=lnlinks href=#hl-14-24>24</a>
+</span><span class=lnt id=hl-14-25><a class=lnlinks href=#hl-14-25>25</a>
+</span><span class=lnt id=hl-14-26><a class=lnlinks href=#hl-14-26>26</a>
+</span><span class=lnt id=hl-14-27><a class=lnlinks href=#hl-14-27>27</a>
+</span><span class=lnt id=hl-14-28><a class=lnlinks href=#hl-14-28>28</a>
+</span><span class=lnt id=hl-14-29><a class=lnlinks href=#hl-14-29>29</a>
+</span><span class=lnt id=hl-14-30><a class=lnlinks href=#hl-14-30>30</a>
+</span><span class=lnt id=hl-14-31><a class=lnlinks href=#hl-14-31>31</a>
+</span><span class=lnt id=hl-14-32><a class=lnlinks href=#hl-14-32>32</a>
+</span><span class=lnt id=hl-14-33><a class=lnlinks href=#hl-14-33>33</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>hashlib</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>os</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>hash_password_with_salt</span><span class=p>(</span><span class=n>password</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 랜덤 솔트 생성</span>
+</span></span><span class=line><span class=cl>    <span class=n>salt</span> <span class=o>=</span> <span class=n>os</span><span class=o>.</span><span class=n>urandom</span><span class=p>(</span><span class=mi>16</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 비밀번호와 솔트 결합하여 해싱</span>
+</span></span><span class=line><span class=cl>    <span class=n>hash_obj</span> <span class=o>=</span> <span class=n>hashlib</span><span class=o>.</span><span class=n>pbkdf2_hmac</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;sha256&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=n>password</span><span class=o>.</span><span class=n>encode</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>        <span class=n>salt</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=mi>100000</span><span class=p>,</span>  <span class=c1># 반복 횟수</span>
+</span></span><span class=line><span class=cl>    <span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 솔트와 해시를 함께 저장</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>salt</span> <span class=o>+</span> <span class=n>hash_obj</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>verify_password_with_salt</span><span class=p>(</span><span class=n>stored_data</span><span class=p>,</span> <span class=n>password</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 저장된 데이터에서 솔트 추출</span>
+</span></span><span class=line><span class=cl>    <span class=n>salt</span> <span class=o>=</span> <span class=n>stored_data</span><span class=p>[:</span><span class=mi>16</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=n>stored_hash</span> <span class=o>=</span> <span class=n>stored_data</span><span class=p>[</span><span class=mi>16</span><span class=p>:]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 입력된 비밀번호의 해시 계산</span>
+</span></span><span class=line><span class=cl>    <span class=n>hash_obj</span> <span class=o>=</span> <span class=n>hashlib</span><span class=o>.</span><span class=n>pbkdf2_hmac</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;sha256&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=n>password</span><span class=o>.</span><span class=n>encode</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>        <span class=n>salt</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=mi>100000</span><span class=p>,</span>  <span class=c1># 반복 횟수</span>
+</span></span><span class=line><span class=cl>    <span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 해시 비교</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>stored_hash</span> <span class=o>==</span> <span class=n>hash_obj</span>
+</span></span></code></pre></td></tr></table></div></div></li></ol><h3 id=해싱의-실제-응용-사례>해싱의 실제 응용 사례<a hidden class=anchor aria-hidden=true href=#해싱의-실제-응용-사례>#</a></h3><p>해싱은 다양한 응용 분야에서 활용된다:</p><ol><li><p>데이터베이스 인덱싱<br>데이터베이스에서 해시 인덱스를 사용하여 레코드를 빠르게 검색한다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-15-1><a class=lnlinks href=#hl-15-1>1</a>
+</span><span class=lnt id=hl-15-2><a class=lnlinks href=#hl-15-2>2</a>
+</span><span class=lnt id=hl-15-3><a class=lnlinks href=#hl-15-3>3</a>
+</span><span class=lnt id=hl-15-4><a class=lnlinks href=#hl-15-4>4</a>
+</span><span class=lnt id=hl-15-5><a class=lnlinks href=#hl-15-5>5</a>
+</span><span class=lnt id=hl-15-6><a class=lnlinks href=#hl-15-6>6</a>
+</span><span class=lnt id=hl-15-7><a class=lnlinks href=#hl-15-7>7</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sql data-lang=sql><span class=line><span class=cl><span class=c1>-- MySQL에서 해시 인덱스 생성 예시
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>CREATE</span><span class=w> </span><span class=k>TABLE</span><span class=w> </span><span class=n>users</span><span class=w> </span><span class=p>(</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>id</span><span class=w> </span><span class=nb>INT</span><span class=w> </span><span class=k>PRIMARY</span><span class=w> </span><span class=k>KEY</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>username</span><span class=w> </span><span class=nb>VARCHAR</span><span class=p>(</span><span class=mi>50</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>email</span><span class=w> </span><span class=nb>VARCHAR</span><span class=p>(</span><span class=mi>100</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>INDEX</span><span class=w> </span><span class=n>hash_idx</span><span class=w> </span><span class=p>(</span><span class=n>username</span><span class=p>)</span><span class=w> </span><span class=k>USING</span><span class=w> </span><span class=n>HASH</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>);</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div></li><li><p>캐싱 시스템<br>웹 서버에서 자주 요청되는 데이터를 캐싱하는 데 해시 테이블을 사용한다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-16-1><a class=lnlinks href=#hl-16-1> 1</a>
+</span><span class=lnt id=hl-16-2><a class=lnlinks href=#hl-16-2> 2</a>
+</span><span class=lnt id=hl-16-3><a class=lnlinks href=#hl-16-3> 3</a>
+</span><span class=lnt id=hl-16-4><a class=lnlinks href=#hl-16-4> 4</a>
+</span><span class=lnt id=hl-16-5><a class=lnlinks href=#hl-16-5> 5</a>
+</span><span class=lnt id=hl-16-6><a class=lnlinks href=#hl-16-6> 6</a>
+</span><span class=lnt id=hl-16-7><a class=lnlinks href=#hl-16-7> 7</a>
+</span><span class=lnt id=hl-16-8><a class=lnlinks href=#hl-16-8> 8</a>
+</span><span class=lnt id=hl-16-9><a class=lnlinks href=#hl-16-9> 9</a>
+</span><span class=lnt id=hl-16-10><a class=lnlinks href=#hl-16-10>10</a>
+</span><span class=lnt id=hl-16-11><a class=lnlinks href=#hl-16-11>11</a>
+</span><span class=lnt id=hl-16-12><a class=lnlinks href=#hl-16-12>12</a>
+</span><span class=lnt id=hl-16-13><a class=lnlinks href=#hl-16-13>13</a>
+</span><span class=lnt id=hl-16-14><a class=lnlinks href=#hl-16-14>14</a>
+</span><span class=lnt id=hl-16-15><a class=lnlinks href=#hl-16-15>15</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 간단한 캐시 구현 예시</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>Cache</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>capacity</span><span class=o>=</span><span class=mi>100</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>capacity</span> <span class=o>=</span> <span class=n>capacity</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>cache</span> <span class=o>=</span> <span class=p>{}</span>  <span class=c1># 파이썬의 딕셔너리는 내부적으로 해시 테이블</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>get</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>key</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>cache</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=n>key</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>put</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 용량 초과 시 가장 오래된 항목 제거</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>cache</span><span class=p>)</span> <span class=o>&gt;=</span> <span class=bp>self</span><span class=o>.</span><span class=n>capacity</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>oldest_key</span> <span class=o>=</span> <span class=nb>next</span><span class=p>(</span><span class=nb>iter</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>cache</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>            <span class=k>del</span> <span class=bp>self</span><span class=o>.</span><span class=n>cache</span><span class=p>[</span><span class=n>oldest_key</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>cache</span><span class=p>[</span><span class=n>key</span><span class=p>]</span> <span class=o>=</span> <span class=n>value</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>암호화 및 보안<br>해시 함수는 암호화와 데이터 무결성 검증에 사용된다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-17-1><a class=lnlinks href=#hl-17-1> 1</a>
+</span><span class=lnt id=hl-17-2><a class=lnlinks href=#hl-17-2> 2</a>
+</span><span class=lnt id=hl-17-3><a class=lnlinks href=#hl-17-3> 3</a>
+</span><span class=lnt id=hl-17-4><a class=lnlinks href=#hl-17-4> 4</a>
+</span><span class=lnt id=hl-17-5><a class=lnlinks href=#hl-17-5> 5</a>
+</span><span class=lnt id=hl-17-6><a class=lnlinks href=#hl-17-6> 6</a>
+</span><span class=lnt id=hl-17-7><a class=lnlinks href=#hl-17-7> 7</a>
+</span><span class=lnt id=hl-17-8><a class=lnlinks href=#hl-17-8> 8</a>
+</span><span class=lnt id=hl-17-9><a class=lnlinks href=#hl-17-9> 9</a>
+</span><span class=lnt id=hl-17-10><a class=lnlinks href=#hl-17-10>10</a>
+</span><span class=lnt id=hl-17-11><a class=lnlinks href=#hl-17-11>11</a>
+</span><span class=lnt id=hl-17-12><a class=lnlinks href=#hl-17-12>12</a>
+</span><span class=lnt id=hl-17-13><a class=lnlinks href=#hl-17-13>13</a>
+</span><span class=lnt id=hl-17-14><a class=lnlinks href=#hl-17-14>14</a>
+</span><span class=lnt id=hl-17-15><a class=lnlinks href=#hl-17-15>15</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>hashlib</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>hash_password</span><span class=p>(</span><span class=n>password</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># SHA-256 해시 함수를 사용한 비밀번호 해싱</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>hashlib</span><span class=o>.</span><span class=n>sha256</span><span class=p>(</span><span class=n>password</span><span class=o>.</span><span class=n>encode</span><span class=p>())</span><span class=o>.</span><span class=n>hexdigest</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>verify_password</span><span class=p>(</span><span class=n>stored_hash</span><span class=p>,</span> <span class=n>password</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 입력된 비밀번호의 해시와 저장된 해시 비교</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>stored_hash</span> <span class=o>==</span> <span class=n>hash_password</span><span class=p>(</span><span class=n>password</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 사용 예시</span>
+</span></span><span class=line><span class=cl><span class=n>hashed_pw</span> <span class=o>=</span> <span class=n>hash_password</span><span class=p>(</span><span class=s2>&#34;mySecurePassword123&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>hashed_pw</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>verify_password</span><span class=p>(</span><span class=n>hashed_pw</span><span class=p>,</span> <span class=s2>&#34;mySecurePassword123&#34;</span><span class=p>))</span>  <span class=c1># True</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>verify_password</span><span class=p>(</span><span class=n>hashed_pw</span><span class=p>,</span> <span class=s2>&#34;wrongPassword&#34;</span><span class=p>))</span>        <span class=c1># False</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>중복 검출<br>해싱을 사용하여 대용량 데이터에서 중복을 빠르게 찾아낸다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-18-1><a class=lnlinks href=#hl-18-1> 1</a>
+</span><span class=lnt id=hl-18-2><a class=lnlinks href=#hl-18-2> 2</a>
+</span><span class=lnt id=hl-18-3><a class=lnlinks href=#hl-18-3> 3</a>
+</span><span class=lnt id=hl-18-4><a class=lnlinks href=#hl-18-4> 4</a>
+</span><span class=lnt id=hl-18-5><a class=lnlinks href=#hl-18-5> 5</a>
+</span><span class=lnt id=hl-18-6><a class=lnlinks href=#hl-18-6> 6</a>
+</span><span class=lnt id=hl-18-7><a class=lnlinks href=#hl-18-7> 7</a>
+</span><span class=lnt id=hl-18-8><a class=lnlinks href=#hl-18-8> 8</a>
+</span><span class=lnt id=hl-18-9><a class=lnlinks href=#hl-18-9> 9</a>
+</span><span class=lnt id=hl-18-10><a class=lnlinks href=#hl-18-10>10</a>
+</span><span class=lnt id=hl-18-11><a class=lnlinks href=#hl-18-11>11</a>
+</span><span class=lnt id=hl-18-12><a class=lnlinks href=#hl-18-12>12</a>
+</span><span class=lnt id=hl-18-13><a class=lnlinks href=#hl-18-13>13</a>
+</span><span class=lnt id=hl-18-14><a class=lnlinks href=#hl-18-14>14</a>
+</span><span class=lnt id=hl-18-15><a class=lnlinks href=#hl-18-15>15</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>find_duplicates</span><span class=p>(</span><span class=n>values</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>seen</span> <span class=o>=</span> <span class=nb>set</span><span class=p>()</span>  <span class=c1># 파이썬의 집합은 내부적으로 해시 테이블</span>
+</span></span><span class=line><span class=cl>    <span class=n>duplicates</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>value</span> <span class=ow>in</span> <span class=n>values</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>value</span> <span class=ow>in</span> <span class=n>seen</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>duplicates</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>seen</span><span class=o>.</span><span class=n>add</span><span class=p>(</span><span class=n>value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>duplicates</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 사용 예시</span>
+</span></span><span class=line><span class=cl><span class=n>data</span> <span class=o>=</span> <span class=p>[</span><span class=mi>1</span><span class=p>,</span> <span class=mi>2</span><span class=p>,</span> <span class=mi>3</span><span class=p>,</span> <span class=mi>2</span><span class=p>,</span> <span class=mi>4</span><span class=p>,</span> <span class=mi>5</span><span class=p>,</span> <span class=mi>3</span><span class=p>,</span> <span class=mi>6</span><span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>find_duplicates</span><span class=p>(</span><span class=n>data</span><span class=p>))</span>  <span class=c1># [2, 3]</span>
+</span></span></code></pre></td></tr></table></div></div></li></ol><h3 id=해싱의-미래와-발전-방향>해싱의 미래와 발전 방향<a hidden class=anchor aria-hidden=true href=#해싱의-미래와-발전-방향>#</a></h3><ol><li>양자 저항성 해시 함수<br>양자 컴퓨팅의 발전으로 기존 해시 함수가 취약해질 수 있어, 양자 컴퓨터에도 안전한 해시 함수에 대한 연구가 진행 중이다.</li><li>기계 학습과 해싱<br>기계 학습 기법을 적용하여 데이터 특성에 맞는 최적의 해시 함수를 자동으로 생성하는 연구가 활발히 진행 중이다.</li><li>분산 해싱 시스템<br>대규모 분산 시스템에서 효율적인 데이터 분배와 접근을 위한 고급 해싱 기법이 계속 발전하고 있다.</li></ol><hr><h2 id=참고-및-출처>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처>#</a></h2></div><article class=post-entry><header class=entry-header><h2 class=entry-hint-parent>Components of Hashing</h2></header><div class=entry-content><p></p></div><footer class=entry-footer><span title='2025-01-23 14:20:00 +0000 UTC'>January 23, 2025</span>&nbsp;·&nbsp;0 min&nbsp;·&nbsp;Me</footer><a class=entry-link aria-label="post link to Components of Hashing" href=https://buenhyden.github.io/posts/data-structures-and-algorithms/problem-solving-techniques/hashing/components/></a></article></main><footer class=footer><span>&copy; 2025 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>

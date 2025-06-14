@@ -1,0 +1,663 @@
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Linearizability | hyunyoun's Blog</title><meta name=keywords content="System-Design,Fundamentals,Consistency-Patterns,Linearizability"><meta name=description content="선형화 가능성은 분산 시스템에서 동시에 발생하는 작업들이 마치 단일 시스템에서 순차적으로 실행된 것처럼 보이게 하는 강력한 일관성 모델이다. 이는 모든 작업이 실시간 순서를 준수하면서 단일 순차적 순서대로 실행되는 것처럼 동작하도록 보장하여, 분산 환경에서도 마치 하나의 시스템처럼 일관된 상태를 유지한다."><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/software-engineering/design-and-architecture/system-design/tradeoffs-and-theorems/consistency-models/linearizability/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.a9863521b3bd3c240bc506f46b95e3c06ccef2ae37f529d5f99bdaef442bccce.css integrity="sha256-qYY1IbO9PCQLxQb0a5XjwGzO8q439SnV+Zva70QrzM4=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate type=application/rss+xml href=https://buenhyden.github.io/posts/software-engineering/design-and-architecture/system-design/tradeoffs-and-theorems/consistency-models/linearizability/index.xml><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/software-engineering/design-and-architecture/system-design/tradeoffs-and-theorems/consistency-models/linearizability/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/software-engineering/design-and-architecture/system-design/tradeoffs-and-theorems/consistency-models/linearizability/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="Linearizability"><meta property="og:description" content="선형화 가능성은 분산 시스템에서 동시에 발생하는 작업들이 마치 단일 시스템에서 순차적으로 실행된 것처럼 보이게 하는 강력한 일관성 모델이다. 이는 모든 작업이 실시간 순서를 준수하면서 단일 순차적 순서대로 실행되는 것처럼 동작하도록 보장하여, 분산 환경에서도 마치 하나의 시스템처럼 일관된 상태를 유지한다."><meta property="og:locale" content="en"><meta property="og:type" content="website"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="Linearizability"><meta name=twitter:description content="선형화 가능성은 분산 시스템에서 동시에 발생하는 작업들이 마치 단일 시스템에서 순차적으로 실행된 것처럼 보이게 하는 강력한 일관성 모델이다. 이는 모든 작업이 실시간 순서를 준수하면서 단일 순차적 순서대로 실행되는 것처럼 동작하도록 보장하여, 분산 환경에서도 마치 하나의 시스템처럼 일관된 상태를 유지한다."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Computer Science and Engineering","item":"https://buenhyden.github.io/posts/"},{"@type":"ListItem","position":2,"name":"Software Engineering","item":"https://buenhyden.github.io/posts/software-engineering/"},{"@type":"ListItem","position":3,"name":"Design and Architecture","item":""},{"@type":"ListItem","position":4,"name":"System Design","item":""},{"@type":"ListItem","position":5,"name":"Tradeoffs and Theorems","item":""},{"@type":"ListItem","position":6,"name":"Consistency Patterns","item":"https://buenhyden.github.io/posts/software-engineering/design-and-architecture/system-design/tradeoffs-and-theorems/consistency-models/"},{"@type":"ListItem","position":7,"name":"Linearizability","item":"https://buenhyden.github.io/posts/software-engineering/design-and-architecture/system-design/tradeoffs-and-theorems/consistency-models/linearizability/"}]}</script></head><body class=list id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><header class=page-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/>Computer Science and Engineering</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/software-engineering/>Software Engineering</a>&nbsp;»&nbsp;<a href>Design and Architecture</a>&nbsp;»&nbsp;<a href>System Design</a>&nbsp;»&nbsp;<a href>Tradeoffs and Theorems</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/software-engineering/design-and-architecture/system-design/tradeoffs-and-theorems/consistency-models/>Consistency Patterns</a></div><h1>Linearizability</h1><div class=post-description>선형화 가능성은 분산 시스템에서 동시에 발생하는 작업들이 마치 단일 시스템에서 순차적으로 실행된 것처럼 보이게 하는 강력한 일관성 모델이다. 이는 모든 작업이 실시간 순서를 준수하면서 단일 순차적 순서대로 실행되는 것처럼 동작하도록 보장하여, 분산 환경에서도 마치 하나의 시스템처럼 일관된 상태를 유지한다.</div></header><div class=post-content><h2 id=선형화-가능성-linearizability>선형화 가능성 (Linearizability)<a hidden class=anchor aria-hidden=true href=#선형화-가능성-linearizability>#</a></h2><p>선형화 가능성 (Linearizability) 은 분산 시스템에서 가장 강력한 일관성 모델로, 여러 프로세스가 공유 객체에 접근할 때 각 작업이 실제 발생 시간 사이에 원자적으로 실행된 것처럼 보이도록 한다. 이는 CAP 정리에서 말하는 일관성 (C) 에 해당하며, 모든 노드가 데이터의 동일한 상태를 볼 수 있도록 보장한다. 그러나 높은 일관성을 제공하는 대신 가용성과 파티션 내성 간의 균형을 맞추는 것이 핵심 과제이다. 데이터베이스, 분산 키 - 값 저장소, 공유 레지스터 등 다양한 시스템에서 활용된다.</p><h3 id=4-핵심-개념>4. 핵심 개념<a hidden class=anchor aria-hidden=true href=#4-핵심-개념>#</a></h3><p>선형화 가능성은 분산 시스템과 동시성 프로그래밍에서 가장 중요한 일관성 모델 중 하나이다.</p><p>이 개념은 다음과 같은 핵심 특성을 갖는다:</p><ol><li><p><strong>원자성 (Atomicity)</strong> - 모든 작업이 마치 순간적으로 (원자적으로) 발생하는 것처럼 보이게 한다. 이는 작업이 시작과 종료 사이의 어느 시점에서 즉시 발생하는 것처럼 보이게 한다.</p></li><li><p><strong>실시간 순서 (Real-time Ordering)</strong> - 어떤 작업 A 가 완료된 후 작업 B 가 시작된다면, 선형화 가능성은 작업 B 가 작업 A 이후에 발생한 것으로 보이도록 보장한다. 이것은 시스템의 모든 노드가 작업의 동일한 순서를 관찰할 수 있게 한다.</p></li><li><p><strong>단일 복사본 일관성 (Single-copy Consistency)</strong> - 시스템이 마치 데이터의 단일 복사본만 존재하는 것처럼 동작하게 한다. 이는 분산 시스템이 논리적으로 중앙 집중식 시스템처럼 보이게 한다.</p></li><li><p><strong>선형화 지점 (Linearization Point)</strong> - 각 작업이 효과적으로 발생하는 특정 시점으로, 작업의 시작과 완료 사이에 존재한다. 이 지점들이 전체 작업의 선형 순서를 정의한다.</p></li><li><p><strong>합성 가능성 (Composability)</strong> - 선형화 가능성은 " 지역적 (local)" 이다. 즉, 시스템의 각 객체가 선형화 가능하다면, 전체 시스템도 선형화 가능하다.</p></li></ol><p>분산 시스템과 다중 스레드 프로그래밍에서 선형화 가능성은 시스템이 예측 가능하고 직관적인 방식으로 동작하도록 보장하며, 이는 개발자가 복잡한 동시성 문제를 더 쉽게 해결할 수 있게 한다.</p><h3 id=목적-및-필요성>목적 및 필요성<a hidden class=anchor aria-hidden=true href=#목적-및-필요성>#</a></h3><p>선형화 가능성의 주요 목적은 분산 시스템에서 데이터의 일관성을 보장하는 것이다. 단일 시스템과 달리 분산 시스템에서는 여러 노드가 동시에 데이터에 접근하고 수정할 수 있어, 데이터의 일관된 상태를 유지하기 어렵다. 선형화 가능성은 이런 환경에서도 마치 하나의 시스템에서 순차적으로 작업이 실행되는 것처럼 동작하도록 보장한다.</p><p>선형화 가능성이 필요한 이유는 다음과 같다:</p><ol><li><strong>직관적인 동작 보장</strong>: 개발자와 사용자가 시스템의 동작을 단일 시스템처럼 이해하고 예측할 수 있게 한다.</li><li><strong>일관된 상태 유지</strong>: 동시에 발생하는 작업 간에도 데이터의 일관성을 보장하여, 데이터 불일치로 인한 문제를 방지한다.</li><li><strong>오류 감소</strong>: 복잡한 동시성 문제를 단순화하여 프로그래밍 오류의 가능성을 줄인다.</li><li><strong>정확한 시스템 동작</strong>: 금융, 예약 시스템 등 정확성이 중요한 애플리케이션에서 필수적이다.</li><li><strong>시스템 정확성 증명 용이성</strong>: 선형화 가능한 시스템은 순차적 실행 모델을 기반으로 정확성을 증명하기 쉽다.</li></ol><h3 id=주요-기능-및-역할>주요 기능 및 역할<a hidden class=anchor aria-hidden=true href=#주요-기능-및-역할>#</a></h3><p>선형화 가능성의 주요 기능과 역할은 다음과 같다:</p><ol><li><strong>동시성 제어</strong>: 여러 프로세스나 스레드가 동시에 공유 자원에 접근할 때 일관성을 유지한다.</li><li><strong>원자적 작업 보장</strong>: 각 작업이 불가분의 단위로 실행되어, 부분적으로 완료된 상태가 다른 프로세스에 보이지 않는다.</li><li><strong>실시간 순서 준수</strong>: 작업들이 실제 시간 순서에 맞게 실행된 것처럼 보이도록 한다.</li><li><strong>일관된 상태 보기</strong>: 모든 클라이언트가 동일한 데이터 상태를 관찰할 수 있게 한다.</li><li><strong>시스템 추론 단순화</strong>: 개발자가 동시성 문제를 순차적 실행 모델로 단순화하여 추론할 수 있게 한다.</li><li><strong>분산 시스템 신뢰성 향상</strong>: 데이터의 정확성과 일관성을 보장하여 시스템의 신뢰성을 높인다.</li></ol><h3 id=특징>특징<a hidden class=anchor aria-hidden=true href=#특징>#</a></h3><p>선형화 가능성의 주요 특징은 다음과 같다:</p><ol><li><strong>강력한 일관성 모델</strong>: 가장 엄격한 일관성 모델 중 하나로, 모든 노드가 동일한 순서로 작업을 관찰한다.</li><li><strong>원자적 실행</strong>: 작업이 분할되지 않고 하나의 원자적 단위로 실행된다.</li><li><strong>실시간 순서 보존</strong>: 한 작업이 다른 작업보다 먼저 완료되면, 그 순서가 보존된다.</li><li><strong>지역성 (Locality)</strong>: 개별 객체에 대한 선형화 가능성은 전체 시스템의 선형화 가능성으로 합성된다.</li><li><strong>단일 복사본 시맨틱스</strong>: 시스템이 마치 데이터의 단일 복사본만 있는 것처럼 동작한다.</li><li><strong>결정론적 결과</strong>: 동일한 입력에 대해 항상 동일한 결과를 생성한다.</li><li><strong>즉각적인 가시성</strong>: 한 클라이언트의 쓰기 작업이 완료되면 즉시 다른 모든 클라이언트에게 보인다.</li></ol><h3 id=핵심-원칙>핵심 원칙<a hidden class=anchor aria-hidden=true href=#핵심-원칙>#</a></h3><p>선형화 가능성의 핵심 원칙은 다음과 같다:</p><ol><li><strong>원자성 원칙</strong>: 모든 작업은 원자적으로 발생하며, 부분적으로 완료된 상태가 관찰되지 않는다.</li><li><strong>실시간 순서 원칙</strong>: 작업 A 가 작업 B 보다 먼저 완료되면, 선형화된 실행에서도 A 는 B 보다 먼저 발생한다.</li><li><strong>단일 복사본 원칙</strong>: 시스템은 데이터의 단일 복사본이 있는 것처럼 동작한다.</li><li><strong>일관성 원칙</strong>: 모든 노드는 동일한 순서로 작업을 관찰한다.</li><li><strong>가시성 원칙</strong>: 쓰기 작업이 완료되면 이후의 모든 읽기 작업은 해당 쓰기의 결과를 반영한다.</li><li><strong>합성 가능성 원칙</strong>: 각 객체가 선형화 가능하면 전체 시스템도 선형화 가능하다.</li><li><strong>전체 순서 원칙</strong>: 모든 작업은 전체 순서 (total order) 를 형성한다.</li></ol><h3 id=주요-원리-및-작동-원리>주요 원리 및 작동 원리<a hidden class=anchor aria-hidden=true href=#주요-원리-및-작동-원리>#</a></h3><p>선형화 가능성의 주요 원리는 각 작업이 마치 순간적으로 발생하는 것처럼 보이게 하는 것이다. 이를 선형화 지점 (linearization point) 이라고 하며, 이는 작업의 시작과 완료 사이에 존재한다.</p><p><strong>작동 원리</strong>:</p><ol><li><p><strong>선형화 지점 정의</strong>: 각 작업에 대해 해당 작업이 효과적으로 발생하는 시점을 정의한다. 이는 일반적으로 작업의 시작과 완료 사이의 어떤 시점이다.</p></li><li><p><strong>전체 순서 확립</strong>: 이러한 선형화 지점을 기반으로 모든 작업의 전체 순서를 확립한다.</p></li><li><p><strong>실시간 제약 준수</strong>: 이 순서는 실제 시간 순서를 준수해야 한다. 즉, 작업 A 가 완료된 후 작업 B 가 시작되면, A 는 B 보다 먼저 발생한 것으로 간주된다.</p></li><li><p><strong>동시 작업 정렬</strong>: 동시에 발생하는 작업들은 임의의 순서로 정렬될 수 있지만, 일단 정렬되면 모든 노드는 동일한 순서를 관찰해야 한다.</p></li><li><p><strong>일관된 상태 유지</strong>: 모든 작업은 이전 작업들이 완료된 후의 시스템 상태에 적용된다.</p></li><li><p><strong>결과 반환</strong>: 작업의 결과는 선형화된 순서에 따라 결정된다.</p></li></ol><p><strong>선형화 가능성의 작동 원리를 보여주는 다이어그램</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-0-1><a class=lnlinks href=#hl-0-1>1</a>
+</span><span class=lnt id=hl-0-2><a class=lnlinks href=#hl-0-2>2</a>
+</span><span class=lnt id=hl-0-3><a class=lnlinks href=#hl-0-3>3</a>
+</span><span class=lnt id=hl-0-4><a class=lnlinks href=#hl-0-4>4</a>
+</span><span class=lnt id=hl-0-5><a class=lnlinks href=#hl-0-5>5</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>  클라이언트 A: ----W(x)---R(x)----
+</span></span><span class=line><span class=cl>  클라이언트 B: ---------R(x)------W(x)----
+</span></span><span class=line><span class=cl>  클라이언트 C: --------------R(x)-------R(x)--
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  선형화된 순서: --R(x)--W(x)--R(x)--R(x)--W(x)--R(x)--
+</span></span></code></pre></td></tr></table></div></div><p>이 다이어그램에서:</p><ul><li>클라이언트 A 가 x 에 1 을 쓰고 나중에 1 을 읽는다.</li><li>클라이언트 B 가 먼저 x 에서 0 을 읽고 나중에 2 를 쓴다.</li><li>클라이언트 C 는 나중에 x 에서 먼저 1 을 읽고 그 후 2 를 읽는다.</li></ul><p>선형화 가능성은 이러한 작업들이 마치 위의 선형화된 순서대로 실행된 것처럼 보이도록 보장한다.</p><h3 id=구현-기법>구현 기법<a hidden class=anchor aria-hidden=true href=#구현-기법>#</a></h3><h4 id=단일-리더-복제-single-leader-replication>단일 리더 복제 (Single-Leader Replication)<a hidden class=anchor aria-hidden=true href=#단일-리더-복제-single-leader-replication>#</a></h4><p>모든 쓰기 작업이 단일 리더 노드를 통해 처리되고, 동기식으로 팔로워 노드에 복제되는 방식.</p><p><strong>구성</strong>:</p><ul><li>하나의 리더 노드와 여러 팔로워 노드</li><li>모든 쓰기 작업은 리더에게만 전달</li><li>쓰기 작업 처리 후 동기식으로 팔로워에 복제</li><li>리더의 확인 후 클라이언트에 응답</li></ul><p><strong>목적</strong>: 단순한 구조로 선형화 가능성 보장</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-1-1><a class=lnlinks href=#hl-1-1> 1</a>
+</span><span class=lnt id=hl-1-2><a class=lnlinks href=#hl-1-2> 2</a>
+</span><span class=lnt id=hl-1-3><a class=lnlinks href=#hl-1-3> 3</a>
+</span><span class=lnt id=hl-1-4><a class=lnlinks href=#hl-1-4> 4</a>
+</span><span class=lnt id=hl-1-5><a class=lnlinks href=#hl-1-5> 5</a>
+</span><span class=lnt id=hl-1-6><a class=lnlinks href=#hl-1-6> 6</a>
+</span><span class=lnt id=hl-1-7><a class=lnlinks href=#hl-1-7> 7</a>
+</span><span class=lnt id=hl-1-8><a class=lnlinks href=#hl-1-8> 8</a>
+</span><span class=lnt id=hl-1-9><a class=lnlinks href=#hl-1-9> 9</a>
+</span><span class=lnt id=hl-1-10><a class=lnlinks href=#hl-1-10>10</a>
+</span><span class=lnt id=hl-1-11><a class=lnlinks href=#hl-1-11>11</a>
+</span><span class=lnt id=hl-1-12><a class=lnlinks href=#hl-1-12>12</a>
+</span><span class=lnt id=hl-1-13><a class=lnlinks href=#hl-1-13>13</a>
+</span><span class=lnt id=hl-1-14><a class=lnlinks href=#hl-1-14>14</a>
+</span><span class=lnt id=hl-1-15><a class=lnlinks href=#hl-1-15>15</a>
+</span><span class=lnt id=hl-1-16><a class=lnlinks href=#hl-1-16>16</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>시스템 구성: 리더(L)와 두 개의 팔로워(F1, F2)로 구성된 MySQL 클러스터
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>1. 초기 상태: 키 K의 값은 &#34;value1&#34;
+</span></span><span class=line><span class=cl>2. 클라이언트 C1이 10:00:01에 키 K 읽기 요청 → &#34;value1&#34; 반환
+</span></span><span class=line><span class=cl>3. 클라이언트 C2가 10:00:02에 키 K 업데이트 요청: K = &#34;value2&#34;
+</span></span><span class=line><span class=cl>   - 요청이 리더 L로 라우팅
+</span></span><span class=line><span class=cl>   - L이 변경사항 적용 및 로그 기록
+</span></span><span class=line><span class=cl>   - L이 F1, F2에 동기식으로 복제 요청
+</span></span><span class=line><span class=cl>   - F1, F2가 변경사항 적용 및 확인 응답
+</span></span><span class=line><span class=cl>   - 모든 팔로워의 확인 후 L이 C2에 성공 응답
+</span></span><span class=line><span class=cl>4. 클라이언트 C3가 10:00:03에 키 K 읽기 요청
+</span></span><span class=line><span class=cl>   - 리더 또는 팔로워 중 어디에서 읽어도 &#34;value2&#34; 반환
+</span></span><span class=line><span class=cl>5. 리더 장애 시:
+</span></span><span class=line><span class=cl>   - 새 리더 선출 전까지 쓰기 불가
+</span></span><span class=line><span class=cl>   - 읽기는 가장 최신 상태를 가진 노드에서 처리
+</span></span></code></pre></td></tr></table></div></div><h4 id=합의-알고리즘-consensus-algorithms>합의 알고리즘 (Consensus Algorithms)<a hidden class=anchor aria-hidden=true href=#합의-알고리즘-consensus-algorithms>#</a></h4><h5 id=paxos>Paxos<a hidden class=anchor aria-hidden=true href=#paxos>#</a></h5><p>비동기 네트워크에서 분산된 프로세스들이 하나의 값에 합의할 수 있도록 하는 프로토콜.</p><p><strong>구성</strong>:</p><ul><li>제안자 (Proposer), 수락자 (Acceptor), 학습자 (Learner) 역할</li><li>2 단계 프로토콜: 준비 (Prepare) 와 수락 (Accept)</li><li>다수결 원칙으로 값 결정</li></ul><p><strong>목적</strong>: 장애 환경에서도 일관된 값 선택 보장</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-2-1><a class=lnlinks href=#hl-2-1> 1</a>
+</span><span class=lnt id=hl-2-2><a class=lnlinks href=#hl-2-2> 2</a>
+</span><span class=lnt id=hl-2-3><a class=lnlinks href=#hl-2-3> 3</a>
+</span><span class=lnt id=hl-2-4><a class=lnlinks href=#hl-2-4> 4</a>
+</span><span class=lnt id=hl-2-5><a class=lnlinks href=#hl-2-5> 5</a>
+</span><span class=lnt id=hl-2-6><a class=lnlinks href=#hl-2-6> 6</a>
+</span><span class=lnt id=hl-2-7><a class=lnlinks href=#hl-2-7> 7</a>
+</span><span class=lnt id=hl-2-8><a class=lnlinks href=#hl-2-8> 8</a>
+</span><span class=lnt id=hl-2-9><a class=lnlinks href=#hl-2-9> 9</a>
+</span><span class=lnt id=hl-2-10><a class=lnlinks href=#hl-2-10>10</a>
+</span><span class=lnt id=hl-2-11><a class=lnlinks href=#hl-2-11>11</a>
+</span><span class=lnt id=hl-2-12><a class=lnlinks href=#hl-2-12>12</a>
+</span><span class=lnt id=hl-2-13><a class=lnlinks href=#hl-2-13>13</a>
+</span><span class=lnt id=hl-2-14><a class=lnlinks href=#hl-2-14>14</a>
+</span><span class=lnt id=hl-2-15><a class=lnlinks href=#hl-2-15>15</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>시스템 구성: 5개의 노드로 구성된 키-값 저장소
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오 (키 X의 값 업데이트):
+</span></span><span class=line><span class=cl>1. 클라이언트가 키 X 값을 &#34;new_value&#34;로 업데이트 요청
+</span></span><span class=line><span class=cl>2. 제안자 P1이 제안 번호 n=5로 준비 요청 전송:
+</span></span><span class=line><span class=cl>   - 메시지: &#34;PREPARE n=5&#34;
+</span></span><span class=line><span class=cl>3. 수락자들이 자신이 수락한 최대 제안 번호가 5보다 작으면 응답:
+</span></span><span class=line><span class=cl>   - &#34;PROMISE n=5, 이전에 수락한 값 없음&#34;
+</span></span><span class=line><span class=cl>4. P1이 과반수(3개 이상) 응답 받으면 수락 요청 전송:
+</span></span><span class=line><span class=cl>   - 메시지: &#34;ACCEPT n=5, value=&#39;new_value&#39;&#34;
+</span></span><span class=line><span class=cl>5. 수락자들이 더 큰 제안 번호를 약속하지 않았다면 제안 수락:
+</span></span><span class=line><span class=cl>   - &#34;ACCEPTED n=5, value=&#39;new_value&#39;&#34;
+</span></span><span class=line><span class=cl>6. 과반수가 수락하면 값 &#34;new_value&#34;가 결정됨
+</span></span><span class=line><span class=cl>7. 학습자들이 결정된 값을 적용하고 클라이언트에 응답
+</span></span><span class=line><span class=cl>8. 이후 모든 읽기 요청은 &#34;new_value&#34; 반환
+</span></span></code></pre></td></tr></table></div></div><h5 id=raft>Raft<a hidden class=anchor aria-hidden=true href=#raft>#</a></h5><p>이해하기 쉽도록 설계된 합의 알고리즘으로, 리더 선출, 로그 복제, 안전성을 명확히 분리하여 구현한다.</p><p><strong>구성</strong>:</p><ul><li>리더, 팔로워, 후보자 역할</li><li>리더 주도 로그 복제</li><li>리더 선출을 위한 임기 (term) 기반 투표</li><li>엄격한 로그 일관성 규칙</li></ul><p><strong>목적</strong>: 선형화 가능성을 보장하면서도 이해하기 쉬운 구현 제공</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-3-1><a class=lnlinks href=#hl-3-1> 1</a>
+</span><span class=lnt id=hl-3-2><a class=lnlinks href=#hl-3-2> 2</a>
+</span><span class=lnt id=hl-3-3><a class=lnlinks href=#hl-3-3> 3</a>
+</span><span class=lnt id=hl-3-4><a class=lnlinks href=#hl-3-4> 4</a>
+</span><span class=lnt id=hl-3-5><a class=lnlinks href=#hl-3-5> 5</a>
+</span><span class=lnt id=hl-3-6><a class=lnlinks href=#hl-3-6> 6</a>
+</span><span class=lnt id=hl-3-7><a class=lnlinks href=#hl-3-7> 7</a>
+</span><span class=lnt id=hl-3-8><a class=lnlinks href=#hl-3-8> 8</a>
+</span><span class=lnt id=hl-3-9><a class=lnlinks href=#hl-3-9> 9</a>
+</span><span class=lnt id=hl-3-10><a class=lnlinks href=#hl-3-10>10</a>
+</span><span class=lnt id=hl-3-11><a class=lnlinks href=#hl-3-11>11</a>
+</span><span class=lnt id=hl-3-12><a class=lnlinks href=#hl-3-12>12</a>
+</span><span class=lnt id=hl-3-13><a class=lnlinks href=#hl-3-13>13</a>
+</span><span class=lnt id=hl-3-14><a class=lnlinks href=#hl-3-14>14</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>시스템 구성: 5개 노드(S1-S5)로 구성된 etcd 클러스터
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>1. 초기 상태: S1이 리더, 임기(term) 3
+</span></span><span class=line><span class=cl>2. 클라이언트가 키 K의 값을 &#34;val1&#34;로 설정 요청
+</span></span><span class=line><span class=cl>3. 리더 S1이 로그 엔트리 생성: {term: 3, index: 10, command: &#34;SET K=&#39;val1&#39;&#34;}
+</span></span><span class=line><span class=cl>4. S1이 팔로워에게 AppendEntries RPC 전송:
+</span></span><span class=line><span class=cl>   - 로그 엔트리 및 이전 로그 인덱스/임기 포함
+</span></span><span class=line><span class=cl>5. 팔로워들이 로그 일관성 확인 후 엔트리 추가 및 응답
+</span></span><span class=line><span class=cl>6. 과반수(최소 3개 노드) 확인 시 S1이 커밋 인덱스 업데이트: commitIndex = 10
+</span></span><span class=line><span class=cl>7. S1이 상태 머신에 명령 적용: K = &#34;val1&#34;
+</span></span><span class=line><span class=cl>8. S1이 클라이언트에 성공 응답
+</span></span><span class=line><span class=cl>9. 다른 노드들도 커밋 인덱스 업데이트 시 상태 머신에 명령 적용
+</span></span><span class=line><span class=cl>10. 이후 어떤 노드에 읽기 요청이 가더라도 K = &#34;val1&#34; 반환
+</span></span></code></pre></td></tr></table></div></div><h4 id=쿼럼-기반-시스템-quorum-based-systems>쿼럼 기반 시스템 (Quorum-based Systems)<a hidden class=anchor aria-hidden=true href=#쿼럼-기반-시스템-quorum-based-systems>#</a></h4><p>쓰기와 읽기 작업에 노드의 과반수 이상이 참여하도록 하여 항상 최신 데이터가 읽히도록 보장하는 방식.</p><p><strong>구성</strong>:</p><ul><li>N 개의 노드로 구성된 시스템</li><li>쓰기 쿼럼 (W) 과 읽기 쿼럼 (R) 정의: W + R > N</li><li>쓰기 시 W 개 이상의 노드 업데이트</li><li>읽기 시 R 개 이상의 노드에서 조회 후 최신 값 선택</li></ul><p><strong>목적</strong>: 노드 장애에도 선형화 가능성 보장</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-4-1><a class=lnlinks href=#hl-4-1> 1</a>
+</span><span class=lnt id=hl-4-2><a class=lnlinks href=#hl-4-2> 2</a>
+</span><span class=lnt id=hl-4-3><a class=lnlinks href=#hl-4-3> 3</a>
+</span><span class=lnt id=hl-4-4><a class=lnlinks href=#hl-4-4> 4</a>
+</span><span class=lnt id=hl-4-5><a class=lnlinks href=#hl-4-5> 5</a>
+</span><span class=lnt id=hl-4-6><a class=lnlinks href=#hl-4-6> 6</a>
+</span><span class=lnt id=hl-4-7><a class=lnlinks href=#hl-4-7> 7</a>
+</span><span class=lnt id=hl-4-8><a class=lnlinks href=#hl-4-8> 8</a>
+</span><span class=lnt id=hl-4-9><a class=lnlinks href=#hl-4-9> 9</a>
+</span><span class=lnt id=hl-4-10><a class=lnlinks href=#hl-4-10>10</a>
+</span><span class=lnt id=hl-4-11><a class=lnlinks href=#hl-4-11>11</a>
+</span><span class=lnt id=hl-4-12><a class=lnlinks href=#hl-4-12>12</a>
+</span><span class=lnt id=hl-4-13><a class=lnlinks href=#hl-4-13>13</a>
+</span><span class=lnt id=hl-4-14><a class=lnlinks href=#hl-4-14>14</a>
+</span><span class=lnt id=hl-4-15><a class=lnlinks href=#hl-4-15>15</a>
+</span><span class=lnt id=hl-4-16><a class=lnlinks href=#hl-4-16>16</a>
+</span><span class=lnt id=hl-4-17><a class=lnlinks href=#hl-4-17>17</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>시스템 구성: 5개 노드(N=5), W=3, R=3인 분산 키-값 저장소
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>1. 초기 상태: 모든 노드에 키 X의 값이 &#34;old&#34;로 저장됨
+</span></span><span class=line><span class=cl>2. 클라이언트 C1이 키 X의 값을 &#34;new&#34;로 업데이트 요청
+</span></span><span class=line><span class=cl>   - 코디네이터가 버전 타임스탬프 v2 생성
+</span></span><span class=line><span class=cl>   - 모든 노드에 쓰기 요청 전송: {key: X, value: &#34;new&#34;, version: v2}
+</span></span><span class=line><span class=cl>   - 노드 N1, N2, N3에서 성공 응답(W=3 충족)
+</span></span><span class=line><span class=cl>   - 코디네이터가 C1에 성공 응답
+</span></span><span class=line><span class=cl>   - 장애로 N4, N5는 아직 업데이트되지 않음: {key: X, value: &#34;old&#34;, version: v1}
+</span></span><span class=line><span class=cl>3. 클라이언트 C2가 키 X 읽기 요청
+</span></span><span class=line><span class=cl>   - 코디네이터가 모든 노드에 읽기 요청
+</span></span><span class=line><span class=cl>   - 최소 R=3개 노드 응답 필요
+</span></span><span class=line><span class=cl>   - 응답: N1, N2, N3: {X, &#34;new&#34;, v2}, N4, N5: {X, &#34;old&#34;, v1}
+</span></span><span class=line><span class=cl>   - 코디네이터가 가장 높은 버전의 값 선택: &#34;new&#34;
+</span></span><span class=line><span class=cl>   - C2에 &#34;new&#34; 반환
+</span></span><span class=line><span class=cl>4. W+R &gt; N 보장으로 항상 최신 업데이트가 읽히게 됨
+</span></span></code></pre></td></tr></table></div></div><h4 id=버전-벡터와-벡터-클럭-version-vectors-and-vector-clocks>버전 벡터와 벡터 클럭 (Version Vectors and Vector Clocks)<a hidden class=anchor aria-hidden=true href=#버전-벡터와-벡터-클럭-version-vectors-and-vector-clocks>#</a></h4><p>각 노드가 자신과 다른 노드의 작업 카운터를 벡터로 관리하여 인과성과 충돌을 감지하는 메커니즘.</p><p><strong>구성</strong>:</p><ul><li>각 노드는 시스템의 모든 노드에 대한 카운터 벡터 유지</li><li>작업 실행 시 자신의 카운터 증가</li><li>메시지 전송 시 벡터 클럭 포함</li><li>수신 시 로컬 벡터와 병합 (각 요소별 최대값)</li></ul><p><strong>목적</strong>: 작업 간의 인과관계 추적 및 동시성 감지</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-5-1><a class=lnlinks href=#hl-5-1> 1</a>
+</span><span class=lnt id=hl-5-2><a class=lnlinks href=#hl-5-2> 2</a>
+</span><span class=lnt id=hl-5-3><a class=lnlinks href=#hl-5-3> 3</a>
+</span><span class=lnt id=hl-5-4><a class=lnlinks href=#hl-5-4> 4</a>
+</span><span class=lnt id=hl-5-5><a class=lnlinks href=#hl-5-5> 5</a>
+</span><span class=lnt id=hl-5-6><a class=lnlinks href=#hl-5-6> 6</a>
+</span><span class=lnt id=hl-5-7><a class=lnlinks href=#hl-5-7> 7</a>
+</span><span class=lnt id=hl-5-8><a class=lnlinks href=#hl-5-8> 8</a>
+</span><span class=lnt id=hl-5-9><a class=lnlinks href=#hl-5-9> 9</a>
+</span><span class=lnt id=hl-5-10><a class=lnlinks href=#hl-5-10>10</a>
+</span><span class=lnt id=hl-5-11><a class=lnlinks href=#hl-5-11>11</a>
+</span><span class=lnt id=hl-5-12><a class=lnlinks href=#hl-5-12>12</a>
+</span><span class=lnt id=hl-5-13><a class=lnlinks href=#hl-5-13>13</a>
+</span><span class=lnt id=hl-5-14><a class=lnlinks href=#hl-5-14>14</a>
+</span><span class=lnt id=hl-5-15><a class=lnlinks href=#hl-5-15>15</a>
+</span><span class=lnt id=hl-5-16><a class=lnlinks href=#hl-5-16>16</a>
+</span><span class=lnt id=hl-5-17><a class=lnlinks href=#hl-5-17>17</a>
+</span><span class=lnt id=hl-5-18><a class=lnlinks href=#hl-5-18>18</a>
+</span><span class=lnt id=hl-5-19><a class=lnlinks href=#hl-5-19>19</a>
+</span><span class=lnt id=hl-5-20><a class=lnlinks href=#hl-5-20>20</a>
+</span><span class=lnt id=hl-5-21><a class=lnlinks href=#hl-5-21>21</a>
+</span><span class=lnt id=hl-5-22><a class=lnlinks href=#hl-5-22>22</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>시스템 구성: 3개 노드(A, B, C)로 구성된 분산 데이터베이스
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>1. 초기 벡터 클럭: A[1,0,0], B[0,1,0], C[0,0,1]
+</span></span><span class=line><span class=cl>2. 객체 O의 초기값: &#34;val0&#34;
+</span></span><span class=line><span class=cl>3. 노드 A가 O 업데이트: &#34;val0&#34; → &#34;val1&#34;
+</span></span><span class=line><span class=cl>   - A의 벡터 클럭 증가: [2,0,0]
+</span></span><span class=line><span class=cl>   - 변경사항 + 벡터 클럭 기록: {O: &#34;val1&#34;, VC: [2,0,0]}
+</span></span><span class=line><span class=cl>4. A의 업데이트가 B와 C로 전파:
+</span></span><span class=line><span class=cl>   - B의 벡터 클럭 업데이트: max([2,0,0], [0,1,0]) = [2,1,0]
+</span></span><span class=line><span class=cl>   - C의 벡터 클럭 업데이트: max([2,0,0], [0,0,1]) = [2,0,1]
+</span></span><span class=line><span class=cl>5. 클라이언트가 C에 읽기 요청:
+</span></span><span class=line><span class=cl>   - C가 O = &#34;val1&#34;, VC = [2,0,1] 반환
+</span></span><span class=line><span class=cl>6. 클라이언트가 B에 O 업데이트: &#34;val1&#34; → &#34;val2&#34;
+</span></span><span class=line><span class=cl>   - B의 벡터 클럭 증가: [2,2,0]
+</span></span><span class=line><span class=cl>   - 변경사항 + 벡터 클럭 기록: {O: &#34;val2&#34;, VC: [2,2,0]}
+</span></span><span class=line><span class=cl>7. 또 다른 클라이언트가 동시에 C에 O 업데이트: &#34;val1&#34; → &#34;val3&#34;
+</span></span><span class=line><span class=cl>   - C의 벡터 클럭 증가: [2,0,2]
+</span></span><span class=line><span class=cl>   - 변경사항 + 벡터 클럭 기록: {O: &#34;val3&#34;, VC: [2,0,2]}
+</span></span><span class=line><span class=cl>8. 복제 과정에서 충돌 감지:
+</span></span><span class=line><span class=cl>   - [2,2,0]과 [2,0,2]는 서로 비교불가능(각각 다른 차원에서 증가)
+</span></span><span class=line><span class=cl>   - 애플리케이션 정의 충돌 해결 정책 적용 필요
+</span></span></code></pre></td></tr></table></div></div><p>선형화 가능성을 완전히 구현하려면 추가적인 메커니즘이 필요하다. 벡터 클럭만으로는 실제 시간 순서를 반영하지 못할 수 있다.</p><h4 id=타임스탬프-기반-동시성-제어-timestamp-based-concurrency-control>타임스탬프 기반 동시성 제어 (Timestamp-based Concurrency Control)<a hidden class=anchor aria-hidden=true href=#타임스탬프-기반-동시성-제어-timestamp-based-concurrency-control>#</a></h4><p>각 작업에 전역 타임스탬프를 할당하고 이를 기준으로 작업 순서를 결정하는 방식.</p><p><strong>구성</strong>:</p><ul><li>중앙 또는 분산 타임스탬프 할당 메커니즘</li><li>각 데이터 항목에 마지막 수정 타임스탬프 유지</li><li>타임스탬프 기반 충돌 해결 규칙</li></ul><p><strong>목적</strong>: 실제 시간에 가까운 순서로 작업 처리</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-6-1><a class=lnlinks href=#hl-6-1> 1</a>
+</span><span class=lnt id=hl-6-2><a class=lnlinks href=#hl-6-2> 2</a>
+</span><span class=lnt id=hl-6-3><a class=lnlinks href=#hl-6-3> 3</a>
+</span><span class=lnt id=hl-6-4><a class=lnlinks href=#hl-6-4> 4</a>
+</span><span class=lnt id=hl-6-5><a class=lnlinks href=#hl-6-5> 5</a>
+</span><span class=lnt id=hl-6-6><a class=lnlinks href=#hl-6-6> 6</a>
+</span><span class=lnt id=hl-6-7><a class=lnlinks href=#hl-6-7> 7</a>
+</span><span class=lnt id=hl-6-8><a class=lnlinks href=#hl-6-8> 8</a>
+</span><span class=lnt id=hl-6-9><a class=lnlinks href=#hl-6-9> 9</a>
+</span><span class=lnt id=hl-6-10><a class=lnlinks href=#hl-6-10>10</a>
+</span><span class=lnt id=hl-6-11><a class=lnlinks href=#hl-6-11>11</a>
+</span><span class=lnt id=hl-6-12><a class=lnlinks href=#hl-6-12>12</a>
+</span><span class=lnt id=hl-6-13><a class=lnlinks href=#hl-6-13>13</a>
+</span><span class=lnt id=hl-6-14><a class=lnlinks href=#hl-6-14>14</a>
+</span><span class=lnt id=hl-6-15><a class=lnlinks href=#hl-6-15>15</a>
+</span><span class=lnt id=hl-6-16><a class=lnlinks href=#hl-6-16>16</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>시스템 구성: 분산 SQL 데이터베이스, Thomas&#39;s Write Rule 적용
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>1. 데이터 항목 D의 초기값: &#34;init&#34;, 타임스탬프 TS(D) = 100
+</span></span><span class=line><span class=cl>2. 트랜잭션 T1이 타임스탬프 TS(T1) = 200을 받고 D 읽기
+</span></span><span class=line><span class=cl>3. 트랜잭션 T2가 타임스탬프 TS(T2) = 300을 받고 D 읽기
+</span></span><span class=line><span class=cl>4. T1이 D 업데이트: &#34;init&#34; → &#34;value1&#34;
+</span></span><span class=line><span class=cl>   - TS(T1) = 200 &gt; TS(D) = 100 이므로 업데이트 성공
+</span></span><span class=line><span class=cl>   - D = &#34;value1&#34;, TS(D) = 200으로 업데이트
+</span></span><span class=line><span class=cl>5. T2가 D 업데이트: &#34;init&#34; → &#34;value2&#34;
+</span></span><span class=line><span class=cl>   - TS(T2) = 300 &gt; TS(D) = 200 이므로 업데이트 성공
+</span></span><span class=line><span class=cl>   - D = &#34;value2&#34;, TS(D) = 300으로 업데이트
+</span></span><span class=line><span class=cl>6. 트랜잭션 T3가 타임스탬프 TS(T3) = 250을 받고 D 업데이트 시도: &#34;old&#34; → &#34;value3&#34;
+</span></span><span class=line><span class=cl>   - TS(T3) = 250 &lt; TS(D) = 300 이므로 업데이트 무시(Thomas&#39;s Write Rule)
+</span></span><span class=line><span class=cl>   - D = &#34;value2&#34;, TS(D) = 300 유지
+</span></span><span class=line><span class=cl>7. 읽기 요청은 항상 최신 타임스탬프의 값 반환
+</span></span></code></pre></td></tr></table></div></div><h4 id=글로벌-락-관리자-global-lock-manager>글로벌 락 관리자 (Global Lock Manager)<a hidden class=anchor aria-hidden=true href=#글로벌-락-관리자-global-lock-manager>#</a></h4><p>중앙화된 락 관리자가 모든 데이터 접근을 조정하는 방식.</p><p><strong>구성</strong>:</p><ul><li>중앙 락 관리자 서버</li><li>데이터 항목별 락 상태 추적</li><li>락 획득 및 해제 프로토콜</li></ul><p><strong>목적</strong>: 명시적 동기화를 통한 선형화 가능성 보장</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-7-1><a class=lnlinks href=#hl-7-1> 1</a>
+</span><span class=lnt id=hl-7-2><a class=lnlinks href=#hl-7-2> 2</a>
+</span><span class=lnt id=hl-7-3><a class=lnlinks href=#hl-7-3> 3</a>
+</span><span class=lnt id=hl-7-4><a class=lnlinks href=#hl-7-4> 4</a>
+</span><span class=lnt id=hl-7-5><a class=lnlinks href=#hl-7-5> 5</a>
+</span><span class=lnt id=hl-7-6><a class=lnlinks href=#hl-7-6> 6</a>
+</span><span class=lnt id=hl-7-7><a class=lnlinks href=#hl-7-7> 7</a>
+</span><span class=lnt id=hl-7-8><a class=lnlinks href=#hl-7-8> 8</a>
+</span><span class=lnt id=hl-7-9><a class=lnlinks href=#hl-7-9> 9</a>
+</span><span class=lnt id=hl-7-10><a class=lnlinks href=#hl-7-10>10</a>
+</span><span class=lnt id=hl-7-11><a class=lnlinks href=#hl-7-11>11</a>
+</span><span class=lnt id=hl-7-12><a class=lnlinks href=#hl-7-12>12</a>
+</span><span class=lnt id=hl-7-13><a class=lnlinks href=#hl-7-13>13</a>
+</span><span class=lnt id=hl-7-14><a class=lnlinks href=#hl-7-14>14</a>
+</span><span class=lnt id=hl-7-15><a class=lnlinks href=#hl-7-15>15</a>
+</span><span class=lnt id=hl-7-16><a class=lnlinks href=#hl-7-16>16</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>시스템 구성: 여러 애플리케이션 서버와 중앙 락 관리자, 공유 저장소
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>1. 클라이언트 C1이 객체 O1 업데이트 요청
+</span></span><span class=line><span class=cl>2. 애플리케이션 서버 S1이 락 관리자에게 O1에 대한 쓰기 락 요청
+</span></span><span class=line><span class=cl>   - 락 요청: {object: O1, type: WRITE, requestor: S1, timestamp: t1}
+</span></span><span class=line><span class=cl>3. 락 관리자가 O1에 대한 쓰기 락이 없음을 확인하고 S1에 락 부여
+</span></span><span class=line><span class=cl>   - 락 상태 업데이트: {O1: {owner: S1, type: WRITE, granted_at: t1}}
+</span></span><span class=line><span class=cl>4. S1이 O1 업데이트 수행 및 저장소에 반영
+</span></span><span class=line><span class=cl>5. 동시에 클라이언트 C2가 O1 읽기 요청
+</span></span><span class=line><span class=cl>6. 서버 S2가 락 관리자에게 O1에 대한 읽기 락 요청
+</span></span><span class=line><span class=cl>   - 락 요청: {object: O1, type: READ, requestor: S2, timestamp: t2}
+</span></span><span class=line><span class=cl>7. 락 관리자가 O1에 대한 쓰기 락이 있음을 확인하고 S2의 요청을 대기 큐에 추가
+</span></span><span class=line><span class=cl>8. S1이 작업 완료 후 락 해제 요청
+</span></span><span class=line><span class=cl>9. 락 관리자가 O1의 락 해제 및 대기 중인 S2의 읽기 락 부여
+</span></span><span class=line><span class=cl>10. S2가 최신 상태의 O1 읽기 수행 및 클라이언트 응답
+</span></span></code></pre></td></tr></table></div></div><h4 id=2-단계-락킹-two-phase-locking-2pl>2 단계 락킹 (Two-Phase Locking, 2PL)<a hidden class=anchor aria-hidden=true href=#2-단계-락킹-two-phase-locking-2pl>#</a></h4><p>트랜잭션이 모든 락을 획득한 후에야 락을 해제할 수 있도록 하는 프로토콜.</p><p><strong>구성</strong>:</p><ul><li>확장 단계: 락 획득만 가능, 해제 불가</li><li>수축 단계: 락 해제만 가능, 획득 불가</li><li>다양한 락 타입: 공유 (읽기), 배타적 (쓰기) 등</li></ul><p><strong>목적</strong>: 트랜잭션의 직렬화 가능성 보장</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-8-1><a class=lnlinks href=#hl-8-1> 1</a>
+</span><span class=lnt id=hl-8-2><a class=lnlinks href=#hl-8-2> 2</a>
+</span><span class=lnt id=hl-8-3><a class=lnlinks href=#hl-8-3> 3</a>
+</span><span class=lnt id=hl-8-4><a class=lnlinks href=#hl-8-4> 4</a>
+</span><span class=lnt id=hl-8-5><a class=lnlinks href=#hl-8-5> 5</a>
+</span><span class=lnt id=hl-8-6><a class=lnlinks href=#hl-8-6> 6</a>
+</span><span class=lnt id=hl-8-7><a class=lnlinks href=#hl-8-7> 7</a>
+</span><span class=lnt id=hl-8-8><a class=lnlinks href=#hl-8-8> 8</a>
+</span><span class=lnt id=hl-8-9><a class=lnlinks href=#hl-8-9> 9</a>
+</span><span class=lnt id=hl-8-10><a class=lnlinks href=#hl-8-10>10</a>
+</span><span class=lnt id=hl-8-11><a class=lnlinks href=#hl-8-11>11</a>
+</span><span class=lnt id=hl-8-12><a class=lnlinks href=#hl-8-12>12</a>
+</span><span class=lnt id=hl-8-13><a class=lnlinks href=#hl-8-13>13</a>
+</span><span class=lnt id=hl-8-14><a class=lnlinks href=#hl-8-14>14</a>
+</span><span class=lnt id=hl-8-15><a class=lnlinks href=#hl-8-15>15</a>
+</span><span class=lnt id=hl-8-16><a class=lnlinks href=#hl-8-16>16</a>
+</span><span class=lnt id=hl-8-17><a class=lnlinks href=#hl-8-17>17</a>
+</span><span class=lnt id=hl-8-18><a class=lnlinks href=#hl-8-18>18</a>
+</span><span class=lnt id=hl-8-19><a class=lnlinks href=#hl-8-19>19</a>
+</span><span class=lnt id=hl-8-20><a class=lnlinks href=#hl-8-20>20</a>
+</span><span class=lnt id=hl-8-21><a class=lnlinks href=#hl-8-21>21</a>
+</span><span class=lnt id=hl-8-22><a class=lnlinks href=#hl-8-22>22</a>
+</span><span class=lnt id=hl-8-23><a class=lnlinks href=#hl-8-23>23</a>
+</span><span class=lnt id=hl-8-24><a class=lnlinks href=#hl-8-24>24</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>시스템 구성: 엄격한 2PL을 구현한 분산 SQL 데이터베이스
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>1. 트랜잭션 T1 시작:
+</span></span><span class=line><span class=cl>   ```sql
+</span></span><span class=line><span class=cl>   BEGIN;
+</span></span><span class=line><span class=cl>   -- 확장 단계 시작
+</span></span><span class=line><span class=cl>   SELECT * FROM accounts WHERE id = 1; -- 계정 1에 대한 S-lock 획득
+</span></span><span class=line><span class=cl>   UPDATE accounts SET balance = balance - 100 WHERE id = 1; -- S-lock을 X-lock으로 업그레이드
+</span></span><span class=line><span class=cl>   SELECT * FROM accounts WHERE id = 2; -- 계정 2에 대한 S-lock 획득
+</span></span><span class=line><span class=cl>   UPDATE accounts SET balance = balance + 100 WHERE id = 2; -- S-lock을 X-lock으로 업그레이드
+</span></span><span class=line><span class=cl>   -- 이제 T1은 계정 1과 2에 대한 X-lock을 보유
+</span></span><span class=line><span class=cl>   COMMIT;
+</span></span><span class=line><span class=cl>   -- 커밋 시 모든 락 해제 (수축 단계)
+</span></span><span class=line><span class=cl>	```
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>2. 동시에 트랜잭션 T2가 같은 계정에 접근 시도:
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    ```sql
+</span></span><span class=line><span class=cl>    BEGIN;SELECT * FROM accounts WHERE id = 2; -- T1이 X-lock을 보유하고 있어 차단됨-- T1이 완료될 때까지 대기
+</span></span><span class=line><span class=cl>    ```
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>3. T1이 커밋되고 락을 해제한 후에야 T2가 진행 가능
+</span></span><span class=line><span class=cl>4. T2는 T1의 모든 변경사항이 반영된 상태에서 데이터 접근
+</span></span></code></pre></td></tr></table></div></div><h4 id=엄격한-직렬화-strict-serializability>엄격한 직렬화 (Strict Serializability)<a hidden class=anchor aria-hidden=true href=#엄격한-직렬화-strict-serializability>#</a></h4><p>선형화 가능성과 직렬화 가능성을 결합한 가장 강력한 일관성 모델로, 트랜잭션의 실제 시간 순서를 보존한다.</p><p><strong>구성</strong>:</p><ul><li>트랜잭션의 실시간 순서 추적</li><li>충돌하는 작업 간의 의존성 그래프 관리</li><li>실시간 순서와 일치하는 직렬화 순서 보장</li></ul><p><strong>목적</strong>: 트랜잭션 기반 시스템에서 가장 강력한 일관성 보장</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-9-1><a class=lnlinks href=#hl-9-1> 1</a>
+</span><span class=lnt id=hl-9-2><a class=lnlinks href=#hl-9-2> 2</a>
+</span><span class=lnt id=hl-9-3><a class=lnlinks href=#hl-9-3> 3</a>
+</span><span class=lnt id=hl-9-4><a class=lnlinks href=#hl-9-4> 4</a>
+</span><span class=lnt id=hl-9-5><a class=lnlinks href=#hl-9-5> 5</a>
+</span><span class=lnt id=hl-9-6><a class=lnlinks href=#hl-9-6> 6</a>
+</span><span class=lnt id=hl-9-7><a class=lnlinks href=#hl-9-7> 7</a>
+</span><span class=lnt id=hl-9-8><a class=lnlinks href=#hl-9-8> 8</a>
+</span><span class=lnt id=hl-9-9><a class=lnlinks href=#hl-9-9> 9</a>
+</span><span class=lnt id=hl-9-10><a class=lnlinks href=#hl-9-10>10</a>
+</span><span class=lnt id=hl-9-11><a class=lnlinks href=#hl-9-11>11</a>
+</span><span class=lnt id=hl-9-12><a class=lnlinks href=#hl-9-12>12</a>
+</span><span class=lnt id=hl-9-13><a class=lnlinks href=#hl-9-13>13</a>
+</span><span class=lnt id=hl-9-14><a class=lnlinks href=#hl-9-14>14</a>
+</span><span class=lnt id=hl-9-15><a class=lnlinks href=#hl-9-15>15</a>
+</span><span class=lnt id=hl-9-16><a class=lnlinks href=#hl-9-16>16</a>
+</span><span class=lnt id=hl-9-17><a class=lnlinks href=#hl-9-17>17</a>
+</span><span class=lnt id=hl-9-18><a class=lnlinks href=#hl-9-18>18</a>
+</span><span class=lnt id=hl-9-19><a class=lnlinks href=#hl-9-19>19</a>
+</span><span class=lnt id=hl-9-20><a class=lnlinks href=#hl-9-20>20</a>
+</span><span class=lnt id=hl-9-21><a class=lnlinks href=#hl-9-21>21</a>
+</span><span class=lnt id=hl-9-22><a class=lnlinks href=#hl-9-22>22</a>
+</span><span class=lnt id=hl-9-23><a class=lnlinks href=#hl-9-23>23</a>
+</span><span class=lnt id=hl-9-24><a class=lnlinks href=#hl-9-24>24</a>
+</span><span class=lnt id=hl-9-25><a class=lnlinks href=#hl-9-25>25</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시스템 구성: Google Spanner와 같은 글로벌 분산 데이터베이스
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>1. 트랜잭션 T1이 10:00:00에 시작:
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    ```sql
+</span></span><span class=line><span class=cl>    BEGIN;UPDATE accounts SET balance = 950 WHERE id = &#39;A&#39;; -- 원래 1000COMMIT; -- 10:00:01에 커밋 성공
+</span></span><span class=line><span class=cl>    ```
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>2. 트랜잭션 T2가 10:00:02에 시작:
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    ```sql
+</span></span><span class=line><span class=cl>    BEGIN;SELECT balance FROM accounts WHERE id = &#39;A&#39;; -- 950 반환UPDATE accounts SET balance = balance - 200 WHERE id = &#39;A&#39;; -- 950 -&gt; 750COMMIT; -- 10:00:03에 커밋 성공
+</span></span><span class=line><span class=cl>    ```
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>3. 트랜잭션 T3가 T1과 T2 사이인 10:00:01.5에 시작했지만 네트워크 지연으로 늦게 처리됨:
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    ```sql
+</span></span><span class=line><span class=cl>    BEGIN;SELECT balance FROM accounts WHERE id = &#39;A&#39;; -- T1 이후, T2 이전이므로 950 반환COMMIT; -- 10:00:04에 커밋 (T2 이후)
+</span></span><span class=line><span class=cl>    ```
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>4. T3는 실제 시작 시간이 T1 이후, T2 이전이므로 T1의 변경(950)을 보고 T2의 변경(750)은 보지 않음
+</span></span><span class=line><span class=cl>5. 글로벌 타임스탬프 기반으로 시스템이 각 트랜잭션의 실제 시간 순서 보존
+</span></span></code></pre></td></tr></table></div></div><h4 id=낙관적-동시성-제어-optimistic-concurrency-control-occ>낙관적 동시성 제어 (Optimistic Concurrency Control, OCC)<a hidden class=anchor aria-hidden=true href=#낙관적-동시성-제어-optimistic-concurrency-control-occ>#</a></h4><p>트랜잭션이 충돌 없이 완료될 것이라 가정하고, 커밋 전에 유효성 검사를 수행하는 방식.</p><p><strong>구성</strong>:</p><ul><li>읽기 집합과 쓰기 집합 추적</li><li>로컬에서 작업 수행 후 검증 단계 수행</li><li>검증 통과 시 변경사항 적용</li></ul><p><strong>목적</strong>: 충돌이 적은 환경에서 락킹 오버헤드 감소</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-10-1><a class=lnlinks href=#hl-10-1> 1</a>
+</span><span class=lnt id=hl-10-2><a class=lnlinks href=#hl-10-2> 2</a>
+</span><span class=lnt id=hl-10-3><a class=lnlinks href=#hl-10-3> 3</a>
+</span><span class=lnt id=hl-10-4><a class=lnlinks href=#hl-10-4> 4</a>
+</span><span class=lnt id=hl-10-5><a class=lnlinks href=#hl-10-5> 5</a>
+</span><span class=lnt id=hl-10-6><a class=lnlinks href=#hl-10-6> 6</a>
+</span><span class=lnt id=hl-10-7><a class=lnlinks href=#hl-10-7> 7</a>
+</span><span class=lnt id=hl-10-8><a class=lnlinks href=#hl-10-8> 8</a>
+</span><span class=lnt id=hl-10-9><a class=lnlinks href=#hl-10-9> 9</a>
+</span><span class=lnt id=hl-10-10><a class=lnlinks href=#hl-10-10>10</a>
+</span><span class=lnt id=hl-10-11><a class=lnlinks href=#hl-10-11>11</a>
+</span><span class=lnt id=hl-10-12><a class=lnlinks href=#hl-10-12>12</a>
+</span><span class=lnt id=hl-10-13><a class=lnlinks href=#hl-10-13>13</a>
+</span><span class=lnt id=hl-10-14><a class=lnlinks href=#hl-10-14>14</a>
+</span><span class=lnt id=hl-10-15><a class=lnlinks href=#hl-10-15>15</a>
+</span><span class=lnt id=hl-10-16><a class=lnlinks href=#hl-10-16>16</a>
+</span><span class=lnt id=hl-10-17><a class=lnlinks href=#hl-10-17>17</a>
+</span><span class=lnt id=hl-10-18><a class=lnlinks href=#hl-10-18>18</a>
+</span><span class=lnt id=hl-10-19><a class=lnlinks href=#hl-10-19>19</a>
+</span><span class=lnt id=hl-10-20><a class=lnlinks href=#hl-10-20>20</a>
+</span><span class=lnt id=hl-10-21><a class=lnlinks href=#hl-10-21>21</a>
+</span><span class=lnt id=hl-10-22><a class=lnlinks href=#hl-10-22>22</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시스템 구성: OCC를 구현한 분산 객체 저장소
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>1. 트랜잭션 T1 시작(타임스탬프 TS1 = 100):
+</span></span><span class=line><span class=cl>    - 읽기 집합 RS1 = {}, 쓰기 집합 WS1 = {}
+</span></span><span class=line><span class=cl>2. T1이 객체 A(버전 10)와 B(버전 20) 읽기:
+</span></span><span class=line><span class=cl>    - RS1 = {(A, 10), (B, 20)}, WS1 = {}
+</span></span><span class=line><span class=cl>3. T1이, A의 값을 v1으로, B의 값을 v2로 업데이트:
+</span></span><span class=line><span class=cl>    - RS1 = {(A, 10), (B, 20)}, WS1 = {(A, v1), (B, v2)}
+</span></span><span class=line><span class=cl>4. 동시에 트랜잭션 T2(타임스탬프 TS2 = 101) 시작:
+</span></span><span class=line><span class=cl>    - T2가 B(버전 20) 읽기
+</span></span><span class=line><span class=cl>    - RS2 = {(B, 20)}, WS2 = {}
+</span></span><span class=line><span class=cl>    - T2가 B 업데이트: B = v3
+</span></span><span class=line><span class=cl>    - RS2 = {(B, 20)}, WS2 = {(B, v3)}
+</span></span><span class=line><span class=cl>    - T2가 먼저 커밋 시도 및 유효성 검사 통과
+</span></span><span class=line><span class=cl>    - B의 버전이 21로 업데이트
+</span></span><span class=line><span class=cl>5. T1이 커밋 시도:
+</span></span><span class=line><span class=cl>    - 유효성 검사: RS1의 객체들이 여전히 같은 버전인지 확인
+</span></span><span class=line><span class=cl>    - B의 버전이 20에서 21로 변경됨 → 검증 실패
+</span></span><span class=line><span class=cl>    - T1 중단 및 재시도 또는 사용자에게 충돌 알림
+</span></span></code></pre></td></tr></table></div></div><h4 id=다중-paxosmulti-paxos-및-raft>다중 Paxos(Multi-Paxos) 및 Raft<a hidden class=anchor aria-hidden=true href=#다중-paxosmulti-paxos-및-raft>#</a></h4><p><strong>정의</strong>: 단일 값이 아닌 로그 항목들의 순서에 대한 합의를 제공하는 프로토콜.</p><p><strong>구성</strong>:</p><ul><li>안정적인 리더 선출</li><li>로그 복제 메커니즘</li><li>커밋 인덱스 추적</li><li>리더 장애 복구 프로토콜</li></ul><p><strong>목적</strong>: 상태 머신 복제를 위한 선형화 가능한 로그 유지</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-11-1><a class=lnlinks href=#hl-11-1> 1</a>
+</span><span class=lnt id=hl-11-2><a class=lnlinks href=#hl-11-2> 2</a>
+</span><span class=lnt id=hl-11-3><a class=lnlinks href=#hl-11-3> 3</a>
+</span><span class=lnt id=hl-11-4><a class=lnlinks href=#hl-11-4> 4</a>
+</span><span class=lnt id=hl-11-5><a class=lnlinks href=#hl-11-5> 5</a>
+</span><span class=lnt id=hl-11-6><a class=lnlinks href=#hl-11-6> 6</a>
+</span><span class=lnt id=hl-11-7><a class=lnlinks href=#hl-11-7> 7</a>
+</span><span class=lnt id=hl-11-8><a class=lnlinks href=#hl-11-8> 8</a>
+</span><span class=lnt id=hl-11-9><a class=lnlinks href=#hl-11-9> 9</a>
+</span><span class=lnt id=hl-11-10><a class=lnlinks href=#hl-11-10>10</a>
+</span><span class=lnt id=hl-11-11><a class=lnlinks href=#hl-11-11>11</a>
+</span><span class=lnt id=hl-11-12><a class=lnlinks href=#hl-11-12>12</a>
+</span><span class=lnt id=hl-11-13><a class=lnlinks href=#hl-11-13>13</a>
+</span><span class=lnt id=hl-11-14><a class=lnlinks href=#hl-11-14>14</a>
+</span><span class=lnt id=hl-11-15><a class=lnlinks href=#hl-11-15>15</a>
+</span><span class=lnt id=hl-11-16><a class=lnlinks href=#hl-11-16>16</a>
+</span><span class=lnt id=hl-11-17><a class=lnlinks href=#hl-11-17>17</a>
+</span><span class=lnt id=hl-11-18><a class=lnlinks href=#hl-11-18>18</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시스템 구성: 5개 노드(S1-S5)로 구성된 Multi-Paxos 기반 키-값 저장소
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>1. 초기 상태: S1이 안정적인 리더로 선출됨
+</span></span><span class=line><span class=cl>2. 클라이언트가 키 K를 v1으로 설정 요청
+</span></span><span class=line><span class=cl>3. 리더 S1이 로그 인덱스 n에 명령 추가 제안:
+</span></span><span class=line><span class=cl>    - &#34;PROPOSE: log[n] = set(K, v1)&#34;
+</span></span><span class=line><span class=cl>4. S1이 과반수(최소 3개 노드)로부터 수락 확인 받음
+</span></span><span class=line><span class=cl>5. S1이 로그 항목 n을 커밋하고 상태 머신에 적용: K = v1
+</span></span><span class=line><span class=cl>6. 리더가 클라이언트에 성공 응답
+</span></span><span class=line><span class=cl>7. 다른 클라이언트가 K를 v2로 업데이트 요청
+</span></span><span class=line><span class=cl>8. 리더가 로그 인덱스 n+1에 새 명령 추가 및 복제 과정 반복
+</span></span><span class=line><span class=cl>9. 리더 S1 장애 시:
+</span></span><span class=line><span class=cl>    - 새 리더(예: S3) 선출
+</span></span><span class=line><span class=cl>    - S3이 커밋되지 않은 로그 항목에 대한 합의 재개
+</span></span><span class=line><span class=cl>    - 합의 완료 후 새 명령 처리 재개
+</span></span></code></pre></td></tr></table></div></div><h4 id=crdts-를-이용한-선형화-레이어-linearizable-layer-over-crdts>CRDTs 를 이용한 선형화 레이어 (Linearizable Layer over CRDTs)<a hidden class=anchor aria-hidden=true href=#crdts-를-이용한-선형화-레이어-linearizable-layer-over-crdts>#</a></h4><p>충돌 없는 복제 데이터 타입 (CRDTs) 위에 선형화 가능성을 보장하는 레이어를 구축하는 방식.</p><p><strong>구성</strong>:</p><ul><li>CRDT 기반 저장소</li><li>중앙 또는 합의 기반 토큰/리스 관리자</li><li>토큰/리스 획득 후 작업 수행</li><li>토큰/리스 기반 충돌 해결</li></ul><p><strong>목적</strong>: CRDT 의 확장성과 선형화 가능성의 일관성 보장 결합</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-12-1><a class=lnlinks href=#hl-12-1> 1</a>
+</span><span class=lnt id=hl-12-2><a class=lnlinks href=#hl-12-2> 2</a>
+</span><span class=lnt id=hl-12-3><a class=lnlinks href=#hl-12-3> 3</a>
+</span><span class=lnt id=hl-12-4><a class=lnlinks href=#hl-12-4> 4</a>
+</span><span class=lnt id=hl-12-5><a class=lnlinks href=#hl-12-5> 5</a>
+</span><span class=lnt id=hl-12-6><a class=lnlinks href=#hl-12-6> 6</a>
+</span><span class=lnt id=hl-12-7><a class=lnlinks href=#hl-12-7> 7</a>
+</span><span class=lnt id=hl-12-8><a class=lnlinks href=#hl-12-8> 8</a>
+</span><span class=lnt id=hl-12-9><a class=lnlinks href=#hl-12-9> 9</a>
+</span><span class=lnt id=hl-12-10><a class=lnlinks href=#hl-12-10>10</a>
+</span><span class=lnt id=hl-12-11><a class=lnlinks href=#hl-12-11>11</a>
+</span><span class=lnt id=hl-12-12><a class=lnlinks href=#hl-12-12>12</a>
+</span><span class=lnt id=hl-12-13><a class=lnlinks href=#hl-12-13>13</a>
+</span><span class=lnt id=hl-12-14><a class=lnlinks href=#hl-12-14>14</a>
+</span><span class=lnt id=hl-12-15><a class=lnlinks href=#hl-12-15>15</a>
+</span><span class=lnt id=hl-12-16><a class=lnlinks href=#hl-12-16>16</a>
+</span><span class=lnt id=hl-12-17><a class=lnlinks href=#hl-12-17>17</a>
+</span><span class=lnt id=hl-12-18><a class=lnlinks href=#hl-12-18>18</a>
+</span><span class=lnt id=hl-12-19><a class=lnlinks href=#hl-12-19>19</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>시스템 구성: CRDT 기반 분산 데이터 저장소 + 토큰 관리자
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>시나리오:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>1. 초기 상태: 카운터 C = 0 (모든 노드에서 동일)
+</span></span><span class=line><span class=cl>2. 클라이언트 A가 C 증가 요청:
+</span></span><span class=line><span class=cl>    - 토큰 관리자에게 C에 대한 토큰 요청
+</span></span><span class=line><span class=cl>    - 토큰 획득 후 로컬 CRDT 업데이트: C += 1
+</span></span><span class=line><span class=cl>    - 변경사항이 다른 노드로 비동기적으로 전파 시작
+</span></span><span class=line><span class=cl>    - 토큰 반환 및 클라이언트에 성공 응답
+</span></span><span class=line><span class=cl>3. 클라이언트 B가 C 증가 요청:
+</span></span><span class=line><span class=cl>    - 토큰 관리자에게 토큰 요청 (A가 반환한 후)
+</span></span><span class=line><span class=cl>    - 토큰 획득 및 로컬 CRDT 업데이트: C += 1
+</span></span><span class=line><span class=cl>    - 전파 및 토큰 반환
+</span></span><span class=line><span class=cl>4. 클라이언트 C가 C 읽기 요청:
+</span></span><span class=line><span class=cl>    - 일관된 읽기를 위해 토큰 요청
+</span></span><span class=line><span class=cl>    - 토큰 획득 시 모든 이전 업데이트가 적용된 상태
+</span></span><span class=line><span class=cl>    - C = 2 반환 및 토큰 반환
+</span></span><span class=line><span class=cl>5. CRDT 특성으로 인해 최종 상태는 모든 노드에서 동일하게 수렴
+</span></span></code></pre></td></tr></table></div></div><h3 id=구조-및-아키텍처>구조 및 아키텍처<a hidden class=anchor aria-hidden=true href=#구조-및-아키텍처>#</a></h3><p>선형화 가능성을 지원하는 시스템의 구조와 아키텍처는 다음과 같은 구성 요소와 패턴을 가진다:</p><ol><li><strong>동기화 메커니즘</strong>:<ul><li><strong>락 (Lock)</strong>: 공유 자원에 대한 액세스를 제어하여 한 번에 하나의 프로세스만 자원에 접근할 수 있게 한다.</li><li><strong>세마포어 (Semaphore)</strong>: 여러 프로세스가 공유 자원에 접근하는 것을 제어한다.</li><li><strong>모니터 (Monitor)</strong>: 높은 수준의 동기화 구조를 제공한다.</li></ul></li><li><strong>합의 알고리즘</strong>:<ul><li><strong>Paxos</strong>: 여러 노드 간에 값에 대한 합의를 이루는 알고리즘이다.</li><li><strong>Raft</strong>: 리더 선출과 로그 복제를 통해 합의를 이루는 알고리즘이다.</li><li><strong>ZAB(Zookeeper Atomic Broadcast)</strong>: ZooKeeper 에서 사용되는 원자적 브로드캐스트 프로토콜이다.</li></ul></li><li><strong>복제 전략</strong>:<ul><li><strong>동기식 복제</strong>: 주 노드의 변경 사항이 모든 복제본에 적용될 때까지 작업이 완료되지 않는다.</li><li><strong>쿼럼 기반 복제 (Quorum-based Replication)</strong>: 노드의 쿼럼 (quorum) 이 작업에 동의해야 완료된다.</li><li><strong>체인 복제 (Chain Replication)</strong>: 작업이 체인을 따라 순차적으로 전파된다.</li></ul></li><li><strong>트랜잭션 처리</strong>:<ul><li><strong>2 단계 커밋 (Two-Phase Commit)</strong>: 모든 참가자가 트랜잭션 커밋에 동의하도록 보장한다.</li><li><strong>타임스탬프 기반 순서 (Timestamp Ordering)</strong>: 작업에 타임스탬프를 할당하여 순서를 결정한다.</li></ul></li><li><strong>데이터 구조</strong>:<ul><li><strong>락 - 프리 데이터 구조 (Lock-Free Data Structures)</strong>: 락 없이 원자적 작업을 제공한다.</li><li><strong>원자적 레지스터 (Atomic Registers)</strong>: 원자적 읽기 및 쓰기 작업을 제공한다.</li><li><strong>원자적 스냅샷 (Atomic Snapshots)</strong>: 시스템의 일관된 스냅샷을 제공한다.</li></ul></li></ol><p><strong>선형화 가능성을 지원하는 시스템 아키텍처의 다이어그램</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-13-1><a class=lnlinks href=#hl-13-1> 1</a>
+</span><span class=lnt id=hl-13-2><a class=lnlinks href=#hl-13-2> 2</a>
+</span><span class=lnt id=hl-13-3><a class=lnlinks href=#hl-13-3> 3</a>
+</span><span class=lnt id=hl-13-4><a class=lnlinks href=#hl-13-4> 4</a>
+</span><span class=lnt id=hl-13-5><a class=lnlinks href=#hl-13-5> 5</a>
+</span><span class=lnt id=hl-13-6><a class=lnlinks href=#hl-13-6> 6</a>
+</span><span class=lnt id=hl-13-7><a class=lnlinks href=#hl-13-7> 7</a>
+</span><span class=lnt id=hl-13-8><a class=lnlinks href=#hl-13-8> 8</a>
+</span><span class=lnt id=hl-13-9><a class=lnlinks href=#hl-13-9> 9</a>
+</span><span class=lnt id=hl-13-10><a class=lnlinks href=#hl-13-10>10</a>
+</span><span class=lnt id=hl-13-11><a class=lnlinks href=#hl-13-11>11</a>
+</span><span class=lnt id=hl-13-12><a class=lnlinks href=#hl-13-12>12</a>
+</span><span class=lnt id=hl-13-13><a class=lnlinks href=#hl-13-13>13</a>
+</span><span class=lnt id=hl-13-14><a class=lnlinks href=#hl-13-14>14</a>
+</span><span class=lnt id=hl-13-15><a class=lnlinks href=#hl-13-15>15</a>
+</span><span class=lnt id=hl-13-16><a class=lnlinks href=#hl-13-16>16</a>
+</span><span class=lnt id=hl-13-17><a class=lnlinks href=#hl-13-17>17</a>
+</span><span class=lnt id=hl-13-18><a class=lnlinks href=#hl-13-18>18</a>
+</span><span class=lnt id=hl-13-19><a class=lnlinks href=#hl-13-19>19</a>
+</span><span class=lnt id=hl-13-20><a class=lnlinks href=#hl-13-20>20</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>                   +-------------------+
+</span></span><span class=line><span class=cl>                   |    클라이언트      |
+</span></span><span class=line><span class=cl>                   +-------------------+
+</span></span><span class=line><span class=cl>                   |                   |
+</span></span><span class=line><span class=cl>                   v                   v
+</span></span><span class=line><span class=cl>           +---------------+   +---------------+
+</span></span><span class=line><span class=cl>           |   프론트엔드   |   |   프론트엔드   |
+</span></span><span class=line><span class=cl>           +---------------+   +---------------+
+</span></span><span class=line><span class=cl>                   |                   |
+</span></span><span class=line><span class=cl>                   v                   v
+</span></span><span class=line><span class=cl>           +-----------------------------------+
+</span></span><span class=line><span class=cl>           |         합의 계층 (Paxos/Raft)     |
+</span></span><span class=line><span class=cl>           +-----------------------------------+
+</span></span><span class=line><span class=cl>                   |                   |
+</span></span><span class=line><span class=cl>                   v                   v
+</span></span><span class=line><span class=cl>         +----------------+     +----------------+
+</span></span><span class=line><span class=cl>         |  데이터 저장소  |     |  데이터 저장소  |
+</span></span><span class=line><span class=cl>         |    복제본 1    |     |    복제본 2    |
+</span></span><span class=line><span class=cl>         +----------------+     +----------------+
+</span></span></code></pre></td></tr></table></div></div><p>이 아키텍처에서:</p><ul><li>클라이언트는 프론트엔드 노드와 통신한다.</li><li>프론트엔드 노드는 합의 계층을 통해 작업을 조정한다.</li><li>합의 계층은 모든 복제본에 일관된 순서로 작업을 적용한다.</li><li>데이터 저장소는 작업을 실제로 실행하고 상태를 유지한다.</li></ul><h3 id=구성-요소>구성 요소<a hidden class=anchor aria-hidden=true href=#구성-요소>#</a></h3><p>선형화 가능성을 구현하는 시스템의 주요 구성 요소와 각각의 역할은 다음과 같다:</p><table><thead><tr><th>구성 요소</th><th>역할</th><th>예시</th><th>기능</th></tr></thead><tbody><tr><td><strong>동기화 원시 연산 (Synchronization Primitives)</strong></td><td>동시성 제어의 기본 제공</td><td>Mutex, Semaphore, Atomic Operations</td><td>공유 자원 접근 제어, 경쟁 상태 방지</td></tr><tr><td><strong>합의 프로토콜 (Consensus Protocols)</strong></td><td>분산 노드 간 합의 도출</td><td>Paxos, Raft, ZAB</td><td>작업 순서 결정, 노드 상태 일관성 유지</td></tr><tr><td><strong>분산 락 관리자 (Distributed Lock Manager)</strong></td><td>분산 환경에서 락 제어</td><td>ZooKeeper, etcd, Consul</td><td>자원 접근 제어, 노드 간 락 동기화</td></tr><tr><td><strong>로그 복제 시스템 (Log Replication System)</strong></td><td>작업 순서의 로그 복제</td><td>Kafka, BookKeeper</td><td>순서 보존, 이벤트 일관성 보장</td></tr><tr><td><strong>트랜잭션 관리자 (Transaction Manager)</strong></td><td>원자적 트랜잭션 관리</td><td>2PC (Two-Phase Commit)</td><td>모든 노드에 트랜잭션 일관 적용</td></tr><tr><td><strong>타임스탬프 발급기 (Timestamp Generator)</strong></td><td>시간/순서 메타데이터 부여</td><td>Logical Clock, Vector Clock</td><td>작업 순서 추적, 인과 관계 보존</td></tr><tr><td><strong>원자적 데이터 구조 (Atomic Data Structures)</strong></td><td>원자성 보장 구조 제공</td><td>Atomic Register, CAS</td><td>데이터 상태 변경의 원자성 보장</td></tr><tr><td><strong>상태 머신 복제 (State Machine Replication)</strong></td><td>동일한 상태 유지</td><td>상태 머신 기반 시스템</td><td>결정적 동작, 모든 노드의 상태 동기화</td></tr></tbody></table><p><strong>구성 요소 간의 상호작용 다이어그램</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-14-1><a class=lnlinks href=#hl-14-1> 1</a>
+</span><span class=lnt id=hl-14-2><a class=lnlinks href=#hl-14-2> 2</a>
+</span><span class=lnt id=hl-14-3><a class=lnlinks href=#hl-14-3> 3</a>
+</span><span class=lnt id=hl-14-4><a class=lnlinks href=#hl-14-4> 4</a>
+</span><span class=lnt id=hl-14-5><a class=lnlinks href=#hl-14-5> 5</a>
+</span><span class=lnt id=hl-14-6><a class=lnlinks href=#hl-14-6> 6</a>
+</span><span class=lnt id=hl-14-7><a class=lnlinks href=#hl-14-7> 7</a>
+</span><span class=lnt id=hl-14-8><a class=lnlinks href=#hl-14-8> 8</a>
+</span><span class=lnt id=hl-14-9><a class=lnlinks href=#hl-14-9> 9</a>
+</span><span class=lnt id=hl-14-10><a class=lnlinks href=#hl-14-10>10</a>
+</span><span class=lnt id=hl-14-11><a class=lnlinks href=#hl-14-11>11</a>
+</span><span class=lnt id=hl-14-12><a class=lnlinks href=#hl-14-12>12</a>
+</span><span class=lnt id=hl-14-13><a class=lnlinks href=#hl-14-13>13</a>
+</span><span class=lnt id=hl-14-14><a class=lnlinks href=#hl-14-14>14</a>
+</span><span class=lnt id=hl-14-15><a class=lnlinks href=#hl-14-15>15</a>
+</span><span class=lnt id=hl-14-16><a class=lnlinks href=#hl-14-16>16</a>
+</span><span class=lnt id=hl-14-17><a class=lnlinks href=#hl-14-17>17</a>
+</span><span class=lnt id=hl-14-18><a class=lnlinks href=#hl-14-18>18</a>
+</span><span class=lnt id=hl-14-19><a class=lnlinks href=#hl-14-19>19</a>
+</span><span class=lnt id=hl-14-20><a class=lnlinks href=#hl-14-20>20</a>
+</span><span class=lnt id=hl-14-21><a class=lnlinks href=#hl-14-21>21</a>
+</span><span class=lnt id=hl-14-22><a class=lnlinks href=#hl-14-22>22</a>
+</span><span class=lnt id=hl-14-23><a class=lnlinks href=#hl-14-23>23</a>
+</span><span class=lnt id=hl-14-24><a class=lnlinks href=#hl-14-24>24</a>
+</span><span class=lnt id=hl-14-25><a class=lnlinks href=#hl-14-25>25</a>
+</span><span class=lnt id=hl-14-26><a class=lnlinks href=#hl-14-26>26</a>
+</span><span class=lnt id=hl-14-27><a class=lnlinks href=#hl-14-27>27</a>
+</span><span class=lnt id=hl-14-28><a class=lnlinks href=#hl-14-28>28</a>
+</span><span class=lnt id=hl-14-29><a class=lnlinks href=#hl-14-29>29</a>
+</span><span class=lnt id=hl-14-30><a class=lnlinks href=#hl-14-30>30</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>+------------------+ +------------------+ +------------------+  
+</span></span><span class=line><span class=cl>| 클라이언트 |      | 클라이언트 |      | 클라이언트 |  
+</span></span><span class=line><span class=cl>+------------------+ +------------------+ +------------------+  
+</span></span><span class=line><span class=cl>        | |                         |  
+</span></span><span class=line><span class=cl>        v v                         v  
+</span></span><span class=line><span class=cl>+------------------+ +------------------+ +------------------+  
+</span></span><span class=line><span class=cl>| 타임스탬프 발급기 |      | 분산 락 관리자 |      | 트랜잭션 관리자 |  
+</span></span><span class=line><span class=cl>+------------------+ +------------------+ +------------------+  
+</span></span><span class=line><span class=cl>        | |                         |  
+</span></span><span class=line><span class=cl>        v v                         v  
+</span></span><span class=line><span class=cl>+----------------------------------------------------------+  
+</span></span><span class=line><span class=cl>| 합의 프로토콜 |  
+</span></span><span class=line><span class=cl>+----------------------------------------------------------+  
+</span></span><span class=line><span class=cl>                            |  
+</span></span><span class=line><span class=cl>                            v  
+</span></span><span class=line><span class=cl>+----------------------------------------------------------+  
+</span></span><span class=line><span class=cl>| 로그 복제 시스템 |  
+</span></span><span class=line><span class=cl>+----------------------------------------------------------+  
+</span></span><span class=line><span class=cl>                            |  
+</span></span><span class=line><span class=cl>                            v  
+</span></span><span class=line><span class=cl>+------------------+ +------------------+ +------------------+  
+</span></span><span class=line><span class=cl>| 상태 머신 복제 |      | 상태 머신 복제 |      | 상태 머신 복제 |  
+</span></span><span class=line><span class=cl>| 노드 1 |      | 노드 2 |      | 노드 3 |  
+</span></span><span class=line><span class=cl>+------------------+ +------------------+ +------------------+  
+</span></span><span class=line><span class=cl>        | |                         |  
+</span></span><span class=line><span class=cl>        v v                         v  
+</span></span><span class=line><span class=cl>+------------------+ +------------------+ +------------------+  
+</span></span><span class=line><span class=cl>| 원자적 데이터 구조 |      | 원자적 데이터 구조 |      | 원자적 데이터 구조 |  
+</span></span><span class=line><span class=cl>+------------------+ +------------------+ +------------------+
+</span></span></code></pre></td></tr></table></div></div><p>이 다이어그램에서:</p><ul><li>클라이언트는 시스템과 상호작용한다.</li><li>타임스탬프 발급기, 분산 락 관리자, 트랜잭션 관리자는 작업을 조정한다.</li><li>합의 프로토콜은 작업 순서에 대한 합의를 이룬다.</li><li>로그 복제 시스템은 작업 로그를 모든 노드에 복제한다.</li><li>상태 머신 복제는 모든 노드가 동일한 상태를 유지하도록 한다.</li><li>원자적 데이터 구조는 데이터 접근과 수정이 원자적으로 이루어지도록 보장한다.</li></ul><h3 id=장점과-단점>장점과 단점<a hidden class=anchor aria-hidden=true href=#장점과-단점>#</a></h3><table><thead><tr><th>구분</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>✅ 장점</td><td>강력한 일관성</td><td>모든 노드가 동일한 순서로 작업을 관찰할 수 있어 데이터 일관성이 보장됩니다.</td></tr><tr><td></td><td>직관적인 프로그래밍 모델</td><td>개발자가 동시성 문제를 단순화하여 순차적 프로그래밍 모델로 추론할 수 있습니다.</td></tr><tr><td></td><td>오류 감소</td><td>복잡한 동시성 버그를 줄이고 시스템의 정확성을 높입니다.</td></tr><tr><td></td><td>시스템 정확성 증명 용이성</td><td>순차적 실행 모델을 기반으로 시스템의 정확성을 증명하기 쉽습니다.</td></tr><tr><td></td><td>합성 가능성 (Composability)</td><td>여러 선형화 가능한 객체를 함께 사용하면 전체 시스템도 선형화 가능합니다.</td></tr><tr><td></td><td>예측 가능한 동작</td><td>시스템의 동작이 예측 가능하여 디버깅과 테스트가 용이합니다.</td></tr><tr><td>⚠ 단점</td><td>성능 오버헤드</td><td>노드 간의 조정과 동기화가 필요하여 성능이 저하될 수 있습니다.</td></tr><tr><td></td><td>확장성 제한</td><td>노드 수가 증가함에 따라 일관성을 유지하기 위한 오버헤드가 증가합니다.</td></tr><tr><td></td><td>가용성 트레이드오프</td><td>CAP 정리에 따라 네트워크 파티션 상황에서 가용성을 희생해야 할 수 있습니다.</td></tr><tr><td></td><td>지연 시간 증가</td><td>합의와 동기화 과정이 지연 시간을 증가시킬 수 있습니다.</td></tr><tr><td></td><td>구현 복잡성</td><td>선형화 가능성을 구현하는 것은 기술적으로 어렵고 복잡합니다.</td></tr><tr><td></td><td>분산 시스템 제약</td><td>분산 시스템에서 완벽한 선형화 가능성을 달성하기는 어렵습니다.</td></tr></tbody></table><h3 id=도전-과제>도전 과제<a hidden class=anchor aria-hidden=true href=#도전-과제>#</a></h3><p>선형화 가능성을 구현하고 유지하는 데 있어 주요 도전 과제는 다음과 같다:</p><ol><li><p><strong>성능과 일관성의 균형</strong>: 강력한 일관성을 유지하면서도 높은 성능을 달성하기 어렵다. 특히 지리적으로 분산된 시스템에서는 더욱 그렇다.</p></li><li><p><strong>네트워크 파티션 처리</strong>: 네트워크 파티션이 발생할 경우, CAP 정리에 따라 일관성과 가용성 사이에서 선택해야 한다. 선형화 가능성을 유지하려면 가용성을 희생해야 할 수 있다.</p></li><li><p><strong>확장성 제한</strong>: 노드 수가 증가함에 따라 모든 노드 간에 일관된 상태를 유지하기 위한 통신 오버헤드가 급격히 증가한다.</p></li><li><p><strong>시스템 실패 처리</strong>: 노드 실패, 네트워크 지연, 메시지 손실 등의 장애 상황에서도 일관성을 유지하는 것은 매우 어렵다. 실패를 감지하고 복구하는 메커니즘이 필요하다.</p></li><li><p><strong>동시성 관리</strong>: 동시에 발생하는 많은 작업을 관리하고 올바른 순서로 실행하는 것은 복잡한 문제이다.</p></li><li><p><strong>분산 합의 달성</strong>: 모든 노드가 작업의 순서에 합의하도록 보장하는 것은 어렵다. 합의 알고리즘은 복잡하고 오버헤드가 크다.</p></li><li><p><strong>지연 시간 최소화</strong>: 강력한 일관성을 유지하면서도 지연 시간을 최소화하는 것은 어려운 과제이다.</p></li><li><p><strong>테스트 및 검증</strong>: 선형화 가능성을 테스트하고 검증하는 것은 어렵다. 모든 가능한 동시성 시나리오를 테스트하는 것은 거의 불가능하다.</p></li><li><p><strong>비결정적 동작</strong>: 분산 시스템의 비결정적 특성으로 인해 동일한 입력에 대해 다른 실행 순서가 발생할 수 있다.</p></li><li><p><strong>실시간 제약 충족</strong>: 실시간 시스템에서 엄격한 시간 제약을 충족하면서 선형화 가능성을 달성하는 것은 어렵다.</p></li></ol><h3 id=분류에-따른-종류-및-유형>분류에 따른 종류 및 유형<a hidden class=anchor aria-hidden=true href=#분류에-따른-종류-및-유형>#</a></h3><table><thead><tr><th>유형</th><th>설명</th><th>특징</th><th>적용 사례</th></tr></thead><tbody><tr><td><strong>강한 선형화 가능성</strong>(Strong Linearizability)</td><td>선형화 가능성의 더 강력한 형태로, 비결정론적 동작에서도 일관성을 보장합니다.</td><td>- 비결정적 시스템에서도 작동<br>- 초확률적 속성 보존<br>- 매우 엄격한 일관성</td><td>- 안전 중심 시스템<br>- 금융 거래<br>- 암호화폐</td></tr><tr><td><strong>순차적 일관성</strong>(Sequential Consistency)</td><td>모든 프로세스가 동일한 순서로 작업을 관찰하지만, 실시간 순서는 보장하지 않습니다.</td><td>- 전역 순서 보장<br>- 실시간 제약 없음<br>- 구현이 더 쉬움</td><td>- 분산 데이터베이스<br>- 멀티프로세서 시스템<br>- 병렬 컴퓨팅</td></tr><tr><td><strong>인과적 일관성</strong>(Causal Consistency)</td><td>인과적으로 관련된 작업만 모든 노드에서 동일한 순서로 관찰됩니다.</td><td>- 인과 관계만 보존<br>- 더 나은 성능<br>- 약한 일관성</td><td>- 소셜 미디어<br>- 협업 도구<br>- 분산 로깅</td></tr><tr><td><strong>엄격한 직렬화 가능성</strong>(Strict Serializability)</td><td>선형화 가능성과 직렬화 가능성을 결합한 모델입니다.</td><td>- 트랜잭션 지원<br>- 실시간 순서 보존<br>- 매우 강력한 보장</td><td>- 분산 트랜잭션 시스템<br>- 금융 데이터베이스<br>- 예약 시스템</td></tr><tr><td><strong>지역적 선형화 가능성</strong>(Local Linearizability)</td><td>각 프로세스의 로컬 뷰에서 선형화 가능성을 보장합니다.</td><td>- 확장성 개선<br>- 로컬 결정 가능<br>- 글로벌 조정 감소</td><td>- 에지 컴퓨팅<br>- 모바일 애플리케이션<br>IoT 시스템</td></tr><tr><td><strong>세션 선형화 가능성</strong>(Session Linearizability)</td><td>단일 클라이언트 세션 내에서 선형화 가능성을 보장합니다.</td><td>- 세션 내 일관성<br>- 세션 간 약한 보장<br>- 성능 개선</td><td>- 웹 애플리케이션<br>- 모바일 클라이언트<br>- 게임 서버</td></tr><tr><td><strong>멀티 객체 선형화 가능성</strong>(Multi-Object Linearizability)</td><td>여러 객체에 걸친 작업에 대한 선형화 가능성을 보장합니다.</td><td>- 객체 간 일관성<br>- 복잡한 구현<br>- 트랜잭션 유사</td><td>- 복잡한 데이터 구조<br>- 문서 데이터베이스<br>- 객체 저장소</td></tr><tr><td><strong>확률적 선형화 가능성</strong>(Probabilistic Linearizability)</td><td>높은 확률로 선형화 가능성을 보장하는 완화된 모델입니다.</td><td>- 성능 향상<br>- 확률적 보장<br>- 더 나은 확장성</td><td>- 대규모 분산 시스템<br>- 스트리밍 서비스<br>- 실시간 분석</td></tr></tbody></table><h3 id=실무-적용-예시>실무 적용 예시<a hidden class=anchor aria-hidden=true href=#실무-적용-예시>#</a></h3><table><thead><tr><th>분야</th><th>적용 예시</th><th>구현 방식</th><th>이점</th></tr></thead><tbody><tr><td><strong>분산 데이터베이스</strong></td><td>Google Spanner</td><td>- 시간 동기화 (TrueTime API)<br>Two-Phase Locking<br>Paxos 합의</td><td>- 글로벌 확장성<br>- 강력한 일관성<br>- 트랜잭션 지원</td></tr><tr><td><strong>분산 키 - 값 저장소</strong></td><td>etcd</td><td>Raft 합의 알고리즘<br>- 리더 선출<br>- 로그 복제</td><td>- 설정 관리<br>- 서비스 디스커버리<br>- 분산 락</td></tr><tr><td><strong>분산 파일 시스템</strong></td><td>HDFS</td><td>- 단일 네임노드<br>- 원자적 메타데이터 작업<br>- 일관된 복제</td><td>- 대용량 데이터 처리<br>- 내결함성<br>- 확장성</td></tr><tr><td><strong>동시성 자료구조</strong></td><td>Java 의 ConcurrentHashMap</td><td>- 락 스트라이핑<br>CAS(Compare-And-Swap) 연산<br>- 동기화 블록</td><td>- 고성능 동시 접근<br>- 스레드 안전성<br>- 확장성</td></tr><tr><td><strong>메시지 큐</strong></td><td>Apache Kafka</td><td>- 로그 기반 아키텍처<br>- 순차적 ID 할당<br>ZooKeeper 조정</td><td>- 순서 보장<br>- 내구성<br>- 높은 처리량</td></tr><tr><td><strong>동시성 프로그래밍</strong></td><td>Go 의 sync 패키지</td><td>- 뮤텍스와 조건 변수<br>- 원자적 연산<br>- 메모리 장벽</td><td>- 간편한 동시성 프로그래밍<br>- 레이스 컨디션 방지<br>- 성능 최적화</td></tr><tr><td><strong>분산 락 서비스</strong></td><td>ZooKeeper</td><td>- 원자적 작업<br>- 순차 노드<br>- 왓처 (Watcher) 메커니즘</td><td>- 분산 조정<br>- 설정 관리<br>- 리더 선출</td></tr><tr><td><strong>블록체인</strong></td><td>Bitcoin</td><td>- 블록체인 합의<br>- 작업 증명 (PoW)<br>UTXO 모델</td><td>- 불변성<br>- 분산 신뢰<br>- 이중 지불 방지</td></tr></tbody></table><h3 id=활용-사례>활용 사례<a hidden class=anchor aria-hidden=true href=#활용-사례>#</a></h3><p><strong>금융 거래 시스템에서의 선형화 가능성 활용</strong></p><p>금융 거래 시스템에서 선형화 가능성은 트랜잭션의 정확성과 일관성을 보장하는 데 중요한 역할을 한다.</p><p><strong>시나리오</strong><br>한 사용자가 계좌에서 돈을 인출하고, 다른 사용자가 동시에 같은 계좌에 입금하는 상황을 가정해 보자.이 때, 선형화 가능성이 없다면 두 작업이 서로 간섭하여 데이터 불일치 (예: 잔액 오류) 가 발생할 수 있다.</p><p><strong>구현 방식</strong>:</p><ol><li>각 트랜잭션은 글로벌 타임스탬프를 받는다.</li><li>2 단계 커밋 프로토콜을 사용하여 모든 참여 노드가 트랜잭션을 동일한 순서로 적용하도록 보장한다.</li><li>모든 읽기 작업은 최신 커밋된 상태를 반영한다.</li><li>노드 간에 Paxos 또는 Raft 와 같은 합의 알고리즘을 사용하여 트랜잭션 순서에 대한 합의를 이룬다.</li><li>장애 발생 시 복구 메커니즘을 통해 일관성을 복원한다.</li></ol><p><strong>작동 흐름</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-15-1><a class=lnlinks href=#hl-15-1> 1</a>
+</span><span class=lnt id=hl-15-2><a class=lnlinks href=#hl-15-2> 2</a>
+</span><span class=lnt id=hl-15-3><a class=lnlinks href=#hl-15-3> 3</a>
+</span><span class=lnt id=hl-15-4><a class=lnlinks href=#hl-15-4> 4</a>
+</span><span class=lnt id=hl-15-5><a class=lnlinks href=#hl-15-5> 5</a>
+</span><span class=lnt id=hl-15-6><a class=lnlinks href=#hl-15-6> 6</a>
+</span><span class=lnt id=hl-15-7><a class=lnlinks href=#hl-15-7> 7</a>
+</span><span class=lnt id=hl-15-8><a class=lnlinks href=#hl-15-8> 8</a>
+</span><span class=lnt id=hl-15-9><a class=lnlinks href=#hl-15-9> 9</a>
+</span><span class=lnt id=hl-15-10><a class=lnlinks href=#hl-15-10>10</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>1. 사용자 A: 인출 요청 (1000 원) → 시스템
+</span></span><span class=line><span class=cl>2. 사용자 B: 입금 요청 (500 원) → 시스템
+</span></span><span class=line><span class=cl>3. 시스템: 타임스탬프 할당 (인출: T1, 입금: T2)
+</span></span><span class=line><span class=cl>4. 시스템: 트랜잭션 순서 결정 (T1 → T2)
+</span></span><span class=line><span class=cl>5. 시스템: 모든 노드에 합의 요청
+</span></span><span class=line><span class=cl>6. 노드들: 합의 달성 (T1 → T2 순서로 실행)
+</span></span><span class=line><span class=cl>7. 노드들: 인출 작업 실행 (잔액 - 1000)
+</span></span><span class=line><span class=cl>8. 노드들: 입금 작업 실행 (잔액 - 1000 + 500)
+</span></span><span class=line><span class=cl>9. 시스템: 클라이언트에 결과 반환
+</span></span></code></pre></td></tr></table></div></div><p><strong>다이어그램</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-16-1><a class=lnlinks href=#hl-16-1> 1</a>
+</span><span class=lnt id=hl-16-2><a class=lnlinks href=#hl-16-2> 2</a>
+</span><span class=lnt id=hl-16-3><a class=lnlinks href=#hl-16-3> 3</a>
+</span><span class=lnt id=hl-16-4><a class=lnlinks href=#hl-16-4> 4</a>
+</span><span class=lnt id=hl-16-5><a class=lnlinks href=#hl-16-5> 5</a>
+</span><span class=lnt id=hl-16-6><a class=lnlinks href=#hl-16-6> 6</a>
+</span><span class=lnt id=hl-16-7><a class=lnlinks href=#hl-16-7> 7</a>
+</span><span class=lnt id=hl-16-8><a class=lnlinks href=#hl-16-8> 8</a>
+</span><span class=lnt id=hl-16-9><a class=lnlinks href=#hl-16-9> 9</a>
+</span><span class=lnt id=hl-16-10><a class=lnlinks href=#hl-16-10>10</a>
+</span><span class=lnt id=hl-16-11><a class=lnlinks href=#hl-16-11>11</a>
+</span><span class=lnt id=hl-16-12><a class=lnlinks href=#hl-16-12>12</a>
+</span><span class=lnt id=hl-16-13><a class=lnlinks href=#hl-16-13>13</a>
+</span><span class=lnt id=hl-16-14><a class=lnlinks href=#hl-16-14>14</a>
+</span><span class=lnt id=hl-16-15><a class=lnlinks href=#hl-16-15>15</a>
+</span><span class=lnt id=hl-16-16><a class=lnlinks href=#hl-16-16>16</a>
+</span><span class=lnt id=hl-16-17><a class=lnlinks href=#hl-16-17>17</a>
+</span><span class=lnt id=hl-16-18><a class=lnlinks href=#hl-16-18>18</a>
+</span><span class=lnt id=hl-16-19><a class=lnlinks href=#hl-16-19>19</a>
+</span><span class=lnt id=hl-16-20><a class=lnlinks href=#hl-16-20>20</a>
+</span><span class=lnt id=hl-16-21><a class=lnlinks href=#hl-16-21>21</a>
+</span><span class=lnt id=hl-16-22><a class=lnlinks href=#hl-16-22>22</a>
+</span><span class=lnt id=hl-16-23><a class=lnlinks href=#hl-16-23>23</a>
+</span><span class=lnt id=hl-16-24><a class=lnlinks href=#hl-16-24>24</a>
+</span><span class=lnt id=hl-16-25><a class=lnlinks href=#hl-16-25>25</a>
+</span><span class=lnt id=hl-16-26><a class=lnlinks href=#hl-16-26>26</a>
+</span><span class=lnt id=hl-16-27><a class=lnlinks href=#hl-16-27>27</a>
+</span><span class=lnt id=hl-16-28><a class=lnlinks href=#hl-16-28>28</a>
+</span><span class=lnt id=hl-16-29><a class=lnlinks href=#hl-16-29>29</a>
+</span><span class=lnt id=hl-16-30><a class=lnlinks href=#hl-16-30>30</a>
+</span><span class=lnt id=hl-16-31><a class=lnlinks href=#hl-16-31>31</a>
+</span><span class=lnt id=hl-16-32><a class=lnlinks href=#hl-16-32>32</a>
+</span><span class=lnt id=hl-16-33><a class=lnlinks href=#hl-16-33>33</a>
+</span><span class=lnt id=hl-16-34><a class=lnlinks href=#hl-16-34>34</a>
+</span><span class=lnt id=hl-16-35><a class=lnlinks href=#hl-16-35>35</a>
+</span><span class=lnt id=hl-16-36><a class=lnlinks href=#hl-16-36>36</a>
+</span><span class=lnt id=hl-16-37><a class=lnlinks href=#hl-16-37>37</a>
+</span><span class=lnt id=hl-16-38><a class=lnlinks href=#hl-16-38>38</a>
+</span><span class=lnt id=hl-16-39><a class=lnlinks href=#hl-16-39>39</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  +-----------------+ +-----------------+  
+</span></span><span class=line><span class=cl>  | 사용자 A |           | 사용자 B |  
+</span></span><span class=line><span class=cl>  | (인출: 1000 원) |           | (입금: 500 원) |  
+</span></span><span class=line><span class=cl>  +--------+--------+ +--------+--------+  
+</span></span><span class=line><span class=cl>           | |  
+</span></span><span class=line><span class=cl>           v v  
+</span></span><span class=line><span class=cl>  +------------------------------------------+  
+</span></span><span class=line><span class=cl>  | 로드 밸런서 |  
+</span></span><span class=line><span class=cl>  +------------------------------------------+  
+</span></span><span class=line><span class=cl>           | |  
+</span></span><span class=line><span class=cl>           v v  
+</span></span><span class=line><span class=cl>  +--------+--------+ +--------+--------+  
+</span></span><span class=line><span class=cl>  | 애플리케이션 |           | 애플리케이션 |  
+</span></span><span class=line><span class=cl>  | 서버 1 |           | 서버 2 |  
+</span></span><span class=line><span class=cl>  +--------+--------+ +--------+--------+  
+</span></span><span class=line><span class=cl>           | |  
+</span></span><span class=line><span class=cl>           v v  
+</span></span><span class=line><span class=cl>  +------------------------------------------+  
+</span></span><span class=line><span class=cl>  | 트랜잭션 관리자 |  
+</span></span><span class=line><span class=cl>  | (타임스탬프 할당: T1, T2) |  
+</span></span><span class=line><span class=cl>  | (순서 결정: T1 → T2) |  
+</span></span><span class=line><span class=cl>  +------------------+---------------------+  
+</span></span><span class=line><span class=cl>                     |  
+</span></span><span class=line><span class=cl>                     v  
+</span></span><span class=line><span class=cl>  +------------------------------------------+  
+</span></span><span class=line><span class=cl>  | 합의 계층 (Paxos) |  
+</span></span><span class=line><span class=cl>  | (모든 노드가 T1 → T2 순서에 합의) |  
+</span></span><span class=line><span class=cl>  +------------------+---------------------+  
+</span></span><span class=line><span class=cl>                     |  
+</span></span><span class=line><span class=cl>       +-------------+-------------+  
+</span></span><span class=line><span class=cl>       | |  
+</span></span><span class=line><span class=cl>       v v  
+</span></span><span class=line><span class=cl>+------+--------+ +------+--------+  
+</span></span><span class=line><span class=cl>| 데이터베이스 |           | 데이터베이스 |  
+</span></span><span class=line><span class=cl>| 노드 1 |           | 노드 2 |  
+</span></span><span class=line><span class=cl>| 1. 인출 (-1000)| | 1. 인출 (-1000)|  
+</span></span><span class=line><span class=cl>| 2. 입금 (+500) | | 2. 입금 (+500) |  
+</span></span><span class=line><span class=cl>+---------------+ +---------------+
+</span></span></code></pre></td></tr></table></div></div><p>이 다이어그램에서 볼 수 있듯이, 선형화 가능성은 모든 노드가 트랜잭션을 동일한 순서 (인출 후 입금) 로 실행하도록 보장한다. 이를 통해 어떤 노드에서 데이터를 읽더라도 항상 일관된 상태 (최종 잔액 = 초기 잔액 - 1000 + 500) 를 볼 수 있다.</p><h3 id=실무에서-효과적으로-적용하기-위한-고려사항-및-주의할-점>실무에서 효과적으로 적용하기 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#실무에서-효과적으로-적용하기-위한-고려사항-및-주의할-점>#</a></h3><table><thead><tr><th>고려사항</th><th>설명</th><th>권장 사항</th></tr></thead><tbody><tr><td><strong>성능 트레이드오프</strong></td><td>선형화 가능성은 성능 오버헤드를 가져올 수 있습니다.</td><td>- 성능 중요 부분에만 선택적으로 적용<br>- 병목 지점 분석<br>- 최적화 기법 활용</td></tr><tr><td><strong>확장성 계획</strong></td><td>시스템 규모가 커짐에 따라 선형화 가능성 유지가 어려워집니다.</td><td>- 샤딩 전략 수립<br>- 계층적 아키텍처 설계<br>- 로컬 결정 최대화</td></tr><tr><td><strong>실패 처리</strong></td><td>노드 실패, 네트워크 파티션 등이 발생할 수 있습니다.</td><td>- 장애 복구 메커니즘 구현<br>- 리더 선출 알고리즘 사용<br>- 퀵 복구 전략 수립</td></tr><tr><td><strong>일관성 수준 선택</strong></td><td>모든 작업에 강한 일관성이 필요하지 않을 수 있습니다.</td><td>- 작업별 일관성 요구사항 평가<br>- 혼합 일관성 모델 고려<br>- 비즈니스 우선순위 반영</td></tr><tr><td><strong>테스트 전략</strong></td><td>선형화 가능성 테스트는 어렵습니다.</td><td>- 특수 테스트 도구 사용<br>- 장애 주입 테스트<br>- 분산 시스템 시뮬레이션</td></tr><tr><td><strong>모니터링과 디버깅</strong></td><td>분산 시스템 문제 진단이 어렵습니다.</td><td>- 분산 추적 시스템 구축<br>- 일관된 로깅 전략<br>- 이상 감지 메커니즘</td></tr><tr><td><strong>클라이언트 타임아웃 관리</strong></td><td>선형화 작업이 지연될 수 있습니다.</td><td>- 적절한 타임아웃 설정<br>- 재시도 메커니즘 구현<br>- 백오프 전략 사용</td></tr><tr><td><strong>비동기 작업 처리</strong></td><td>모든 작업을 동기적으로 처리하면 성능이 저하됩니다.</td><td>- 비동기 패턴 활용<br>- 이벤트 소싱 고려<br>CQRS 패턴 적용</td></tr></tbody></table><h3 id=최적화하기-위한-고려사항-및-주의할-점>최적화하기 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#최적화하기-위한-고려사항-및-주의할-점>#</a></h3><table><thead><tr><th>고려사항</th><th>설명</th><th>최적화 전략</th></tr></thead><tbody><tr><td><strong>로컬 캐싱</strong></td><td>자주 접근하는 데이터의 로컬 복사본을 유지합니다.</td><td>- 캐시 일관성 프로토콜 구현<br>- 만료 정책 설정<br>- 무효화 메커니즘 도입</td></tr><tr><td><strong>배치 처리</strong></td><td>여러 작업을 그룹화하여 한 번에 처리합니다.</td><td>- 일괄 처리 API 제공<br>- 적절한 배치 크기 선택<br>- 우선순위 기반 일괄 처리</td></tr><tr><td><strong>비동기 복제</strong></td><td>동기식 복제 대신 비동기식 복제를 사용합니다.</td><td>- 읽기 작업을 위한 일관성 완화<br>- 비동기 복제 지연 모니터링<br>- 복제 우선순위 설정</td></tr><tr><td><strong>샤딩 (Sharding)</strong></td><td>데이터를 여러 파티션으로 분할합니다.</td><td>- 효과적인 파티션 키 선택<br>- 크로스 샤드 트랜잭션 최소화<br>- 리밸런싱 전략 수립</td></tr><tr><td><strong>쿼럼 기반 접근</strong></td><td>모든 노드가 아닌 쿼럼만 응답하도록 합니다.</td><td>- 읽기/쓰기 쿼럼 최적화<br>- 동적 쿼럼 크기 조정<br>- 지역성 고려한 쿼럼 선택</td></tr><tr><td><strong>락 최적화</strong></td><td>최소한의 락만 사용하여 병렬성을 높입니다.</td><td>- 세밀한 락 사용<br>- 락 프리 알고리즘 고려<br>- 락 구역 최소화</td></tr><tr><td><strong>네트워크 최적화</strong></td><td>네트워크 통신을 최적화합니다.</td><td>- 프로토콜 효율성 개선<br>- 압축 활용<br>- 배치 네트워크 작업</td></tr><tr><td><strong>하드웨어 가속</strong></td><td>하드웨어 기능을 활용하여 성능을 향상시킵니다.</td><td>RDMA 활용<br>- 하드웨어 트랜잭션 메모리 사용<br>- 전용 하드웨어 고려</td></tr></tbody></table><h3 id=주제에-대한-추가-조사-내용>주제에 대한 추가 조사 내용<a hidden class=anchor aria-hidden=true href=#주제에-대한-추가-조사-내용>#</a></h3><p>선형화 가능성 (Linearizability) 은 다른 일관성 모델과 비교할 때 매우 강력한 보장을 제공하지만, 이로 인한 트레이드오프도 존재합니다. 특히 순차적 일관성 (Sequential Consistency) 과 자주 비교됩니다.</p><p><strong>선형화 가능성 vs 순차적 일관성 비교</strong>:</p><table><thead><tr><th>특성</th><th>선형화 가능성 (Linearizability)</th><th>순차적 일관성 (Sequential Consistency)</th></tr></thead><tbody><tr><td>실시간 순서</td><td>실시간 순서를 보존</td><td>실시간 순서를 보존하지 않음</td></tr><tr><td>프로그램 순서</td><td>프로그램 순서를 보존</td><td>프로그램 순서를 보존</td></tr><tr><td>단일 시스템 환영</td><td>제공</td><td>제공</td></tr><tr><td>구현 난이도</td><td>매우 어려움</td><td>상대적으로 쉬움</td></tr><tr><td>성능</td><td>더 낮음</td><td>더 높음</td></tr><tr><td>지연 시간</td><td>더 높음</td><td>더 낮음</td></tr><tr><td>병렬성</td><td>제한적</td><td>더 많은 병렬성 허용</td></tr><tr><td>합성 가능성</td><td>지원 (지역적)</td><td>지원하지 않음 (비지역적)</td></tr></tbody></table><p><strong>선형화 가능성과 CAP 정리의 관계</strong>:</p><p>선형화 가능성은 CAP 정리의 일관성 (C) 측면과 직접적인 관련이 있습니다. CAP 정리는 분산 시스템이 일관성 (Consistency), 가용성 (Availability), 파티션 내성 (Partition Tolerance) 세 가지 속성 중 동시에 최대 두 가지만 만족할 수 있다고 주장합니다.</p><p>선형화 가능성을 선택하면, 네트워크 파티션 상황에서 가용성을 희생해야 합니다. 이는 선형화 가능성이 강력한 일관성을 보장하기 때문입니다. 따라서 선형화 가능한 시스템은 일반적으로 CP(일관성 + 파티션 내성) 시스템으로 분류됩니다.</p><p>또한 PACELC 정리는 CAP 정리를 확장하여, 파티션이 없는 상황 (E) 에서는 지연 시간 (L) 과 일관성 (C) 사이의 트레이드오프가 존재한다고 주장합니다. 선형화 가능성은 이러한 상황에서도 일관성을 우선시하여 지연 시간이 증가할 수 있습니다.</p><h3 id=최신-동향>최신 동향<a hidden class=anchor aria-hidden=true href=#최신-동향>#</a></h3><table><thead><tr><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td><strong>확장 가능한 선형화 가능성</strong></td><td>혼합 일관성 모델</td><td>중요 데이터에는 선형화 가능성, 덜 중요한 데이터에는 약한 일관성 모델을 적용하는 하이브리드 접근법이 주류화되고 있습니다.</td></tr><tr><td><strong>하드웨어 지원</strong></td><td>하드웨어 트랜잭션 메모리 (HTM)</td><td>프로세서 차원에서 원자적 트랜잭션을 지원하는 기술이 발전하여 선형화 가능성 구현의 오버헤드를 줄이고 있습니다.</td></tr><tr><td><strong>양자 컴퓨팅 영향</strong></td><td>양자 선형화 가능성</td><td>양자 컴퓨팅 환경에서 선형화 가능성을 적용하기 위한 새로운 모델과 프로토콜이 연구되고 있습니다.</td></tr><tr><td><strong>에지 컴퓨팅 적용</strong></td><td>지역적 선형화 가능성</td><td>에지 장치에서 부분적으로 선형화 가능성을 제공하여 중앙 시스템 의존도를 줄이는 기법이 발전하고 있습니다.</td></tr><tr><td><strong>블록체인 기술과의 융합</strong></td><td>분산 원장 선형화</td><td>블록체인 기술과 선형화 가능성 개념을 결합한 새로운 합의 알고리즘이 등장하고 있습니다.</td></tr><tr><td><strong>자동화된 검증</strong></td><td>형식적 검증 도구</td><td>선형화 가능성을 자동으로 검증할 수 있는 형식적 방법과 도구가 발전하고 있습니다.</td></tr><tr><td><strong>머신러닝 지원</strong></td><td>적응형 일관성 조정</td><td>머신러닝을 활용하여 시스템 부하와 패턴에 따라 일관성 수준을 동적으로 조정하는 기법이 연구되고 있습니다.</td></tr></tbody></table><h3 id=주제와-관련하여-주목할-내용>주제와 관련하여 주목할 내용<a hidden class=anchor aria-hidden=true href=#주제와-관련하여-주목할-내용>#</a></h3><table><thead><tr><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td><strong>선형화 가능성 검증</strong></td><td>Jepsen/Porcupine</td><td>분산 시스템의 선형화 가능성을 테스트하고 검증하는 도구들이 발전하고 있으며, 필수적인 품질 보증 단계로 자리잡고 있습니다.</td></tr><tr><td><strong>회복 가능한 선형화 가능성</strong></td><td>네스팅 안전 회복</td><td>시스템 장애 이후에도 선형화 가능성을 유지할 수 있는 회복 메커니즘이 연구되고 있습니다.</td></tr><tr><td><strong>선형화 가능성 계층 구조</strong></td><td>동시성 명세 계층화</td><td>다양한 형태의 선형화 가능성 (세트 선형화, 구간 선형화 등) 을 계층적으로 정리한 분류 체계가 발전하고 있습니다.</td></tr><tr><td><strong>양자 내성 선형화 가능성</strong></td><td>포스트 양자 프로토콜</td><td>양자 컴퓨팅 시대에 대비한 선형화 가능성 프로토콜이 연구되고 있습니다.</td></tr><tr><td><strong>선형화 가능성의 재해석</strong></td><td>실용적 선형화 가능성</td><td>전통적인 선형화 가능성 개념을 현대적 맥락에서 재해석하고 완화하는 접근법이 제안되고 있습니다.</td></tr><tr><td><strong>저지연 선형화 가능성</strong></td><td>지연 최적화 기법</td><td>선형화 가능성을 유지하면서도 지연 시간을 최소화하는 새로운 알고리즘과 프로토콜이 연구되고 있습니다.</td></tr><tr><td><strong>비휘발성 메모리 (NVM) 활용</strong></td><td>영속적 선형화 가능성</td><td>새로운 비휘발성 메모리 기술을 활용한 영속적 선형화 가능성 구현 방법이 주목받고 있습니다.</td></tr></tbody></table><h3 id=앞으로의-전망>앞으로의 전망<a hidden class=anchor aria-hidden=true href=#앞으로의-전망>#</a></h3><table><thead><tr><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td><strong>안정적인 약한 일관성</strong></td><td>문맥별 일관성 모델</td><td>순수한 선형화 가능성 대신, 작업 유형과 문맥에 따라 최적화된 일관성 모델의 조합이 주류가 될 것으로 전망됩니다.</td></tr><tr><td><strong>양자 분산 시스템</strong></td><td>양자 특화 일관성</td><td>양자 컴퓨팅 기반 분산 시스템에 적합한 새로운 형태의 일관성 모델이 등장할 것으로 예상됩니다.</td></tr><tr><td><strong>자율 일관성 관리</strong></td><td>자가 조정 시스템</td><td>시스템이 스스로 워크로드와 네트워크 상태를 분석하여 최적의 일관성 수준을 자동으로 선택하는 방향으로 발전할 것입니다.</td></tr><tr><td><strong>클라우드 네이티브 최적화</strong></td><td>분산 환경 특화 선형화</td><td>클라우드 네이티브 환경에 최적화된 선형화 가능성 구현 기법이 발전할 것으로 전망됩니다.</td></tr><tr><td><strong>초대규모 분산 시스템</strong></td><td>계층적 선형화 가능성</td><td>수만 개 이상의 노드로 구성된 시스템에서도 효율적으로 작동하는 계층적 선형화 가능성 접근법이 연구될 것입니다.</td></tr><tr><td><strong>선형화 가능성의 형식화</strong></td><td>수학적 기반 강화</td><td>선형화 가능성의 수학적 기반이 강화되어 더 정확한 형식적 검증 방법이 발전할 것입니다.</td></tr><tr><td><strong>IoT 환경 적용</strong></td><td>자원 제약적 선형화</td><td>제한된 자원을 가진 IoT 환경에서도 효율적으로 작동하는 경량화된 선형화 가능성 프로토콜이 개발될 것으로 예상됩니다.</td></tr><tr><td><strong>하이브리드 에지 - 클라우드 모델</strong></td><td>분산 선형화 가능성</td><td>에지 컴퓨팅과 클라우드 환경을 아우르는 하이브리드 선형화 가능성 모델이 등장할 것입니다.</td></tr><tr><td><strong>블록체인 통합</strong></td><td>탈중앙화 선형화</td><td>블록체인 기술과 선형화 가능성을 통합한 새로운 형태의 탈중앙화 합의 메커니즘이 발전할 것입니다.</td></tr></tbody></table><h3 id=추가-학습-주제>추가 학습 주제<a hidden class=anchor aria-hidden=true href=#추가-학습-주제>#</a></h3><table><thead><tr><th>카테고리</th><th>주제</th><th>설명</th></tr></thead><tbody><tr><td><strong>이론적 기반</strong></td><td>형식적 모델링</td><td>선형화 가능성의 수학적 정의와 증명 기법에 대한 이해</td></tr><tr><td></td><td>일관성 모델 계층</td><td>다양한 일관성 모델과 그 관계에 대한 이해</td></tr><tr><td></td><td>분산 시스템 이론</td><td>CAP 정리, FLP 불가능성, PACELC 등 분산 시스템 기본 이론</td></tr><tr><td><strong>구현 기술</strong></td><td>분산 합의 알고리즘</td><td>Paxos, Raft, Viewstamped Replication 등의 합의 알고리즘</td></tr><tr><td></td><td>동시성 제어 기법</td><td>락킹, 낙관적 동시성 제어, MVCC 등의 동시성 제어 메커니즘</td></tr><tr><td></td><td>트랜잭션 처리</td><td>분산 트랜잭션, 2PC, 3PC 등의 트랜잭션 프로토콜</td></tr><tr><td><strong>평가 및 검증</strong></td><td>선형화 가능성 테스트</td><td>Jepsen, Porcupine 등의 테스트 도구 및 방법론</td></tr><tr><td></td><td>형식적 검증</td><td>TLA+, Alloy 등을 사용한 선형화 가능성 검증 기법</td></tr><tr><td></td><td>성능 평가</td><td>선형화 가능성이 시스템 성능에 미치는 영향 분석</td></tr><tr><td><strong>실제 시스템</strong></td><td>데이터베이스 사례 연구</td><td>Google Spanner, CockroachDB 등의 선형화 가능성 구현</td></tr><tr><td></td><td>분산 키 - 값 저장소</td><td>etcd, ZooKeeper 등의 내부 동작 원리</td></tr><tr><td></td><td>메모리 모델</td><td>프로세서 메모리 모델과 선형화 가능성의 관계</td></tr><tr><td><strong>고급 주제</strong></td><td>약화된 일관성 모델</td><td>인과적 일관성, 세션 일관성 등의 약화된 모델</td></tr><tr><td></td><td>혼합 일관성 시스템</td><td>여러 일관성 모델을 함께 사용하는 하이브리드 시스템</td></tr><tr><td></td><td>양자 분산 컴퓨팅</td><td>양자 컴퓨팅 환경에서의 일관성 모델</td></tr></tbody></table><h3 id=관련-분야와-학습-주제>관련 분야와 학습 주제<a hidden class=anchor aria-hidden=true href=#관련-분야와-학습-주제>#</a></h3><table><thead><tr><th>카테고리</th><th>주제</th><th>설명</th></tr></thead><tbody><tr><td><strong>분산 시스템</strong></td><td>네트워크 파티션 처리</td><td>네트워크 파티션 상황에서의 선형화 가능성 유지 전략</td></tr><tr><td></td><td>장애 감지 및 복구</td><td>노드 실패 시 선형화 가능성을 보존하는 복구 메커니즘</td></tr><tr><td></td><td>지리적 분산 시스템</td><td>지리적으로 분산된 환경에서의 선형화 가능성 구현 도전 과제</td></tr><tr><td><strong>데이터베이스</strong></td><td>분산 트랜잭션</td><td>여러 노드에 걸친 원자적 트랜잭션 처리 방법</td></tr><tr><td></td><td>복제 전략</td><td>동기식/비동기식 복제와 선형화 가능성의 관계</td></tr><tr><td></td><td>샤딩과 파티셔닝</td><td>데이터 파티셔닝이 선형화 가능성에 미치는 영향</td></tr><tr><td><strong>프로그래밍 모델</strong></td><td>동시성 자료구조</td><td>락 프리, 웨이트 프리 등의 동시성 자료구조 설계</td></tr><tr><td></td><td>트랜잭션 메모리</td><td>소프트웨어/하드웨어 트랜잭션 메모리와 선형화 가능성</td></tr><tr><td></td><td>액터 모델</td><td>액터 모델에서의 선형화 가능성 구현 방법</td></tr><tr><td><strong>시스템 설계</strong></td><td>마이크로서비스 아키텍처</td><td>마이크로서비스 환경에서의 데이터 일관성 관리</td></tr><tr><td></td><td>이벤트 소싱</td><td>이벤트 소싱 패턴과 선형화 가능성의 연결점</td></tr><tr><td></td><td>CQRS 패턴</td><td>명령 쿼리 책임 분리와 일관성 모델</td></tr><tr><td><strong>성능 최적화</strong></td><td>지연 시간 최소화</td><td>선형화 가능성을 유지하면서 지연 시간을 최소화하는 기법</td></tr><tr><td></td><td>처리량 향상</td><td>선형화 가능성 시스템의 처리량을 향상시키는 방법</td></tr><tr><td></td><td>리소스 효율성</td><td>리소스 사용을 최적화하면서 선형화 가능성을 달성하는 전략</td></tr></tbody></table><hr><h2 id=용어-정리>용어 정리<a hidden class=anchor aria-hidden=true href=#용어-정리>#</a></h2><table><thead><tr><th>용어</th><th>설명</th></tr></thead><tbody><tr><td>선형화 가능성 (Linearizability)</td><td>분산 시스템에서 각 작업이 마치 실시간 순서에 따라 원자적으로 실행되는 것처럼 보이게 하는 강력한 일관성 모델</td></tr><tr><td>원자성 (Atomicity)</td><td>작업이 불가분의 단위로 실행되어 부분적인 실행 상태가 관찰되지 않는 특성</td></tr><tr><td>실시간 순서 (Real-time Order)</td><td>실제 시간에 기반한 작업 순서로, 선형화 가능성은 이를 보존해야 함</td></tr><tr><td>선형화 지점 (Linearization Point)</td><td>동시 작업이 효과적으로 발생하는 것으로 간주되는 시점</td></tr><tr><td>합의 알고리즘 (Consensus Algorithm)</td><td>분산 시스템에서 노드들이 공통된 결정에 도달하기 위한 알고리즘 (예: Paxos, Raft)</td></tr><tr><td>2 단계 커밋 (Two-Phase Commit)</td><td>분산 트랜잭션 프로토콜로, 준비 단계와 커밋 단계로 구성됨</td></tr><tr><td>쿼럼 (Quorum)</td><td>분산 시스템에서 작업을 수행하기 위해 필요한 최소한의 노드 수</td></tr><tr><td>CAP 정리 (CAP Theorem)</td><td>분산 시스템이 일관성, 가용성, 파티션 내성 중 최대 두 가지만 동시에 보장할 수 있다는 이론</td></tr><tr><td>순차적 일관성 (Sequential Consistency)</td><td>프로그램 순서는 보존하지만 실시간 순서는 보장하지 않는 일관성 모델</td></tr><tr><td>타임스탬프 기반 순서 (Timestamp Ordering)</td><td>작업에 타임스탬프를 할당하여 전체 순서를 결정하는 방식</td></tr><tr><td>락 프리 (Lock-Free)</td><td>락을 사용하지 않고 동시성을 관리하는 프로그래밍 기법</td></tr><tr><td>메모리 장벽 (Memory Barrier)</td><td>프로세서가 메모리 작업의 순서를 재배치하지 않도록 보장하는 메커니즘</td></tr><tr><td>회복 가능한 선형화 가능성 (Recoverable Linearizability)</td><td>시스템 장애 후에도 선형화 가능성을 유지할 수 있는 모델</td></tr><tr><td>계층적 일관성 (Hierarchical Consistency)</td><td>시스템의 다른 부분에 다른 일관성 모델을 적용하는 접근법</td></tr><tr><td>이중 지불 문제 (Double Spending Problem)</td><td>동일한 자원이 두 번 이상 소비되는 문제로, 선형화 가능성으로 해결 가능</td></tr><tr><td><strong>메타데이터</strong></td><td>연산의 순서를 추적하기 위한 데이터</td></tr><tr><td><strong>Paxos</strong></td><td>분산 합의 알고리즘의 표준 모델.</td></tr></tbody></table><hr><h2 id=참고-및-출처>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처>#</a></h2><ul><li><a href=https://en.wikipedia.org/wiki/Linearizability>Linearizability - Wikipedia</a></li><li><a href=https://dl.acm.org/doi/10.1145/78969.78972>Herlihy & Wing 논문</a></li><li><a href=https://www.amazon.com/Distributed-Systems-Principles-Andrew-Tanenbaum/dp/153028175X>분산 시스템 설계 원칙</a></li><li><a href=https://www.geeksforgeeks.org/linearizability-in-distributed-systems/>GeeksforGeeks: Linearizability in Distributed Systems</a></li><li><a href=https://en.wikipedia.org/wiki/Linearizability>Wikipedia: Linearizability</a></li><li><a href=https://www.geeksforgeeks.org/linearizability-in-distributed-systems/>Linearizability in Distributed Systems - GeeksforGeeks</a></li><li><a href=https://www.educative.io/answers/what-is-linearizability-in-distributed-systems>What is linearizability in distributed systems? - Educative</a></li><li><a href=https://jepsen.io/consistency/models/linearizable>Linearizability - Jepsen</a></li><li><a href=https://en.wikipedia.org/wiki/Linearizability>Linearizability - Wikipedia</a></li><li><a href=https://www.geeksforgeeks.org/strict-consistency-or-linearizability-in-system-design/>Strict consistency or Linearizability in System Design - GeeksforGeeks</a></li><li><a href=https://systemdesignschool.io/blog/linearizability-vs-serializability>Understanding Linearizability vs Serializability - System Design School</a></li><li><a href=https://dagster.io/glossary/linearizability>Linearizability | Dagster Glossary</a></li><li><a href=http://www.bailis.org/blog/linearizability-versus-serializability/>Linearizability versus Serializability - Peter Bailis</a></li><li><a href=https://vladmihalcea.com/linearizability/>A beginner&rsquo;s guide to Linearizability - Vlad Mihalcea</a></li><li><a href=https://anishathalye.com/testing-distributed-systems-for-linearizability/>Testing Distributed Systems for Linearizability</a></li><li><a href=https://www.thecoder.cafe/p/cap>The CAP Theorem: Understanding Trade-offs in Distributed Systems</a></li><li><a href=https://martin.kleppmann.com/2015/05/11/please-stop-calling-databases-cp-or-ap.html>Please stop calling databases CP or AP - Martin Kleppmann&rsquo;s blog</a></li><li><a href=https://www.bmc.com/blogs/cap-theorem/>CAP Theorem Explained - BMC Software</a></li><li><a href=https://eli.thegreenplace.net/2024/linearizability-in-distributed-systems/>Linearizability in distributed systems - Eli Bendersky&rsquo;s website</a></li><li><a href=https://cacm.acm.org/research/a-linearizability-based-hierarchy-for-concurrent-specifications/>A Linearizability-based Hierarchy for Concurrent Specifications - ACM</a></li></ul><hr></div></main><footer class=footer><span>&copy; 2025 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>
