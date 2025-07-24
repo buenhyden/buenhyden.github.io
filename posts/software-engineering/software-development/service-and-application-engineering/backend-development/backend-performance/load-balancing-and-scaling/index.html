@@ -1,0 +1,279 @@
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Load Balancing and Scaling | hyunyoun's Blog</title><meta name=keywords content="Backend-Development,Best-Practices,Load-Balancing-and-Scaling"><meta name=description content="로드 밸런싱은 네트워크 트래픽을 여러 서버에 효율적으로 분산시켜 시스템의 안정성, 가용성, 응답 시간을 개선하는 기술이다."><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/software-engineering/software-development/service-and-application-engineering/backend-development/backend-performance/load-balancing-and-scaling/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.a9863521b3bd3c240bc506f46b95e3c06ccef2ae37f529d5f99bdaef442bccce.css integrity="sha256-qYY1IbO9PCQLxQb0a5XjwGzO8q439SnV+Zva70QrzM4=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate type=application/rss+xml href=https://buenhyden.github.io/posts/software-engineering/software-development/service-and-application-engineering/backend-development/backend-performance/load-balancing-and-scaling/index.xml><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/software-engineering/software-development/service-and-application-engineering/backend-development/backend-performance/load-balancing-and-scaling/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/software-engineering/software-development/service-and-application-engineering/backend-development/backend-performance/load-balancing-and-scaling/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="Load Balancing and Scaling"><meta property="og:description" content="로드 밸런싱은 네트워크 트래픽을 여러 서버에 효율적으로 분산시켜 시스템의 안정성, 가용성, 응답 시간을 개선하는 기술이다."><meta property="og:locale" content="en"><meta property="og:type" content="website"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="Load Balancing and Scaling"><meta name=twitter:description content="로드 밸런싱은 네트워크 트래픽을 여러 서버에 효율적으로 분산시켜 시스템의 안정성, 가용성, 응답 시간을 개선하는 기술이다."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Load Balancing and Scaling","item":"https://buenhyden.github.io/posts/software-engineering/software-development/service-and-application-engineering/backend-development/backend-performance/load-balancing-and-scaling/"}]}</script></head><body class=list id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><header class=page-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a></div><h1>Load Balancing and Scaling</h1><div class=post-description>로드 밸런싱은 네트워크 트래픽을 여러 서버에 효율적으로 분산시켜 시스템의 안정성, 가용성, 응답 시간을 개선하는 기술이다.</div></header><div class=post-content><h2 id=load-balancing-and-scaling>Load Balancing and Scaling<a hidden class=anchor aria-hidden=true href=#load-balancing-and-scaling>#</a></h2><p>로드 밸런싱은 네트워크 트래픽을 여러 서버에 효율적으로 분산시켜 시스템의 안정성, 가용성, 응답 시간을 개선하는 기술이다. 웹 애플리케이션의 규모가 커질수록 단일 서버로는 모든 요청을 처리하기 어려워진다. 이때 로드 밸런서가 &lsquo;교통 경찰&rsquo;처럼 작동하여 들어오는 요청을 여러 서버로 분산시켜 과부하를 방지한다.</p><h3 id=로드-밸런싱-알고리즘>로드 밸런싱 알고리즘<a hidden class=anchor aria-hidden=true href=#로드-밸런싱-알고리즘>#</a></h3><p>로드 밸런싱의 효율성은 사용하는 알고리즘에 크게 좌우된다:</p><ol><li><strong>라운드 로빈 (Round Robin)</strong>: 가장 단순한 방식으로, 순차적으로 각 서버에 요청을 배분한다. 모든 서버가 동일한 사양일 때 효과적이다.</li><li><strong>최소 연결 (Least Connection)</strong>: 현재 가장 적은 연결을 처리 중인 서버에 새 요청을 할당한다. 요청 처리 시간이 다양할 때 유용하다.</li><li><strong>IP 해시 (IP Hash)</strong>: 사용자의 IP 주소를 기반으로 특정 서버에 요청을 라우팅한다. 세션 지속성이 필요할 때 적합하다.</li><li><strong>가중치 기반 (Weighted)</strong>: 서버의 처리 능력에 따라 가중치를 부여하여 더 강력한 서버가 더 많은 요청을 처리하도록 한다.</li><li><strong>응답 시간 기반 (Response Time)</strong>: 응답 시간이 가장 빠른 서버에 요청을 보낸다. 실시간 성능 모니터링이 필요하다.</li></ol><h3 id=스케일링-전략-수직적-vs-수평적>스케일링 전략: 수직적 vs. 수평적<a hidden class=anchor aria-hidden=true href=#스케일링-전략-수직적-vs-수평적>#</a></h3><p>스케일링은 시스템의 용량을 증가시키는 방법으로, 두 가지 주요 접근 방식이 있다:</p><h4 id=수직적-스케일링-vertical-scaling>수직적 스케일링 (Vertical Scaling)<a hidden class=anchor aria-hidden=true href=#수직적-스케일링-vertical-scaling>#</a></h4><p>수직적 스케일링은 기존 서버의 자원(CPU, RAM, 스토리지)을 증가시키는 방식이다.</p><p><strong>장점</strong>:</p><ul><li>구현이 간단하고 빠름</li><li>소프트웨어 변경이 적거나 불필요</li><li>관리가 상대적으로 쉬움</li></ul><p><strong>단점</strong>:</p><ul><li>물리적 한계가 존재 (한 대의 서버가 가질 수 있는 최대 성능)</li><li>비용이 기하급수적으로 증가</li><li>단일 장애점(SPOF) 위험 존재</li><li>다운타임이 필요할 수 있음</li></ul><p><strong>적합한 상황</strong>:</p><ul><li>갑작스러운 트래픽 증가에 대응</li><li>데이터베이스 서버 (특히 관계형 DB)</li><li>소규모 애플리케이션이나 초기 스타트업</li></ul><h4 id=수평적-스케일링-horizontal-scaling>수평적 스케일링 (Horizontal Scaling)<a hidden class=anchor aria-hidden=true href=#수평적-스케일링-horizontal-scaling>#</a></h4><p>수평적 스케일링은 동일한 사양의 서버를 여러 대 추가하여 전체 시스템 용량을 증가시키는 방식이다.</p><p><strong>장점</strong>:</p><ul><li>이론적으로 무제한 확장 가능</li><li>높은 가용성과 내결함성</li><li>비용 효율적 (일반 사양의 서버 사용 가능)</li><li>점진적 확장 가능</li></ul><p><strong>단점</strong>:</p><ul><li>구현 복잡도 증가</li><li>데이터 일관성 유지가 어려울 수 있음</li><li>소프트웨어 아키텍처 변경 필요 가능</li><li>네트워크 복잡성 증가</li></ul><p><strong>적합한 상황</strong>:</p><ul><li>대규모 웹 애플리케이션</li><li>마이크로서비스 아키텍처</li><li>예측 가능한 장기적 성장</li><li>고가용성이 필요한 시스템</li></ul><h3 id=실제-구현-사례와-최적화-전략>실제 구현 사례와 최적화 전략<a hidden class=anchor aria-hidden=true href=#실제-구현-사례와-최적화-전략>#</a></h3><h4 id=aws에서의-로드-밸런싱과-스케일링>AWS에서의 로드 밸런싱과 스케일링<a hidden class=anchor aria-hidden=true href=#aws에서의-로드-밸런싱과-스케일링>#</a></h4><p>AWS는 다양한 로드 밸런싱 옵션을 제공한다:</p><ol><li><strong>Application Load Balancer (ALB)</strong>: HTTP/HTTPS 트래픽에 최적화되어 있으며, 경로 기반 라우팅, 호스트 기반 라우팅 등 애플리케이션 레이어의 고급 기능을 제공한다.</li><li><strong>Network Load Balancer (NLB)</strong>: TCP/UDP 트래픽에 적합하며, 초당 수백만 개의 요청을 처리할 수 있는 고성능 로드 밸런서이다.</li><li><strong>Elastic Load Balancer (ELB)</strong>: 기본적인 로드 밸런싱 기능을 제공하는 클래식 로드 밸런서이다.</li></ol><p>AWS의 Auto Scaling 그룹과 함께 사용하면 트래픽에 따라 자동으로 인스턴스 수를 조정할 수 있다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-0-1><a class=lnlinks href=#hl-0-1> 1</a>
+</span><span class=lnt id=hl-0-2><a class=lnlinks href=#hl-0-2> 2</a>
+</span><span class=lnt id=hl-0-3><a class=lnlinks href=#hl-0-3> 3</a>
+</span><span class=lnt id=hl-0-4><a class=lnlinks href=#hl-0-4> 4</a>
+</span><span class=lnt id=hl-0-5><a class=lnlinks href=#hl-0-5> 5</a>
+</span><span class=lnt id=hl-0-6><a class=lnlinks href=#hl-0-6> 6</a>
+</span><span class=lnt id=hl-0-7><a class=lnlinks href=#hl-0-7> 7</a>
+</span><span class=lnt id=hl-0-8><a class=lnlinks href=#hl-0-8> 8</a>
+</span><span class=lnt id=hl-0-9><a class=lnlinks href=#hl-0-9> 9</a>
+</span><span class=lnt id=hl-0-10><a class=lnlinks href=#hl-0-10>10</a>
+</span><span class=lnt id=hl-0-11><a class=lnlinks href=#hl-0-11>11</a>
+</span><span class=lnt id=hl-0-12><a class=lnlinks href=#hl-0-12>12</a>
+</span><span class=lnt id=hl-0-13><a class=lnlinks href=#hl-0-13>13</a>
+</span><span class=lnt id=hl-0-14><a class=lnlinks href=#hl-0-14>14</a>
+</span><span class=lnt id=hl-0-15><a class=lnlinks href=#hl-0-15>15</a>
+</span><span class=lnt id=hl-0-16><a class=lnlinks href=#hl-0-16>16</a>
+</span><span class=lnt id=hl-0-17><a class=lnlinks href=#hl-0-17>17</a>
+</span><span class=lnt id=hl-0-18><a class=lnlinks href=#hl-0-18>18</a>
+</span><span class=lnt id=hl-0-19><a class=lnlinks href=#hl-0-19>19</a>
+</span><span class=lnt id=hl-0-20><a class=lnlinks href=#hl-0-20>20</a>
+</span><span class=lnt id=hl-0-21><a class=lnlinks href=#hl-0-21>21</a>
+</span><span class=lnt id=hl-0-22><a class=lnlinks href=#hl-0-22>22</a>
+</span><span class=lnt id=hl-0-23><a class=lnlinks href=#hl-0-23>23</a>
+</span><span class=lnt id=hl-0-24><a class=lnlinks href=#hl-0-24>24</a>
+</span><span class=lnt id=hl-0-25><a class=lnlinks href=#hl-0-25>25</a>
+</span><span class=lnt id=hl-0-26><a class=lnlinks href=#hl-0-26>26</a>
+</span><span class=lnt id=hl-0-27><a class=lnlinks href=#hl-0-27>27</a>
+</span><span class=lnt id=hl-0-28><a class=lnlinks href=#hl-0-28>28</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># AWS Auto Scaling 설정 예시 (Python, boto3 사용)</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>boto3</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>client</span> <span class=o>=</span> <span class=n>boto3</span><span class=o>.</span><span class=n>client</span><span class=p>(</span><span class=s1>&#39;autoscaling&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Auto Scaling 그룹 생성</span>
+</span></span><span class=line><span class=cl><span class=n>response</span> <span class=o>=</span> <span class=n>client</span><span class=o>.</span><span class=n>create_auto_scaling_group</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>AutoScalingGroupName</span><span class=o>=</span><span class=s1>&#39;my-asg&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>LaunchConfigurationName</span><span class=o>=</span><span class=s1>&#39;my-launch-config&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>MinSize</span><span class=o>=</span><span class=mi>2</span><span class=p>,</span>  <span class=c1># 최소 인스턴스 수</span>
+</span></span><span class=line><span class=cl>    <span class=n>MaxSize</span><span class=o>=</span><span class=mi>10</span><span class=p>,</span>  <span class=c1># 최대 인스턴스 수</span>
+</span></span><span class=line><span class=cl>    <span class=n>DesiredCapacity</span><span class=o>=</span><span class=mi>4</span><span class=p>,</span>  <span class=c1># 원하는 인스턴스 수</span>
+</span></span><span class=line><span class=cl>    <span class=n>VPCZoneIdentifier</span><span class=o>=</span><span class=s1>&#39;subnet-12345,subnet-67890&#39;</span><span class=p>,</span>  <span class=c1># 서브넷 ID</span>
+</span></span><span class=line><span class=cl>    <span class=n>TargetGroupARNs</span><span class=o>=</span><span class=p>[</span><span class=s1>&#39;arn:aws:elasticloadbalancing:…&#39;</span><span class=p>]</span>  <span class=c1># 로드 밸런서 타겟 그룹</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># CPU 사용률 기반 스케일링 정책 설정</span>
+</span></span><span class=line><span class=cl><span class=n>response</span> <span class=o>=</span> <span class=n>client</span><span class=o>.</span><span class=n>put_scaling_policy</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>AutoScalingGroupName</span><span class=o>=</span><span class=s1>&#39;my-asg&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>PolicyName</span><span class=o>=</span><span class=s1>&#39;cpu-scaling-policy&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>PolicyType</span><span class=o>=</span><span class=s1>&#39;TargetTrackingScaling&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>TargetTrackingConfiguration</span><span class=o>=</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;PredefinedMetricSpecification&#39;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;PredefinedMetricType&#39;</span><span class=p>:</span> <span class=s1>&#39;ASGAverageCPUUtilization&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=p>},</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;TargetValue&#39;</span><span class=p>:</span> <span class=mf>70.0</span>  <span class=c1># CPU 사용률 70% 이상일 때 스케일 아웃</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=kubernetes에서의-로드-밸런싱과-스케일링>Kubernetes에서의 로드 밸런싱과 스케일링<a hidden class=anchor aria-hidden=true href=#kubernetes에서의-로드-밸런싱과-스케일링>#</a></h4><p>Kubernetes는 컨테이너화된 애플리케이션의 자동화된 배포, 스케일링, 관리를 제공한다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-1-1><a class=lnlinks href=#hl-1-1> 1</a>
+</span><span class=lnt id=hl-1-2><a class=lnlinks href=#hl-1-2> 2</a>
+</span><span class=lnt id=hl-1-3><a class=lnlinks href=#hl-1-3> 3</a>
+</span><span class=lnt id=hl-1-4><a class=lnlinks href=#hl-1-4> 4</a>
+</span><span class=lnt id=hl-1-5><a class=lnlinks href=#hl-1-5> 5</a>
+</span><span class=lnt id=hl-1-6><a class=lnlinks href=#hl-1-6> 6</a>
+</span><span class=lnt id=hl-1-7><a class=lnlinks href=#hl-1-7> 7</a>
+</span><span class=lnt id=hl-1-8><a class=lnlinks href=#hl-1-8> 8</a>
+</span><span class=lnt id=hl-1-9><a class=lnlinks href=#hl-1-9> 9</a>
+</span><span class=lnt id=hl-1-10><a class=lnlinks href=#hl-1-10>10</a>
+</span><span class=lnt id=hl-1-11><a class=lnlinks href=#hl-1-11>11</a>
+</span><span class=lnt id=hl-1-12><a class=lnlinks href=#hl-1-12>12</a>
+</span><span class=lnt id=hl-1-13><a class=lnlinks href=#hl-1-13>13</a>
+</span><span class=lnt id=hl-1-14><a class=lnlinks href=#hl-1-14>14</a>
+</span><span class=lnt id=hl-1-15><a class=lnlinks href=#hl-1-15>15</a>
+</span><span class=lnt id=hl-1-16><a class=lnlinks href=#hl-1-16>16</a>
+</span><span class=lnt id=hl-1-17><a class=lnlinks href=#hl-1-17>17</a>
+</span><span class=lnt id=hl-1-18><a class=lnlinks href=#hl-1-18>18</a>
+</span><span class=lnt id=hl-1-19><a class=lnlinks href=#hl-1-19>19</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># Kubernetes 수평적 자동 스케일링 설정 예시</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>autoscaling/v2</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>HorizontalPodAutoscaler</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>my-app-hpa</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>scaleTargetRef</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>apps/v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Deployment</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>my-app</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>minReplicas</span><span class=p>:</span><span class=w> </span><span class=m>2</span><span class=w>  </span><span class=c># 최소 Pod 수</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>maxReplicas</span><span class=p>:</span><span class=w> </span><span class=m>10</span><span class=w>  </span><span class=c># 최대 Pod 수</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>metrics</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>type</span><span class=p>:</span><span class=w> </span><span class=l>Resource</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>resource</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>cpu</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>target</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>type</span><span class=p>:</span><span class=w> </span><span class=l>Utilization</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>averageUtilization</span><span class=p>:</span><span class=w> </span><span class=m>70</span><span class=w>  </span><span class=c># CPU 사용률 70% 이상일 때 스케일 아웃</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-2-1><a class=lnlinks href=#hl-2-1> 1</a>
+</span><span class=lnt id=hl-2-2><a class=lnlinks href=#hl-2-2> 2</a>
+</span><span class=lnt id=hl-2-3><a class=lnlinks href=#hl-2-3> 3</a>
+</span><span class=lnt id=hl-2-4><a class=lnlinks href=#hl-2-4> 4</a>
+</span><span class=lnt id=hl-2-5><a class=lnlinks href=#hl-2-5> 5</a>
+</span><span class=lnt id=hl-2-6><a class=lnlinks href=#hl-2-6> 6</a>
+</span><span class=lnt id=hl-2-7><a class=lnlinks href=#hl-2-7> 7</a>
+</span><span class=lnt id=hl-2-8><a class=lnlinks href=#hl-2-8> 8</a>
+</span><span class=lnt id=hl-2-9><a class=lnlinks href=#hl-2-9> 9</a>
+</span><span class=lnt id=hl-2-10><a class=lnlinks href=#hl-2-10>10</a>
+</span><span class=lnt id=hl-2-11><a class=lnlinks href=#hl-2-11>11</a>
+</span><span class=lnt id=hl-2-12><a class=lnlinks href=#hl-2-12>12</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># Kubernetes 서비스 (로드 밸런싱) 설정 예시</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Service</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>my-app-service</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>selector</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>my-app</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>ports</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>port</span><span class=p>:</span><span class=w> </span><span class=m>80</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>targetPort</span><span class=p>:</span><span class=w> </span><span class=m>8080</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>type</span><span class=p>:</span><span class=w> </span><span class=l>LoadBalancer </span><span class=w> </span><span class=c># 클라우드 제공업체의 로드 밸런서 사용</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=고급-로드-밸런싱-기법>고급 로드 밸런싱 기법<a hidden class=anchor aria-hidden=true href=#고급-로드-밸런싱-기법>#</a></h3><ol><li><p>글로벌 로드 밸런싱<br>지리적으로 분산된 사용자에게 최적의 성능을 제공하기 위해 전 세계 여러 데이터 센터에 걸쳐 트래픽을 분산한다. DNS 기반 로드 밸런싱(예: AWS Route 53)이나 애니캐스트(Anycast) 네트워킹을 활용한다.</p></li><li><p>애플리케이션 레이어 로드 밸런싱<br>HTTP 헤더, 쿠키, URL 경로 등의 애플리케이션 레이어 정보를 기반으로 라우팅 결정을 내린다. 마이크로서비스 아키텍처에서 특히 유용하다.</p></li><li><p>서비스 메시 (Service Mesh)<br>Istio나 Linkerd와 같은 서비스 메시는 마이크로서비스 간 통신을 관리하고 고급 로드 밸런싱, 트래픽 관리, 보안 기능을 제공한다.</p></li></ol><h3 id=데이터베이스-스케일링-전략>데이터베이스 스케일링 전략<a hidden class=anchor aria-hidden=true href=#데이터베이스-스케일링-전략>#</a></h3><p>백엔드 성능에서 데이터베이스는 종종 병목 지점이 된다.<br>효과적인 데이터베이스 스케일링 전략은 다음과 같다:</p><ol><li><p>읽기 전용 복제본 (Read Replicas)<br>주 데이터베이스의 복제본을 만들어 읽기 작업을 분산시킨다. 읽기가 많은 애플리케이션에 적합하다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-3-1><a class=lnlinks href=#hl-3-1> 1</a>
+</span><span class=lnt id=hl-3-2><a class=lnlinks href=#hl-3-2> 2</a>
+</span><span class=lnt id=hl-3-3><a class=lnlinks href=#hl-3-3> 3</a>
+</span><span class=lnt id=hl-3-4><a class=lnlinks href=#hl-3-4> 4</a>
+</span><span class=lnt id=hl-3-5><a class=lnlinks href=#hl-3-5> 5</a>
+</span><span class=lnt id=hl-3-6><a class=lnlinks href=#hl-3-6> 6</a>
+</span><span class=lnt id=hl-3-7><a class=lnlinks href=#hl-3-7> 7</a>
+</span><span class=lnt id=hl-3-8><a class=lnlinks href=#hl-3-8> 8</a>
+</span><span class=lnt id=hl-3-9><a class=lnlinks href=#hl-3-9> 9</a>
+</span><span class=lnt id=hl-3-10><a class=lnlinks href=#hl-3-10>10</a>
+</span><span class=lnt id=hl-3-11><a class=lnlinks href=#hl-3-11>11</a>
+</span><span class=lnt id=hl-3-12><a class=lnlinks href=#hl-3-12>12</a>
+</span><span class=lnt id=hl-3-13><a class=lnlinks href=#hl-3-13>13</a>
+</span><span class=lnt id=hl-3-14><a class=lnlinks href=#hl-3-14>14</a>
+</span><span class=lnt id=hl-3-15><a class=lnlinks href=#hl-3-15>15</a>
+</span><span class=lnt id=hl-3-16><a class=lnlinks href=#hl-3-16>16</a>
+</span><span class=lnt id=hl-3-17><a class=lnlinks href=#hl-3-17>17</a>
+</span><span class=lnt id=hl-3-18><a class=lnlinks href=#hl-3-18>18</a>
+</span><span class=lnt id=hl-3-19><a class=lnlinks href=#hl-3-19>19</a>
+</span><span class=lnt id=hl-3-20><a class=lnlinks href=#hl-3-20>20</a>
+</span><span class=lnt id=hl-3-21><a class=lnlinks href=#hl-3-21>21</a>
+</span><span class=lnt id=hl-3-22><a class=lnlinks href=#hl-3-22>22</a>
+</span><span class=lnt id=hl-3-23><a class=lnlinks href=#hl-3-23>23</a>
+</span><span class=lnt id=hl-3-24><a class=lnlinks href=#hl-3-24>24</a>
+</span><span class=lnt id=hl-3-25><a class=lnlinks href=#hl-3-25>25</a>
+</span><span class=lnt id=hl-3-26><a class=lnlinks href=#hl-3-26>26</a>
+</span><span class=lnt id=hl-3-27><a class=lnlinks href=#hl-3-27>27</a>
+</span><span class=lnt id=hl-3-28><a class=lnlinks href=#hl-3-28>28</a>
+</span><span class=lnt id=hl-3-29><a class=lnlinks href=#hl-3-29>29</a>
+</span><span class=lnt id=hl-3-30><a class=lnlinks href=#hl-3-30>30</a>
+</span><span class=lnt id=hl-3-31><a class=lnlinks href=#hl-3-31>31</a>
+</span><span class=lnt id=hl-3-32><a class=lnlinks href=#hl-3-32>32</a>
+</span><span class=lnt id=hl-3-33><a class=lnlinks href=#hl-3-33>33</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// MongoDB 읽기 전용 복제본 연결 예시 (Node.js)
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>const</span> <span class=nx>mongoose</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;mongoose&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 주 데이터베이스에는 쓰기 작업만 수행
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>const</span> <span class=nx>primaryConnection</span> <span class=o>=</span> <span class=nx>mongoose</span><span class=p>.</span><span class=nx>createConnection</span><span class=p>(</span><span class=s1>&#39;mongodb://primary:27017/mydb&#39;</span><span class=p>,</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>useNewUrlParser</span><span class=o>:</span> <span class=kc>true</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 읽기 전용 복제본에는 읽기 작업만 수행
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>const</span> <span class=nx>replicaConnection</span> <span class=o>=</span> <span class=nx>mongoose</span><span class=p>.</span><span class=nx>createConnection</span><span class=p>(</span><span class=s1>&#39;mongodb://replica:27017/mydb&#39;</span><span class=p>,</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>useNewUrlParser</span><span class=o>:</span> <span class=kc>true</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nx>readPreference</span><span class=o>:</span> <span class=s1>&#39;secondaryPreferred&#39;</span>  <span class=c1>// 복제본에서 읽기 우선
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 모델 정의
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>const</span> <span class=nx>UserSchema</span> <span class=o>=</span> <span class=k>new</span> <span class=nx>mongoose</span><span class=p>.</span><span class=nx>Schema</span><span class=p>({</span> <span class=nx>name</span><span class=o>:</span> <span class=nb>String</span><span class=p>,</span> <span class=nx>email</span><span class=o>:</span> <span class=nb>String</span> <span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 쓰기 작업용 모델
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>const</span> <span class=nx>UserWrite</span> <span class=o>=</span> <span class=nx>primaryConnection</span><span class=p>.</span><span class=nx>model</span><span class=p>(</span><span class=s1>&#39;User&#39;</span><span class=p>,</span> <span class=nx>UserSchema</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 읽기 작업용 모델
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>const</span> <span class=nx>UserRead</span> <span class=o>=</span> <span class=nx>replicaConnection</span><span class=p>.</span><span class=nx>model</span><span class=p>(</span><span class=s1>&#39;User&#39;</span><span class=p>,</span> <span class=nx>UserSchema</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 사용 예시
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>async</span> <span class=kd>function</span> <span class=nx>createUser</span><span class=p>(</span><span class=nx>userData</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 쓰기 작업은 주 데이터베이스로
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=k>return</span> <span class=kr>await</span> <span class=nx>UserWrite</span><span class=p>.</span><span class=nx>create</span><span class=p>(</span><span class=nx>userData</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kr>async</span> <span class=kd>function</span> <span class=nx>findUsers</span><span class=p>(</span><span class=nx>query</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 읽기 작업은 복제본으로
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=k>return</span> <span class=kr>await</span> <span class=nx>UserRead</span><span class=p>.</span><span class=nx>find</span><span class=p>(</span><span class=nx>query</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>샤딩 (Sharding)<br>데이터를 여러 데이터베이스에 분산 저장하는 방식이다. 대규모 데이터셋과 높은 쓰기 부하에 적합하다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-4-1><a class=lnlinks href=#hl-4-1> 1</a>
+</span><span class=lnt id=hl-4-2><a class=lnlinks href=#hl-4-2> 2</a>
+</span><span class=lnt id=hl-4-3><a class=lnlinks href=#hl-4-3> 3</a>
+</span><span class=lnt id=hl-4-4><a class=lnlinks href=#hl-4-4> 4</a>
+</span><span class=lnt id=hl-4-5><a class=lnlinks href=#hl-4-5> 5</a>
+</span><span class=lnt id=hl-4-6><a class=lnlinks href=#hl-4-6> 6</a>
+</span><span class=lnt id=hl-4-7><a class=lnlinks href=#hl-4-7> 7</a>
+</span><span class=lnt id=hl-4-8><a class=lnlinks href=#hl-4-8> 8</a>
+</span><span class=lnt id=hl-4-9><a class=lnlinks href=#hl-4-9> 9</a>
+</span><span class=lnt id=hl-4-10><a class=lnlinks href=#hl-4-10>10</a>
+</span><span class=lnt id=hl-4-11><a class=lnlinks href=#hl-4-11>11</a>
+</span><span class=lnt id=hl-4-12><a class=lnlinks href=#hl-4-12>12</a>
+</span><span class=lnt id=hl-4-13><a class=lnlinks href=#hl-4-13>13</a>
+</span><span class=lnt id=hl-4-14><a class=lnlinks href=#hl-4-14>14</a>
+</span><span class=lnt id=hl-4-15><a class=lnlinks href=#hl-4-15>15</a>
+</span><span class=lnt id=hl-4-16><a class=lnlinks href=#hl-4-16>16</a>
+</span><span class=lnt id=hl-4-17><a class=lnlinks href=#hl-4-17>17</a>
+</span><span class=lnt id=hl-4-18><a class=lnlinks href=#hl-4-18>18</a>
+</span><span class=lnt id=hl-4-19><a class=lnlinks href=#hl-4-19>19</a>
+</span><span class=lnt id=hl-4-20><a class=lnlinks href=#hl-4-20>20</a>
+</span><span class=lnt id=hl-4-21><a class=lnlinks href=#hl-4-21>21</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// MongoDB 샤딩 설정 예시 (쉘 명령어)
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=cm>/*
+</span></span></span><span class=line><span class=cl><span class=cm>// 샤드 서버 설정
+</span></span></span><span class=line><span class=cl><span class=cm>mongod --shardsvr --replSet shard1 --dbpath /data/shard1 --port 27018
+</span></span></span><span class=line><span class=cl><span class=cm>
+</span></span></span><span class=line><span class=cl><span class=cm>// 구성 서버 설정
+</span></span></span><span class=line><span class=cl><span class=cm>mongod --configsvr --replSet configRS --dbpath /data/configdb --port 27019
+</span></span></span><span class=line><span class=cl><span class=cm>
+</span></span></span><span class=line><span class=cl><span class=cm>// mongos 라우터 설정
+</span></span></span><span class=line><span class=cl><span class=cm>mongos --configdb configRS/localhost:27019 --port 27017
+</span></span></span><span class=line><span class=cl><span class=cm>
+</span></span></span><span class=line><span class=cl><span class=cm>// 데이터베이스 샤딩 활성화
+</span></span></span><span class=line><span class=cl><span class=cm>sh.enableSharding(&#34;mydb&#34;)
+</span></span></span><span class=line><span class=cl><span class=cm>
+</span></span></span><span class=line><span class=cl><span class=cm>// 컬렉션 샤딩 - userId를 기준으로 데이터 분산
+</span></span></span><span class=line><span class=cl><span class=cm>sh.shardCollection(&#34;mydb.users&#34;, { userId: 1 })
+</span></span></span><span class=line><span class=cl><span class=cm>*/</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Node.js에서 샤딩된 MongoDB 연결 (코드는 일반 연결과 동일)
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>const</span> <span class=nx>mongoose</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;mongoose&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=nx>mongoose</span><span class=p>.</span><span class=nx>connect</span><span class=p>(</span><span class=s1>&#39;mongodb://mongos:27017/mydb&#39;</span><span class=p>,</span> <span class=p>{</span> <span class=nx>useNewUrlParser</span><span class=o>:</span> <span class=kc>true</span> <span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>CQRS (Command Query Responsibility Segregation)<br>명령(쓰기)과 쿼리(읽기) 작업을 별도의 모델로 분리하여 각각 최적화하는 패턴이다.</p></li></ol><h3 id=캐싱-전략과-로드-밸런싱의-결합>캐싱 전략과 로드 밸런싱의 결합<a hidden class=anchor aria-hidden=true href=#캐싱-전략과-로드-밸런싱의-결합>#</a></h3><p>캐싱은 로드 밸런싱 및 스케일링과 함께 사용할 때 백엔드 성능을 크게 향상시킬 수 있다:</p><ol><li><p>CDN (Content Delivery Network)<br>정적 자산을 전 세계 엣지 서버에 캐싱하여 로드 시간을 단축하고 원본 서버의 부하를 줄인다.</p></li><li><p>애플리케이션 레벨 캐싱<br>Redis나 Memcached와 같은 인메모리 데이터 저장소를 사용하여 자주 접근하는 데이터를 캐싱한다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-5-1><a class=lnlinks href=#hl-5-1> 1</a>
+</span><span class=lnt id=hl-5-2><a class=lnlinks href=#hl-5-2> 2</a>
+</span><span class=lnt id=hl-5-3><a class=lnlinks href=#hl-5-3> 3</a>
+</span><span class=lnt id=hl-5-4><a class=lnlinks href=#hl-5-4> 4</a>
+</span><span class=lnt id=hl-5-5><a class=lnlinks href=#hl-5-5> 5</a>
+</span><span class=lnt id=hl-5-6><a class=lnlinks href=#hl-5-6> 6</a>
+</span><span class=lnt id=hl-5-7><a class=lnlinks href=#hl-5-7> 7</a>
+</span><span class=lnt id=hl-5-8><a class=lnlinks href=#hl-5-8> 8</a>
+</span><span class=lnt id=hl-5-9><a class=lnlinks href=#hl-5-9> 9</a>
+</span><span class=lnt id=hl-5-10><a class=lnlinks href=#hl-5-10>10</a>
+</span><span class=lnt id=hl-5-11><a class=lnlinks href=#hl-5-11>11</a>
+</span><span class=lnt id=hl-5-12><a class=lnlinks href=#hl-5-12>12</a>
+</span><span class=lnt id=hl-5-13><a class=lnlinks href=#hl-5-13>13</a>
+</span><span class=lnt id=hl-5-14><a class=lnlinks href=#hl-5-14>14</a>
+</span><span class=lnt id=hl-5-15><a class=lnlinks href=#hl-5-15>15</a>
+</span><span class=lnt id=hl-5-16><a class=lnlinks href=#hl-5-16>16</a>
+</span><span class=lnt id=hl-5-17><a class=lnlinks href=#hl-5-17>17</a>
+</span><span class=lnt id=hl-5-18><a class=lnlinks href=#hl-5-18>18</a>
+</span><span class=lnt id=hl-5-19><a class=lnlinks href=#hl-5-19>19</a>
+</span><span class=lnt id=hl-5-20><a class=lnlinks href=#hl-5-20>20</a>
+</span><span class=lnt id=hl-5-21><a class=lnlinks href=#hl-5-21>21</a>
+</span><span class=lnt id=hl-5-22><a class=lnlinks href=#hl-5-22>22</a>
+</span><span class=lnt id=hl-5-23><a class=lnlinks href=#hl-5-23>23</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># Redis를 사용한 캐싱 예시 (Python)</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>redis</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>json</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Redis 연결</span>
+</span></span><span class=line><span class=cl><span class=n>r</span> <span class=o>=</span> <span class=n>redis</span><span class=o>.</span><span class=n>Redis</span><span class=p>(</span><span class=n>host</span><span class=o>=</span><span class=s1>&#39;redis-server&#39;</span><span class=p>,</span> <span class=n>port</span><span class=o>=</span><span class=mi>6379</span><span class=p>,</span> <span class=n>db</span><span class=o>=</span><span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>get_user</span><span class=p>(</span><span class=n>user_id</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 캐시에서 먼저 확인</span>
+</span></span><span class=line><span class=cl>    <span class=n>cached_user</span> <span class=o>=</span> <span class=n>r</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;user:</span><span class=si>{</span><span class=n>user_id</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>cached_user</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 캐시 히트: 캐시된 데이터 반환</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>json</span><span class=o>.</span><span class=n>loads</span><span class=p>(</span><span class=n>cached_user</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 캐시 미스: 데이터베이스에서 조회</span>
+</span></span><span class=line><span class=cl>        <span class=n>user</span> <span class=o>=</span> <span class=n>database</span><span class=o>.</span><span class=n>find_user</span><span class=p>(</span><span class=n>user_id</span><span class=p>)</span>  <span class=c1># 가상의 데이터베이스 함수</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>user</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 결과를 캐시에 저장 (60초 만료)</span>
+</span></span><span class=line><span class=cl>            <span class=n>r</span><span class=o>.</span><span class=n>setex</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;user:</span><span class=si>{</span><span class=n>user_id</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>,</span> <span class=mi>60</span><span class=p>,</span> <span class=n>json</span><span class=o>.</span><span class=n>dumps</span><span class=p>(</span><span class=n>user</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>user</span>
+</span></span></code></pre></td></tr></table></div></div></li></ol><h3 id=성능-모니터링-및-최적화>성능 모니터링 및 최적화<a hidden class=anchor aria-hidden=true href=#성능-모니터링-및-최적화>#</a></h3><p>효과적인 로드 밸런싱과 스케일링을 위해서는 지속적인 모니터링이 필수적이다:</p><ol><li><p>주요 모니터링 지표</p><ul><li><strong>CPU 사용률</strong>: 70-80% 이상이면 스케일링 고려</li><li><strong>메모리 사용률</strong>: 스왑이 발생하면 메모리 부족 신호</li><li><strong>응답 시간</strong>: 사용자 경험에 직접적인 영향</li><li><strong>처리량</strong>: 초당 요청 수</li><li><strong>오류율</strong>: 5xx, 4xx 오류</li><li><strong>큐 길이</strong>: 처리 대기 중인 요청 수</li></ul></li><li><p>성능 최적화 도구</p><ul><li><strong>Prometheus + Grafana</strong>: 메트릭 수집 및 시각화</li><li><strong>ELK Stack (Elasticsearch, Logstash, Kibana)</strong>: 로그 분석</li><li><strong>New Relic, Datadog</strong>: 종합적인 APM(애플리케이션 성능 모니터링)</li><li><strong>Jaeger, Zipkin</strong>: 분산 추적</li></ul></li></ol><h3 id=현대적인-백엔드-아키텍처-설계-원칙>현대적인 백엔드 아키텍처 설계 원칙<a hidden class=anchor aria-hidden=true href=#현대적인-백엔드-아키텍처-설계-원칙>#</a></h3><p>최적의 로드 밸런싱과 스케일링을 위한 설계 원칙:</p><ol><li><strong>스테이트리스(Stateless) 설계</strong>: 서버가 클라이언트 상태를 저장하지 않아 수평적 확장이 용이</li><li><strong>마이크로서비스 아키텍처</strong>: 독립적으로 스케일링 가능한 작은 서비스로 분리</li><li><strong>비동기 처리</strong>: 큐를 사용한 장시간 실행 작업의 분리</li><li><strong>컨테이너화</strong>: Docker와 Kubernetes를 활용한 일관된 환경과 쉬운 스케일링</li><li><strong>서버리스 아키텍처</strong>: AWS Lambda와 같은 서버리스 함수로 자동 스케일링</li></ol><hr><h2 id=용어-정리>용어 정리<a hidden class=anchor aria-hidden=true href=#용어-정리>#</a></h2><table><thead><tr><th>용어</th><th>설명</th></tr></thead><tbody><tr><td></td><td></td></tr></tbody></table><hr><h2 id=참고-및-출처>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처>#</a></h2></div></main><footer class=footer><span>&copy; 2025 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>

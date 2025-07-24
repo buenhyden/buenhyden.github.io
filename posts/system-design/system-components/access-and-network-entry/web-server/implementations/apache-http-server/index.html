@@ -1,0 +1,231 @@
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Apache HTTP Server | hyunyoun's Blog</title><meta name=keywords content="System-Design,System-Components,Access-and-Network-Entry,Web-Server,Implementations,Apache-HTTP-Server"><meta name=description content="Apache HTTP Server는 가장 널리 사용되는 오픈 소스 웹 서버 소프트웨어이다."><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/system-design/system-components/access-and-network-entry/web-server/implementations/apache-http-server/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.a9863521b3bd3c240bc506f46b95e3c06ccef2ae37f529d5f99bdaef442bccce.css integrity="sha256-qYY1IbO9PCQLxQb0a5XjwGzO8q439SnV+Zva70QrzM4=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate type=application/rss+xml href=https://buenhyden.github.io/posts/system-design/system-components/access-and-network-entry/web-server/implementations/apache-http-server/index.xml><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/system-design/system-components/access-and-network-entry/web-server/implementations/apache-http-server/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/system-design/system-components/access-and-network-entry/web-server/implementations/apache-http-server/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="Apache HTTP Server"><meta property="og:description" content="Apache HTTP Server는 가장 널리 사용되는 오픈 소스 웹 서버 소프트웨어이다."><meta property="og:locale" content="en"><meta property="og:type" content="website"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="Apache HTTP Server"><meta name=twitter:description content="Apache HTTP Server는 가장 널리 사용되는 오픈 소스 웹 서버 소프트웨어이다."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Apache HTTP Server","item":"https://buenhyden.github.io/posts/system-design/system-components/access-and-network-entry/web-server/implementations/apache-http-server/"}]}</script></head><body class=list id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><header class=page-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a></div><h1>Apache HTTP Server</h1><div class=post-description>Apache HTTP Server는 가장 널리 사용되는 오픈 소스 웹 서버 소프트웨어이다.</div></header><div class=post-content><h2 id=apache-http-server>Apache HTTP Server<a hidden class=anchor aria-hidden=true href=#apache-http-server>#</a></h2><p>Apache HTTP Server는 가장 널리 사용되는 오픈 소스 웹 서버 소프트웨어이다.</p><h3 id=주요-특징>주요 특징<a hidden class=anchor aria-hidden=true href=#주요-특징>#</a></h3><ol><li>크로스 플랫폼 지원: Linux, Windows, macOS 등 다양한 운영 체제에서 실행 가능</li><li>모듈식 구조: 다양한 기능을 모듈로 추가/제거 가능</li><li>가상 호스팅: 하나의 서버에서 여러 웹사이트 호스팅 가능</li><li>보안 기능: SSL/TLS 지원, 접근 제어 등</li><li>다양한 프로그래밍 언어 지원: PHP, Perl, Python 등</li></ol><h3 id=주요-기능>주요 기능<a hidden class=anchor aria-hidden=true href=#주요-기능>#</a></h3><ol><li>모듈식 구조: 다양한 기능을 모듈로 추가/제거 가능하여 유연성 제공</li><li>가상 호스팅: 하나의 서버에서 여러 웹사이트 호스팅 가능</li><li>보안 기능: SSL/TLS 지원, 접근 제어, mod_security를 통한 침입 탐지 및 방지</li><li>다양한 프로그래밍 언어 지원: PHP, Perl, Python, Lua 등 지원</li><li>로드 밸런싱: 다양한 로드 밸런싱 메커니즘 제공</li><li>URL 재작성: mod_rewrite 모듈을 통한 URL 재작성 기능</li><li>압축 지원: mod_gzip을 통한 콘텐츠 압축으로 성능 향상</li><li>IPv6 지원: IPv6 호환성 제공</li><li>HTTP/2 지원: 최신 HTTP 프로토콜 지원</li><li>동적 설정:.htaccess 파일을 통한 디렉토리별 설정 지원</li><li>리버스 프록시: 캐싱 기능이 있는 리버스 프록시 제공</li><li>다양한 인증 방식: 비밀번호 기반, 디지털 인증서 등 지원</li></ol><h3 id=설치-방법>설치 방법<a hidden class=anchor aria-hidden=true href=#설치-방법>#</a></h3><p>Ubuntu/Debian 기반:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-0-1><a class=lnlinks href=#hl-0-1>1</a>
+</span><span class=lnt id=hl-0-2><a class=lnlinks href=#hl-0-2>2</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>sudo apt update
+</span></span><span class=line><span class=cl>sudo apt install apache2
+</span></span></code></pre></td></tr></table></div></div><p>RHEL/CentOS 기반:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-1-1><a class=lnlinks href=#hl-1-1>1</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>sudo yum install httpd
+</span></span></code></pre></td></tr></table></div></div><h3 id=기본-설정>기본 설정<a hidden class=anchor aria-hidden=true href=#기본-설정>#</a></h3><ol><li><p>설정 파일 위치: /etc/apache2/apache2.conf (Ubuntu) 또는 /etc/httpd/conf/httpd.conf (CentOS)</p></li><li><p>가상 호스트 설정:<br>/etc/apache2/sites-available/ 디렉토리에.conf 파일 생성</p></li><li><p>모듈 활성화/비활성화:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-2-1><a class=lnlinks href=#hl-2-1>1</a>
+</span><span class=lnt id=hl-2-2><a class=lnlinks href=#hl-2-2>2</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>sudo a2enmod [모듈명]
+</span></span><span class=line><span class=cl>sudo a2dismod [모듈명]
+</span></span></code></pre></td></tr></table></div></div></li><li><p>서비스 시작/중지:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-3-1><a class=lnlinks href=#hl-3-1>1</a>
+</span><span class=lnt id=hl-3-2><a class=lnlinks href=#hl-3-2>2</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>sudo systemctl start apache2
+</span></span><span class=line><span class=cl>sudo systemctl stop apache2
+</span></span></code></pre></td></tr></table></div></div></li></ol><h3 id=기본-사용법>기본 사용법<a hidden class=anchor aria-hidden=true href=#기본-사용법>#</a></h3><ol><li>웹 루트 디렉토리: /var/www/html/</li><li>로그 파일 위치: /var/log/apache2/ 또는 /var/log/httpd/</li><li>설정 변경 후 서비스 재시작: sudo systemctl restart apache2</li></ol><h3 id=설정-옵션>설정 옵션<a hidden class=anchor aria-hidden=true href=#설정-옵션>#</a></h3><h4 id=기본-구성과-설정>기본 구성과 설정<a hidden class=anchor aria-hidden=true href=#기본-구성과-설정>#</a></h4><p>Apache의 주요 설정 파일들과 그 역할:</p><ol><li>메인 설정 파일 (httpd.conf 또는 apache2.conf):</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-4-1><a class=lnlinks href=#hl-4-1> 1</a>
+</span><span class=lnt id=hl-4-2><a class=lnlinks href=#hl-4-2> 2</a>
+</span><span class=lnt id=hl-4-3><a class=lnlinks href=#hl-4-3> 3</a>
+</span><span class=lnt id=hl-4-4><a class=lnlinks href=#hl-4-4> 4</a>
+</span><span class=lnt id=hl-4-5><a class=lnlinks href=#hl-4-5> 5</a>
+</span><span class=lnt id=hl-4-6><a class=lnlinks href=#hl-4-6> 6</a>
+</span><span class=lnt id=hl-4-7><a class=lnlinks href=#hl-4-7> 7</a>
+</span><span class=lnt id=hl-4-8><a class=lnlinks href=#hl-4-8> 8</a>
+</span><span class=lnt id=hl-4-9><a class=lnlinks href=#hl-4-9> 9</a>
+</span><span class=lnt id=hl-4-10><a class=lnlinks href=#hl-4-10>10</a>
+</span><span class=lnt id=hl-4-11><a class=lnlinks href=#hl-4-11>11</a>
+</span><span class=lnt id=hl-4-12><a class=lnlinks href=#hl-4-12>12</a>
+</span><span class=lnt id=hl-4-13><a class=lnlinks href=#hl-4-13>13</a>
+</span><span class=lnt id=hl-4-14><a class=lnlinks href=#hl-4-14>14</a>
+</span><span class=lnt id=hl-4-15><a class=lnlinks href=#hl-4-15>15</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-apache data-lang=apache><span class=line><span class=cl><span class=c># 기본 설정 예시</span>
+</span></span><span class=line><span class=cl><span class=nb>ServerRoot</span> <span class=s2>&#34;/etc/apache2&#34;</span>
+</span></span><span class=line><span class=cl><span class=nb>Listen</span> <span class=m>80</span>
+</span></span><span class=line><span class=cl><span class=nb>ServerAdmin</span> webmaster@localhost
+</span></span><span class=line><span class=cl><span class=nb>DocumentRoot</span> <span class=s2>&#34;/var/www/html&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c># 모듈 로드</span>
+</span></span><span class=line><span class=cl><span class=nb>LoadModule</span> rewrite_module modules/mod_rewrite.so
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c># 디렉터리 설정</span>
+</span></span><span class=line><span class=cl><span class=nt>&lt;Directory</span> <span class=s>&#34;/var/www/html&#34;</span><span class=nt>&gt;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>Options</span> Indexes FollowSymLinks
+</span></span><span class=line><span class=cl>    <span class=nb>AllowOverride</span> <span class=k>All</span>
+</span></span><span class=line><span class=cl>    <span class=nb>Require</span> <span class=k>all</span> granted
+</span></span><span class=line><span class=cl><span class=nt>&lt;/Directory&gt;</span>
+</span></span></code></pre></td></tr></table></div></div><ol start=2><li>가상 호스트 설정:</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-5-1><a class=lnlinks href=#hl-5-1> 1</a>
+</span><span class=lnt id=hl-5-2><a class=lnlinks href=#hl-5-2> 2</a>
+</span><span class=lnt id=hl-5-3><a class=lnlinks href=#hl-5-3> 3</a>
+</span><span class=lnt id=hl-5-4><a class=lnlinks href=#hl-5-4> 4</a>
+</span><span class=lnt id=hl-5-5><a class=lnlinks href=#hl-5-5> 5</a>
+</span><span class=lnt id=hl-5-6><a class=lnlinks href=#hl-5-6> 6</a>
+</span><span class=lnt id=hl-5-7><a class=lnlinks href=#hl-5-7> 7</a>
+</span><span class=lnt id=hl-5-8><a class=lnlinks href=#hl-5-8> 8</a>
+</span><span class=lnt id=hl-5-9><a class=lnlinks href=#hl-5-9> 9</a>
+</span><span class=lnt id=hl-5-10><a class=lnlinks href=#hl-5-10>10</a>
+</span><span class=lnt id=hl-5-11><a class=lnlinks href=#hl-5-11>11</a>
+</span><span class=lnt id=hl-5-12><a class=lnlinks href=#hl-5-12>12</a>
+</span><span class=lnt id=hl-5-13><a class=lnlinks href=#hl-5-13>13</a>
+</span><span class=lnt id=hl-5-14><a class=lnlinks href=#hl-5-14>14</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-apache data-lang=apache><span class=line><span class=cl><span class=c># sites-available/example.com.conf</span>
+</span></span><span class=line><span class=cl><span class=nt>&lt;VirtualHost</span> <span class=s>*:80</span><span class=nt>&gt;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>ServerName</span> example.com
+</span></span><span class=line><span class=cl>    <span class=nb>ServerAlias</span> www.example.com
+</span></span><span class=line><span class=cl>    <span class=nb>DocumentRoot</span> <span class=sx>/var/www/example.com</span>
+</span></span><span class=line><span class=cl>    <span class=nb>ErrorLog</span> ${APACHE_LOG_DIR}/error.log
+</span></span><span class=line><span class=cl>    <span class=nb>CustomLog</span> ${APACHE_LOG_DIR}/access.log combined
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=nt>&lt;Directory</span> <span class=s>/var/www/example.com</span><span class=nt>&gt;</span>
+</span></span><span class=line><span class=cl>        <span class=nb>Options</span> Indexes FollowSymLinks
+</span></span><span class=line><span class=cl>        <span class=nb>AllowOverride</span> <span class=k>All</span>
+</span></span><span class=line><span class=cl>        <span class=nb>Require</span> <span class=k>all</span> granted
+</span></span><span class=line><span class=cl>    <span class=nt>&lt;/Directory&gt;</span>
+</span></span><span class=line><span class=cl><span class=nt>&lt;/VirtualHost&gt;</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=ssltls-설정>SSL/TLS 설정<a hidden class=anchor aria-hidden=true href=#ssltls-설정>#</a></h4><p>HTTPS를 위한 SSL/TLS 설정:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-6-1><a class=lnlinks href=#hl-6-1> 1</a>
+</span><span class=lnt id=hl-6-2><a class=lnlinks href=#hl-6-2> 2</a>
+</span><span class=lnt id=hl-6-3><a class=lnlinks href=#hl-6-3> 3</a>
+</span><span class=lnt id=hl-6-4><a class=lnlinks href=#hl-6-4> 4</a>
+</span><span class=lnt id=hl-6-5><a class=lnlinks href=#hl-6-5> 5</a>
+</span><span class=lnt id=hl-6-6><a class=lnlinks href=#hl-6-6> 6</a>
+</span><span class=lnt id=hl-6-7><a class=lnlinks href=#hl-6-7> 7</a>
+</span><span class=lnt id=hl-6-8><a class=lnlinks href=#hl-6-8> 8</a>
+</span><span class=lnt id=hl-6-9><a class=lnlinks href=#hl-6-9> 9</a>
+</span><span class=lnt id=hl-6-10><a class=lnlinks href=#hl-6-10>10</a>
+</span><span class=lnt id=hl-6-11><a class=lnlinks href=#hl-6-11>11</a>
+</span><span class=lnt id=hl-6-12><a class=lnlinks href=#hl-6-12>12</a>
+</span><span class=lnt id=hl-6-13><a class=lnlinks href=#hl-6-13>13</a>
+</span><span class=lnt id=hl-6-14><a class=lnlinks href=#hl-6-14>14</a>
+</span><span class=lnt id=hl-6-15><a class=lnlinks href=#hl-6-15>15</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-apache data-lang=apache><span class=line><span class=cl><span class=c># SSL 설정 예시</span>
+</span></span><span class=line><span class=cl><span class=nt>&lt;VirtualHost</span> <span class=s>*:443</span><span class=nt>&gt;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>ServerName</span> example.com
+</span></span><span class=line><span class=cl>    <span class=nb>DocumentRoot</span> <span class=sx>/var/www/example.com</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=nb>SSLEngine</span> <span class=k>on</span>
+</span></span><span class=line><span class=cl>    <span class=nb>SSLCertificateFile</span> <span class=sx>/etc/ssl/certs/example.com.crt</span>
+</span></span><span class=line><span class=cl>    <span class=nb>SSLCertificateKeyFile</span> <span class=sx>/etc/ssl/private/example.com.key</span>
+</span></span><span class=line><span class=cl>    <span class=nb>SSLCertificateChainFile</span> <span class=sx>/etc/ssl/certs/chain.crt</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c># 보안 강화 설정</span>
+</span></span><span class=line><span class=cl>    <span class=nb>SSLProtocol</span> <span class=k>all</span> -SSLv3 -TLSv1 -TLSv1.1
+</span></span><span class=line><span class=cl>    <span class=nb>SSLCipherSuite</span> ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:...
+</span></span><span class=line><span class=cl>    <span class=nb>SSLHonorCipherOrder</span> <span class=k>on</span>
+</span></span><span class=line><span class=cl><span class=nt>&lt;/VirtualHost&gt;</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=mod_rewrite를-사용한-url-재작성>mod_rewrite를 사용한 URL 재작성<a hidden class=anchor aria-hidden=true href=#mod_rewrite를-사용한-url-재작성>#</a></h4><p>URL 재작성 규칙 설정:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-7-1><a class=lnlinks href=#hl-7-1> 1</a>
+</span><span class=lnt id=hl-7-2><a class=lnlinks href=#hl-7-2> 2</a>
+</span><span class=lnt id=hl-7-3><a class=lnlinks href=#hl-7-3> 3</a>
+</span><span class=lnt id=hl-7-4><a class=lnlinks href=#hl-7-4> 4</a>
+</span><span class=lnt id=hl-7-5><a class=lnlinks href=#hl-7-5> 5</a>
+</span><span class=lnt id=hl-7-6><a class=lnlinks href=#hl-7-6> 6</a>
+</span><span class=lnt id=hl-7-7><a class=lnlinks href=#hl-7-7> 7</a>
+</span><span class=lnt id=hl-7-8><a class=lnlinks href=#hl-7-8> 8</a>
+</span><span class=lnt id=hl-7-9><a class=lnlinks href=#hl-7-9> 9</a>
+</span><span class=lnt id=hl-7-10><a class=lnlinks href=#hl-7-10>10</a>
+</span><span class=lnt id=hl-7-11><a class=lnlinks href=#hl-7-11>11</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-apache data-lang=apache><span class=line><span class=cl><span class=c># .htaccess 파일 예시</span>
+</span></span><span class=line><span class=cl><span class=nb>RewriteEngine</span> <span class=k>On</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c># www 리다이렉트</span>
+</span></span><span class=line><span class=cl><span class=nb>RewriteCond</span> %{HTTP_HOST} ^example\.com [NC]
+</span></span><span class=line><span class=cl><span class=nb>RewriteRule</span> ^(.*)$ https://www.example.com/$1 [L,R=301]
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c># PHP 파일 확장자 숨기기</span>
+</span></span><span class=line><span class=cl><span class=nb>RewriteCond</span> %{REQUEST_FILENAME} !-d
+</span></span><span class=line><span class=cl><span class=nb>RewriteCond</span> %{REQUEST_FILENAME}.php -f
+</span></span><span class=line><span class=cl><span class=nb>RewriteRule</span> ^([^\.]+)$ $1.php [NC,L]
+</span></span></code></pre></td></tr></table></div></div><h4 id=보안-설정>보안 설정<a hidden class=anchor aria-hidden=true href=#보안-설정>#</a></h4><p>보안 강화를 위한 설정:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-8-1><a class=lnlinks href=#hl-8-1> 1</a>
+</span><span class=lnt id=hl-8-2><a class=lnlinks href=#hl-8-2> 2</a>
+</span><span class=lnt id=hl-8-3><a class=lnlinks href=#hl-8-3> 3</a>
+</span><span class=lnt id=hl-8-4><a class=lnlinks href=#hl-8-4> 4</a>
+</span><span class=lnt id=hl-8-5><a class=lnlinks href=#hl-8-5> 5</a>
+</span><span class=lnt id=hl-8-6><a class=lnlinks href=#hl-8-6> 6</a>
+</span><span class=lnt id=hl-8-7><a class=lnlinks href=#hl-8-7> 7</a>
+</span><span class=lnt id=hl-8-8><a class=lnlinks href=#hl-8-8> 8</a>
+</span><span class=lnt id=hl-8-9><a class=lnlinks href=#hl-8-9> 9</a>
+</span><span class=lnt id=hl-8-10><a class=lnlinks href=#hl-8-10>10</a>
+</span><span class=lnt id=hl-8-11><a class=lnlinks href=#hl-8-11>11</a>
+</span><span class=lnt id=hl-8-12><a class=lnlinks href=#hl-8-12>12</a>
+</span><span class=lnt id=hl-8-13><a class=lnlinks href=#hl-8-13>13</a>
+</span><span class=lnt id=hl-8-14><a class=lnlinks href=#hl-8-14>14</a>
+</span><span class=lnt id=hl-8-15><a class=lnlinks href=#hl-8-15>15</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-apache data-lang=apache><span class=line><span class=cl><span class=c># 디렉터리 리스팅 비활성화</span>
+</span></span><span class=line><span class=cl><span class=nb>Options</span> -Indexes
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c># 서버 정보 숨기기</span>
+</span></span><span class=line><span class=cl><span class=nb>ServerSignature</span> <span class=k>Off</span>
+</span></span><span class=line><span class=cl><span class=nb>ServerTokens</span> Prod
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c># XSS 보호</span>
+</span></span><span class=line><span class=cl><span class=nb>Header</span> set X-XSS-Protection <span class=s2>&#34;1; mode=block&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c># MIME 스니핑 방지</span>
+</span></span><span class=line><span class=cl><span class=nb>Header</span> set X-Content-Type-Options <span class=s2>&#34;nosniff&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c># 클릭재킹 방지</span>
+</span></span><span class=line><span class=cl><span class=nb>Header</span> set X-Frame-Options <span class=s2>&#34;SAMEORIGIN&#34;</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=최적화>최적화<a hidden class=anchor aria-hidden=true href=#최적화>#</a></h4><p>성능 향상을 위한 설정:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-9-1><a class=lnlinks href=#hl-9-1> 1</a>
+</span><span class=lnt id=hl-9-2><a class=lnlinks href=#hl-9-2> 2</a>
+</span><span class=lnt id=hl-9-3><a class=lnlinks href=#hl-9-3> 3</a>
+</span><span class=lnt id=hl-9-4><a class=lnlinks href=#hl-9-4> 4</a>
+</span><span class=lnt id=hl-9-5><a class=lnlinks href=#hl-9-5> 5</a>
+</span><span class=lnt id=hl-9-6><a class=lnlinks href=#hl-9-6> 6</a>
+</span><span class=lnt id=hl-9-7><a class=lnlinks href=#hl-9-7> 7</a>
+</span><span class=lnt id=hl-9-8><a class=lnlinks href=#hl-9-8> 8</a>
+</span><span class=lnt id=hl-9-9><a class=lnlinks href=#hl-9-9> 9</a>
+</span><span class=lnt id=hl-9-10><a class=lnlinks href=#hl-9-10>10</a>
+</span><span class=lnt id=hl-9-11><a class=lnlinks href=#hl-9-11>11</a>
+</span><span class=lnt id=hl-9-12><a class=lnlinks href=#hl-9-12>12</a>
+</span><span class=lnt id=hl-9-13><a class=lnlinks href=#hl-9-13>13</a>
+</span><span class=lnt id=hl-9-14><a class=lnlinks href=#hl-9-14>14</a>
+</span><span class=lnt id=hl-9-15><a class=lnlinks href=#hl-9-15>15</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-apache data-lang=apache><span class=line><span class=cl><span class=c># 캐시 설정</span>
+</span></span><span class=line><span class=cl><span class=nt>&lt;IfModule</span> <span class=s>mod_expires.c</span><span class=nt>&gt;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>ExpiresActive</span> <span class=k>On</span>
+</span></span><span class=line><span class=cl>    <span class=nb>ExpiresByType</span> image/jpeg <span class=s2>&#34;access plus 1 year&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>ExpiresByType</span> image/png <span class=s2>&#34;access plus 1 year&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>ExpiresByType</span> text/css <span class=s2>&#34;access plus 1 month&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>ExpiresByType</span> application/javascript <span class=s2>&#34;access plus 1 month&#34;</span>
+</span></span><span class=line><span class=cl><span class=nt>&lt;/IfModule&gt;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c># Gzip 압축</span>
+</span></span><span class=line><span class=cl><span class=nt>&lt;IfModule</span> <span class=s>mod_deflate.c</span><span class=nt>&gt;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>AddOutputFilterByType</span> DEFLATE text/html text/plain text/xml
+</span></span><span class=line><span class=cl>    <span class=nb>AddOutputFilterByType</span> DEFLATE text/css application/javascript
+</span></span><span class=line><span class=cl>    <span class=nb>AddOutputFilterByType</span> DEFLATE application/x-javascript
+</span></span><span class=line><span class=cl><span class=nt>&lt;/IfModule&gt;</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=로그-관리>로그 관리<a hidden class=anchor aria-hidden=true href=#로그-관리>#</a></h4><p>로그 설정과 관리:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-10-1><a class=lnlinks href=#hl-10-1>1</a>
+</span><span class=lnt id=hl-10-2><a class=lnlinks href=#hl-10-2>2</a>
+</span><span class=lnt id=hl-10-3><a class=lnlinks href=#hl-10-3>3</a>
+</span><span class=lnt id=hl-10-4><a class=lnlinks href=#hl-10-4>4</a>
+</span><span class=lnt id=hl-10-5><a class=lnlinks href=#hl-10-5>5</a>
+</span><span class=lnt id=hl-10-6><a class=lnlinks href=#hl-10-6>6</a>
+</span><span class=lnt id=hl-10-7><a class=lnlinks href=#hl-10-7>7</a>
+</span><span class=lnt id=hl-10-8><a class=lnlinks href=#hl-10-8>8</a>
+</span><span class=lnt id=hl-10-9><a class=lnlinks href=#hl-10-9>9</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-apache data-lang=apache><span class=line><span class=cl><span class=c># 로그 형식 정의</span>
+</span></span><span class=line><span class=cl><span class=nb>LogFormat</span> <span class=s2>&#34;%h %l %u %t \&#34;%r\&#34; %&gt;s %b \&#34;%{Referer}i\&#34; \&#34;%{User-Agent}i\&#34;&#34;</span> combined
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c># 커스텀 로그 설정</span>
+</span></span><span class=line><span class=cl><span class=nb>CustomLog</span> ${APACHE_LOG_DIR}/access.log combined
+</span></span><span class=line><span class=cl><span class=nb>ErrorLog</span> ${APACHE_LOG_DIR}/error.log
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c># 로그 레벨 설정</span>
+</span></span><span class=line><span class=cl><span class=nb>LogLevel</span> <span class=k>warn</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=모니터링과-문제-해결>모니터링과 문제 해결<a hidden class=anchor aria-hidden=true href=#모니터링과-문제-해결>#</a></h4><p>일반적인 문제 해결 명령어:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-11-1><a class=lnlinks href=#hl-11-1> 1</a>
+</span><span class=lnt id=hl-11-2><a class=lnlinks href=#hl-11-2> 2</a>
+</span><span class=lnt id=hl-11-3><a class=lnlinks href=#hl-11-3> 3</a>
+</span><span class=lnt id=hl-11-4><a class=lnlinks href=#hl-11-4> 4</a>
+</span><span class=lnt id=hl-11-5><a class=lnlinks href=#hl-11-5> 5</a>
+</span><span class=lnt id=hl-11-6><a class=lnlinks href=#hl-11-6> 6</a>
+</span><span class=lnt id=hl-11-7><a class=lnlinks href=#hl-11-7> 7</a>
+</span><span class=lnt id=hl-11-8><a class=lnlinks href=#hl-11-8> 8</a>
+</span><span class=lnt id=hl-11-9><a class=lnlinks href=#hl-11-9> 9</a>
+</span><span class=lnt id=hl-11-10><a class=lnlinks href=#hl-11-10>10</a>
+</span><span class=lnt id=hl-11-11><a class=lnlinks href=#hl-11-11>11</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 설정 문법 검사</span>
+</span></span><span class=line><span class=cl>sudo apache2ctl configtest
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 상태 확인</span>
+</span></span><span class=line><span class=cl>sudo systemctl status apache2
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 오류 로그 확인</span>
+</span></span><span class=line><span class=cl>tail -f /var/log/apache2/error.log
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 접속 로그 모니터링</span>
+</span></span><span class=line><span class=cl>tail -f /var/log/apache2/access.log
+</span></span></code></pre></td></tr></table></div></div><hr><h2 id=참고-및-출처>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처>#</a></h2></div></main><footer class=footer><span>&copy; 2025 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>

@@ -1,0 +1,675 @@
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>FCM | hyunyoun's Blog</title><meta name=keywords content="Backend-Development,API-Design-and-Implementation,Real-time-APIs,Types,Push-APIs,Tools,FCM"><meta name=description content="Google에서 제공하는 크로스 플랫폼 메시징 솔루션으로, 안정적이고 효율적으로 메시지를 전송할 수 있는 서비스이다"><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/software-engineering/software-development/service-and-application-engineering/api-design-and-implementation/api-styles/event-based-style/push-notification/providers/fcm/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.a9863521b3bd3c240bc506f46b95e3c06ccef2ae37f529d5f99bdaef442bccce.css integrity="sha256-qYY1IbO9PCQLxQb0a5XjwGzO8q439SnV+Zva70QrzM4=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate type=application/rss+xml href=https://buenhyden.github.io/posts/software-engineering/software-development/service-and-application-engineering/api-design-and-implementation/api-styles/event-based-style/push-notification/providers/fcm/index.xml><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/software-engineering/software-development/service-and-application-engineering/api-design-and-implementation/api-styles/event-based-style/push-notification/providers/fcm/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/software-engineering/software-development/service-and-application-engineering/api-design-and-implementation/api-styles/event-based-style/push-notification/providers/fcm/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="FCM"><meta property="og:description" content="Google에서 제공하는 크로스 플랫폼 메시징 솔루션으로, 안정적이고 효율적으로 메시지를 전송할 수 있는 서비스이다"><meta property="og:locale" content="en"><meta property="og:type" content="website"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="FCM"><meta name=twitter:description content="Google에서 제공하는 크로스 플랫폼 메시징 솔루션으로, 안정적이고 효율적으로 메시지를 전송할 수 있는 서비스이다"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"FCM","item":"https://buenhyden.github.io/posts/software-engineering/software-development/service-and-application-engineering/api-design-and-implementation/api-styles/event-based-style/push-notification/providers/fcm/"}]}</script></head><body class=list id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><header class=page-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a></div><h1>FCM</h1><div class=post-description>Google에서 제공하는 크로스 플랫폼 메시징 솔루션으로, 안정적이고 효율적으로 메시지를 전송할 수 있는 서비스이다</div></header><div class=post-content><h2 id=fcm>FCM<a hidden class=anchor aria-hidden=true href=#fcm>#</a></h2><p>FCM(Firebase Cloud Messaging)은 Google에서 제공하는 크로스 플랫폼 메시징 솔루션으로, 안정적이고 효율적으로 메시지를 전송할 수 있는 서비스이다. 모바일 앱 및 웹 애플리케이션에 **푸시 알림(push notification)**을 쉽고 안정적으로 전송할 수 있다.</p><h3 id=fcm의-기본-개념>FCM의 기본 개념<a hidden class=anchor aria-hidden=true href=#fcm의-기본-개념>#</a></h3><p>FCM은 Google Cloud Messaging(GCM)의 후속 서비스로, 다양한 플랫폼(Android, iOS, 웹)에서 푸시 알림을 보낼 수 있는 통합 솔루션이다.</p><p>FCM의 주요 특징은 다음과 같다:</p><ul><li><strong>멀티 플랫폼 지원</strong><br>Android, iOS, 그리고 웹까지 지원하여 크로스플랫폼으로 동작한다.</li><li><strong>무료 사용</strong><br>별도의 비용 없이 대량의 메시지를 무제한으로 전송할 수 있다.</li><li><strong>토픽/그룹 메시징</strong><br>특정 사용자 집합(예: 관심사를 가진 그룹, 특정 주제 토픽)에 메시지 발송이 가능하다.</li><li><strong>고급 메시지 옵션</strong><br>데이터 메시지(앱이 직접 메시지 데이터를 처리)와 알림 메시지(FCM이 자동으로 기기 알림창에 표시) 타입을 구분해서 활용할 수 있다.</li><li><strong>강력한 통계 및 관리</strong><br>전송 현황 및 전송 실패, 수신 확인 등 다양한 통계와 관리 기능을 제공한다.</li><li><strong>조건부 전송</strong><br>여러 속성(국가, 디바이스 유형 등)에 따라 복잡한 조건 기반 전송이 가능하다. 독자 등 대상 지정 가능</li></ul><h3 id=fcm의-동작-원리>FCM의 동작 원리<a hidden class=anchor aria-hidden=true href=#fcm의-동작-원리>#</a></h3><h4 id=서버와-클라이언트-구조>서버와 클라이언트 구조<a hidden class=anchor aria-hidden=true href=#서버와-클라이언트-구조>#</a></h4><ul><li><strong>클라이언트 앱</strong>: 사용자의 스마트폰 또는 웹 브라우저. FCM으로부터 메시지를 수신한다.</li><li><strong>FCM 백엔드</strong>: Google의 클라우드 서버에서 메시지 중계/전달.</li><li><strong>앱 서버(옵션)</strong>: 개발자가 직접 운영하는 서버로, FCM 서버에 메시지 전송을 요청.</li></ul><h4 id=메시지-전송-흐름>메시지 전송 흐름<a hidden class=anchor aria-hidden=true href=#메시지-전송-흐름>#</a></h4><ol><li>사용자의 디바이스에서 FCM SDK를 통해 FCM 서버에 **등록 토큰(Registration Token)**을 요청 및 발급.</li><li>앱 서버 또는 Firebase Console을 통해 메시지를 전송 요청.</li><li>FCM 서버가 등록 토큰(또는 토픽/그룹)에 해당하는 디바이스로 메시지를 중계.</li><li>최종적으로 디바이스에 메시지가 도착, 알림이 표시되거나 앱에서 직접 데이터 처리.</li></ol><h3 id=fcm-메시지-유형>FCM 메시지 유형<a hidden class=anchor aria-hidden=true href=#fcm-메시지-유형>#</a></h3><p>FCM에서는 두 가지 주요 메시지 유형을 제공한다:</p><h4 id=알림-메시지notification-messages>알림 메시지(Notification Messages)<a hidden class=anchor aria-hidden=true href=#알림-메시지notification-messages>#</a></h4><p>사용자에게 직접 표시되는 메시지이다.<br>FCM SDK가 자동으로 UI 알림을 생성한다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-0-1><a class=lnlinks href=#hl-0-1>1</a>
+</span><span class=lnt id=hl-0-2><a class=lnlinks href=#hl-0-2>2</a>
+</span><span class=lnt id=hl-0-3><a class=lnlinks href=#hl-0-3>3</a>
+</span><span class=lnt id=hl-0-4><a class=lnlinks href=#hl-0-4>4</a>
+</span><span class=lnt id=hl-0-5><a class=lnlinks href=#hl-0-5>5</a>
+</span><span class=lnt id=hl-0-6><a class=lnlinks href=#hl-0-6>6</a>
+</span><span class=lnt id=hl-0-7><a class=lnlinks href=#hl-0-7>7</a>
+</span><span class=lnt id=hl-0-8><a class=lnlinks href=#hl-0-8>8</a>
+</span><span class=lnt id=hl-0-9><a class=lnlinks href=#hl-0-9>9</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-json data-lang=json><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;message&#34;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;token&#34;</span><span class=p>:</span> <span class=s2>&#34;사용자_토큰&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;notification&#34;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nt>&#34;title&#34;</span><span class=p>:</span> <span class=s2>&#34;새로운 메시지&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nt>&#34;body&#34;</span><span class=p>:</span> <span class=s2>&#34;회원님을 위한 특별 할인 정보입니다.&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=데이터-메시지data-messages>데이터 메시지(Data Messages)<a hidden class=anchor aria-hidden=true href=#데이터-메시지data-messages>#</a></h4><p>앱이 직접 처리해야 하는 커스텀 키-값 쌍을 포함한다. 백그라운드 처리나 사용자 정의 알림에 유용하다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-1-1><a class=lnlinks href=#hl-1-1> 1</a>
+</span><span class=lnt id=hl-1-2><a class=lnlinks href=#hl-1-2> 2</a>
+</span><span class=lnt id=hl-1-3><a class=lnlinks href=#hl-1-3> 3</a>
+</span><span class=lnt id=hl-1-4><a class=lnlinks href=#hl-1-4> 4</a>
+</span><span class=lnt id=hl-1-5><a class=lnlinks href=#hl-1-5> 5</a>
+</span><span class=lnt id=hl-1-6><a class=lnlinks href=#hl-1-6> 6</a>
+</span><span class=lnt id=hl-1-7><a class=lnlinks href=#hl-1-7> 7</a>
+</span><span class=lnt id=hl-1-8><a class=lnlinks href=#hl-1-8> 8</a>
+</span><span class=lnt id=hl-1-9><a class=lnlinks href=#hl-1-9> 9</a>
+</span><span class=lnt id=hl-1-10><a class=lnlinks href=#hl-1-10>10</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-json data-lang=json><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;message&#34;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;token&#34;</span><span class=p>:</span> <span class=s2>&#34;사용자_토큰&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;data&#34;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nt>&#34;type&#34;</span><span class=p>:</span> <span class=s2>&#34;promotion&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nt>&#34;discount&#34;</span><span class=p>:</span> <span class=s2>&#34;30%&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nt>&#34;expiry&#34;</span><span class=p>:</span> <span class=s2>&#34;2025-04-20&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=fcm-구현-방법>FCM 구현 방법<a hidden class=anchor aria-hidden=true href=#fcm-구현-방법>#</a></h3><h4 id=firebase-프로젝트-설정>Firebase 프로젝트 설정<a hidden class=anchor aria-hidden=true href=#firebase-프로젝트-설정>#</a></h4><ol><li>Firebase 콘솔(<a href=https://console.firebase.google.com/>https://console.firebase.google.com/</a>)에 접속</li><li>프로젝트 생성</li><li>각 플랫폼(Android, iOS, 웹)별로 앱 추가</li></ol><h4 id=안드로이드-구현>안드로이드 구현<a hidden class=anchor aria-hidden=true href=#안드로이드-구현>#</a></h4><p><strong>build.gradle 설정</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-2-1><a class=lnlinks href=#hl-2-1>1</a>
+</span><span class=lnt id=hl-2-2><a class=lnlinks href=#hl-2-2>2</a>
+</span><span class=lnt id=hl-2-3><a class=lnlinks href=#hl-2-3>3</a>
+</span><span class=lnt id=hl-2-4><a class=lnlinks href=#hl-2-4>4</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-gradle data-lang=gradle><span class=line><span class=cl><span class=n>dependencies</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// FCM 라이브러리 추가
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>implementation</span> <span class=s1>&#39;com.google.firebase:firebase-messaging:23.2.1&#39;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></td></tr></table></div></div><p><strong>매니페스트 설정</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-3-1><a class=lnlinks href=#hl-3-1> 1</a>
+</span><span class=lnt id=hl-3-2><a class=lnlinks href=#hl-3-2> 2</a>
+</span><span class=lnt id=hl-3-3><a class=lnlinks href=#hl-3-3> 3</a>
+</span><span class=lnt id=hl-3-4><a class=lnlinks href=#hl-3-4> 4</a>
+</span><span class=lnt id=hl-3-5><a class=lnlinks href=#hl-3-5> 5</a>
+</span><span class=lnt id=hl-3-6><a class=lnlinks href=#hl-3-6> 6</a>
+</span><span class=lnt id=hl-3-7><a class=lnlinks href=#hl-3-7> 7</a>
+</span><span class=lnt id=hl-3-8><a class=lnlinks href=#hl-3-8> 8</a>
+</span><span class=lnt id=hl-3-9><a class=lnlinks href=#hl-3-9> 9</a>
+</span><span class=lnt id=hl-3-10><a class=lnlinks href=#hl-3-10>10</a>
+</span><span class=lnt id=hl-3-11><a class=lnlinks href=#hl-3-11>11</a>
+</span><span class=lnt id=hl-3-12><a class=lnlinks href=#hl-3-12>12</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-xml data-lang=xml><span class=line><span class=cl><span class=nt>&lt;manifest&gt;</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&lt;application&gt;</span>
+</span></span><span class=line><span class=cl>        <span class=c>&lt;!-- FCM 서비스 등록 --&gt;</span>
+</span></span><span class=line><span class=cl>        <span class=nt>&lt;service</span>
+</span></span><span class=line><span class=cl>            <span class=na>android:name=</span><span class=s>&#34;.MyFirebaseMessagingService&#34;</span>
+</span></span><span class=line><span class=cl>            <span class=na>android:exported=</span><span class=s>&#34;false&#34;</span><span class=nt>&gt;</span>
+</span></span><span class=line><span class=cl>            <span class=nt>&lt;intent-filter&gt;</span>
+</span></span><span class=line><span class=cl>                <span class=nt>&lt;action</span> <span class=na>android:name=</span><span class=s>&#34;com.google.firebase.MESSAGING_EVENT&#34;</span> <span class=nt>/&gt;</span>
+</span></span><span class=line><span class=cl>            <span class=nt>&lt;/intent-filter&gt;</span>
+</span></span><span class=line><span class=cl>        <span class=nt>&lt;/service&gt;</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&lt;/application&gt;</span>
+</span></span><span class=line><span class=cl><span class=nt>&lt;/manifest&gt;</span>
+</span></span></code></pre></td></tr></table></div></div><p><strong>메시징 서비스 구현</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-4-1><a class=lnlinks href=#hl-4-1> 1</a>
+</span><span class=lnt id=hl-4-2><a class=lnlinks href=#hl-4-2> 2</a>
+</span><span class=lnt id=hl-4-3><a class=lnlinks href=#hl-4-3> 3</a>
+</span><span class=lnt id=hl-4-4><a class=lnlinks href=#hl-4-4> 4</a>
+</span><span class=lnt id=hl-4-5><a class=lnlinks href=#hl-4-5> 5</a>
+</span><span class=lnt id=hl-4-6><a class=lnlinks href=#hl-4-6> 6</a>
+</span><span class=lnt id=hl-4-7><a class=lnlinks href=#hl-4-7> 7</a>
+</span><span class=lnt id=hl-4-8><a class=lnlinks href=#hl-4-8> 8</a>
+</span><span class=lnt id=hl-4-9><a class=lnlinks href=#hl-4-9> 9</a>
+</span><span class=lnt id=hl-4-10><a class=lnlinks href=#hl-4-10>10</a>
+</span><span class=lnt id=hl-4-11><a class=lnlinks href=#hl-4-11>11</a>
+</span><span class=lnt id=hl-4-12><a class=lnlinks href=#hl-4-12>12</a>
+</span><span class=lnt id=hl-4-13><a class=lnlinks href=#hl-4-13>13</a>
+</span><span class=lnt id=hl-4-14><a class=lnlinks href=#hl-4-14>14</a>
+</span><span class=lnt id=hl-4-15><a class=lnlinks href=#hl-4-15>15</a>
+</span><span class=lnt id=hl-4-16><a class=lnlinks href=#hl-4-16>16</a>
+</span><span class=lnt id=hl-4-17><a class=lnlinks href=#hl-4-17>17</a>
+</span><span class=lnt id=hl-4-18><a class=lnlinks href=#hl-4-18>18</a>
+</span><span class=lnt id=hl-4-19><a class=lnlinks href=#hl-4-19>19</a>
+</span><span class=lnt id=hl-4-20><a class=lnlinks href=#hl-4-20>20</a>
+</span><span class=lnt id=hl-4-21><a class=lnlinks href=#hl-4-21>21</a>
+</span><span class=lnt id=hl-4-22><a class=lnlinks href=#hl-4-22>22</a>
+</span><span class=lnt id=hl-4-23><a class=lnlinks href=#hl-4-23>23</a>
+</span><span class=lnt id=hl-4-24><a class=lnlinks href=#hl-4-24>24</a>
+</span><span class=lnt id=hl-4-25><a class=lnlinks href=#hl-4-25>25</a>
+</span><span class=lnt id=hl-4-26><a class=lnlinks href=#hl-4-26>26</a>
+</span><span class=lnt id=hl-4-27><a class=lnlinks href=#hl-4-27>27</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-java data-lang=java><span class=line><span class=cl><span class=kd>public</span><span class=w> </span><span class=kd>class</span> <span class=nc>MyFirebaseMessagingService</span><span class=w> </span><span class=kd>extends</span><span class=w> </span><span class=n>FirebaseMessagingService</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 새 토큰 발급 시 호출</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nd>@Override</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>public</span><span class=w> </span><span class=kt>void</span><span class=w> </span><span class=nf>onNewToken</span><span class=p>(</span><span class=n>String</span><span class=w> </span><span class=n>token</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// 토큰을 서버에 전송하는 로직</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>sendRegistrationToServer</span><span class=p>(</span><span class=n>token</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 메시지 수신 시 호출</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nd>@Override</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>public</span><span class=w> </span><span class=kt>void</span><span class=w> </span><span class=nf>onMessageReceived</span><span class=p>(</span><span class=n>RemoteMessage</span><span class=w> </span><span class=n>remoteMessage</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// 알림 메시지 처리</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>if</span><span class=w> </span><span class=p>(</span><span class=n>remoteMessage</span><span class=p>.</span><span class=na>getNotification</span><span class=p>()</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>null</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>showNotification</span><span class=p>(</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=n>remoteMessage</span><span class=p>.</span><span class=na>getNotification</span><span class=p>().</span><span class=na>getTitle</span><span class=p>(),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=n>remoteMessage</span><span class=p>.</span><span class=na>getNotification</span><span class=p>().</span><span class=na>getBody</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// 데이터 메시지 처리</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>if</span><span class=w> </span><span class=p>(</span><span class=n>remoteMessage</span><span class=p>.</span><span class=na>getData</span><span class=p>().</span><span class=na>size</span><span class=p>()</span><span class=w> </span><span class=o>&gt;</span><span class=w> </span><span class=n>0</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>handleDataMessage</span><span class=p>(</span><span class=n>remoteMessage</span><span class=p>.</span><span class=na>getData</span><span class=p>());</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 기타 필요한 메서드 구현</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h4 id=ios-구현>iOS 구현<a hidden class=anchor aria-hidden=true href=#ios-구현>#</a></h4><p><strong>Podfile 설정</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-5-1><a class=lnlinks href=#hl-5-1>1</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-ruby data-lang=ruby><span class=line><span class=cl><span class=n>pod</span> <span class=s1>&#39;Firebase/Messaging&#39;</span>
+</span></span></code></pre></td></tr></table></div></div><p><strong>앱 델리게이트 설정</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-6-1><a class=lnlinks href=#hl-6-1> 1</a>
+</span><span class=lnt id=hl-6-2><a class=lnlinks href=#hl-6-2> 2</a>
+</span><span class=lnt id=hl-6-3><a class=lnlinks href=#hl-6-3> 3</a>
+</span><span class=lnt id=hl-6-4><a class=lnlinks href=#hl-6-4> 4</a>
+</span><span class=lnt id=hl-6-5><a class=lnlinks href=#hl-6-5> 5</a>
+</span><span class=lnt id=hl-6-6><a class=lnlinks href=#hl-6-6> 6</a>
+</span><span class=lnt id=hl-6-7><a class=lnlinks href=#hl-6-7> 7</a>
+</span><span class=lnt id=hl-6-8><a class=lnlinks href=#hl-6-8> 8</a>
+</span><span class=lnt id=hl-6-9><a class=lnlinks href=#hl-6-9> 9</a>
+</span><span class=lnt id=hl-6-10><a class=lnlinks href=#hl-6-10>10</a>
+</span><span class=lnt id=hl-6-11><a class=lnlinks href=#hl-6-11>11</a>
+</span><span class=lnt id=hl-6-12><a class=lnlinks href=#hl-6-12>12</a>
+</span><span class=lnt id=hl-6-13><a class=lnlinks href=#hl-6-13>13</a>
+</span><span class=lnt id=hl-6-14><a class=lnlinks href=#hl-6-14>14</a>
+</span><span class=lnt id=hl-6-15><a class=lnlinks href=#hl-6-15>15</a>
+</span><span class=lnt id=hl-6-16><a class=lnlinks href=#hl-6-16>16</a>
+</span><span class=lnt id=hl-6-17><a class=lnlinks href=#hl-6-17>17</a>
+</span><span class=lnt id=hl-6-18><a class=lnlinks href=#hl-6-18>18</a>
+</span><span class=lnt id=hl-6-19><a class=lnlinks href=#hl-6-19>19</a>
+</span><span class=lnt id=hl-6-20><a class=lnlinks href=#hl-6-20>20</a>
+</span><span class=lnt id=hl-6-21><a class=lnlinks href=#hl-6-21>21</a>
+</span><span class=lnt id=hl-6-22><a class=lnlinks href=#hl-6-22>22</a>
+</span><span class=lnt id=hl-6-23><a class=lnlinks href=#hl-6-23>23</a>
+</span><span class=lnt id=hl-6-24><a class=lnlinks href=#hl-6-24>24</a>
+</span><span class=lnt id=hl-6-25><a class=lnlinks href=#hl-6-25>25</a>
+</span><span class=lnt id=hl-6-26><a class=lnlinks href=#hl-6-26>26</a>
+</span><span class=lnt id=hl-6-27><a class=lnlinks href=#hl-6-27>27</a>
+</span><span class=lnt id=hl-6-28><a class=lnlinks href=#hl-6-28>28</a>
+</span><span class=lnt id=hl-6-29><a class=lnlinks href=#hl-6-29>29</a>
+</span><span class=lnt id=hl-6-30><a class=lnlinks href=#hl-6-30>30</a>
+</span><span class=lnt id=hl-6-31><a class=lnlinks href=#hl-6-31>31</a>
+</span><span class=lnt id=hl-6-32><a class=lnlinks href=#hl-6-32>32</a>
+</span><span class=lnt id=hl-6-33><a class=lnlinks href=#hl-6-33>33</a>
+</span><span class=lnt id=hl-6-34><a class=lnlinks href=#hl-6-34>34</a>
+</span><span class=lnt id=hl-6-35><a class=lnlinks href=#hl-6-35>35</a>
+</span><span class=lnt id=hl-6-36><a class=lnlinks href=#hl-6-36>36</a>
+</span><span class=lnt id=hl-6-37><a class=lnlinks href=#hl-6-37>37</a>
+</span><span class=lnt id=hl-6-38><a class=lnlinks href=#hl-6-38>38</a>
+</span><span class=lnt id=hl-6-39><a class=lnlinks href=#hl-6-39>39</a>
+</span><span class=lnt id=hl-6-40><a class=lnlinks href=#hl-6-40>40</a>
+</span><span class=lnt id=hl-6-41><a class=lnlinks href=#hl-6-41>41</a>
+</span><span class=lnt id=hl-6-42><a class=lnlinks href=#hl-6-42>42</a>
+</span><span class=lnt id=hl-6-43><a class=lnlinks href=#hl-6-43>43</a>
+</span><span class=lnt id=hl-6-44><a class=lnlinks href=#hl-6-44>44</a>
+</span><span class=lnt id=hl-6-45><a class=lnlinks href=#hl-6-45>45</a>
+</span><span class=lnt id=hl-6-46><a class=lnlinks href=#hl-6-46>46</a>
+</span><span class=lnt id=hl-6-47><a class=lnlinks href=#hl-6-47>47</a>
+</span><span class=lnt id=hl-6-48><a class=lnlinks href=#hl-6-48>48</a>
+</span><span class=lnt id=hl-6-49><a class=lnlinks href=#hl-6-49>49</a>
+</span><span class=lnt id=hl-6-50><a class=lnlinks href=#hl-6-50>50</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-swift data-lang=swift><span class=line><span class=cl><span class=kd>import</span> <span class=nc>Firebase</span>
+</span></span><span class=line><span class=cl><span class=kd>import</span> <span class=nc>FirebaseMessaging</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kr>@UIApplicationMain</span>
+</span></span><span class=line><span class=cl><span class=kd>class</span> <span class=nc>AppDelegate</span><span class=p>:</span> <span class=n>UIResponder</span><span class=p>,</span> <span class=n>UIApplicationDelegate</span><span class=p>,</span> <span class=n>MessagingDelegate</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=kd>func</span> <span class=nf>application</span><span class=p>(</span><span class=kc>_</span> <span class=n>application</span><span class=p>:</span> <span class=n>UIApplication</span><span class=p>,</span> <span class=n>didFinishLaunchingWithOptions</span> <span class=n>launchOptions</span><span class=p>:</span> <span class=p>[</span><span class=n>UIApplication</span><span class=p>.</span><span class=n>LaunchOptionsKey</span><span class=p>:</span> <span class=nb>Any</span><span class=p>]?)</span> <span class=p>-&gt;</span> <span class=nb>Bool</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// Firebase 초기화</span>
+</span></span><span class=line><span class=cl>        <span class=n>FirebaseApp</span><span class=p>.</span><span class=n>configure</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1>// FCM 설정</span>
+</span></span><span class=line><span class=cl>        <span class=n>Messaging</span><span class=p>.</span><span class=n>messaging</span><span class=p>().</span><span class=n>delegate</span> <span class=p>=</span> <span class=kc>self</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1>// 알림 권한 요청</span>
+</span></span><span class=line><span class=cl>        <span class=n>UNUserNotificationCenter</span><span class=p>.</span><span class=n>current</span><span class=p>().</span><span class=n>delegate</span> <span class=p>=</span> <span class=kc>self</span>
+</span></span><span class=line><span class=cl>        <span class=kd>let</span> <span class=nv>authOptions</span><span class=p>:</span> <span class=n>UNAuthorizationOptions</span> <span class=p>=</span> <span class=p>[.</span><span class=n>alert</span><span class=p>,</span> <span class=p>.</span><span class=n>badge</span><span class=p>,</span> <span class=p>.</span><span class=n>sound</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=n>UNUserNotificationCenter</span><span class=p>.</span><span class=n>current</span><span class=p>().</span><span class=n>requestAuthorization</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>            <span class=n>options</span><span class=p>:</span> <span class=n>authOptions</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>completionHandler</span><span class=p>:</span> <span class=p>{</span> <span class=kc>_</span><span class=p>,</span> <span class=kc>_</span> <span class=k>in</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>application</span><span class=p>.</span><span class=n>registerForRemoteNotifications</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>true</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 토큰 갱신 시 호출</span>
+</span></span><span class=line><span class=cl>    <span class=kd>func</span> <span class=nf>messaging</span><span class=p>(</span><span class=kc>_</span> <span class=n>messaging</span><span class=p>:</span> <span class=n>Messaging</span><span class=p>,</span> <span class=n>didReceiveRegistrationToken</span> <span class=n>fcmToken</span><span class=p>:</span> <span class=nb>String</span><span class=p>?)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=kd>let</span> <span class=nv>token</span> <span class=p>=</span> <span class=n>fcmToken</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=c1>// 토큰을 서버에 전송하는 로직</span>
+</span></span><span class=line><span class=cl>            <span class=n>sendRegistrationToServer</span><span class=p>(</span><span class=n>token</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 알림 처리를 위한 확장</span>
+</span></span><span class=line><span class=cl><span class=kd>extension</span> <span class=nc>AppDelegate</span><span class=p>:</span> <span class=n>UNUserNotificationCenterDelegate</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kd>func</span> <span class=nf>userNotificationCenter</span><span class=p>(</span><span class=kc>_</span> <span class=n>center</span><span class=p>:</span> <span class=n>UNUserNotificationCenter</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                              <span class=n>willPresent</span> <span class=n>notification</span><span class=p>:</span> <span class=n>UNNotification</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                              <span class=n>withCompletionHandler</span> <span class=n>completionHandler</span><span class=p>:</span> <span class=p>@</span><span class=n>escaping</span> <span class=p>(</span><span class=n>UNNotificationPresentationOptions</span><span class=p>)</span> <span class=p>-&gt;</span> <span class=nb>Void</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// 앱 포그라운드 상태에서 알림 처리</span>
+</span></span><span class=line><span class=cl>        <span class=n>completionHandler</span><span class=p>([.</span><span class=n>alert</span><span class=p>,</span> <span class=p>.</span><span class=n>badge</span><span class=p>,</span> <span class=p>.</span><span class=n>sound</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=kd>func</span> <span class=nf>userNotificationCenter</span><span class=p>(</span><span class=kc>_</span> <span class=n>center</span><span class=p>:</span> <span class=n>UNUserNotificationCenter</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                              <span class=n>didReceive</span> <span class=n>response</span><span class=p>:</span> <span class=n>UNNotificationResponse</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                              <span class=n>withCompletionHandler</span> <span class=n>completionHandler</span><span class=p>:</span> <span class=p>@</span><span class=n>escaping</span> <span class=p>()</span> <span class=p>-&gt;</span> <span class=nb>Void</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// 알림 탭 처리</span>
+</span></span><span class=line><span class=cl>        <span class=n>completionHandler</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=웹-구현>웹 구현<a hidden class=anchor aria-hidden=true href=#웹-구현>#</a></h4><p><strong>Firebase SDK 추가</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-7-1><a class=lnlinks href=#hl-7-1>1</a>
+</span><span class=lnt id=hl-7-2><a class=lnlinks href=#hl-7-2>2</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-html data-lang=html><span class=line><span class=cl><span class=p>&lt;</span><span class=nt>script</span> <span class=na>src</span><span class=o>=</span><span class=s>&#34;https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js&#34;</span><span class=p>&gt;&lt;/</span><span class=nt>script</span><span class=p>&gt;</span>
+</span></span><span class=line><span class=cl><span class=p>&lt;</span><span class=nt>script</span> <span class=na>src</span><span class=o>=</span><span class=s>&#34;https://www.gstatic.com/firebasejs/9.21.0/firebase-messaging.js&#34;</span><span class=p>&gt;&lt;/</span><span class=nt>script</span><span class=p>&gt;</span>
+</span></span></code></pre></td></tr></table></div></div><p><strong>Firebase 초기화 및 메시징 설정</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-8-1><a class=lnlinks href=#hl-8-1> 1</a>
+</span><span class=lnt id=hl-8-2><a class=lnlinks href=#hl-8-2> 2</a>
+</span><span class=lnt id=hl-8-3><a class=lnlinks href=#hl-8-3> 3</a>
+</span><span class=lnt id=hl-8-4><a class=lnlinks href=#hl-8-4> 4</a>
+</span><span class=lnt id=hl-8-5><a class=lnlinks href=#hl-8-5> 5</a>
+</span><span class=lnt id=hl-8-6><a class=lnlinks href=#hl-8-6> 6</a>
+</span><span class=lnt id=hl-8-7><a class=lnlinks href=#hl-8-7> 7</a>
+</span><span class=lnt id=hl-8-8><a class=lnlinks href=#hl-8-8> 8</a>
+</span><span class=lnt id=hl-8-9><a class=lnlinks href=#hl-8-9> 9</a>
+</span><span class=lnt id=hl-8-10><a class=lnlinks href=#hl-8-10>10</a>
+</span><span class=lnt id=hl-8-11><a class=lnlinks href=#hl-8-11>11</a>
+</span><span class=lnt id=hl-8-12><a class=lnlinks href=#hl-8-12>12</a>
+</span><span class=lnt id=hl-8-13><a class=lnlinks href=#hl-8-13>13</a>
+</span><span class=lnt id=hl-8-14><a class=lnlinks href=#hl-8-14>14</a>
+</span><span class=lnt id=hl-8-15><a class=lnlinks href=#hl-8-15>15</a>
+</span><span class=lnt id=hl-8-16><a class=lnlinks href=#hl-8-16>16</a>
+</span><span class=lnt id=hl-8-17><a class=lnlinks href=#hl-8-17>17</a>
+</span><span class=lnt id=hl-8-18><a class=lnlinks href=#hl-8-18>18</a>
+</span><span class=lnt id=hl-8-19><a class=lnlinks href=#hl-8-19>19</a>
+</span><span class=lnt id=hl-8-20><a class=lnlinks href=#hl-8-20>20</a>
+</span><span class=lnt id=hl-8-21><a class=lnlinks href=#hl-8-21>21</a>
+</span><span class=lnt id=hl-8-22><a class=lnlinks href=#hl-8-22>22</a>
+</span><span class=lnt id=hl-8-23><a class=lnlinks href=#hl-8-23>23</a>
+</span><span class=lnt id=hl-8-24><a class=lnlinks href=#hl-8-24>24</a>
+</span><span class=lnt id=hl-8-25><a class=lnlinks href=#hl-8-25>25</a>
+</span><span class=lnt id=hl-8-26><a class=lnlinks href=#hl-8-26>26</a>
+</span><span class=lnt id=hl-8-27><a class=lnlinks href=#hl-8-27>27</a>
+</span><span class=lnt id=hl-8-28><a class=lnlinks href=#hl-8-28>28</a>
+</span><span class=lnt id=hl-8-29><a class=lnlinks href=#hl-8-29>29</a>
+</span><span class=lnt id=hl-8-30><a class=lnlinks href=#hl-8-30>30</a>
+</span><span class=lnt id=hl-8-31><a class=lnlinks href=#hl-8-31>31</a>
+</span><span class=lnt id=hl-8-32><a class=lnlinks href=#hl-8-32>32</a>
+</span><span class=lnt id=hl-8-33><a class=lnlinks href=#hl-8-33>33</a>
+</span><span class=lnt id=hl-8-34><a class=lnlinks href=#hl-8-34>34</a>
+</span><span class=lnt id=hl-8-35><a class=lnlinks href=#hl-8-35>35</a>
+</span><span class=lnt id=hl-8-36><a class=lnlinks href=#hl-8-36>36</a>
+</span><span class=lnt id=hl-8-37><a class=lnlinks href=#hl-8-37>37</a>
+</span><span class=lnt id=hl-8-38><a class=lnlinks href=#hl-8-38>38</a>
+</span><span class=lnt id=hl-8-39><a class=lnlinks href=#hl-8-39>39</a>
+</span><span class=lnt id=hl-8-40><a class=lnlinks href=#hl-8-40>40</a>
+</span><span class=lnt id=hl-8-41><a class=lnlinks href=#hl-8-41>41</a>
+</span><span class=lnt id=hl-8-42><a class=lnlinks href=#hl-8-42>42</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// Firebase 설정
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>const</span> <span class=nx>firebaseConfig</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>apiKey</span><span class=o>:</span> <span class=s2>&#34;YOUR_API_KEY&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nx>authDomain</span><span class=o>:</span> <span class=s2>&#34;YOUR_AUTH_DOMAIN&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nx>projectId</span><span class=o>:</span> <span class=s2>&#34;YOUR_PROJECT_ID&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nx>messagingSenderId</span><span class=o>:</span> <span class=s2>&#34;YOUR_MESSAGING_SENDER_ID&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nx>appId</span><span class=o>:</span> <span class=s2>&#34;YOUR_APP_ID&#34;</span>
+</span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Firebase 초기화
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>firebase</span><span class=p>.</span><span class=nx>initializeApp</span><span class=p>(</span><span class=nx>firebaseConfig</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// FCM 인스턴스 가져오기
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>const</span> <span class=nx>messaging</span> <span class=o>=</span> <span class=nx>firebase</span><span class=p>.</span><span class=nx>messaging</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 서비스 워커 등록
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>navigator</span><span class=p>.</span><span class=nx>serviceWorker</span><span class=p>.</span><span class=nx>register</span><span class=p>(</span><span class=s1>&#39;/firebase-messaging-sw.js&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>  <span class=p>.</span><span class=nx>then</span><span class=p>((</span><span class=nx>registration</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>messaging</span><span class=p>.</span><span class=nx>useServiceWorker</span><span class=p>(</span><span class=nx>registration</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 알림 권한 요청
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>messaging</span><span class=p>.</span><span class=nx>requestPermission</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>      <span class=p>.</span><span class=nx>then</span><span class=p>(()</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;알림 권한 획득&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>messaging</span><span class=p>.</span><span class=nx>getToken</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>      <span class=p>})</span>
+</span></span><span class=line><span class=cl>      <span class=p>.</span><span class=nx>then</span><span class=p>((</span><span class=nx>token</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;FCM 토큰:&#39;</span><span class=p>,</span> <span class=nx>token</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// 토큰을 서버에 전송하는 로직
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=nx>sendTokenToServer</span><span class=p>(</span><span class=nx>token</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>      <span class=p>})</span>
+</span></span><span class=line><span class=cl>      <span class=p>.</span><span class=k>catch</span><span class=p>((</span><span class=nx>err</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;알림 권한 획득 실패:&#39;</span><span class=p>,</span> <span class=nx>err</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>      <span class=p>});</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 포그라운드 메시지 수신
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>messaging</span><span class=p>.</span><span class=nx>onMessage</span><span class=p>((</span><span class=nx>payload</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;메시지 수신:&#39;</span><span class=p>,</span> <span class=nx>payload</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 수신된 메시지 처리 로직
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>showNotification</span><span class=p>(</span><span class=nx>payload</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><p><strong>서비스 워커 파일(firebase-messaging-sw.js)</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-9-1><a class=lnlinks href=#hl-9-1> 1</a>
+</span><span class=lnt id=hl-9-2><a class=lnlinks href=#hl-9-2> 2</a>
+</span><span class=lnt id=hl-9-3><a class=lnlinks href=#hl-9-3> 3</a>
+</span><span class=lnt id=hl-9-4><a class=lnlinks href=#hl-9-4> 4</a>
+</span><span class=lnt id=hl-9-5><a class=lnlinks href=#hl-9-5> 5</a>
+</span><span class=lnt id=hl-9-6><a class=lnlinks href=#hl-9-6> 6</a>
+</span><span class=lnt id=hl-9-7><a class=lnlinks href=#hl-9-7> 7</a>
+</span><span class=lnt id=hl-9-8><a class=lnlinks href=#hl-9-8> 8</a>
+</span><span class=lnt id=hl-9-9><a class=lnlinks href=#hl-9-9> 9</a>
+</span><span class=lnt id=hl-9-10><a class=lnlinks href=#hl-9-10>10</a>
+</span><span class=lnt id=hl-9-11><a class=lnlinks href=#hl-9-11>11</a>
+</span><span class=lnt id=hl-9-12><a class=lnlinks href=#hl-9-12>12</a>
+</span><span class=lnt id=hl-9-13><a class=lnlinks href=#hl-9-13>13</a>
+</span><span class=lnt id=hl-9-14><a class=lnlinks href=#hl-9-14>14</a>
+</span><span class=lnt id=hl-9-15><a class=lnlinks href=#hl-9-15>15</a>
+</span><span class=lnt id=hl-9-16><a class=lnlinks href=#hl-9-16>16</a>
+</span><span class=lnt id=hl-9-17><a class=lnlinks href=#hl-9-17>17</a>
+</span><span class=lnt id=hl-9-18><a class=lnlinks href=#hl-9-18>18</a>
+</span><span class=lnt id=hl-9-19><a class=lnlinks href=#hl-9-19>19</a>
+</span><span class=lnt id=hl-9-20><a class=lnlinks href=#hl-9-20>20</a>
+</span><span class=lnt id=hl-9-21><a class=lnlinks href=#hl-9-21>21</a>
+</span><span class=lnt id=hl-9-22><a class=lnlinks href=#hl-9-22>22</a>
+</span><span class=lnt id=hl-9-23><a class=lnlinks href=#hl-9-23>23</a>
+</span><span class=lnt id=hl-9-24><a class=lnlinks href=#hl-9-24>24</a>
+</span><span class=lnt id=hl-9-25><a class=lnlinks href=#hl-9-25>25</a>
+</span><span class=lnt id=hl-9-26><a class=lnlinks href=#hl-9-26>26</a>
+</span><span class=lnt id=hl-9-27><a class=lnlinks href=#hl-9-27>27</a>
+</span><span class=lnt id=hl-9-28><a class=lnlinks href=#hl-9-28>28</a>
+</span><span class=lnt id=hl-9-29><a class=lnlinks href=#hl-9-29>29</a>
+</span><span class=lnt id=hl-9-30><a class=lnlinks href=#hl-9-30>30</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=nx>importScripts</span><span class=p>(</span><span class=s1>&#39;https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=nx>importScripts</span><span class=p>(</span><span class=s1>&#39;https://www.gstatic.com/firebasejs/9.21.0/firebase-messaging.js&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Firebase 설정
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>const</span> <span class=nx>firebaseConfig</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>apiKey</span><span class=o>:</span> <span class=s2>&#34;YOUR_API_KEY&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nx>authDomain</span><span class=o>:</span> <span class=s2>&#34;YOUR_AUTH_DOMAIN&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nx>projectId</span><span class=o>:</span> <span class=s2>&#34;YOUR_PROJECT_ID&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nx>messagingSenderId</span><span class=o>:</span> <span class=s2>&#34;YOUR_MESSAGING_SENDER_ID&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nx>appId</span><span class=o>:</span> <span class=s2>&#34;YOUR_APP_ID&#34;</span>
+</span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Firebase 초기화
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>firebase</span><span class=p>.</span><span class=nx>initializeApp</span><span class=p>(</span><span class=nx>firebaseConfig</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// FCM 인스턴스
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>const</span> <span class=nx>messaging</span> <span class=o>=</span> <span class=nx>firebase</span><span class=p>.</span><span class=nx>messaging</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 백그라운드 메시지 처리
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>messaging</span><span class=p>.</span><span class=nx>onBackgroundMessage</span><span class=p>((</span><span class=nx>payload</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;백그라운드 메시지 수신:&#39;</span><span class=p>,</span> <span class=nx>payload</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>notificationTitle</span> <span class=o>=</span> <span class=nx>payload</span><span class=p>.</span><span class=nx>notification</span><span class=p>.</span><span class=nx>title</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>notificationOptions</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>body</span><span class=o>:</span> <span class=nx>payload</span><span class=p>.</span><span class=nx>notification</span><span class=p>.</span><span class=nx>body</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>icon</span><span class=o>:</span> <span class=s1>&#39;/firebase-logo.png&#39;</span>
+</span></span><span class=line><span class=cl>  <span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=nx>self</span><span class=p>.</span><span class=nx>registration</span><span class=p>.</span><span class=nx>showNotification</span><span class=p>(</span><span class=nx>notificationTitle</span><span class=p>,</span> <span class=nx>notificationOptions</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=fcm-서버-측-구현>FCM 서버 측 구현<a hidden class=anchor aria-hidden=true href=#fcm-서버-측-구현>#</a></h3><h4 id=서버-측-라이브러리>서버 측 라이브러리<a hidden class=anchor aria-hidden=true href=#서버-측-라이브러리>#</a></h4><p>다양한 프로그래밍 언어로 FCM을 사용할 수 있다:</p><ul><li><strong>Node.js</strong>: firebase-admin SDK</li><li><strong>Java</strong>: Firebase Admin Java SDK</li><li><strong>Python</strong>: firebase-admin</li><li><strong>Go</strong>: firebase-admin-go</li></ul><h4 id=nodejs-예제>Node.js 예제<a hidden class=anchor aria-hidden=true href=#nodejs-예제>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-10-1><a class=lnlinks href=#hl-10-1> 1</a>
+</span><span class=lnt id=hl-10-2><a class=lnlinks href=#hl-10-2> 2</a>
+</span><span class=lnt id=hl-10-3><a class=lnlinks href=#hl-10-3> 3</a>
+</span><span class=lnt id=hl-10-4><a class=lnlinks href=#hl-10-4> 4</a>
+</span><span class=lnt id=hl-10-5><a class=lnlinks href=#hl-10-5> 5</a>
+</span><span class=lnt id=hl-10-6><a class=lnlinks href=#hl-10-6> 6</a>
+</span><span class=lnt id=hl-10-7><a class=lnlinks href=#hl-10-7> 7</a>
+</span><span class=lnt id=hl-10-8><a class=lnlinks href=#hl-10-8> 8</a>
+</span><span class=lnt id=hl-10-9><a class=lnlinks href=#hl-10-9> 9</a>
+</span><span class=lnt id=hl-10-10><a class=lnlinks href=#hl-10-10>10</a>
+</span><span class=lnt id=hl-10-11><a class=lnlinks href=#hl-10-11>11</a>
+</span><span class=lnt id=hl-10-12><a class=lnlinks href=#hl-10-12>12</a>
+</span><span class=lnt id=hl-10-13><a class=lnlinks href=#hl-10-13>13</a>
+</span><span class=lnt id=hl-10-14><a class=lnlinks href=#hl-10-14>14</a>
+</span><span class=lnt id=hl-10-15><a class=lnlinks href=#hl-10-15>15</a>
+</span><span class=lnt id=hl-10-16><a class=lnlinks href=#hl-10-16>16</a>
+</span><span class=lnt id=hl-10-17><a class=lnlinks href=#hl-10-17>17</a>
+</span><span class=lnt id=hl-10-18><a class=lnlinks href=#hl-10-18>18</a>
+</span><span class=lnt id=hl-10-19><a class=lnlinks href=#hl-10-19>19</a>
+</span><span class=lnt id=hl-10-20><a class=lnlinks href=#hl-10-20>20</a>
+</span><span class=lnt id=hl-10-21><a class=lnlinks href=#hl-10-21>21</a>
+</span><span class=lnt id=hl-10-22><a class=lnlinks href=#hl-10-22>22</a>
+</span><span class=lnt id=hl-10-23><a class=lnlinks href=#hl-10-23>23</a>
+</span><span class=lnt id=hl-10-24><a class=lnlinks href=#hl-10-24>24</a>
+</span><span class=lnt id=hl-10-25><a class=lnlinks href=#hl-10-25>25</a>
+</span><span class=lnt id=hl-10-26><a class=lnlinks href=#hl-10-26>26</a>
+</span><span class=lnt id=hl-10-27><a class=lnlinks href=#hl-10-27>27</a>
+</span><span class=lnt id=hl-10-28><a class=lnlinks href=#hl-10-28>28</a>
+</span><span class=lnt id=hl-10-29><a class=lnlinks href=#hl-10-29>29</a>
+</span><span class=lnt id=hl-10-30><a class=lnlinks href=#hl-10-30>30</a>
+</span><span class=lnt id=hl-10-31><a class=lnlinks href=#hl-10-31>31</a>
+</span><span class=lnt id=hl-10-32><a class=lnlinks href=#hl-10-32>32</a>
+</span><span class=lnt id=hl-10-33><a class=lnlinks href=#hl-10-33>33</a>
+</span><span class=lnt id=hl-10-34><a class=lnlinks href=#hl-10-34>34</a>
+</span><span class=lnt id=hl-10-35><a class=lnlinks href=#hl-10-35>35</a>
+</span><span class=lnt id=hl-10-36><a class=lnlinks href=#hl-10-36>36</a>
+</span><span class=lnt id=hl-10-37><a class=lnlinks href=#hl-10-37>37</a>
+</span><span class=lnt id=hl-10-38><a class=lnlinks href=#hl-10-38>38</a>
+</span><span class=lnt id=hl-10-39><a class=lnlinks href=#hl-10-39>39</a>
+</span><span class=lnt id=hl-10-40><a class=lnlinks href=#hl-10-40>40</a>
+</span><span class=lnt id=hl-10-41><a class=lnlinks href=#hl-10-41>41</a>
+</span><span class=lnt id=hl-10-42><a class=lnlinks href=#hl-10-42>42</a>
+</span><span class=lnt id=hl-10-43><a class=lnlinks href=#hl-10-43>43</a>
+</span><span class=lnt id=hl-10-44><a class=lnlinks href=#hl-10-44>44</a>
+</span><span class=lnt id=hl-10-45><a class=lnlinks href=#hl-10-45>45</a>
+</span><span class=lnt id=hl-10-46><a class=lnlinks href=#hl-10-46>46</a>
+</span><span class=lnt id=hl-10-47><a class=lnlinks href=#hl-10-47>47</a>
+</span><span class=lnt id=hl-10-48><a class=lnlinks href=#hl-10-48>48</a>
+</span><span class=lnt id=hl-10-49><a class=lnlinks href=#hl-10-49>49</a>
+</span><span class=lnt id=hl-10-50><a class=lnlinks href=#hl-10-50>50</a>
+</span><span class=lnt id=hl-10-51><a class=lnlinks href=#hl-10-51>51</a>
+</span><span class=lnt id=hl-10-52><a class=lnlinks href=#hl-10-52>52</a>
+</span><span class=lnt id=hl-10-53><a class=lnlinks href=#hl-10-53>53</a>
+</span><span class=lnt id=hl-10-54><a class=lnlinks href=#hl-10-54>54</a>
+</span><span class=lnt id=hl-10-55><a class=lnlinks href=#hl-10-55>55</a>
+</span><span class=lnt id=hl-10-56><a class=lnlinks href=#hl-10-56>56</a>
+</span><span class=lnt id=hl-10-57><a class=lnlinks href=#hl-10-57>57</a>
+</span><span class=lnt id=hl-10-58><a class=lnlinks href=#hl-10-58>58</a>
+</span><span class=lnt id=hl-10-59><a class=lnlinks href=#hl-10-59>59</a>
+</span><span class=lnt id=hl-10-60><a class=lnlinks href=#hl-10-60>60</a>
+</span><span class=lnt id=hl-10-61><a class=lnlinks href=#hl-10-61>61</a>
+</span><span class=lnt id=hl-10-62><a class=lnlinks href=#hl-10-62>62</a>
+</span><span class=lnt id=hl-10-63><a class=lnlinks href=#hl-10-63>63</a>
+</span><span class=lnt id=hl-10-64><a class=lnlinks href=#hl-10-64>64</a>
+</span><span class=lnt id=hl-10-65><a class=lnlinks href=#hl-10-65>65</a>
+</span><span class=lnt id=hl-10-66><a class=lnlinks href=#hl-10-66>66</a>
+</span><span class=lnt id=hl-10-67><a class=lnlinks href=#hl-10-67>67</a>
+</span><span class=lnt id=hl-10-68><a class=lnlinks href=#hl-10-68>68</a>
+</span><span class=lnt id=hl-10-69><a class=lnlinks href=#hl-10-69>69</a>
+</span><span class=lnt id=hl-10-70><a class=lnlinks href=#hl-10-70>70</a>
+</span><span class=lnt id=hl-10-71><a class=lnlinks href=#hl-10-71>71</a>
+</span><span class=lnt id=hl-10-72><a class=lnlinks href=#hl-10-72>72</a>
+</span><span class=lnt id=hl-10-73><a class=lnlinks href=#hl-10-73>73</a>
+</span><span class=lnt id=hl-10-74><a class=lnlinks href=#hl-10-74>74</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// Firebase Admin SDK 초기화
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>const</span> <span class=nx>admin</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;firebase-admin&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kr>const</span> <span class=nx>serviceAccount</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;./serviceAccountKey.json&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>admin</span><span class=p>.</span><span class=nx>initializeApp</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>  <span class=nx>credential</span><span class=o>:</span> <span class=nx>admin</span><span class=p>.</span><span class=nx>credential</span><span class=p>.</span><span class=nx>cert</span><span class=p>(</span><span class=nx>serviceAccount</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 메시지 전송 함수
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>function</span> <span class=nx>sendFCMMessage</span><span class=p>(</span><span class=nx>token</span><span class=p>,</span> <span class=nx>title</span><span class=p>,</span> <span class=nx>body</span><span class=p>,</span> <span class=nx>data</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 메시지 구성
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=kr>const</span> <span class=nx>message</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>notification</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>title</span><span class=o>:</span> <span class=nx>title</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>body</span><span class=o>:</span> <span class=nx>body</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span>
+</span></span><span class=line><span class=cl>    <span class=nx>data</span><span class=o>:</span> <span class=nx>data</span> <span class=o>||</span> <span class=p>{},</span>
+</span></span><span class=line><span class=cl>    <span class=nx>token</span><span class=o>:</span> <span class=nx>token</span>
+</span></span><span class=line><span class=cl>  <span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// 메시지 전송
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>admin</span><span class=p>.</span><span class=nx>messaging</span><span class=p>().</span><span class=nx>send</span><span class=p>(</span><span class=nx>message</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>.</span><span class=nx>then</span><span class=p>((</span><span class=nx>response</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;메시지 전송 성공:&#39;</span><span class=p>,</span> <span class=nx>response</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>})</span>
+</span></span><span class=line><span class=cl>    <span class=p>.</span><span class=k>catch</span><span class=p>((</span><span class=nx>error</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;메시지 전송 실패:&#39;</span><span class=p>,</span> <span class=nx>error</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>});</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 주제 메시지 전송 함수
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>function</span> <span class=nx>sendTopicMessage</span><span class=p>(</span><span class=nx>topic</span><span class=p>,</span> <span class=nx>title</span><span class=p>,</span> <span class=nx>body</span><span class=p>,</span> <span class=nx>data</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 메시지 구성
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=kr>const</span> <span class=nx>message</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>notification</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>title</span><span class=o>:</span> <span class=nx>title</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>body</span><span class=o>:</span> <span class=nx>body</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span>
+</span></span><span class=line><span class=cl>    <span class=nx>data</span><span class=o>:</span> <span class=nx>data</span> <span class=o>||</span> <span class=p>{},</span>
+</span></span><span class=line><span class=cl>    <span class=nx>topic</span><span class=o>:</span> <span class=nx>topic</span>
+</span></span><span class=line><span class=cl>  <span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// 메시지 전송
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>admin</span><span class=p>.</span><span class=nx>messaging</span><span class=p>().</span><span class=nx>send</span><span class=p>(</span><span class=nx>message</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>.</span><span class=nx>then</span><span class=p>((</span><span class=nx>response</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;주제 메시지 전송 성공:&#39;</span><span class=p>,</span> <span class=nx>response</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>})</span>
+</span></span><span class=line><span class=cl>    <span class=p>.</span><span class=k>catch</span><span class=p>((</span><span class=nx>error</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;주제 메시지 전송 실패:&#39;</span><span class=p>,</span> <span class=nx>error</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>});</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 멀티캐스트 메시지 전송 함수
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>function</span> <span class=nx>sendMulticastMessage</span><span class=p>(</span><span class=nx>tokens</span><span class=p>,</span> <span class=nx>title</span><span class=p>,</span> <span class=nx>body</span><span class=p>,</span> <span class=nx>data</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 메시지 구성
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=kr>const</span> <span class=nx>message</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>notification</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>title</span><span class=o>:</span> <span class=nx>title</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>body</span><span class=o>:</span> <span class=nx>body</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span>
+</span></span><span class=line><span class=cl>    <span class=nx>data</span><span class=o>:</span> <span class=nx>data</span> <span class=o>||</span> <span class=p>{},</span>
+</span></span><span class=line><span class=cl>    <span class=nx>tokens</span><span class=o>:</span> <span class=nx>tokens</span> <span class=c1>// 최대 500개 토큰
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// 메시지 전송
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>admin</span><span class=p>.</span><span class=nx>messaging</span><span class=p>().</span><span class=nx>sendMulticast</span><span class=p>(</span><span class=nx>message</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>.</span><span class=nx>then</span><span class=p>((</span><span class=nx>response</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;성공한 메시지 수:&#39;</span><span class=p>,</span> <span class=nx>response</span><span class=p>.</span><span class=nx>successCount</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>      <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;실패한 메시지 수:&#39;</span><span class=p>,</span> <span class=nx>response</span><span class=p>.</span><span class=nx>failureCount</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>})</span>
+</span></span><span class=line><span class=cl>    <span class=p>.</span><span class=k>catch</span><span class=p>((</span><span class=nx>error</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;멀티캐스트 메시지 전송 실패:&#39;</span><span class=p>,</span> <span class=nx>error</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>});</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=fcm-고급-기능>FCM 고급 기능<a hidden class=anchor aria-hidden=true href=#fcm-고급-기능>#</a></h3><h4 id=주제-구독topic-subscription>주제 구독(Topic Subscription)<a hidden class=anchor aria-hidden=true href=#주제-구독topic-subscription>#</a></h4><p>사용자를 특정 주제에 구독시켜 해당 주제로 메시지를 보낼 수 있다.</p><p><strong>클라이언트 측 구독(Android)</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-11-1><a class=lnlinks href=#hl-11-1>1</a>
+</span><span class=lnt id=hl-11-2><a class=lnlinks href=#hl-11-2>2</a>
+</span><span class=lnt id=hl-11-3><a class=lnlinks href=#hl-11-3>3</a>
+</span><span class=lnt id=hl-11-4><a class=lnlinks href=#hl-11-4>4</a>
+</span><span class=lnt id=hl-11-5><a class=lnlinks href=#hl-11-5>5</a>
+</span><span class=lnt id=hl-11-6><a class=lnlinks href=#hl-11-6>6</a>
+</span><span class=lnt id=hl-11-7><a class=lnlinks href=#hl-11-7>7</a>
+</span><span class=lnt id=hl-11-8><a class=lnlinks href=#hl-11-8>8</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-java data-lang=java><span class=line><span class=cl><span class=n>FirebaseMessaging</span><span class=p>.</span><span class=na>getInstance</span><span class=p>().</span><span class=na>subscribeToTopic</span><span class=p>(</span><span class=s>&#34;news&#34;</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>.</span><span class=na>addOnCompleteListener</span><span class=p>(</span><span class=n>task</span><span class=w> </span><span class=o>-&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>if</span><span class=w> </span><span class=p>(</span><span class=n>task</span><span class=p>.</span><span class=na>isSuccessful</span><span class=p>())</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>Log</span><span class=p>.</span><span class=na>d</span><span class=p>(</span><span class=n>TAG</span><span class=p>,</span><span class=w> </span><span class=s>&#34;뉴스 주제 구독 성공&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w> </span><span class=k>else</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>Log</span><span class=p>.</span><span class=na>e</span><span class=p>(</span><span class=n>TAG</span><span class=p>,</span><span class=w> </span><span class=s>&#34;주제 구독 실패&#34;</span><span class=p>,</span><span class=w> </span><span class=n>task</span><span class=p>.</span><span class=na>getException</span><span class=p>());</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>});</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p><strong>서버 측 메시지 전송</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-12-1><a class=lnlinks href=#hl-12-1> 1</a>
+</span><span class=lnt id=hl-12-2><a class=lnlinks href=#hl-12-2> 2</a>
+</span><span class=lnt id=hl-12-3><a class=lnlinks href=#hl-12-3> 3</a>
+</span><span class=lnt id=hl-12-4><a class=lnlinks href=#hl-12-4> 4</a>
+</span><span class=lnt id=hl-12-5><a class=lnlinks href=#hl-12-5> 5</a>
+</span><span class=lnt id=hl-12-6><a class=lnlinks href=#hl-12-6> 6</a>
+</span><span class=lnt id=hl-12-7><a class=lnlinks href=#hl-12-7> 7</a>
+</span><span class=lnt id=hl-12-8><a class=lnlinks href=#hl-12-8> 8</a>
+</span><span class=lnt id=hl-12-9><a class=lnlinks href=#hl-12-9> 9</a>
+</span><span class=lnt id=hl-12-10><a class=lnlinks href=#hl-12-10>10</a>
+</span><span class=lnt id=hl-12-11><a class=lnlinks href=#hl-12-11>11</a>
+</span><span class=lnt id=hl-12-12><a class=lnlinks href=#hl-12-12>12</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=nx>admin</span><span class=p>.</span><span class=nx>messaging</span><span class=p>().</span><span class=nx>sendToTopic</span><span class=p>(</span><span class=s1>&#39;news&#39;</span><span class=p>,</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>notification</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>title</span><span class=o>:</span> <span class=s1>&#39;최신 뉴스&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>body</span><span class=o>:</span> <span class=s1>&#39;오늘의 헤드라인 뉴스입니다.&#39;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>})</span>
+</span></span><span class=line><span class=cl><span class=p>.</span><span class=nx>then</span><span class=p>((</span><span class=nx>response</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;주제 메시지 전송 성공:&#39;</span><span class=p>,</span> <span class=nx>response</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>})</span>
+</span></span><span class=line><span class=cl><span class=p>.</span><span class=k>catch</span><span class=p>((</span><span class=nx>error</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;주제 메시지 전송 실패:&#39;</span><span class=p>,</span> <span class=nx>error</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=메시지-그룹화>메시지 그룹화<a hidden class=anchor aria-hidden=true href=#메시지-그룹화>#</a></h4><p>연관된 알림을 그룹화하여 사용자 경험을 개선할 수 있다.</p><p><strong>Android 예제</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-13-1><a class=lnlinks href=#hl-13-1>1</a>
+</span><span class=lnt id=hl-13-2><a class=lnlinks href=#hl-13-2>2</a>
+</span><span class=lnt id=hl-13-3><a class=lnlinks href=#hl-13-3>3</a>
+</span><span class=lnt id=hl-13-4><a class=lnlinks href=#hl-13-4>4</a>
+</span><span class=lnt id=hl-13-5><a class=lnlinks href=#hl-13-5>5</a>
+</span><span class=lnt id=hl-13-6><a class=lnlinks href=#hl-13-6>6</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-java data-lang=java><span class=line><span class=cl><span class=n>NotificationCompat</span><span class=p>.</span><span class=na>Builder</span><span class=w> </span><span class=n>notificationBuilder</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=k>new</span><span class=w> </span><span class=n>NotificationCompat</span><span class=p>.</span><span class=na>Builder</span><span class=p>(</span><span class=k>this</span><span class=p>,</span><span class=w> </span><span class=n>channelId</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>.</span><span class=na>setContentTitle</span><span class=p>(</span><span class=n>title</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>.</span><span class=na>setContentText</span><span class=p>(</span><span class=n>body</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>.</span><span class=na>setSmallIcon</span><span class=p>(</span><span class=n>R</span><span class=p>.</span><span class=na>drawable</span><span class=p>.</span><span class=na>ic_notification</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>.</span><span class=na>setGroup</span><span class=p>(</span><span class=s>&#34;message_group&#34;</span><span class=p>)</span><span class=w> </span><span class=c1>// 그룹 키 설정</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>.</span><span class=na>setGroupSummary</span><span class=p>(</span><span class=n>isGroupSummary</span><span class=p>);</span><span class=w> </span><span class=c1>// 그룹 요약 알림 여부</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h4 id=조건부-메시지-전송>조건부 메시지 전송<a hidden class=anchor aria-hidden=true href=#조건부-메시지-전송>#</a></h4><p>복잡한 조건식을 사용하여 메시지 대상을 지정할 수 있다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-14-1><a class=lnlinks href=#hl-14-1> 1</a>
+</span><span class=lnt id=hl-14-2><a class=lnlinks href=#hl-14-2> 2</a>
+</span><span class=lnt id=hl-14-3><a class=lnlinks href=#hl-14-3> 3</a>
+</span><span class=lnt id=hl-14-4><a class=lnlinks href=#hl-14-4> 4</a>
+</span><span class=lnt id=hl-14-5><a class=lnlinks href=#hl-14-5> 5</a>
+</span><span class=lnt id=hl-14-6><a class=lnlinks href=#hl-14-6> 6</a>
+</span><span class=lnt id=hl-14-7><a class=lnlinks href=#hl-14-7> 7</a>
+</span><span class=lnt id=hl-14-8><a class=lnlinks href=#hl-14-8> 8</a>
+</span><span class=lnt id=hl-14-9><a class=lnlinks href=#hl-14-9> 9</a>
+</span><span class=lnt id=hl-14-10><a class=lnlinks href=#hl-14-10>10</a>
+</span><span class=lnt id=hl-14-11><a class=lnlinks href=#hl-14-11>11</a>
+</span><span class=lnt id=hl-14-12><a class=lnlinks href=#hl-14-12>12</a>
+</span><span class=lnt id=hl-14-13><a class=lnlinks href=#hl-14-13>13</a>
+</span><span class=lnt id=hl-14-14><a class=lnlinks href=#hl-14-14>14</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=kr>const</span> <span class=nx>condition</span> <span class=o>=</span> <span class=s2>&#34;&#39;premium&#39; in topics &amp;&amp; (&#39;android&#39; in topics || &#39;ios&#39; in topics)&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>admin</span><span class=p>.</span><span class=nx>messaging</span><span class=p>().</span><span class=nx>sendToCondition</span><span class=p>(</span><span class=nx>condition</span><span class=p>,</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>notification</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>title</span><span class=o>:</span> <span class=s1>&#39;프리미엄 사용자 알림&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>body</span><span class=o>:</span> <span class=s1>&#39;새로운 프리미엄 기능이 출시되었습니다.&#39;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>})</span>
+</span></span><span class=line><span class=cl><span class=p>.</span><span class=nx>then</span><span class=p>((</span><span class=nx>response</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;조건부 메시지 전송 성공:&#39;</span><span class=p>,</span> <span class=nx>response</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>})</span>
+</span></span><span class=line><span class=cl><span class=p>.</span><span class=k>catch</span><span class=p>((</span><span class=nx>error</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;조건부 메시지 전송 실패:&#39;</span><span class=p>,</span> <span class=nx>error</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=fcm-활용-사례>FCM 활용 사례<a hidden class=anchor aria-hidden=true href=#fcm-활용-사례>#</a></h3><h4 id=마케팅-캠페인>마케팅 캠페인<a hidden class=anchor aria-hidden=true href=#마케팅-캠페인>#</a></h4><p>사용자 세그먼트별로 타겟팅된 프로모션 메시지를 전송할 수 있다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-15-1><a class=lnlinks href=#hl-15-1> 1</a>
+</span><span class=lnt id=hl-15-2><a class=lnlinks href=#hl-15-2> 2</a>
+</span><span class=lnt id=hl-15-3><a class=lnlinks href=#hl-15-3> 3</a>
+</span><span class=lnt id=hl-15-4><a class=lnlinks href=#hl-15-4> 4</a>
+</span><span class=lnt id=hl-15-5><a class=lnlinks href=#hl-15-5> 5</a>
+</span><span class=lnt id=hl-15-6><a class=lnlinks href=#hl-15-6> 6</a>
+</span><span class=lnt id=hl-15-7><a class=lnlinks href=#hl-15-7> 7</a>
+</span><span class=lnt id=hl-15-8><a class=lnlinks href=#hl-15-8> 8</a>
+</span><span class=lnt id=hl-15-9><a class=lnlinks href=#hl-15-9> 9</a>
+</span><span class=lnt id=hl-15-10><a class=lnlinks href=#hl-15-10>10</a>
+</span><span class=lnt id=hl-15-11><a class=lnlinks href=#hl-15-11>11</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 최근 1주일간 앱을 사용하지 않은 사용자에게 메시지 전송
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>admin</span><span class=p>.</span><span class=nx>messaging</span><span class=p>().</span><span class=nx>sendToTopic</span><span class=p>(</span><span class=s1>&#39;inactive_users&#39;</span><span class=p>,</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>notification</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>title</span><span class=o>:</span> <span class=s1>&#39;돌아오세요!&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>body</span><span class=o>:</span> <span class=s1>&#39;놓치고 있는 새로운 기능들이 있습니다.&#39;</span>
+</span></span><span class=line><span class=cl>  <span class=p>},</span>
+</span></span><span class=line><span class=cl>  <span class=nx>data</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>offer_id</span><span class=o>:</span> <span class=s1>&#39;comeback_discount&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>discount</span><span class=o>:</span> <span class=s1>&#39;15%&#39;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=실시간-업데이트>실시간 업데이트<a hidden class=anchor aria-hidden=true href=#실시간-업데이트>#</a></h4><p>뉴스 앱, 스포츠 스코어, 주식 가격 등의 실시간 업데이트를 제공할 수 있다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-16-1><a class=lnlinks href=#hl-16-1> 1</a>
+</span><span class=lnt id=hl-16-2><a class=lnlinks href=#hl-16-2> 2</a>
+</span><span class=lnt id=hl-16-3><a class=lnlinks href=#hl-16-3> 3</a>
+</span><span class=lnt id=hl-16-4><a class=lnlinks href=#hl-16-4> 4</a>
+</span><span class=lnt id=hl-16-5><a class=lnlinks href=#hl-16-5> 5</a>
+</span><span class=lnt id=hl-16-6><a class=lnlinks href=#hl-16-6> 6</a>
+</span><span class=lnt id=hl-16-7><a class=lnlinks href=#hl-16-7> 7</a>
+</span><span class=lnt id=hl-16-8><a class=lnlinks href=#hl-16-8> 8</a>
+</span><span class=lnt id=hl-16-9><a class=lnlinks href=#hl-16-9> 9</a>
+</span><span class=lnt id=hl-16-10><a class=lnlinks href=#hl-16-10>10</a>
+</span><span class=lnt id=hl-16-11><a class=lnlinks href=#hl-16-11>11</a>
+</span><span class=lnt id=hl-16-12><a class=lnlinks href=#hl-16-12>12</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 스포츠 경기 스코어 업데이트
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>admin</span><span class=p>.</span><span class=nx>messaging</span><span class=p>().</span><span class=nx>sendToTopic</span><span class=p>(</span><span class=s1>&#39;football_match_123&#39;</span><span class=p>,</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>notification</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>title</span><span class=o>:</span> <span class=s1>&#39;골! 대한민국 2-1 일본&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>body</span><span class=o>:</span> <span class=s1>&#39;손흥민 선수의 결승골로 2-1 역전승!&#39;</span>
+</span></span><span class=line><span class=cl>  <span class=p>},</span>
+</span></span><span class=line><span class=cl>  <span class=nx>data</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>match_id</span><span class=o>:</span> <span class=s1>&#39;123&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>time</span><span class=o>:</span> <span class=s1>&#39;87분&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>scorer</span><span class=o>:</span> <span class=s1>&#39;손흥민&#39;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=사용자-참여-유도>사용자 참여 유도<a hidden class=anchor aria-hidden=true href=#사용자-참여-유도>#</a></h4><p>사용자 참여를 유도하는 맞춤형 메시지를 보낼 수 있다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-17-1><a class=lnlinks href=#hl-17-1> 1</a>
+</span><span class=lnt id=hl-17-2><a class=lnlinks href=#hl-17-2> 2</a>
+</span><span class=lnt id=hl-17-3><a class=lnlinks href=#hl-17-3> 3</a>
+</span><span class=lnt id=hl-17-4><a class=lnlinks href=#hl-17-4> 4</a>
+</span><span class=lnt id=hl-17-5><a class=lnlinks href=#hl-17-5> 5</a>
+</span><span class=lnt id=hl-17-6><a class=lnlinks href=#hl-17-6> 6</a>
+</span><span class=lnt id=hl-17-7><a class=lnlinks href=#hl-17-7> 7</a>
+</span><span class=lnt id=hl-17-8><a class=lnlinks href=#hl-17-8> 8</a>
+</span><span class=lnt id=hl-17-9><a class=lnlinks href=#hl-17-9> 9</a>
+</span><span class=lnt id=hl-17-10><a class=lnlinks href=#hl-17-10>10</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 앱 사용이 저조한 사용자 재참여 유도
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>admin</span><span class=p>.</span><span class=nx>messaging</span><span class=p>().</span><span class=nx>sendToTopic</span><span class=p>(</span><span class=s1>&#39;low_engagement&#39;</span><span class=p>,</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>notification</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>title</span><span class=o>:</span> <span class=s1>&#39;새로운 활동이 당신을 기다리고 있어요&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>body</span><span class=o>:</span> <span class=s1>&#39;친구들이 당신의 소식을 기다리고 있습니다.&#39;</span>
+</span></span><span class=line><span class=cl>  <span class=p>},</span>
+</span></span><span class=line><span class=cl>  <span class=nx>data</span><span class=o>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>action</span><span class=o>:</span> <span class=s1>&#39;open_friends_list&#39;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=fcm-문제-해결과-모범-사례>FCM 문제 해결과 모범 사례<a hidden class=anchor aria-hidden=true href=#fcm-문제-해결과-모범-사례>#</a></h3><ul><li>일반적인 문제와 해결 방법</li></ul><ol><li><strong>토큰 만료</strong>: 클라이언트 토큰은 주기적으로 갱신될 수 있으므로, 서버에서 최신 토큰을 유지해야 한다.</li><li><strong>메시지 전송 실패</strong>: 잘못된 토큰, 초과된 메시지 크기, 네트워크 문제 등으로 발생할 수 있다.</li><li><strong>iOS 알림 표시 문제</strong>: APNS 인증서 설정과 백그라운드 모드 설정을 확인해야 한다.</li></ol><ul><li>성능 최적화</li></ul><ol><li><strong>배치 처리</strong>: 여러 메시지를 단일 요청으로 묶어 전송</li><li><strong>주제 활용</strong>: 유사한 대상에게는 개별 메시지보다 주제 메시지 사용</li><li><strong>토큰 관리</strong>: 주기적으로 토큰 유효성 검사 및 정리</li></ol><ul><li>보안 강화</li></ul><ol><li><strong>API 키 보호</strong>: FCM 서버 키는 안전하게 보관하고 클라이언트에 노출시키지 않기</li><li><strong>메시지 인증</strong>: 신뢰할 수 있는 서버에서만 메시지 전송</li><li><strong>민감한 정보 제한</strong>: 푸시 알림에 민감한 개인 정보 포함하지 않기</li></ol><h3 id=fcm의-미래와-최신-트렌드>FCM의 미래와 최신 트렌드<a hidden class=anchor aria-hidden=true href=#fcm의-미래와-최신-트렌드>#</a></h3><ol><li>최근 업데이트 및 개선사항</li><li><strong>FCM HTTP v1 API</strong>: 레거시 HTTP API를 대체하는 새로운 API</li><li><strong>Web Push 표준 지원 강화</strong>: 웹 푸시 표준과의 호환성 개선</li><li><strong>분석 기능 강화</strong>: 메시지 전송 및 사용자 참여 분석 도구 개선</li><li>향후 전망</li><li><strong>AI 기반 메시징</strong>: 사용자 행동 분석을 통한 지능형 푸시 알림</li><li><strong>개인정보 보호 강화</strong>: 사용자 데이터 보호를 위한 기능 확대</li><li><strong>크로스 플랫폼 통합 강화</strong>: 다양한 플랫폼에서의 일관된 경험 제공</li></ol><hr><h2 id=용어-정리>용어 정리<a hidden class=anchor aria-hidden=true href=#용어-정리>#</a></h2><table><thead><tr><th>용어</th><th>설명</th></tr></thead><tbody><tr><td></td><td></td></tr></tbody></table><hr><h2 id=참고-및-출처>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처>#</a></h2><ul><li><a href=https://firebase.google.com/docs/cloud-messaging>Firebase Cloud Messaging 공식 문서</a></li><li><a href=https://firebase.google.com/docs/cloud-messaging/architecture>공식 FCM 아키텍처 개요</a></li></ul><hr></div></main><footer class=footer><span>&copy; 2025 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>
