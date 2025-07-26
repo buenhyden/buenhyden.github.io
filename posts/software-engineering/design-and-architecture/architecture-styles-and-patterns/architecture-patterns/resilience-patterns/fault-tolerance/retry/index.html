@@ -1,0 +1,776 @@
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Retry Pattern | hyunyoun's Blog</title><meta name=keywords content="System-and-Software-Architecture,MSA-Patterns,Reliability,Retry-Pattern"><meta name=description content="Retry Pattern은 일시적인 오류가 발생했을 때 동일한 작업을 자동으로 재시도하여 시스템의 안정성과 신뢰성을 향상시키는 패턴이다."><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/software-engineering/design-and-architecture/architecture-styles-and-patterns/architecture-patterns/resilience-patterns/fault-tolerance/retry/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.a9863521b3bd3c240bc506f46b95e3c06ccef2ae37f529d5f99bdaef442bccce.css integrity="sha256-qYY1IbO9PCQLxQb0a5XjwGzO8q439SnV+Zva70QrzM4=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate type=application/rss+xml href=https://buenhyden.github.io/posts/software-engineering/design-and-architecture/architecture-styles-and-patterns/architecture-patterns/resilience-patterns/fault-tolerance/retry/index.xml><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/software-engineering/design-and-architecture/architecture-styles-and-patterns/architecture-patterns/resilience-patterns/fault-tolerance/retry/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/software-engineering/design-and-architecture/architecture-styles-and-patterns/architecture-patterns/resilience-patterns/fault-tolerance/retry/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="Retry Pattern"><meta property="og:description" content="Retry Pattern은 일시적인 오류가 발생했을 때 동일한 작업을 자동으로 재시도하여 시스템의 안정성과 신뢰성을 향상시키는 패턴이다."><meta property="og:locale" content="en"><meta property="og:type" content="website"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="Retry Pattern"><meta name=twitter:description content="Retry Pattern은 일시적인 오류가 발생했을 때 동일한 작업을 자동으로 재시도하여 시스템의 안정성과 신뢰성을 향상시키는 패턴이다."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Retry Pattern","item":"https://buenhyden.github.io/posts/software-engineering/design-and-architecture/architecture-styles-and-patterns/architecture-patterns/resilience-patterns/fault-tolerance/retry/"}]}</script></head><body class=list id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><header class=page-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a></div><h1>Retry Pattern</h1><div class=post-description>Retry Pattern은 일시적인 오류가 발생했을 때 동일한 작업을 자동으로 재시도하여 시스템의 안정성과 신뢰성을 향상시키는 패턴이다.</div></header><div class=post-content><h2 id=retry-pattern>Retry Pattern<a hidden class=anchor aria-hidden=true href=#retry-pattern>#</a></h2><p>아래는 &ldquo;Retry Pattern(재시도 패턴)&rdquo; 에 대한 체계적이고 심층적인 조사, 분석, 정리입니다.</p><hr><h2 id=1-태그-tag>1. 태그 (Tag)<a hidden class=anchor aria-hidden=true href=#1-태그-tag>#</a></h2><ul><li><strong>Resilience-Pattern</strong></li><li><strong>Fault-Tolerance</strong></li><li><strong>Recovery-Pattern</strong></li><li><strong>Distributed-Systems</strong></li></ul><hr><h2 id=2-분류-구조-적합성-분석>2. 분류 구조 적합성 분석<a hidden class=anchor aria-hidden=true href=#2-분류-구조-적합성-분석>#</a></h2><p><strong>현재 분류 구조</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-0-1><a class=lnlinks href=#hl-0-1>1</a>
+</span><span class=lnt id=hl-0-2><a class=lnlinks href=#hl-0-2>2</a>
+</span><span class=lnt id=hl-0-3><a class=lnlinks href=#hl-0-3>3</a>
+</span><span class=lnt id=hl-0-4><a class=lnlinks href=#hl-0-4>4</a>
+</span><span class=lnt id=hl-0-5><a class=lnlinks href=#hl-0-5>5</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>Computer Science and Engineering
+</span></span><span class=line><span class=cl>└─ Software Engineering
+</span></span><span class=line><span class=cl>   └─ Design and Architecture
+</span></span><span class=line><span class=cl>      └─ Architecture Patterns
+</span></span><span class=line><span class=cl>         └─ Resilience Patterns
+</span></span></code></pre></td></tr></table></div></div><p><strong>분석 및 근거</strong><br>Retry Pattern 은 시스템의 내결함성 (Resilience) 과 신뢰성을 높이기 위해 일시적 장애 (예: 네트워크 지연, 서비스 일시 불능 등) 발생 시 작업을 자동으로 재시도하는 설계 패턴입니다.<br>이 패턴은 &ldquo;Architecture Patterns > Resilience Patterns&rdquo; 에 포함되어야 하며, &ldquo;Software Engineering > Design and Architecture&rdquo; 계층 아래에 위치하는 것이 적절합니다.<br>따라서, 현재 분류 구조는 주제의 특성과 실무적 중요성 모두를 반영하고 있습니다.</p><hr><h2 id=3-요약-200-자-내외>3. 요약 (200 자 내외)<a hidden class=anchor aria-hidden=true href=#3-요약-200-자-내외>#</a></h2><p>Retry Pattern 은 외부 서비스 호출 등에서 일시적 장애가 발생할 때, 작업을 자동으로 여러 번 재시도하여 성공 가능성을 높이고 시스템의 신뢰성을 확보하는 내결함성 설계 패턴입니다.</p><hr><h2 id=4-개요-250-자-내외>4. 개요 (250 자 내외)<a hidden class=anchor aria-hidden=true href=#4-개요-250-자-내외>#</a></h2><p>Retry Pattern 은 네트워크 호출, 데이터베이스 쿼리 등 외부 시스템과의 통신에서 일시적 장애 발생 시, 작업을 정해진 횟수 또는 조건 내에서 자동으로 재시도하여 성공 확률을 높이고, 시스템의 신뢰성과 가용성을 향상시키는 내결함성 및 회복력 패턴입니다.</p><hr><h2 id=5-핵심-개념>5. 핵심 개념<a hidden class=anchor aria-hidden=true href=#5-핵심-개념>#</a></h2><ul><li><strong>정의 및 목적</strong><ul><li>Retry Pattern 은 작업이 실패했을 때, 일정 횟수 또는 조건 내에서 자동으로 재시도하여 성공 가능성을 높이는 패턴입니다.</li><li>목적은 일시적 장애 (예: 네트워크 지연, 서비스 일시 불능 등) 상황에서 시스템의 신뢰성과 가용성을 확보하는 것입니다.</li></ul></li><li><strong>실무 연관성</strong><ul><li>실무에서는 외부 API 호출, 데이터베이스 쿼리, 파일 I/O 등 다양한 작업에 적용됩니다.</li><li>내결함성, 신뢰성, 서비스 품질 향상에 필수적인 요소로 작용합니다.</li></ul></li></ul><hr><h2 id=6-세부-조사-내용>6. 세부 조사 내용<a hidden class=anchor aria-hidden=true href=#6-세부-조사-내용>#</a></h2><h3 id=배경>배경<a hidden class=anchor aria-hidden=true href=#배경>#</a></h3><ul><li><strong>분산 시스템의 복잡성 증가</strong><ul><li>여러 서비스가 상호작용하는 환경에서 네트워크 지연, 서비스 장애 등 예측 불가능한 상황이 빈번히 발생합니다.</li></ul></li><li><strong>일시적 장애의 빈번한 발생</strong><ul><li>네트워크 일시 불안정, 서비스 일시 과부하 등 일시적 장애는 자주 발생하며, 재시도로 해결 가능한 경우가 많습니다.</li></ul></li></ul><h3 id=목적-및-필요성>목적 및 필요성<a hidden class=anchor aria-hidden=true href=#목적-및-필요성>#</a></h3><ul><li><strong>일시적 장애 극복</strong><ul><li>일시적 장애 발생 시 자동으로 재시도하여 성공 확률을 높입니다.</li></ul></li><li><strong>신뢰성 및 가용성 향상</strong><ul><li>시스템의 신뢰성과 가용성을 높여 사용자 경험을 개선합니다.</li></ul></li><li><strong>자동화 및 효율성</strong><ul><li>수동 개입 없이 자동으로 재시도하여 운영 효율성을 높입니다.</li></ul></li></ul><h3 id=주요-기능-및-역할>주요 기능 및 역할<a hidden class=anchor aria-hidden=true href=#주요-기능-및-역할>#</a></h3><ul><li><strong>자동 재시도</strong><ul><li>작업이 실패했을 때 자동으로 재시도합니다.</li></ul></li><li><strong>재시도 정책 관리</strong><ul><li>재시도 횟수, 간격, 조건 등을 관리합니다.</li></ul></li><li><strong>실패 처리</strong><ul><li>재시도 후에도 실패 시 적절한 실패 처리를 수행합니다.</li></ul></li></ul><h3 id=특징>특징<a hidden class=anchor aria-hidden=true href=#특징>#</a></h3><ul><li><strong>일시적 장애에 특화</strong><ul><li>일시적 장애에 대한 회복력에 특화되어 있습니다.</li></ul></li><li><strong>정책 기반</strong><ul><li>재시도 횟수, 간격, 조건 등 다양한 정책을 설정할 수 있습니다.</li></ul></li><li><strong>확장성</strong><ul><li>다양한 작업 유형에 적용 가능합니다.</li></ul></li></ul><h3 id=핵심-원칙>핵심 원칙<a hidden class=anchor aria-hidden=true href=#핵심-원칙>#</a></h3><ul><li><strong>Fail Fast and Recover(빠른 실패와 회복)</strong><ul><li>장애 발생 시 빠르게 인지하고, 재시도로 회복을 시도합니다.</li></ul></li><li><strong>Graceful Degradation(우아한 성능 저하)</strong><ul><li>장애 발생 시 핵심 기능은 유지하면서 일부 기능만 저하시키는 방식으로 동작합니다.</li></ul></li><li><strong>Resource Management(자원 관리)</strong><ul><li>재시도로 인한 자원 낭비를 최소화합니다.</li></ul></li></ul><h3 id=주요-원리-및-작동-원리>주요 원리 및 작동 원리<a hidden class=anchor aria-hidden=true href=#주요-원리-및-작동-원리>#</a></h3><p><strong>다이어그램 (Text)</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-1-1><a class=lnlinks href=#hl-1-1> 1</a>
+</span><span class=lnt id=hl-1-2><a class=lnlinks href=#hl-1-2> 2</a>
+</span><span class=lnt id=hl-1-3><a class=lnlinks href=#hl-1-3> 3</a>
+</span><span class=lnt id=hl-1-4><a class=lnlinks href=#hl-1-4> 4</a>
+</span><span class=lnt id=hl-1-5><a class=lnlinks href=#hl-1-5> 5</a>
+</span><span class=lnt id=hl-1-6><a class=lnlinks href=#hl-1-6> 6</a>
+</span><span class=lnt id=hl-1-7><a class=lnlinks href=#hl-1-7> 7</a>
+</span><span class=lnt id=hl-1-8><a class=lnlinks href=#hl-1-8> 8</a>
+</span><span class=lnt id=hl-1-9><a class=lnlinks href=#hl-1-9> 9</a>
+</span><span class=lnt id=hl-1-10><a class=lnlinks href=#hl-1-10>10</a>
+</span><span class=lnt id=hl-1-11><a class=lnlinks href=#hl-1-11>11</a>
+</span><span class=lnt id=hl-1-12><a class=lnlinks href=#hl-1-12>12</a>
+</span><span class=lnt id=hl-1-13><a class=lnlinks href=#hl-1-13>13</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>sequenceDiagram
+</span></span><span class=line><span class=cl>    participant Client
+</span></span><span class=line><span class=cl>    participant Operation
+</span></span><span class=line><span class=cl>    participant RetryHandler
+</span></span><span class=line><span class=cl>    Client-&gt;&gt;Operation: Start Operation
+</span></span><span class=line><span class=cl>    Operation--xClient: Fail
+</span></span><span class=line><span class=cl>    Client-&gt;&gt;RetryHandler: Retry
+</span></span><span class=line><span class=cl>    RetryHandler-&gt;&gt;Operation: Retry Operation
+</span></span><span class=line><span class=cl>    alt Operation Succeeds
+</span></span><span class=line><span class=cl>        Operation--&gt;&gt;Client: Success
+</span></span><span class=line><span class=cl>    else Operation Fails
+</span></span><span class=line><span class=cl>        RetryHandler--&gt;&gt;Client: Fail After Max Retries
+</span></span><span class=line><span class=cl>    end
+</span></span></code></pre></td></tr></table></div></div><p><strong>설명</strong><br>클라이언트가 작업을 시작하고 실패 시, RetryHandler 가 정해진 횟수만큼 작업을 재시도합니다. 재시도 중 성공하면 결과를 반환하고, 모두 실패하면 최종 실패로 처리합니다.</p><h3 id=구조-및-아키텍처>구조 및 아키텍처<a hidden class=anchor aria-hidden=true href=#구조-및-아키텍처>#</a></h3><p><strong>구성 요소</strong></p><table><thead><tr><th>항목</th><th>기능 및 역할</th></tr></thead><tbody><tr><td>Client</td><td>작업을 시작하고 결과 또는 실패를 처리하는 주체</td></tr><tr><td>Operation</td><td>실제로 실행되는 작업 (예: 외부 API 호출, 데이터베이스 쿼리 등)</td></tr><tr><td>RetryHandler</td><td>작업의 실패 시 자동으로 재시도하는 역할</td></tr></tbody></table><p><strong>필수 구성요소</strong></p><ul><li><strong>Client</strong>: 작업을 시작하고 결과를 처리</li><li><strong>Operation</strong>: 실제 작업 수행</li><li><strong>RetryHandler</strong>: 재시도 관리 및 중단 처리</li></ul><p><strong>선택 구성요소</strong></p><ul><li><strong>Fallback Handler</strong>: 재시도 후에도 실패 시 대체 동작을 수행하는 핸들러</li><li><strong>Logging Module</strong>: 재시도 및 실패 시 로그 기록</li></ul><p><strong>구조 다이어그램 (Text)</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-2-1><a class=lnlinks href=#hl-2-1> 1</a>
+</span><span class=lnt id=hl-2-2><a class=lnlinks href=#hl-2-2> 2</a>
+</span><span class=lnt id=hl-2-3><a class=lnlinks href=#hl-2-3> 3</a>
+</span><span class=lnt id=hl-2-4><a class=lnlinks href=#hl-2-4> 4</a>
+</span><span class=lnt id=hl-2-5><a class=lnlinks href=#hl-2-5> 5</a>
+</span><span class=lnt id=hl-2-6><a class=lnlinks href=#hl-2-6> 6</a>
+</span><span class=lnt id=hl-2-7><a class=lnlinks href=#hl-2-7> 7</a>
+</span><span class=lnt id=hl-2-8><a class=lnlinks href=#hl-2-8> 8</a>
+</span><span class=lnt id=hl-2-9><a class=lnlinks href=#hl-2-9> 9</a>
+</span><span class=lnt id=hl-2-10><a class=lnlinks href=#hl-2-10>10</a>
+</span><span class=lnt id=hl-2-11><a class=lnlinks href=#hl-2-11>11</a>
+</span><span class=lnt id=hl-2-12><a class=lnlinks href=#hl-2-12>12</a>
+</span><span class=lnt id=hl-2-13><a class=lnlinks href=#hl-2-13>13</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>+---------------------+
+</span></span><span class=line><span class=cl>|      Client         |
+</span></span><span class=line><span class=cl>+----------+----------+
+</span></span><span class=line><span class=cl>           |
+</span></span><span class=line><span class=cl>           v
+</span></span><span class=line><span class=cl>+---------------------+
+</span></span><span class=line><span class=cl>|     Operation       |
+</span></span><span class=line><span class=cl>+----------+----------+
+</span></span><span class=line><span class=cl>           |
+</span></span><span class=line><span class=cl>           v
+</span></span><span class=line><span class=cl>+---------------------+
+</span></span><span class=line><span class=cl>|   RetryHandler      |
+</span></span><span class=line><span class=cl>+---------------------+
+</span></span></code></pre></td></tr></table></div></div><hr><h2 id=7-구현-기법>7. 구현 기법<a hidden class=anchor aria-hidden=true href=#7-구현-기법>#</a></h2><table><thead><tr><th>기법</th><th>정의 및 목적</th><th>예시 (시스템 구성, 시나리오)</th></tr></thead><tbody><tr><td>Fixed Retry</td><td>고정된 횟수만큼 재시도</td><td>외부 API 호출 시 3 회 재시도</td></tr><tr><td>Exponential Backoff</td><td>재시도 간격을 점점 늘려서 재시도</td><td>네트워크 장애 시 1 초, 2 초, 4 초 등으로 간격을 늘려 재시도</td></tr><tr><td>Circuit Breaker</td><td>재시도 횟수 초과 시 일정 시간 동안 요청 차단</td><td>재시도 5 회 실패 시 30 초간 요청 차단</td></tr><tr><td>Jitter</td><td>재시도 간격에 랜덤값을 추가하여 동시 재시도 분산</td><td>분산 환경에서 동시 재시도로 인한 부하 분산</td></tr></tbody></table><hr><h2 id=8-장점>8. 장점<a hidden class=anchor aria-hidden=true href=#8-장점>#</a></h2><table><thead><tr><th>구분</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>장점</td><td>신뢰성 향상</td><td>일시적 장애 시 자동 재시도로 성공 확률을 높여 시스템 신뢰성 향상</td></tr><tr><td></td><td>가용성 향상</td><td>장애 발생 시에도 서비스가 지속적으로 제공될 수 있도록 가용성 향상</td></tr><tr><td></td><td>자동화</td><td>수동 개입 없이 자동으로 재시도하여 운영 효율성 향상</td></tr><tr><td></td><td>확장성</td><td>다양한 작업 유형에 적용 가능하여 시스템 확장성 향상</td></tr></tbody></table><hr><h2 id=9-단점과-문제점-그리고-해결방안>9. 단점과 문제점 그리고 해결방안<a hidden class=anchor aria-hidden=true href=#9-단점과-문제점-그리고-해결방안>#</a></h2><h3 id=단점>단점<a hidden class=anchor aria-hidden=true href=#단점>#</a></h3><table><thead><tr><th>구분</th><th>항목</th><th>설명</th><th>해결책</th></tr></thead><tbody><tr><td>단점</td><td>자원 소모</td><td>재시도로 인한 자원 (스레드, 메모리 등) 소모 가능</td><td>재시도 횟수 및 간격 조정</td></tr><tr><td></td><td>지연 증가</td><td>재시도로 인한 전체 처리 지연 증가 가능</td><td>적절한 재시도 정책 설정</td></tr></tbody></table><h3 id=문제점>문제점<a hidden class=anchor aria-hidden=true href=#문제점>#</a></h3><table><thead><tr><th>구분</th><th>항목</th><th>원인</th><th>영향</th><th>탐지 및 진단</th><th>예방 방법</th><th>해결 방법 및 기법</th></tr></thead><tbody><tr><td>문제점</td><td>재시도 폭주</td><td>동시 다량 재시도</td><td>시스템 과부하</td><td>모니터링, 로그</td><td>Jitter 적용, Circuit Breaker</td><td>Jitter, Circuit Breaker</td></tr><tr><td></td><td>영구적 장애 미인식</td><td>영구적 장애 시에도 재시도</td><td>자원 고갈</td><td>로그, 모니터링</td><td>장애 유형 구분</td><td>Circuit Breaker 적용</td></tr></tbody></table><hr><h2 id=10-도전-과제>10. 도전 과제<a hidden class=anchor aria-hidden=true href=#10-도전-과제>#</a></h2><table><thead><tr><th>과제</th><th>원인</th><th>영향</th><th>탐지 및 진단</th><th>예방 방법</th><th>해결 방법 및 기법</th></tr></thead><tbody><tr><td>동적 재시도 정책</td><td>환경 변화</td><td>불필요한 재시도</td><td>모니터링, 로그</td><td>동적 재시도 정책 적용</td><td>머신러닝, 통계 기반 적용</td></tr><tr><td>장애 유형 구분</td><td>장애 유형 다양</td><td>영구적 장애 미인식</td><td>로그, 모니터링</td><td>장애 유형 분류</td><td>Circuit Breaker 적용</td></tr></tbody></table><hr><h2 id=11-분류-기준에-따른-종류-및-유형>11. 분류 기준에 따른 종류 및 유형<a hidden class=anchor aria-hidden=true href=#11-분류-기준에-따른-종류-및-유형>#</a></h2><table><thead><tr><th>기준</th><th>유형</th><th>설명</th></tr></thead><tbody><tr><td>재시도 방식</td><td>Fixed Retry</td><td>고정된 횟수만큼 재시도</td></tr><tr><td></td><td>Exponential Backoff</td><td>재시도 간격을 점점 늘려서 재시도</td></tr><tr><td></td><td>Jitter</td><td>재시도 간격에 랜덤값을 추가하여 동시 재시도 분산</td></tr><tr><td>적용 대상</td><td>네트워크 호출</td><td>외부 API, 서비스 호출 시 적용</td></tr><tr><td></td><td>데이터베이스 쿼리</td><td>데이터베이스 쿼리 시 적용</td></tr><tr><td></td><td>파일 I/O</td><td>파일 읽기/쓰기 시 적용</td></tr></tbody></table><hr><h2 id=12-실무-사용-예시>12. 실무 사용 예시<a hidden class=anchor aria-hidden=true href=#12-실무-사용-예시>#</a></h2><table><thead><tr><th>사용 예시</th><th>목적</th><th>효과</th></tr></thead><tbody><tr><td>외부 API 호출</td><td>일시적 장애 극복</td><td>서비스 신뢰성 향상</td></tr><tr><td>데이터베이스 쿼리</td><td>일시적 장애 극복</td><td>데이터 가용성 향상</td></tr><tr><td>파일 I/O</td><td>일시적 장애 극복</td><td>파일 접근성 향상</td></tr></tbody></table><hr><h2 id=13-활용-사례>13. 활용 사례<a hidden class=anchor aria-hidden=true href=#13-활용-사례>#</a></h2><p><strong>사례: 온라인 결제 서비스</strong></p><ul><li><strong>시스템 구성</strong><ul><li>결제 서비스 → 외부 결제 게이트웨이 호출</li></ul></li><li><strong>Workflow</strong><ol><li>결제 요청 발생</li><li>결제 서비스가 결제 게이트웨이 호출</li><li>호출 실패 시 3 회 재시도 (Exponential Backoff 적용)</li><li>재시도 후에도 실패 시 결제 실패 처리 및 사용자에게 안내</li></ol></li><li><strong>Retry Pattern 의 역할</strong><ul><li>결제 게이트웨이 일시적 장애 시 자동 재시도로 결제 성공 확률 향상</li><li>결제 서비스의 신뢰성 및 사용자 경험 향상</li></ul></li><li><strong>유무에 따른 차이</strong><ul><li>Retry Pattern 미적용 시: 일시적 장애로 인한 결제 실패 증가</li><li>Retry Pattern 적용 시: 일시적 장애 극복으로 결제 성공률 및 신뢰성 향상</li></ul></li></ul><hr><h2 id=14-구현-예시>14. 구현 예시<a hidden class=anchor aria-hidden=true href=#14-구현-예시>#</a></h2><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-3-1><a class=lnlinks href=#hl-3-1> 1</a>
+</span><span class=lnt id=hl-3-2><a class=lnlinks href=#hl-3-2> 2</a>
+</span><span class=lnt id=hl-3-3><a class=lnlinks href=#hl-3-3> 3</a>
+</span><span class=lnt id=hl-3-4><a class=lnlinks href=#hl-3-4> 4</a>
+</span><span class=lnt id=hl-3-5><a class=lnlinks href=#hl-3-5> 5</a>
+</span><span class=lnt id=hl-3-6><a class=lnlinks href=#hl-3-6> 6</a>
+</span><span class=lnt id=hl-3-7><a class=lnlinks href=#hl-3-7> 7</a>
+</span><span class=lnt id=hl-3-8><a class=lnlinks href=#hl-3-8> 8</a>
+</span><span class=lnt id=hl-3-9><a class=lnlinks href=#hl-3-9> 9</a>
+</span><span class=lnt id=hl-3-10><a class=lnlinks href=#hl-3-10>10</a>
+</span><span class=lnt id=hl-3-11><a class=lnlinks href=#hl-3-11>11</a>
+</span><span class=lnt id=hl-3-12><a class=lnlinks href=#hl-3-12>12</a>
+</span><span class=lnt id=hl-3-13><a class=lnlinks href=#hl-3-13>13</a>
+</span><span class=lnt id=hl-3-14><a class=lnlinks href=#hl-3-14>14</a>
+</span><span class=lnt id=hl-3-15><a class=lnlinks href=#hl-3-15>15</a>
+</span><span class=lnt id=hl-3-16><a class=lnlinks href=#hl-3-16>16</a>
+</span><span class=lnt id=hl-3-17><a class=lnlinks href=#hl-3-17>17</a>
+</span><span class=lnt id=hl-3-18><a class=lnlinks href=#hl-3-18>18</a>
+</span><span class=lnt id=hl-3-19><a class=lnlinks href=#hl-3-19>19</a>
+</span><span class=lnt id=hl-3-20><a class=lnlinks href=#hl-3-20>20</a>
+</span><span class=lnt id=hl-3-21><a class=lnlinks href=#hl-3-21>21</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// Retry Pattern 구현 예시 (JavaScript)
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>async</span> <span class=kd>function</span> <span class=nx>retryOperation</span><span class=p>(</span><span class=nx>operation</span><span class=p>,</span> <span class=nx>maxRetries</span> <span class=o>=</span> <span class=mi>3</span><span class=p>,</span> <span class=nx>delay</span> <span class=o>=</span> <span class=mi>1000</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=kd>let</span> <span class=nx>retryCount</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=k>while</span> <span class=p>(</span><span class=nx>retryCount</span>  <span class=nx>setTimeout</span><span class=p>(</span><span class=nx>resolve</span><span class=p>,</span> <span class=nx>delay</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>      <span class=nx>delay</span> <span class=o>*=</span> <span class=mi>2</span><span class=p>;</span> <span class=c1>// Exponential Backoff
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 사용 예시
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>async</span> <span class=kd>function</span> <span class=nx>fetchUserData</span><span class=p>(</span><span class=nx>userId</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=k>try</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kr>const</span> <span class=nx>response</span> <span class=o>=</span> <span class=kr>await</span> <span class=nx>retryOperation</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>      <span class=p>()</span> <span class=p>=&gt;</span> <span class=nx>fetch</span><span class=p>(</span><span class=sb>`/api/users/</span><span class=si>${</span><span class=nx>userId</span><span class=si>}</span><span class=sb>`</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>      <span class=mi>3</span><span class=p>,</span> <span class=mi>1000</span>
+</span></span><span class=line><span class=cl>    <span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=kr>await</span> <span class=nx>response</span><span class=p>.</span><span class=nx>json</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span> <span class=k>catch</span> <span class=p>(</span><span class=nx>error</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=p>{</span> <span class=nx>id</span><span class=o>:</span> <span class=nx>userId</span><span class=p>,</span> <span class=nx>name</span><span class=o>:</span> <span class=s1>&#39;Default User&#39;</span> <span class=p>};</span> <span class=c1>// Fallback
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><hr><h2 id=15-실무에서-효과적으로-적용하기-위한-고려사항-및-주의할-점>15. 실무에서 효과적으로 적용하기 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#15-실무에서-효과적으로-적용하기-위한-고려사항-및-주의할-점>#</a></h2><table><thead><tr><th>항목</th><th>설명</th><th>권장사항</th></tr></thead><tbody><tr><td>재시도 정책 설정</td><td>환경, 네트워크 상황에 맞는 재시도 횟수, 간격 설정</td><td>모니터링, 튜닝</td></tr><tr><td>장애 유형 구분</td><td>일시적 장애와 영구적 장애 구분</td><td>Circuit Breaker 적용</td></tr><tr><td>자원 관리</td><td>재시도로 인한 자원 낭비 최소화</td><td>적절한 재시도 정책 설정</td></tr><tr><td>로깅 및 모니터링</td><td>재시도 및 실패 시 로그, 메트릭 수집</td><td>로그, 메트릭 수집</td></tr></tbody></table><hr><h2 id=16-최적화하기-위한-고려사항-및-주의할-점>16. 최적화하기 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#16-최적화하기-위한-고려사항-및-주의할-점>#</a></h2><table><thead><tr><th>항목</th><th>설명</th><th>권장사항</th></tr></thead><tbody><tr><td>동적 재시도 정책</td><td>시스템 상태, 네트워크 상황에 따라 재시도 정책 자동 조정</td><td>동적 재시도 알고리즘</td></tr><tr><td>대체 동작 최적화</td><td>재시도 후에도 실패 시 대체 동작이 서비스 품질에 미치는 영향 최소화</td><td>대체 동작 품질 관리</td></tr><tr><td>부하 분산</td><td>동시 재시도로 인한 부하 분산</td><td>Jitter 적용</td></tr></tbody></table><hr><h2 id=17-주제와-관련하여-주목할-내용>17. 주제와 관련하여 주목할 내용<a hidden class=anchor aria-hidden=true href=#17-주제와-관련하여-주목할-내용>#</a></h2><table><thead><tr><th>카테고리</th><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>내결함성</td><td>Resilience</td><td>Retry Pattern</td><td>일시적 장애 시 자동 재시도로 신뢰성 향상</td></tr><tr><td>분산 시스템</td><td>Microservices</td><td>Fault Tolerance</td><td>서비스 간 통신 시 장애 대응 및 회복력 강화</td></tr><tr><td>비동기 처리</td><td>Async/Await</td><td>Retry Logic</td><td>비동기 작업에 재시도 로직 적용 예시</td></tr><tr><td>실무 적용</td><td>실무 예시</td><td>결제 서비스</td><td>외부 API 호출 시 재시도 적용으로 서비스 신뢰성 향상</td></tr></tbody></table><hr><h2 id=18-반드시-학습해야할-내용>18. 반드시 학습해야할 내용<a hidden class=anchor aria-hidden=true href=#18-반드시-학습해야할-내용>#</a></h2><table><thead><tr><th>카테고리</th><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>내결함성</td><td>Resilience Pattern</td><td>Circuit Breaker</td><td>재시도와 함께 사용되는 내결함성 패턴</td></tr><tr><td>분산 시스템</td><td>Microservices</td><td>Timeout Pattern</td><td>재시도와 함께 사용되는 타임아웃 패턴</td></tr><tr><td>비동기 처리</td><td>Async Programming</td><td>Promise, Async/Await</td><td>비동기 작업에 재시도 적용 방법</td></tr><tr><td>실무 적용</td><td>실무 예시</td><td>Fallback Pattern</td><td>재시도 후에도 실패 시 대체 동작 구현 방법</td></tr></tbody></table><hr><h2 id=용어-정리>용어 정리<a hidden class=anchor aria-hidden=true href=#용어-정리>#</a></h2><table><thead><tr><th>카테고리</th><th>용어</th><th>설명</th></tr></thead><tbody><tr><td>내결함성</td><td>Resilience</td><td>시스템이 장애 상황에서도 정상적으로 동작하는 능력</td></tr><tr><td>분산 시스템</td><td>Microservices</td><td>여러 서비스가 네트워크를 통해 상호작용하는 시스템 구조</td></tr><tr><td>비동기 처리</td><td>Promise</td><td>비동기 작업의 결과를 나타내는 객체</td></tr><tr><td>실무 적용</td><td>Fallback</td><td>장애 발생 시 대체 동작 또는 값을 제공하는 패턴</td></tr></tbody></table><hr><h2 id=참고-및-출처>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처>#</a></h2><ul><li><a href=https://www.codecentric.de/en/knowledge-hub/blog/resilience-design-patterns-retry-fallback-timeout-circuit-breaker>Resilience design patterns: retry, fallback, timeout, circuit breaker (codecentric.de)</a></li><li><a href=https://docs.microsoft.com/en-us/azure/architecture/patterns/retry>Retry Pattern (Microsoft Docs)</a></li><li><a href=https://dev.to/vipulkumarsviit/retry-pattern-in-microservices-3d4p>Retry Pattern (Retry Pattern in Microservices)</a></li><li><a href=https://www.vinsguru.com/retry-pattern/>Retry Pattern - Microservice Design Patterns (vinsguru.com)</a></li><li><a href=https://medium.com/@madhukaudantha/implementing-retry-pattern-with-exponential-backoff-using-net-core-88c3b9e8e4f3>Implementing Retry Pattern with Exponential Backoff (medium.com)</a></li></ul><hr><h2 id=최종-요약>최종 요약<a hidden class=anchor aria-hidden=true href=#최종-요약>#</a></h2><p>Retry Pattern 은 일시적 장애 발생 시 자동으로 작업을 재시도하여 시스템의 신뢰성과 가용성을 높이는 내결함성 설계 패턴입니다. 다양한 재시도 정책 (고정, 지수 백오프, 지터 등) 을 적용할 수 있으며, 실무에서는 외부 API 호출, 데이터베이스 쿼리 등 다양한 작업에 활용됩니다.<br>적절한 재시도 정책 설정과 장애 유형 구분, 자원 관리, 로깅 및 모니터링이 중요하며, Circuit Breaker, Timeout, Fallback 등과 함께 사용하면 더욱 효과적입니다.</p><p>아래는 <strong>Retry Pattern</strong>에 대한 초반 정리입니다. 요청하신 1~5 단계까지 구성했습니다. 이후 단계로 이어갈 준비가 완료되었습니다.</p><hr><h2 id=1-태그-tags>1. 태그 (Tags)<a hidden class=anchor aria-hidden=true href=#1-태그-tags>#</a></h2><p>Retry-Pattern<br>Resilience-Patterns<br>Backoff-Strategies<br>Distributed-Systems</p><hr><h2 id=2-분류-구조-적절성-검토>2. 분류 구조 적절성 검토<a hidden class=anchor aria-hidden=true href=#2-분류-구조-적절성-검토>#</a></h2><p>&ldquo;Retry Pattern&rdquo; 은 기존 구조의 <strong>Software Engineering > Design and Architecture > Architecture Patterns > Resilience Patterns</strong>에 매우 적합합니다.</p><ul><li><strong>근거</strong>: 외부 호출 실패에 자동으로 재시도함으로써 일시적 장애 (transient faults) 를 처리하고 시스템 내 회복력을 강화하는 대표적인 탄력성 패턴입니다. (<a href="https://learn.microsoft.com/en-us/azure/architecture/patterns/retry?utm_source=chatgpt.com" title="Retry pattern - Azure Architecture Center | Microsoft Learn">learn.microsoft.com</a>, <a href="https://www.geeksforgeeks.org/circuit-breaker-vs-retry-pattern/?utm_source=chatgpt.com" title="Circuit Breaker vs. Retry Pattern - GeeksforGeeks">geeksforgeeks.org</a>)</li></ul><hr><h2 id=3-요약-200-자-내외-1>3. 요약 (200 자 내외)<a hidden class=anchor aria-hidden=true href=#3-요약-200-자-내외-1>#</a></h2><p>Retry Pattern 은 외부 서비스 호출이나 데이터베이스 요청이 일시적 오류로 실패했을 때, 정해진 횟수만큼 재시도 (retry) 하여 성공 확률을 높이는 회복력 (resilience) 패턴입니다. 적절한 백오프 (backoff) 와 지터 (jitter) 전략과 결합하여 시스템 과부하를 방지하며, idempotency 와 연계해 안정적으로 구현됩니다.</p><hr><h2 id=4-개요-250-자-내외-1>4. 개요 (250 자 내외)<a hidden class=anchor aria-hidden=true href=#4-개요-250-자-내외-1>#</a></h2><p>Retry Pattern 은 분산 시스템이나 클라우드 환경에서 빈번히 발생하는 일시적 네트워크 오류, 타임아웃, 과부하 상황을 완화하기 위한 방어 패턴입니다. 실패한 작업을 고정 간격, 선형 또는 지수적 (backoff) 지연을 두고 재시도하며, jitter 를 추가해 재시도 요청이 한꺼번에 몰리는 &lsquo;retry storm&rsquo; 을 방지합니다. 구성 요소로는 retry policy, backoff 전략, retry handler, fallback/로그 인터셉터 등이 있으며, Circuit Breaker, Timeout Pattern 등 다른 resilience 패턴과 조합되어 전체 시스템 안정성을 강화합니다. (<a href="https://www.geeksforgeeks.org/system-design/retry-pattern-in-microservices/?utm_source=chatgpt.com" title="Retry Pattern in Microservices - GeeksforGeeks">geeksforgeeks.org</a>)</p><hr><h2 id=5-핵심-개념-core-concepts>5. 핵심 개념 (Core Concepts)<a hidden class=anchor aria-hidden=true href=#5-핵심-개념-core-concepts>#</a></h2><ul><li><strong>재시도 (Retry)</strong>: 실패한 작업을 자동으로 다시 시도하여 성공을 기대함</li><li><strong>백오프 (Backoff)</strong>: 재시도 간격을 일정, 선형, 또는 지수적으로 증가시켜 호출 대상 서비스 부하를 완화함 (<a href="https://dev.to/shubheksha/retries-in-distributed-systems-good-and-bad-parts-1ajl?utm_source=chatgpt.com" title="Retries in distributed systems: good and bad parts - DEV Community">dev.to</a>)</li><li><strong>지터 (Jitter)</strong>: 재시도 간 랜덤 지연을 추가해 재시도 충돌 (retry storm) 을 완화함</li><li><strong>정책 (Retry Policy)</strong>:<ul><li>최대 재시도 횟수</li><li>지연 전략 (지수, 선형, 고정)</li><li>재시도 조건 (Transient 오류, 예외 유형)</li><li>Fallback 지점 포함 여부<br>(<a href="https://learn.microsoft.com/en-us/azure/architecture/patterns/retry?utm_source=chatgpt.com" title="Retry pattern - Azure Architecture Center | Microsoft Learn">learn.microsoft.com</a>, <a href="https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/?utm_source=chatgpt.com" title="Timeouts, retries and backoff with jitter - AWS - Amazon">aws.amazon.com</a>)</li></ul></li><li><strong>Idempotency</strong>: 재시도 시 동일한 결과를 보장해야 하므로, 중복 안전하게 설계되어야 함</li><li><strong>조합 패턴</strong>: Circuit Breaker 와 결합하여 과도한 재시도 시 연쇄 실패 방지 가능 (<a href="https://www.geeksforgeeks.org/circuit-breaker-vs-retry-pattern/?utm_source=chatgpt.com" title="Circuit Breaker vs. Retry Pattern - GeeksforGeeks">geeksforgeeks.org</a>)</li></ul><h3 id=51-실무-연관성>5.1 실무 연관성<a hidden class=anchor aria-hidden=true href=#51-실무-연관성>#</a></h3><ul><li>✅ <strong>라이브러리 활용</strong>: Resilience4j(Java), Polly(.NET), Python-retrying, AWS SDK 내장 retry 등 사용<br>(<a href="https://learn.microsoft.com/en-us/azure/architecture/patterns/retry?utm_source=chatgpt.com" title="Retry pattern - Azure Architecture Center | Microsoft Learn">learn.microsoft.com</a>)</li><li>✅ <strong>백엔드 시스템 적용</strong>: 클라우드 서비스 호출, DB 쿼리, 메시지 큐 처리 시 자동 재시도</li><li>✅ <strong>모니터링</strong>: 재시도 횟수, 실패율, 성공 전환율 지표 수집하여 정책 튜닝</li><li>✅ <strong>부하 관리</strong>: 백오프와 지터 적용으로 재시도로 인한 병목·폭증 예방</li></ul><hr><p>다음 단계로 <strong>배경, 목적, 특징</strong>, 그리고 <strong>주요 원리/작동 원리 다이어그램</strong>, <strong>구조 및 구성요소 분석</strong>을 이어서 작성해도 될까요? 의견 알려주세요!</p><p>이어서 <strong>Retry Pattern</strong>에 대한 조사를 진행했습니다. 이번에는 <strong>배경, 목적, 특징, 주요 원리 및 작동 원리, 구조 및 구성요소</strong>까지 상세하게 정리했습니다.</p><hr><h2 id=6-배경-background>6. 배경 (Background)<a hidden class=anchor aria-hidden=true href=#6-배경-background>#</a></h2><ul><li>클라우드 및 분산 시스템에서는 네트워크 지연, 타임아웃, 과부하 등 일시적 (transient) 오류가 빈번하게 발생합니다 (<a href="https://learn.microsoft.com/en-us/azure/architecture/patterns/retry?utm_source=chatgpt.com" title="Retry pattern - Azure Architecture Center | Microsoft Learn">learn.microsoft.com</a>, <a href="https://www.geeksforgeeks.org/circuit-breaker-vs-retry-pattern/?utm_source=chatgpt.com" title="Circuit Breaker vs. Retry Pattern - GeeksforGeeks">aws.amazon.com</a>).</li><li>이러한 오류는 자동 재시도를 통해 해결 가능한 경우가 많아, 시스템 안정성과 사용자 경험 확보를 위해 Retry 패턴이 필요합니다.</li></ul><h2 id=7-목적-및-필요성-purpose--need>7. 목적 및 필요성 (Purpose & Need)<a hidden class=anchor aria-hidden=true href=#7-목적-및-필요성-purpose--need>#</a></h2><ul><li><strong>지속성 강화</strong>: 일시적 네트워크 장애나 서버 과부하로 인한 오류를 자동 복구</li><li><strong>가용성 개선</strong>: 재시도를 통해 요청 성공 확률을 높임</li><li><strong>운영 부담 감소</strong>: 수동 개입 없이도 코드에서 회복력 있는 처리를 수행</li><li><strong>서버 부하 관리</strong>: 백오프 (backoff) 와 지터 (jitter) 전략 결합으로 과부하 방지 (<a href="https://www.geeksforgeeks.org/system-design/retry-pattern-in-microservices/?utm_source=chatgpt.com" title="Retry Pattern in Microservices - GeeksforGeeks">medium.com</a>, <a href="https://www.geeksforgeeks.org/circuit-breaker-vs-retry-pattern/?utm_source=chatgpt.com" title="Circuit Breaker vs. Retry Pattern - GeeksforGeeks">aws.amazon.com</a>)</li></ul><h2 id=8-특징-characteristics>8. 특징 (Characteristics)<a hidden class=anchor aria-hidden=true href=#8-특징-characteristics>#</a></h2><ul><li><strong>정책 기반 실행</strong>: 최대 재시도 횟수, 지연 전략, 지터 사용 등 정책 정의 (<a href="https://learn.microsoft.com/en-us/azure/architecture/patterns/retry?utm_source=chatgpt.com" title="Retry pattern - Azure Architecture Center | Microsoft Learn">learn.microsoft.com</a>)</li><li><strong>조건적 재시도</strong>: 트랜지언트 오류에만 재시도 (예: 내부 서버 오류, 타임아웃)</li><li><strong>백오프 전략</strong>: 고정, 선형, 지수 (backoff) 지연 방식 지원 (<a href="https://dev.to/shubheksha/retries-in-distributed-systems-good-and-bad-parts-1ajl?utm_source=chatgpt.com" title="Retries in distributed systems: good and bad parts - DEV Community">linkedin.com</a>, <a href="https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/?utm_source=chatgpt.com" title="Timeouts, retries and backoff with jitter - AWS - Amazon">docs.aws.amazon.com</a>)</li><li><strong>지터 적용</strong>: 재시도 동시성을 피하기 위해 랜덤 지연 도입</li><li><strong>Idempotency 연계</strong>: 중복 호출 안전성을 위해 멱등성 설계 필요</li></ul><h2 id=9-주요-원리-및-작동-원리-core-mechanics--operation>9. 주요 원리 및 작동 원리 (Core Mechanics & Operation)<a hidden class=anchor aria-hidden=true href=#9-주요-원리-및-작동-원리-core-mechanics--operation>#</a></h2><ul><li><strong>원리</strong>: 장애가 일시적이라는 가정 하에 일정 간격을 두고 최대 n 회까지 자동 재시도</li><li><strong>작동 순서</strong>:</li></ul><pre class=mermaid>sequenceDiagram
+    participant Client
+    participant Service
+    Client-&gt;&gt;Service: 요청()
+    alt 성공
+        Service--&gt;&gt;Client: 응답
+    else 실패 &amp; 재시도 가능
+        Client-&gt;&gt;Client: 백오프 + 지터 대기
+        Client-&gt;&gt;Service: 재요청()
+    end
+    Note over Client: 최대 재시도 횟수까지 반복
+</pre><ul><li><strong>재시도 정책 요소</strong>: 재시도 횟수, 백오프 방식, 지터 범위, 추적 로깅 등</li></ul><h2 id=10-구조-및-아키텍처-structure--architecture>10. 구조 및 아키텍처 (Structure & Architecture)<a hidden class=anchor aria-hidden=true href=#10-구조-및-아키텍처-structure--architecture>#</a></h2><h3 id=구성-요소-분석>구성 요소 분석<a hidden class=anchor aria-hidden=true href=#구성-요소-분석>#</a></h3><table><thead><tr><th>유형</th><th>구성 요소</th><th>기능 및 역할</th></tr></thead><tbody><tr><td>필수 구성요소</td><td>RetryPolicy</td><td>재시도 횟수, 조건, 백오프 전략 정의</td></tr><tr><td></td><td>RetryExecutor</td><td>정책에 기반해 재시도 로직 실행</td></tr><tr><td></td><td>BackoffStrategy</td><td>재요청 간격 (고정/선형/지수) 계산</td></tr><tr><td></td><td>JitterProvider</td><td>재시도 지연에 랜덤 요소 추가</td></tr><tr><td></td><td>ErrorClassifier</td><td>재시도 대상 오류 판단</td></tr><tr><td>선택 구성요소</td><td>MetricsCollector</td><td>재시도 횟수 및 오류 통계 수집</td></tr><tr><td></td><td>CircuitBreaker</td><td>과도한 실패 시 재시도 차단</td></tr><tr><td></td><td>FallbackHandler</td><td>재시도 실패 후 대체 로직 처리</td></tr></tbody></table><h3 id=아키텍처-다이어그램>아키텍처 다이어그램<a hidden class=anchor aria-hidden=true href=#아키텍처-다이어그램>#</a></h3><pre class=mermaid>classDiagram
+    class RetryPolicy {
+      +maxRetries
+      +backoffStrategy
+      +jitterProvider
+      +shouldRetry(error)
+    }
+    class RetryExecutor {
+      +execute(fn)
+    }
+    class BackoffStrategy {
+      &lt;&lt;interface&gt;&gt;
+      +nextDelay(attempt)
+    }
+    class JitterProvider {
+      &lt;&lt;interface&gt;&gt;
+      +apply(delay)
+    }
+    class ErrorClassifier {
+      +isTransient(error)
+    }
+    class MetricsCollector {
+      +recordRetry()
+      +recordFailure()
+    }
+    class CircuitBreaker {
+      +allowRetry()
+    }
+    class FallbackHandler {
+      +handle(error)
+    }
+
+    RetryExecutor --&gt; RetryPolicy
+    RetryExecutor --&gt; BackoffStrategy
+    RetryExecutor --&gt; JitterProvider
+    RetryExecutor --&gt; ErrorClassifier
+    RetryExecutor --&gt; MetricsCollector
+    RetryExecutor --&gt; CircuitBreaker
+    RetryExecutor --&gt; FallbackHandler
+</pre><ul><li><strong>RetryExecutor</strong>: 핵심 로직 담당</li><li><strong>RetryPolicy</strong>: 재시도 정책 관리</li><li><strong>BackoffStrategy & JitterProvider</strong>: 지연 처리</li><li><strong>ErrorClassifier</strong>: 오류 유형 분류</li><li><strong>MetricsCollector</strong>: 모니터링 지표</li><li><strong>CircuitBreaker</strong>: 과도한 실패 방지</li><li><strong>FallbackHandler</strong>: 대체 흐름 처리</li></ul><hr><p>다음으로는 <strong>구현 기법</strong>, <strong>장점/단점과 해결방안</strong>, 그리고 <strong>도전 과제, 분류 기준, 실무 예시, 활용 사례</strong> 등에 대해 정리해드리겠습니다. 이 방향으로 계속 진행해도 될까요?</p><p>이어서 <strong>Retry Pattern</strong>의 나머지 주요 항목들을 정리했습니다.</p><hr><h2 id=11-구현-기법-implementation-techniques>11. 구현 기법 (Implementation Techniques)<a hidden class=anchor aria-hidden=true href=#11-구현-기법-implementation-techniques>#</a></h2><ul><li><strong>Backoff 전략 구현</strong><ul><li>고정 지연 (Fixed Backoff): 일정 간격으로 재시도</li><li>선형 지연 (Linear Backoff): 시도마다 일정 간격 증가</li><li>지수적 지연 (Exponential Backoff): 간격을 점진적으로 배가 증가—AWS, Microsoft, DoorDash 등에서 권장 (<a href="https://learn.microsoft.com/en-us/azure/architecture/patterns/retry?utm_source=chatgpt.com" title="Retry pattern - Azure Architecture Center | Microsoft Learn">linkedin.com</a>, <a href="https://www.geeksforgeeks.org/circuit-breaker-vs-retry-pattern/?utm_source=chatgpt.com" title="Circuit Breaker vs. Retry Pattern - GeeksforGeeks">developer.doordash.com</a>)</li></ul></li><li><strong>Jitter 적용</strong><ul><li>대기 시간에 랜덤 요소 삽입하여 동시 재시도 피함</li></ul></li><li><strong>Retry 라이브러리 이용</strong><ul><li>Java: Resilience4j Retry (RetryConfig.ofDefaults, intervalBiFunction 등) (<a href="https://www.geeksforgeeks.org/system-design/retry-pattern-in-microservices/?utm_source=chatgpt.com" title="Retry Pattern in Microservices - GeeksforGeeks">resilience4j.readme.io</a>)</li><li>.NET: Polly</li><li>Python: retrying, tenacity</li><li>JS: retry operation with options (factor, minTimeout, maxTimeout, randomize) (<a href="https://www.geeksforgeeks.org/circuit-breaker-vs-retry-pattern/?utm_source=chatgpt.com" title="Circuit Breaker vs. Retry Pattern - GeeksforGeeks">developer.doordash.com</a>)</li></ul></li><li><strong>gRPC 클라이언트 자동 재시도 지원</strong><ul><li>MaxAttempts, BackoffMultiplier, RetryableStatusCodes 등을 사용하여 구성 가능 (<a href="https://dev.to/shubheksha/retries-in-distributed-systems-good-and-bad-parts-1ajl?utm_source=chatgpt.com" title="Retries in distributed systems: good and bad parts - DEV Community">learn.microsoft.com</a>)</li></ul></li></ul><hr><h2 id=12-장점-benefits>12. 장점 (Benefits)<a hidden class=anchor aria-hidden=true href=#12-장점-benefits>#</a></h2><table><thead><tr><th>구분</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>장점</td><td>가용성 향상</td><td>일시적 네트워크/서비스 오류로부터 자동 회복하여 가용성 유지 (<a href="https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/?utm_source=chatgpt.com" title="Timeouts, retries and backoff with jitter - AWS - Amazon">learn.microsoft.com</a>)</td></tr><tr><td></td><td>운영자 개입 감소</td><td>자동 재시도 덕분에 수동 개입 및 장애 알람 감소</td></tr><tr><td></td><td>유연한 제어</td><td>재시도 정책을 코드나 설정 변경만으로 적용 가능</td></tr><tr><td></td><td>사용자 경험 개선</td><td>잠재적 오류를 은폐하여 서비스 신뢰도 유지</td></tr></tbody></table><hr><h2 id=13-단점-및-문제점-limitations--issues>13. 단점 및 문제점 (Limitations & Issues)<a hidden class=anchor aria-hidden=true href=#13-단점-및-문제점-limitations--issues>#</a></h2><h3 id=단점-1>단점<a hidden class=anchor aria-hidden=true href=#단점-1>#</a></h3><table><thead><tr><th>구분</th><th>항목</th><th>설명</th><th>해결책</th></tr></thead><tbody><tr><td>단점</td><td>Retry Storm</td><td>동시 대량 재시도로 대상 시스템 과부하</td><td>백오프 + 지터 적용</td></tr><tr><td></td><td>지연 시간 증가</td><td>재시도 횟수 및 지연으로 응답 지연 발생</td><td>최대 지연 설정, 빠른 실패 (fail-fast) 판단</td></tr><tr><td></td><td>중복 호출 위험</td><td>재시도 시 중복 실행으로 부작용 가능</td><td>멱등성 설계 및 중복 처리 로직</td></tr></tbody></table><h3 id=문제점-1>문제점<a hidden class=anchor aria-hidden=true href=#문제점-1>#</a></h3><table><thead><tr><th>구분</th><th>항목</th><th>원인</th><th>영향</th><th>탐지 및 진단</th><th>예방</th><th>해결 기법</th></tr></thead><tbody><tr><td>문제점</td><td>잘못된 오류 분류</td><td>Permanent 오류를 재시도로 처리</td><td>불필요한 리소스 소모</td><td>오류 로그 분석</td><td>오류 분류기 개발</td><td>error classifier, white/blacklist</td></tr><tr><td></td><td>과도한 재시도</td><td>정책 설정 부적절</td><td>대기 시간 폭증, 비용 증가</td><td>모니터링</td><td>정책 검토 및 조정</td><td>동적 정책, Circuit Breaker 연계 (<a href="https://learn.microsoft.com/en-us/azure/architecture/patterns/retry?utm_source=chatgpt.com" title="Retry pattern - Azure Architecture Center | Microsoft Learn">linkedin.com</a>)</td></tr></tbody></table><hr><h2 id=14-도전-과제-challenges>14. 도전 과제 (Challenges)<a hidden class=anchor aria-hidden=true href=#14-도전-과제-challenges>#</a></h2><ul><li><strong>Retry Storm 예방</strong>: Jitter 적용 및 백오프 전략 자동화</li><li><strong>장기 오류 감지</strong>: Circuit Breaker 와 연계하여 장기 장애 대응</li><li><strong>멱등성 확립</strong>: 네트워크 재시도 시 안전한 API 설계</li><li><strong>지연 및 비용 고려</strong>: 응답 시간과 비용 균형 맞추기</li><li><strong>정책 조정 자동화</strong>: 실시간 메트릭 기반 정책 튜닝</li></ul><hr><h2 id=15-분류-기준에-따른-유형>15. 분류 기준에 따른 유형<a hidden class=anchor aria-hidden=true href=#15-분류-기준에-따른-유형>#</a></h2><table><thead><tr><th>기준</th><th>유형</th><th>설명</th></tr></thead><tbody><tr><td>백오프 방식</td><td>Fixed</td><td>일정 간격 재시도</td></tr><tr><td></td><td>Linear</td><td>고정 증가 간격 재시도</td></tr><tr><td></td><td>Exponential</td><td>지수적 증가 간격</td></tr><tr><td></td><td>Exponential + Jitter</td><td>랜덤 요소 포함</td></tr><tr><td>동작 레벨</td><td>Client-side</td><td>애플리케이션 코드 내 구현</td></tr><tr><td></td><td>Library/framework</td><td>Polly, Resilience4j 등 외부 라이브러리 활용</td></tr><tr><td></td><td>Infrastructure</td><td>AWS Step Functions, gRPC 클라이언트에서 제공</td></tr><tr><td>조합 패턴</td><td>단일 사용</td><td>Retry 만 사용</td></tr><tr><td></td><td>복합 사용</td><td>Timeout, Circuit Breaker, Fallback 등과 병행 활용</td></tr></tbody></table><hr><h2 id=16-실무-사용-예시>16. 실무 사용 예시<a hidden class=anchor aria-hidden=true href=#16-실무-사용-예시>#</a></h2><table><thead><tr><th>호출 주체</th><th>목적</th><th>활용 방식</th><th>효과</th></tr></thead><tbody><tr><td>AWS Lambda</td><td>타임아웃된 외부 API 재시도</td><td>Step Functions Retry 구성</td><td>중단 없는 워크플로우 진행 (<a href="https://www.readysetcloud.io/blog/allen.helton/three-ways-to-retry-failures/?utm_source=chatgpt.com" title="Three Ways to Retry Failures In Your Serverless Application">readysetcloud.io</a>, <a href="https://en.wikipedia.org/wiki/Circuit_breaker_design_pattern?utm_source=chatgpt.com" title="Circuit breaker design pattern">en.wikipedia.org</a>, <a href="https://dev.to/shubheksha/retries-in-distributed-systems-good-and-bad-parts-1ajl?utm_source=chatgpt.com" title="Retries in distributed systems: good and bad parts - DEV Community">learn.microsoft.com</a>, <a href="https://www.geeksforgeeks.org/system-design/retry-pattern-in-microservices/?utm_source=chatgpt.com" title="Retry Pattern in Microservices - GeeksforGeeks">geeksforgeeks.org</a>)</td></tr><tr><td>gRPC 클라이언트</td><td>네트워크 일시 오류 재시도</td><td>MethodConfig 기반 Retry 설정</td><td>자동 장애 복구</td></tr><tr><td>JS API 클라이언트</td><td>SMS API 호출 안정화</td><td>retries=3, factor=2, randomize=true</td><td>불안정한 외부 API 안정성 향상</td></tr></tbody></table><hr><h2 id=17-활용-사례>17. 활용 사례<a hidden class=anchor aria-hidden=true href=#17-활용-사례>#</a></h2><h3 id=예시-sms-대량-발송-시스템>예시: SMS 대량 발송 시스템<a hidden class=anchor aria-hidden=true href=#예시-sms-대량-발송-시스템>#</a></h3><ul><li><strong>구성</strong>: API 서버 → SMS 외부 서비스 (HTTP)</li><li><strong>문제</strong>: SMS API 간헐적 실패, 과부하 시 response 지연 및 오류</li><li><strong>도입</strong>:<ul><li>Retry 횟수 3 회</li><li>Exponential backoff (1s → 2s → 4s)</li><li>Jitter ±20%</li><li>Circuit Breaker + Fallback 처리 (로그 기록, 알림)</li></ul></li><li><strong>효과</strong>: 성공율 90% 이상 유지, SMS 전송 안정성 향상, Retry Storm 방지</li></ul><p><strong>Flow Diagram</strong>:</p><pre class=mermaid>sequenceDiagram
+  participant Client
+  participant SMSAPI
+  Client-&gt;&gt;SMSAPI: sendSMS()
+  alt success
+    SMSAPI--&gt;&gt;Client: 200 OK
+  else error/transient
+    Client-&gt;&gt;Client: wait(backoff+jitter)
+    Client-&gt;&gt;SMSAPI: retry 1
+    ... repeat up to 3 times
+  end
+  alt all fail
+    Client-&gt;&gt;Client: Circuit Breaker open + fallback()
+  end
+</pre><hr><h2 id=18-구현-예시-implementation-example>18. 구현 예시 (Implementation Example)<a hidden class=anchor aria-hidden=true href=#18-구현-예시-implementation-example>#</a></h2><p>Java(Python) 기반 예시: Resilience4j 와 Spring Boot 사용</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-7-1><a class=lnlinks href=#hl-7-1> 1</a>
+</span><span class=lnt id=hl-7-2><a class=lnlinks href=#hl-7-2> 2</a>
+</span><span class=lnt id=hl-7-3><a class=lnlinks href=#hl-7-3> 3</a>
+</span><span class=lnt id=hl-7-4><a class=lnlinks href=#hl-7-4> 4</a>
+</span><span class=lnt id=hl-7-5><a class=lnlinks href=#hl-7-5> 5</a>
+</span><span class=lnt id=hl-7-6><a class=lnlinks href=#hl-7-6> 6</a>
+</span><span class=lnt id=hl-7-7><a class=lnlinks href=#hl-7-7> 7</a>
+</span><span class=lnt id=hl-7-8><a class=lnlinks href=#hl-7-8> 8</a>
+</span><span class=lnt id=hl-7-9><a class=lnlinks href=#hl-7-9> 9</a>
+</span><span class=lnt id=hl-7-10><a class=lnlinks href=#hl-7-10>10</a>
+</span><span class=lnt id=hl-7-11><a class=lnlinks href=#hl-7-11>11</a>
+</span><span class=lnt id=hl-7-12><a class=lnlinks href=#hl-7-12>12</a>
+</span><span class=lnt id=hl-7-13><a class=lnlinks href=#hl-7-13>13</a>
+</span><span class=lnt id=hl-7-14><a class=lnlinks href=#hl-7-14>14</a>
+</span><span class=lnt id=hl-7-15><a class=lnlinks href=#hl-7-15>15</a>
+</span><span class=lnt id=hl-7-16><a class=lnlinks href=#hl-7-16>16</a>
+</span><span class=lnt id=hl-7-17><a class=lnlinks href=#hl-7-17>17</a>
+</span><span class=lnt id=hl-7-18><a class=lnlinks href=#hl-7-18>18</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-java data-lang=java><span class=line><span class=cl><span class=n>RetryConfig</span><span class=w> </span><span class=n>config</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>RetryConfig</span><span class=p>.</span><span class=na>custom</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>.</span><span class=na>maxAttempts</span><span class=p>(</span><span class=n>4</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>.</span><span class=na>waitDuration</span><span class=p>(</span><span class=n>Duration</span><span class=p>.</span><span class=na>ofSeconds</span><span class=p>(</span><span class=n>1</span><span class=p>))</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>.</span><span class=na>intervalFunction</span><span class=p>(</span><span class=n>IntervalFunction</span><span class=p>.</span><span class=na>ofExponentialBackoff</span><span class=p>(</span><span class=n>500</span><span class=p>,</span><span class=w> </span><span class=n>2</span><span class=p>.</span><span class=na>0</span><span class=p>))</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>.</span><span class=na>retryOnException</span><span class=p>(</span><span class=n>e</span><span class=w> </span><span class=o>-&gt;</span><span class=w> </span><span class=n>e</span><span class=w> </span><span class=k>instanceof</span><span class=w> </span><span class=n>TransientException</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>.</span><span class=na>build</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=n>RetryRegistry</span><span class=w> </span><span class=n>registry</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>RetryRegistry</span><span class=p>.</span><span class=na>of</span><span class=p>(</span><span class=n>config</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=n>Retry</span><span class=w> </span><span class=n>retry</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>registry</span><span class=p>.</span><span class=na>retry</span><span class=p>(</span><span class=s>&#34;smsService&#34;</span><span class=p>,</span><span class=w> </span><span class=n>config</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=n>Supplier</span><span class=o>&lt;</span><span class=n>Response</span><span class=o>&gt;</span><span class=w> </span><span class=n>supplier</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>()</span><span class=w> </span><span class=o>-&gt;</span><span class=w> </span><span class=n>smsService</span><span class=p>.</span><span class=na>send</span><span class=p>(</span><span class=n>request</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=n>Supplier</span><span class=o>&lt;</span><span class=n>Response</span><span class=o>&gt;</span><span class=w> </span><span class=n>retryable</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>Retry</span><span class=p>.</span><span class=na>decorateSupplier</span><span class=p>(</span><span class=n>retry</span><span class=p>,</span><span class=w> </span><span class=n>supplier</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>try</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Response</span><span class=w> </span><span class=n>res</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>retryable</span><span class=p>.</span><span class=na>get</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w> </span><span class=k>catch</span><span class=w> </span><span class=p>(</span><span class=n>Exception</span><span class=w> </span><span class=n>e</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>fallbackHandler</span><span class=p>.</span><span class=na>handle</span><span class=p>(</span><span class=n>e</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><hr><h2 id=19-실무--최적화-고려사항>19. 실무 & 최적화 고려사항<a hidden class=anchor aria-hidden=true href=#19-실무--최적화-고려사항>#</a></h2><table><thead><tr><th>항목</th><th>고려사항</th><th>권장사항</th></tr></thead><tbody><tr><td>백오프</td><td>적절한 지연 정책 구성</td><td>Exponential+Jitter 권장</td></tr><tr><td>병목 예방</td><td>너무 많은 재시도 방지</td><td>Circuit Breaker 연계</td></tr><tr><td>응답 시간</td><td>사용자 기대치 고려</td><td>UI 용 quick-fail, 백그라운드용 retry</td></tr><tr><td>모니터링</td><td>retry 지표 수집</td><td>metrics (attempts, success rate 등)</td></tr><tr><td>보안/비용</td><td>호출 비용 및 인증 문제</td><td>비용 한도 설정, 지연 재시도 시 인증 만료 고려</td></tr><tr><td>스케일</td><td>대량 동시 호출</td><td>중앙 라이브러리/공통 미들웨어 적용</td></tr></tbody></table><hr><h2 id=20-기타-사항>20. 기타 사항<a hidden class=anchor aria-hidden=true href=#20-기타-사항>#</a></h2><ul><li><strong>Dead Letter Queue(DLQ)</strong>: 서버리스/메시지 큐 환경에서는 재시도 실패 후 DLQ 저장 → 후속 처리/재발송 등을 통해 안정성 확보 (<a href="https://learn.microsoft.com/en-us/azure/architecture/patterns/retry?utm_source=chatgpt.com" title="Retry pattern - Azure Architecture Center | Microsoft Learn">linkedin.com</a>, <a href="https://leapcell.medium.com/7-retry-patterns-you-should-know-4b9873f098ef?utm_source=chatgpt.com" title="7 Retry Patterns You Should Know - Leapcell">leapcell.medium.com</a>, <a href="https://anjireddy-kata.medium.com/architecture-and-design-101-resiliency-patterns-retry-mechanism-67eb7da51318?utm_source=chatgpt.com" title="Architecture and Design 101: Resiliency Patterns—Retry …">anjireddy-kata.medium.com</a>, <a href="https://mezocode.com/implementing-retry-pattern-in-java/?utm_source=chatgpt.com" title="Resilience in Microservices: Implementing the Retry Pattern in …">mezocode.com</a>, <a href="https://www.readysetcloud.io/blog/allen.helton/three-ways-to-retry-failures/?utm_source=chatgpt.com" title="Three Ways to Retry Failures In Your Serverless Application">readysetcloud.io</a>)</li><li><strong>Retry Storm Anti-pattern</strong>: 백오프 + 지터 없이 단순 loop retry 구현 시 시스템 과부하 유발 (<a href="https://dev.to/willvelida/the-retry-pattern-and-retry-storm-anti-pattern-4k6k?utm_source=chatgpt.com" title="The Retry Pattern and Retry Storm Anti-pattern - DEV Community">dev.to</a>)</li></ul><hr><h2 id=용어-정리-glossary>용어 정리 (Glossary)<a hidden class=anchor aria-hidden=true href=#용어-정리-glossary>#</a></h2><table><thead><tr><th>카테고리</th><th>용어</th><th>설명</th></tr></thead><tbody><tr><td>Resilience</td><td>Backoff Strategy</td><td>재시도 간격 증가 로직 (고정/선형/지수)</td></tr><tr><td>Resilience</td><td>Jitter</td><td>재시도 시간에 랜덤 요소 추가</td></tr><tr><td>Resilience</td><td>Retry Storm</td><td>동시에 대량 재시도가 몰려 시스템 과부하 발생</td></tr><tr><td>Resilience</td><td>Idempotency</td><td>중복 호출 시 동일 결과를 보장하는 특성</td></tr><tr><td>Distributed</td><td>DLQ (Dead Letter Queue)</td><td>재시도 실패 메시지를 보관하는 큐</td></tr><tr><td>Monitoring</td><td>Metrics</td><td>재시도 관련 메트릭 (시도 횟수, 성공율 등)</td></tr></tbody></table><hr><h2 id=참고-및-출처-1>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처-1>#</a></h2><ul><li>[Baeldung: Exponential Backoff and Jitter in Resilience4j]</li><li>[DEV: Retry Pattern and Retry Storm Anti‑pattern]</li><li>[Resilience4j Retry 모듈 공식 문서]</li><li>[AWS Builders Library: Timeouts, Retries and Backoff with Jitter]</li><li>[DoorDash Retry 전략 가이드]</li><li>[gRPC Transient Fault Handling]</li></ul><hr><p>필요하신 부분 (예: Fallback 조합, 정책 튜닝, 코드 단위 심층 설명 등) 이 있으시면 언제든 말씀해주세요!</p><p>Retry Pattern 에 대한 깊이 있는 조사와 분석을 시작하겠습니다. 먼저 최신 정보를 수집하기 위해 웹 검색을 진행하겠습니다.</p><h2 id=retry-pattern-종합-분석-및-조사-보고서>Retry Pattern 종합 분석 및 조사 보고서<a hidden class=anchor aria-hidden=true href=#retry-pattern-종합-분석-및-조사-보고서>#</a></h2><h3 id=1-주제-태그>1. 주제 태그<a hidden class=anchor aria-hidden=true href=#1-주제-태그>#</a></h3><ul><li><code>Retry-Pattern</code></li><li><code>Resilience-Architecture</code></li><li><code>Fault-Tolerance</code></li><li><code>Exponential-Backoff</code></li></ul><h3 id=2-카테고리-계층-구조-검증>2. 카테고리 계층 구조 검증<a hidden class=anchor aria-hidden=true href=#2-카테고리-계층-구조-검증>#</a></h3><p><strong>현재 분류</strong>: Computer Science and Engineering > Software Engineering > Design and Architecture > Architecture Patterns > Resilience Patterns</p><p><strong>검증 결과</strong>: 적절한 분류입니다.</p><p><strong>근거</strong>:</p><ul><li>Retry Pattern 은 소프트웨어 아키텍처의 설계 패턴 중 회복탄력성 (Resilience) 을 다루는 핵심 패턴</li><li>분산 시스템과 마이크로서비스에서 일시적 장애 (Transient Failures) 를 처리하는 아키텍처 패턴</li><li>Circuit Breaker, Bulkhead, Fallback 과 함께 회복탄력성 패턴의 핵심 구성 요소</li><li>시스템의 안정성과 신뢰성을 높이는 설계 원칙에 부합</li></ul><h3 id=3-주제-요약-200-자-내외>3. 주제 요약 (200 자 내외)<a hidden class=anchor aria-hidden=true href=#3-주제-요약-200-자-내외>#</a></h3><p>Retry Pattern 은 분산 시스템에서 일시적 장애 (Transient Failures) 가 발생했을 때 실패한 작업을 자동으로 재시도하는 회복탄력성 아키텍처 패턴입니다. 네트워크 장애, 서비스 일시 중단, 과부하 상황에서 지수 백오프 (Exponential Backoff) 와 지터 (Jitter) 를 활용해 시스템의 안정성과 신뢰성을 향상시킵니다.</p><h3 id=4-전체-개요-250-자-내외>4. 전체 개요 (250 자 내외)<a hidden class=anchor aria-hidden=true href=#4-전체-개요-250-자-내외>#</a></h3><p>Retry Pattern 은 마이크로서비스와 클라우드 네이티브 환경에서 필수적인 회복탄력성 패턴으로, 일시적 장애 상황에서 자동 재시도를 통해 시스템 안정성을 보장합니다. 단순 재시도부터 지수 백오프, 지터, Circuit Breaker 와의 결합까지 다양한 구현 전략을 제공하며, 네트워크 불안정성, 서비스 과부하, 리소스 경합 등의 문제를 효과적으로 해결합니다. 현대 분산 시스템 설계의 핵심 요소입니다.</p><hr><h3 id=제-1-부-핵심-개념-및-이론적-기반>제 1 부: 핵심 개념 및 이론적 기반<a hidden class=anchor aria-hidden=true href=#제-1-부-핵심-개념-및-이론적-기반>#</a></h3><h4 id=핵심-개념>핵심 개념<a hidden class=anchor aria-hidden=true href=#핵심-개념>#</a></h4><p><strong>1. 일시적 장애 (Transient Failures)</strong></p><ul><li>네트워크 연결 끊김, 서비스 일시 중단, 과부하 상황 등 자가 복구되는 장애</li><li>영구적 장애와 구분하여 재시도 대상 판별</li></ul><p><strong>2. 재시도 정책 (Retry Policy)</strong></p><ul><li>최대 재시도 횟수, 백오프 전략, 재시도 조건 등을 정의하는 규칙</li><li>비즈니스 요구사항과 서비스 특성에 따라 맞춤화</li></ul><p><strong>3. 지수 백오프 (Exponential Backoff)</strong></p><ul><li>재시도 간격을 지수적으로 증가시켜 시스템 부하를 줄이는 전략</li><li>2^n 형태로 대기 시간 증가 (예: 1 초, 2 초, 4 초, 8 초…)</li></ul><p><strong>4. 지터 (Jitter)</strong></p><ul><li>재시도 시점에 무작위성을 추가하여 동시 재시도로 인한 부하 집중 방지</li><li>Thundering Herd 문제 해결의 핵심 요소</li></ul><p><strong>5. 멱등성 (Idempotency)</strong></p><ul><li>동일한 작업을 여러 번 수행해도 결과가 같도록 보장하는 속성</li><li>재시도 패턴 구현 시 필수 고려사항</li></ul><h4 id=핵심-개념의-실무-연관성>핵심 개념의 실무 연관성<a hidden class=anchor aria-hidden=true href=#핵심-개념의-실무-연관성>#</a></h4><p><strong>네트워크 레벨 구현</strong>:</p><ul><li>HTTP 클라이언트 라이브러리의 재시도 설정</li><li>로드 밸런서와의 연동으로 건강한 인스턴스로 요청 라우팅</li></ul><p><strong>애플리케이션 레벨 구현</strong>:</p><ul><li>비즈니스 로직과 분리된 재시도 메커니즘</li><li>Circuit Breaker 와의 조합으로 장애 전파 방지</li></ul><p><strong>인프라 레벨 구현</strong>:</p><ul><li>서비스 메시를 통한 투명한 재시도 처리</li><li>클라우드 서비스의 내장 재시도 기능 활용</li></ul><hr><h3 id=제-2-부-상세-분석-및-구현>제 2 부: 상세 분석 및 구현<a hidden class=anchor aria-hidden=true href=#제-2-부-상세-분석-및-구현>#</a></h3><h4 id=배경-1>배경<a hidden class=anchor aria-hidden=true href=#배경-1>#</a></h4><p>분산 시스템의 급속한 확산과 함께 서비스 간 네트워크 통신이 증가하면서 일시적 장애에 대한 대응 필요성이 대두되었습니다. 특히 클라우드 컴퓨팅 환경에서는 네트워크 지연, 서비스 재시작, 리소스 경합 등이 빈번하게 발생하여 안정적인 시스템 운영을 위한 회복탄력성 패턴이 필수가 되었습니다.</p><h4 id=목적-및-필요성-1>목적 및 필요성<a hidden class=anchor aria-hidden=true href=#목적-및-필요성-1>#</a></h4><p><strong>주요 목적</strong>:</p><ul><li>일시적 장애로 인한 서비스 중단 최소화</li><li>사용자 경험 품질 향상</li><li>시스템 전체의 가용성 증대</li><li>운영 비용 절감</li></ul><p><strong>필요성</strong>:</p><ul><li>마이크로서비스 아키텍처의 복잡성 증가</li><li>네트워크 의존성이 높은 클라우드 환경</li><li>높은 가용성을 요구하는 현대 애플리케이션</li><li>자동화된 장애 복구 메커니즘의 필요</li></ul><h4 id=주요-기능-및-역할-1>주요 기능 및 역할<a hidden class=anchor aria-hidden=true href=#주요-기능-및-역할-1>#</a></h4><p><strong>자동 장애 감지 및 복구</strong>:</p><ul><li>실패한 작업의 자동 식별</li><li>재시도 조건 평가 및 실행</li></ul><p><strong>부하 분산 및 제어</strong>:</p><ul><li>백오프 전략을 통한 시스템 부하 조절</li><li>재시도 타이밍 분산으로 서버 과부하 방지</li></ul><p><strong>모니터링 및 로깅</strong>:</p><ul><li>재시도 횟수 및 성공률 추적</li><li>장애 패턴 분석을 위한 데이터 수집</li></ul><h4 id=특징-1>특징<a hidden class=anchor aria-hidden=true href=#특징-1>#</a></h4><p><strong>적응성</strong>: 서비스 특성에 따른 맞춤형 재시도 정책 설정<br><strong>투명성</strong>: 비즈니스 로직과 분리된 독립적 구현<br><strong>효율성</strong>: 지능적 백오프 전략으로 리소스 사용 최적화<br><strong>확장성</strong>: 다양한 재시도 전략과 패턴 조합 가능</p><h4 id=핵심-원칙-1>핵심 원칙<a hidden class=anchor aria-hidden=true href=#핵심-원칙-1>#</a></h4><ol><li><strong>장애 유형 식별</strong>: 재시도 가능한 일시적 장애와 영구적 장애 구분</li><li><strong>적절한 백오프</strong>: 시스템 부하를 고려한 재시도 간격 설정</li><li><strong>제한된 재시도</strong>: 무한 재시도 방지를 위한 최대 횟수 설정</li><li><strong>멱등성 보장</strong>: 중복 실행으로 인한 부작용 방지</li><li><strong>모니터링</strong>: 재시도 패턴의 효과성 지속적 평가</li></ol><h4 id=주요-원리>주요 원리<a hidden class=anchor aria-hidden=true href=#주요-원리>#</a></h4><pre class=mermaid>sequenceDiagram
+    participant Client
+    participant RetryLogic
+    participant Service
+    participant BackoffCalculator
+    
+    Client-&gt;&gt;RetryLogic: 요청 실행
+    RetryLogic-&gt;&gt;Service: 초기 요청
+    Service-&gt;&gt;RetryLogic: 실패 응답
+    RetryLogic-&gt;&gt;BackoffCalculator: 백오프 시간 계산
+    BackoffCalculator-&gt;&gt;RetryLogic: 대기 시간 반환
+    
+    Note over RetryLogic: 대기 시간 동안 Sleep
+    
+    RetryLogic-&gt;&gt;Service: 재시도 요청
+    Service-&gt;&gt;RetryLogic: 성공 응답
+    RetryLogic-&gt;&gt;Client: 최종 응답 반환
+</pre><h4 id=작동-원리>작동 원리<a hidden class=anchor aria-hidden=true href=#작동-원리>#</a></h4><p><strong>1 단계: 초기 요청 실행</strong></p><ul><li>클라이언트가 대상 서비스에 요청 전송</li><li>요청 결과에 따른 성공/실패 판정</li></ul><p><strong>2 단계: 장애 유형 분석</strong></p><ul><li>응답 코드 및 예외 타입 분석</li><li>재시도 가능한 일시적 장애 여부 판단</li></ul><p><strong>3 단계: 백오프 계산</strong></p><ul><li>현재 재시도 횟수에 따른 대기 시간 계산</li><li>지터 적용으로 무작위성 추가</li></ul><p><strong>4 단계: 재시도 실행</strong></p><ul><li>계산된 시간만큼 대기 후 재시도</li><li>최대 재시도 횟수 도달 시 실패 처리</li></ul><h4 id=구조-및-아키텍처-1>구조 및 아키텍처<a hidden class=anchor aria-hidden=true href=#구조-및-아키텍처-1>#</a></h4><pre class=mermaid>graph TB
+    A[Client Application] --&gt; B[Retry Manager]
+    B --&gt; C[Retry Policy]
+    B --&gt; D[Backoff Strategy]
+    B --&gt; E[Failure Detector]
+    B --&gt; F[Circuit Breaker]
+    
+    C --&gt; G[Max Retries]
+    C --&gt; H[Retry Conditions]
+    
+    D --&gt; I[Exponential Backoff]
+    D --&gt; J[Linear Backoff]
+    D --&gt; K[Fixed Backoff]
+    
+    E --&gt; L[Transient Detector]
+    E --&gt; M[Permanent Detector]
+    
+    B --&gt; N[Target Service]
+    
+    subgraph &#34;Monitoring &amp; Logging&#34;
+        O[Metrics Collector]
+        P[Event Logger]
+    end
+    
+    B --&gt; O
+    B --&gt; P
+</pre><h5 id=필수-구성요소>필수 구성요소<a hidden class=anchor aria-hidden=true href=#필수-구성요소>#</a></h5><table><thead><tr><th>구성요소</th><th>기능</th><th>역할</th><th>특징</th></tr></thead><tbody><tr><td>Retry Manager</td><td>재시도 오케스트레이션</td><td>전체 재시도 프로세스 관리</td><td>정책 적용, 상태 관리</td></tr><tr><td>Retry Policy</td><td>재시도 규칙 정의</td><td>최대 횟수, 조건 설정</td><td>비즈니스 요구사항 반영</td></tr><tr><td>Backoff Strategy</td><td>대기 시간 계산</td><td>재시도 간격 결정</td><td>시스템 부하 조절</td></tr><tr><td>Failure Detector</td><td>장애 유형 판별</td><td>재시도 여부 결정</td><td>효율적 리소스 사용</td></tr></tbody></table><h5 id=선택-구성요소>선택 구성요소<a hidden class=anchor aria-hidden=true href=#선택-구성요소>#</a></h5><table><thead><tr><th>구성요소</th><th>기능</th><th>역할</th><th>특징</th></tr></thead><tbody><tr><td>Circuit Breaker</td><td>장애 전파 방지</td><td>연속 실패 시 요청 차단</td><td>시스템 보호</td></tr><tr><td>Jitter Generator</td><td>무작위성 추가</td><td>동시 재시도 방지</td><td>부하 분산</td></tr><tr><td>Metrics Collector</td><td>성능 모니터링</td><td>재시도 통계 수집</td><td>운영 가시성</td></tr><tr><td>Fallback Handler</td><td>대안 응답 제공</td><td>재시도 실패 시 처리</td><td>서비스 연속성</td></tr></tbody></table><h4 id=구현-기법>구현 기법<a hidden class=anchor aria-hidden=true href=#구현-기법>#</a></h4><h5 id=1-단순-재시도-simple-retry>1. 단순 재시도 (Simple Retry)<a hidden class=anchor aria-hidden=true href=#1-단순-재시도-simple-retry>#</a></h5><p><strong>정의</strong>: 고정된 간격으로 재시도하는 기본적인 방식<br><strong>구성</strong>: 최대 재시도 횟수, 고정 대기 시간<br><strong>목적</strong>: 네트워크 장애 등 단순한 일시적 문제 해결<br><strong>실제 예시</strong>: 파일 업로드 실패 시 1 초 간격으로 3 회 재시도</p><h5 id=2-지수-백오프-exponential-backoff>2. 지수 백오프 (Exponential Backoff)<a hidden class=anchor aria-hidden=true href=#2-지수-백오프-exponential-backoff>#</a></h5><p><strong>정의</strong>: 재시도 간격을 지수적으로 증가시키는 고급 방식<br><strong>구성</strong>: 초기 대기 시간, 배수, 최대 대기 시간<br><strong>목적</strong>: 시스템 부하 감소 및 복구 시간 확보<br><strong>실제 예시</strong>: API 호출 실패 시 1 초, 2 초, 4 초, 8 초 간격으로 재시도</p><h5 id=3-지터를-포함한-재시도-retry-with-jitter>3. 지터를 포함한 재시도 (Retry with Jitter)<a hidden class=anchor aria-hidden=true href=#3-지터를-포함한-재시도-retry-with-jitter>#</a></h5><p><strong>정의</strong>: 재시도 시점에 무작위성을 추가하는 방식<br><strong>구성</strong>: 백오프 전략 + 무작위 지연 추가<br><strong>목적</strong>: Thundering Herd 문제 방지<br><strong>실제 예시</strong>: 지수 백오프에 ±50% 무작위 값 추가</p><h5 id=4-조건부-재시도-conditional-retry>4. 조건부 재시도 (Conditional Retry)<a hidden class=anchor aria-hidden=true href=#4-조건부-재시도-conditional-retry>#</a></h5><p><strong>정의</strong>: 특정 조건에서만 재시도하는 방식<br><strong>구성</strong>: 재시도 조건 규칙, 예외 타입별 처리<br><strong>목적</strong>: 불필요한 재시도 방지 및 리소스 절약<br><strong>실제 예시</strong>: HTTP 5xx 오류는 재시도, 4xx 오류는 즉시 실패</p><h4 id=장점>장점<a hidden class=anchor aria-hidden=true href=#장점>#</a></h4><table><thead><tr><th>구분</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>장점</td><td>가용성 향상</td><td>일시적 장애 자동 복구로 서비스 연속성 보장</td></tr><tr><td>장점</td><td>사용자 경험 개선</td><td>투명한 장애 처리로 끊김 없는 서비스 제공</td></tr><tr><td>장점</td><td>운영 효율성</td><td>자동화된 복구로 수동 개입 필요성 감소</td></tr><tr><td>장점</td><td>비용 절감</td><td>장애 대응 시간 단축으로 운영 비용 절약</td></tr><tr><td>장점</td><td>확장성</td><td>다양한 서비스와 아키텍처에 적용 가능</td></tr></tbody></table><h4 id=단점과-문제점-그리고-해결방안>단점과 문제점 그리고 해결방안<a hidden class=anchor aria-hidden=true href=#단점과-문제점-그리고-해결방안>#</a></h4><h5 id=단점-2>단점<a hidden class=anchor aria-hidden=true href=#단점-2>#</a></h5><table><thead><tr><th>구분</th><th>항목</th><th>설명</th><th>해결책</th></tr></thead><tbody><tr><td>단점</td><td>지연 시간 증가</td><td>재시도로 인한 응답 시간 지연</td><td>적절한 타임아웃 설정, 비동기 처리</td></tr><tr><td>단점</td><td>리소스 사용 증가</td><td>추가 네트워크 및 CPU 리소스 소모</td><td>효율적인 백오프 전략, 제한된 재시도</td></tr><tr><td>단점</td><td>복잡성 증가</td><td>구현 및 설정의 복잡성</td><td>검증된 라이브러리 사용, 표준 패턴 적용</td></tr><tr><td>단점</td><td>디버깅 어려움</td><td>재시도 로직으로 인한 문제 추적 복잡</td><td>상세한 로깅, 모니터링 대시보드</td></tr></tbody></table><h5 id=문제점-2>문제점<a hidden class=anchor aria-hidden=true href=#문제점-2>#</a></h5><table><thead><tr><th>구분</th><th>항목</th><th>원인</th><th>영향</th><th>탐지 및 진단</th><th>예방 방법</th><th>해결 방법 및 기법</th></tr></thead><tbody><tr><td>문제점</td><td>Retry Storm</td><td>동시 대량 재시도</td><td>서버 과부하 악화</td><td>재시도 패턴 모니터링</td><td>지터 적용, 백오프 전략</td><td>Circuit Breaker 적용</td></tr><tr><td>문제점</td><td>중복 처리</td><td>멱등성 미보장</td><td>데이터 무결성 손상</td><td>비즈니스 로직 검증</td><td>멱등성 설계</td><td>요청 식별자 사용</td></tr><tr><td>문제점</td><td>무한 재시도</td><td>잘못된 정책 설정</td><td>리소스 고갈</td><td>재시도 횟수 모니터링</td><td>최대 재시도 제한</td><td>Deadline 설정</td></tr></tbody></table><h4 id=분류-기준에-따른-종류-및-유형>분류 기준에 따른 종류 및 유형<a hidden class=anchor aria-hidden=true href=#분류-기준에-따른-종류-및-유형>#</a></h4><table><thead><tr><th>분류 기준</th><th>유형</th><th>특징</th><th>적용 사례</th></tr></thead><tbody><tr><td>백오프 전략</td><td>Fixed Backoff</td><td>고정 간격 재시도</td><td>네트워크 연결 재시도</td></tr><tr><td>백오프 전략</td><td>Linear Backoff</td><td>선형 증가 간격</td><td>데이터베이스 연결 재시도</td></tr><tr><td>백오프 전략</td><td>Exponential Backoff</td><td>지수 증가 간격</td><td>API 호출 재시도</td></tr><tr><td>재시도 조건</td><td>Unconditional Retry</td><td>모든 실패에 재시도</td><td>단순 네트워크 작업</td></tr><tr><td>재시도 조건</td><td>Conditional Retry</td><td>특정 조건에서만 재시도</td><td>HTTP 상태 코드별 처리</td></tr><tr><td>구현 위치</td><td>Client-side Retry</td><td>클라이언트 측 구현</td><td>모바일 앱, 웹 브라우저</td></tr><tr><td>구현 위치</td><td>Server-side Retry</td><td>서버 측 구현</td><td>마이크로서비스 간 통신</td></tr><tr><td>구현 위치</td><td>Infrastructure Retry</td><td>인프라 레벨 구현</td><td>로드 밸런서, 서비스 메시</td></tr></tbody></table><h4 id=실무-사용-예시>실무 사용 예시<a hidden class=anchor aria-hidden=true href=#실무-사용-예시>#</a></h4><table><thead><tr><th>시나리오</th><th>사용 목적</th><th>함께 사용되는 기술</th><th>효과</th></tr></thead><tbody><tr><td>마이크로서비스 간 통신</td><td>네트워크 장애 대응</td><td>Circuit Breaker, Load Balancer</td><td>서비스 안정성 향상</td></tr><tr><td>데이터베이스 연결</td><td>연결 풀 고갈 해결</td><td>Connection Pool, Timeout</td><td>데이터 접근 안정성</td></tr><tr><td>외부 API 호출</td><td>서드파티 서비스 의존성 관리</td><td>Rate Limiter, Cache</td><td>외부 의존성 리스크 감소</td></tr><tr><td>클라우드 서비스 호출</td><td>클라우드 서비스 제한 대응</td><td>Exponential Backoff, Jitter</td><td>클라우드 비용 최적화</td></tr><tr><td>메시지 큐 처리</td><td>메시지 처리 실패 복구</td><td>Dead Letter Queue, Fallback</td><td>메시지 손실 방지</td></tr></tbody></table><h4 id=활용-사례>활용 사례<a hidden class=anchor aria-hidden=true href=#활용-사례>#</a></h4><p><strong>Netflix 의 마이크로서비스 아키텍처</strong></p><p>Netflix 는 수백 개의 마이크로서비스로 구성된 시스템에서 Retry Pattern 을 핵심 회복탄력성 전략으로 활용합니다.</p><p><strong>시스템 구성</strong>:</p><ul><li>API Gateway 에서 백엔드 서비스 호출</li><li>Hystrix Circuit Breaker 와 Retry 조합</li><li>Ribbon 로드 밸런서 연동</li><li>Eureka 서비스 디스커버리</li></ul><pre class=mermaid>graph LR
+    A[Client] --&gt; B[API Gateway]
+    B --&gt; C[Hystrix + Retry]
+    C --&gt; D[Ribbon Load Balancer]
+    D --&gt; E[Service Instance 1]
+    D --&gt; F[Service Instance 2]
+    D --&gt; G[Service Instance 3]
+    
+    C --&gt; H[Fallback Handler]
+    C --&gt; I[Metrics Collector]
+</pre><p><strong>Workflow</strong>:</p><ol><li>클라이언트가 영화 추천 API 요청</li><li>API Gateway 에서 추천 서비스 호출</li><li>네트워크 지연으로 첫 번째 요청 실패</li><li>Retry Logic 이 지수 백오프로 재시도</li><li>두 번째 시도에서 다른 인스턴스로 성공적 응답</li></ol><p><strong>Retry Pattern 의 역할</strong>:</p><ul><li>일시적 네트워크 장애 자동 복구</li><li>서비스 인스턴스 간 로드 분산</li><li>사용자 경험 중단 최소화</li></ul><p><strong>차이점 분석</strong>:</p><ul><li><strong>Retry 없음</strong>: 네트워크 지연 시 즉시 오류 응답, 사용자 불만 증가</li><li><strong>Retry 적용</strong>: 투명한 장애 복구, 99.9% 가용성 달성</li></ul><h4 id=구현-예시>구현 예시<a hidden class=anchor aria-hidden=true href=#구현-예시>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-11-1><a class=lnlinks href=#hl-11-1>  1</a>
+</span><span class=lnt id=hl-11-2><a class=lnlinks href=#hl-11-2>  2</a>
+</span><span class=lnt id=hl-11-3><a class=lnlinks href=#hl-11-3>  3</a>
+</span><span class=lnt id=hl-11-4><a class=lnlinks href=#hl-11-4>  4</a>
+</span><span class=lnt id=hl-11-5><a class=lnlinks href=#hl-11-5>  5</a>
+</span><span class=lnt id=hl-11-6><a class=lnlinks href=#hl-11-6>  6</a>
+</span><span class=lnt id=hl-11-7><a class=lnlinks href=#hl-11-7>  7</a>
+</span><span class=lnt id=hl-11-8><a class=lnlinks href=#hl-11-8>  8</a>
+</span><span class=lnt id=hl-11-9><a class=lnlinks href=#hl-11-9>  9</a>
+</span><span class=lnt id=hl-11-10><a class=lnlinks href=#hl-11-10> 10</a>
+</span><span class=lnt id=hl-11-11><a class=lnlinks href=#hl-11-11> 11</a>
+</span><span class=lnt id=hl-11-12><a class=lnlinks href=#hl-11-12> 12</a>
+</span><span class=lnt id=hl-11-13><a class=lnlinks href=#hl-11-13> 13</a>
+</span><span class=lnt id=hl-11-14><a class=lnlinks href=#hl-11-14> 14</a>
+</span><span class=lnt id=hl-11-15><a class=lnlinks href=#hl-11-15> 15</a>
+</span><span class=lnt id=hl-11-16><a class=lnlinks href=#hl-11-16> 16</a>
+</span><span class=lnt id=hl-11-17><a class=lnlinks href=#hl-11-17> 17</a>
+</span><span class=lnt id=hl-11-18><a class=lnlinks href=#hl-11-18> 18</a>
+</span><span class=lnt id=hl-11-19><a class=lnlinks href=#hl-11-19> 19</a>
+</span><span class=lnt id=hl-11-20><a class=lnlinks href=#hl-11-20> 20</a>
+</span><span class=lnt id=hl-11-21><a class=lnlinks href=#hl-11-21> 21</a>
+</span><span class=lnt id=hl-11-22><a class=lnlinks href=#hl-11-22> 22</a>
+</span><span class=lnt id=hl-11-23><a class=lnlinks href=#hl-11-23> 23</a>
+</span><span class=lnt id=hl-11-24><a class=lnlinks href=#hl-11-24> 24</a>
+</span><span class=lnt id=hl-11-25><a class=lnlinks href=#hl-11-25> 25</a>
+</span><span class=lnt id=hl-11-26><a class=lnlinks href=#hl-11-26> 26</a>
+</span><span class=lnt id=hl-11-27><a class=lnlinks href=#hl-11-27> 27</a>
+</span><span class=lnt id=hl-11-28><a class=lnlinks href=#hl-11-28> 28</a>
+</span><span class=lnt id=hl-11-29><a class=lnlinks href=#hl-11-29> 29</a>
+</span><span class=lnt id=hl-11-30><a class=lnlinks href=#hl-11-30> 30</a>
+</span><span class=lnt id=hl-11-31><a class=lnlinks href=#hl-11-31> 31</a>
+</span><span class=lnt id=hl-11-32><a class=lnlinks href=#hl-11-32> 32</a>
+</span><span class=lnt id=hl-11-33><a class=lnlinks href=#hl-11-33> 33</a>
+</span><span class=lnt id=hl-11-34><a class=lnlinks href=#hl-11-34> 34</a>
+</span><span class=lnt id=hl-11-35><a class=lnlinks href=#hl-11-35> 35</a>
+</span><span class=lnt id=hl-11-36><a class=lnlinks href=#hl-11-36> 36</a>
+</span><span class=lnt id=hl-11-37><a class=lnlinks href=#hl-11-37> 37</a>
+</span><span class=lnt id=hl-11-38><a class=lnlinks href=#hl-11-38> 38</a>
+</span><span class=lnt id=hl-11-39><a class=lnlinks href=#hl-11-39> 39</a>
+</span><span class=lnt id=hl-11-40><a class=lnlinks href=#hl-11-40> 40</a>
+</span><span class=lnt id=hl-11-41><a class=lnlinks href=#hl-11-41> 41</a>
+</span><span class=lnt id=hl-11-42><a class=lnlinks href=#hl-11-42> 42</a>
+</span><span class=lnt id=hl-11-43><a class=lnlinks href=#hl-11-43> 43</a>
+</span><span class=lnt id=hl-11-44><a class=lnlinks href=#hl-11-44> 44</a>
+</span><span class=lnt id=hl-11-45><a class=lnlinks href=#hl-11-45> 45</a>
+</span><span class=lnt id=hl-11-46><a class=lnlinks href=#hl-11-46> 46</a>
+</span><span class=lnt id=hl-11-47><a class=lnlinks href=#hl-11-47> 47</a>
+</span><span class=lnt id=hl-11-48><a class=lnlinks href=#hl-11-48> 48</a>
+</span><span class=lnt id=hl-11-49><a class=lnlinks href=#hl-11-49> 49</a>
+</span><span class=lnt id=hl-11-50><a class=lnlinks href=#hl-11-50> 50</a>
+</span><span class=lnt id=hl-11-51><a class=lnlinks href=#hl-11-51> 51</a>
+</span><span class=lnt id=hl-11-52><a class=lnlinks href=#hl-11-52> 52</a>
+</span><span class=lnt id=hl-11-53><a class=lnlinks href=#hl-11-53> 53</a>
+</span><span class=lnt id=hl-11-54><a class=lnlinks href=#hl-11-54> 54</a>
+</span><span class=lnt id=hl-11-55><a class=lnlinks href=#hl-11-55> 55</a>
+</span><span class=lnt id=hl-11-56><a class=lnlinks href=#hl-11-56> 56</a>
+</span><span class=lnt id=hl-11-57><a class=lnlinks href=#hl-11-57> 57</a>
+</span><span class=lnt id=hl-11-58><a class=lnlinks href=#hl-11-58> 58</a>
+</span><span class=lnt id=hl-11-59><a class=lnlinks href=#hl-11-59> 59</a>
+</span><span class=lnt id=hl-11-60><a class=lnlinks href=#hl-11-60> 60</a>
+</span><span class=lnt id=hl-11-61><a class=lnlinks href=#hl-11-61> 61</a>
+</span><span class=lnt id=hl-11-62><a class=lnlinks href=#hl-11-62> 62</a>
+</span><span class=lnt id=hl-11-63><a class=lnlinks href=#hl-11-63> 63</a>
+</span><span class=lnt id=hl-11-64><a class=lnlinks href=#hl-11-64> 64</a>
+</span><span class=lnt id=hl-11-65><a class=lnlinks href=#hl-11-65> 65</a>
+</span><span class=lnt id=hl-11-66><a class=lnlinks href=#hl-11-66> 66</a>
+</span><span class=lnt id=hl-11-67><a class=lnlinks href=#hl-11-67> 67</a>
+</span><span class=lnt id=hl-11-68><a class=lnlinks href=#hl-11-68> 68</a>
+</span><span class=lnt id=hl-11-69><a class=lnlinks href=#hl-11-69> 69</a>
+</span><span class=lnt id=hl-11-70><a class=lnlinks href=#hl-11-70> 70</a>
+</span><span class=lnt id=hl-11-71><a class=lnlinks href=#hl-11-71> 71</a>
+</span><span class=lnt id=hl-11-72><a class=lnlinks href=#hl-11-72> 72</a>
+</span><span class=lnt id=hl-11-73><a class=lnlinks href=#hl-11-73> 73</a>
+</span><span class=lnt id=hl-11-74><a class=lnlinks href=#hl-11-74> 74</a>
+</span><span class=lnt id=hl-11-75><a class=lnlinks href=#hl-11-75> 75</a>
+</span><span class=lnt id=hl-11-76><a class=lnlinks href=#hl-11-76> 76</a>
+</span><span class=lnt id=hl-11-77><a class=lnlinks href=#hl-11-77> 77</a>
+</span><span class=lnt id=hl-11-78><a class=lnlinks href=#hl-11-78> 78</a>
+</span><span class=lnt id=hl-11-79><a class=lnlinks href=#hl-11-79> 79</a>
+</span><span class=lnt id=hl-11-80><a class=lnlinks href=#hl-11-80> 80</a>
+</span><span class=lnt id=hl-11-81><a class=lnlinks href=#hl-11-81> 81</a>
+</span><span class=lnt id=hl-11-82><a class=lnlinks href=#hl-11-82> 82</a>
+</span><span class=lnt id=hl-11-83><a class=lnlinks href=#hl-11-83> 83</a>
+</span><span class=lnt id=hl-11-84><a class=lnlinks href=#hl-11-84> 84</a>
+</span><span class=lnt id=hl-11-85><a class=lnlinks href=#hl-11-85> 85</a>
+</span><span class=lnt id=hl-11-86><a class=lnlinks href=#hl-11-86> 86</a>
+</span><span class=lnt id=hl-11-87><a class=lnlinks href=#hl-11-87> 87</a>
+</span><span class=lnt id=hl-11-88><a class=lnlinks href=#hl-11-88> 88</a>
+</span><span class=lnt id=hl-11-89><a class=lnlinks href=#hl-11-89> 89</a>
+</span><span class=lnt id=hl-11-90><a class=lnlinks href=#hl-11-90> 90</a>
+</span><span class=lnt id=hl-11-91><a class=lnlinks href=#hl-11-91> 91</a>
+</span><span class=lnt id=hl-11-92><a class=lnlinks href=#hl-11-92> 92</a>
+</span><span class=lnt id=hl-11-93><a class=lnlinks href=#hl-11-93> 93</a>
+</span><span class=lnt id=hl-11-94><a class=lnlinks href=#hl-11-94> 94</a>
+</span><span class=lnt id=hl-11-95><a class=lnlinks href=#hl-11-95> 95</a>
+</span><span class=lnt id=hl-11-96><a class=lnlinks href=#hl-11-96> 96</a>
+</span><span class=lnt id=hl-11-97><a class=lnlinks href=#hl-11-97> 97</a>
+</span><span class=lnt id=hl-11-98><a class=lnlinks href=#hl-11-98> 98</a>
+</span><span class=lnt id=hl-11-99><a class=lnlinks href=#hl-11-99> 99</a>
+</span><span class=lnt id=hl-11-100><a class=lnlinks href=#hl-11-100>100</a>
+</span><span class=lnt id=hl-11-101><a class=lnlinks href=#hl-11-101>101</a>
+</span><span class=lnt id=hl-11-102><a class=lnlinks href=#hl-11-102>102</a>
+</span><span class=lnt id=hl-11-103><a class=lnlinks href=#hl-11-103>103</a>
+</span><span class=lnt id=hl-11-104><a class=lnlinks href=#hl-11-104>104</a>
+</span><span class=lnt id=hl-11-105><a class=lnlinks href=#hl-11-105>105</a>
+</span><span class=lnt id=hl-11-106><a class=lnlinks href=#hl-11-106>106</a>
+</span><span class=lnt id=hl-11-107><a class=lnlinks href=#hl-11-107>107</a>
+</span><span class=lnt id=hl-11-108><a class=lnlinks href=#hl-11-108>108</a>
+</span><span class=lnt id=hl-11-109><a class=lnlinks href=#hl-11-109>109</a>
+</span><span class=lnt id=hl-11-110><a class=lnlinks href=#hl-11-110>110</a>
+</span><span class=lnt id=hl-11-111><a class=lnlinks href=#hl-11-111>111</a>
+</span><span class=lnt id=hl-11-112><a class=lnlinks href=#hl-11-112>112</a>
+</span><span class=lnt id=hl-11-113><a class=lnlinks href=#hl-11-113>113</a>
+</span><span class=lnt id=hl-11-114><a class=lnlinks href=#hl-11-114>114</a>
+</span><span class=lnt id=hl-11-115><a class=lnlinks href=#hl-11-115>115</a>
+</span><span class=lnt id=hl-11-116><a class=lnlinks href=#hl-11-116>116</a>
+</span><span class=lnt id=hl-11-117><a class=lnlinks href=#hl-11-117>117</a>
+</span><span class=lnt id=hl-11-118><a class=lnlinks href=#hl-11-118>118</a>
+</span><span class=lnt id=hl-11-119><a class=lnlinks href=#hl-11-119>119</a>
+</span><span class=lnt id=hl-11-120><a class=lnlinks href=#hl-11-120>120</a>
+</span><span class=lnt id=hl-11-121><a class=lnlinks href=#hl-11-121>121</a>
+</span><span class=lnt id=hl-11-122><a class=lnlinks href=#hl-11-122>122</a>
+</span><span class=lnt id=hl-11-123><a class=lnlinks href=#hl-11-123>123</a>
+</span><span class=lnt id=hl-11-124><a class=lnlinks href=#hl-11-124>124</a>
+</span><span class=lnt id=hl-11-125><a class=lnlinks href=#hl-11-125>125</a>
+</span><span class=lnt id=hl-11-126><a class=lnlinks href=#hl-11-126>126</a>
+</span><span class=lnt id=hl-11-127><a class=lnlinks href=#hl-11-127>127</a>
+</span><span class=lnt id=hl-11-128><a class=lnlinks href=#hl-11-128>128</a>
+</span><span class=lnt id=hl-11-129><a class=lnlinks href=#hl-11-129>129</a>
+</span><span class=lnt id=hl-11-130><a class=lnlinks href=#hl-11-130>130</a>
+</span><span class=lnt id=hl-11-131><a class=lnlinks href=#hl-11-131>131</a>
+</span><span class=lnt id=hl-11-132><a class=lnlinks href=#hl-11-132>132</a>
+</span><span class=lnt id=hl-11-133><a class=lnlinks href=#hl-11-133>133</a>
+</span><span class=lnt id=hl-11-134><a class=lnlinks href=#hl-11-134>134</a>
+</span><span class=lnt id=hl-11-135><a class=lnlinks href=#hl-11-135>135</a>
+</span><span class=lnt id=hl-11-136><a class=lnlinks href=#hl-11-136>136</a>
+</span><span class=lnt id=hl-11-137><a class=lnlinks href=#hl-11-137>137</a>
+</span><span class=lnt id=hl-11-138><a class=lnlinks href=#hl-11-138>138</a>
+</span><span class=lnt id=hl-11-139><a class=lnlinks href=#hl-11-139>139</a>
+</span><span class=lnt id=hl-11-140><a class=lnlinks href=#hl-11-140>140</a>
+</span><span class=lnt id=hl-11-141><a class=lnlinks href=#hl-11-141>141</a>
+</span><span class=lnt id=hl-11-142><a class=lnlinks href=#hl-11-142>142</a>
+</span><span class=lnt id=hl-11-143><a class=lnlinks href=#hl-11-143>143</a>
+</span><span class=lnt id=hl-11-144><a class=lnlinks href=#hl-11-144>144</a>
+</span><span class=lnt id=hl-11-145><a class=lnlinks href=#hl-11-145>145</a>
+</span><span class=lnt id=hl-11-146><a class=lnlinks href=#hl-11-146>146</a>
+</span><span class=lnt id=hl-11-147><a class=lnlinks href=#hl-11-147>147</a>
+</span><span class=lnt id=hl-11-148><a class=lnlinks href=#hl-11-148>148</a>
+</span><span class=lnt id=hl-11-149><a class=lnlinks href=#hl-11-149>149</a>
+</span><span class=lnt id=hl-11-150><a class=lnlinks href=#hl-11-150>150</a>
+</span><span class=lnt id=hl-11-151><a class=lnlinks href=#hl-11-151>151</a>
+</span><span class=lnt id=hl-11-152><a class=lnlinks href=#hl-11-152>152</a>
+</span><span class=lnt id=hl-11-153><a class=lnlinks href=#hl-11-153>153</a>
+</span><span class=lnt id=hl-11-154><a class=lnlinks href=#hl-11-154>154</a>
+</span><span class=lnt id=hl-11-155><a class=lnlinks href=#hl-11-155>155</a>
+</span><span class=lnt id=hl-11-156><a class=lnlinks href=#hl-11-156>156</a>
+</span><span class=lnt id=hl-11-157><a class=lnlinks href=#hl-11-157>157</a>
+</span><span class=lnt id=hl-11-158><a class=lnlinks href=#hl-11-158>158</a>
+</span><span class=lnt id=hl-11-159><a class=lnlinks href=#hl-11-159>159</a>
+</span><span class=lnt id=hl-11-160><a class=lnlinks href=#hl-11-160>160</a>
+</span><span class=lnt id=hl-11-161><a class=lnlinks href=#hl-11-161>161</a>
+</span><span class=lnt id=hl-11-162><a class=lnlinks href=#hl-11-162>162</a>
+</span><span class=lnt id=hl-11-163><a class=lnlinks href=#hl-11-163>163</a>
+</span><span class=lnt id=hl-11-164><a class=lnlinks href=#hl-11-164>164</a>
+</span><span class=lnt id=hl-11-165><a class=lnlinks href=#hl-11-165>165</a>
+</span><span class=lnt id=hl-11-166><a class=lnlinks href=#hl-11-166>166</a>
+</span><span class=lnt id=hl-11-167><a class=lnlinks href=#hl-11-167>167</a>
+</span><span class=lnt id=hl-11-168><a class=lnlinks href=#hl-11-168>168</a>
+</span><span class=lnt id=hl-11-169><a class=lnlinks href=#hl-11-169>169</a>
+</span><span class=lnt id=hl-11-170><a class=lnlinks href=#hl-11-170>170</a>
+</span><span class=lnt id=hl-11-171><a class=lnlinks href=#hl-11-171>171</a>
+</span><span class=lnt id=hl-11-172><a class=lnlinks href=#hl-11-172>172</a>
+</span><span class=lnt id=hl-11-173><a class=lnlinks href=#hl-11-173>173</a>
+</span><span class=lnt id=hl-11-174><a class=lnlinks href=#hl-11-174>174</a>
+</span><span class=lnt id=hl-11-175><a class=lnlinks href=#hl-11-175>175</a>
+</span><span class=lnt id=hl-11-176><a class=lnlinks href=#hl-11-176>176</a>
+</span><span class=lnt id=hl-11-177><a class=lnlinks href=#hl-11-177>177</a>
+</span><span class=lnt id=hl-11-178><a class=lnlinks href=#hl-11-178>178</a>
+</span><span class=lnt id=hl-11-179><a class=lnlinks href=#hl-11-179>179</a>
+</span><span class=lnt id=hl-11-180><a class=lnlinks href=#hl-11-180>180</a>
+</span><span class=lnt id=hl-11-181><a class=lnlinks href=#hl-11-181>181</a>
+</span><span class=lnt id=hl-11-182><a class=lnlinks href=#hl-11-182>182</a>
+</span><span class=lnt id=hl-11-183><a class=lnlinks href=#hl-11-183>183</a>
+</span><span class=lnt id=hl-11-184><a class=lnlinks href=#hl-11-184>184</a>
+</span><span class=lnt id=hl-11-185><a class=lnlinks href=#hl-11-185>185</a>
+</span><span class=lnt id=hl-11-186><a class=lnlinks href=#hl-11-186>186</a>
+</span><span class=lnt id=hl-11-187><a class=lnlinks href=#hl-11-187>187</a>
+</span><span class=lnt id=hl-11-188><a class=lnlinks href=#hl-11-188>188</a>
+</span><span class=lnt id=hl-11-189><a class=lnlinks href=#hl-11-189>189</a>
+</span><span class=lnt id=hl-11-190><a class=lnlinks href=#hl-11-190>190</a>
+</span><span class=lnt id=hl-11-191><a class=lnlinks href=#hl-11-191>191</a>
+</span><span class=lnt id=hl-11-192><a class=lnlinks href=#hl-11-192>192</a>
+</span><span class=lnt id=hl-11-193><a class=lnlinks href=#hl-11-193>193</a>
+</span><span class=lnt id=hl-11-194><a class=lnlinks href=#hl-11-194>194</a>
+</span><span class=lnt id=hl-11-195><a class=lnlinks href=#hl-11-195>195</a>
+</span><span class=lnt id=hl-11-196><a class=lnlinks href=#hl-11-196>196</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>time</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>random</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>requests</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>typing</span> <span class=kn>import</span> <span class=n>Optional</span><span class=p>,</span> <span class=n>Callable</span><span class=p>,</span> <span class=n>Any</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>functools</span> <span class=kn>import</span> <span class=n>wraps</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>RetryConfig</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;재시도 설정 클래스&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> 
+</span></span><span class=line><span class=cl>                 <span class=n>max_retries</span><span class=p>:</span> <span class=nb>int</span> <span class=o>=</span> <span class=mi>3</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                 <span class=n>base_delay</span><span class=p>:</span> <span class=nb>float</span> <span class=o>=</span> <span class=mf>1.0</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                 <span class=n>max_delay</span><span class=p>:</span> <span class=nb>float</span> <span class=o>=</span> <span class=mf>60.0</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                 <span class=n>exponential_factor</span><span class=p>:</span> <span class=nb>float</span> <span class=o>=</span> <span class=mf>2.0</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                 <span class=n>jitter</span><span class=p>:</span> <span class=nb>bool</span> <span class=o>=</span> <span class=kc>True</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>max_retries</span> <span class=o>=</span> <span class=n>max_retries</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>base_delay</span> <span class=o>=</span> <span class=n>base_delay</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>max_delay</span> <span class=o>=</span> <span class=n>max_delay</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>exponential_factor</span> <span class=o>=</span> <span class=n>exponential_factor</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>jitter</span> <span class=o>=</span> <span class=n>jitter</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>RetryPattern</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;Retry Pattern 구현 클래스&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>config</span><span class=p>:</span> <span class=n>RetryConfig</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>config</span> <span class=o>=</span> <span class=n>config</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>is_transient_error</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>exception</span><span class=p>:</span> <span class=ne>Exception</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bool</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;일시적 오류 판별&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>exception</span><span class=p>,</span> <span class=n>requests</span><span class=o>.</span><span class=n>exceptions</span><span class=o>.</span><span class=n>ConnectionError</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>True</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>exception</span><span class=p>,</span> <span class=n>requests</span><span class=o>.</span><span class=n>exceptions</span><span class=o>.</span><span class=n>Timeout</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>True</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>exception</span><span class=p>,</span> <span class=n>requests</span><span class=o>.</span><span class=n>exceptions</span><span class=o>.</span><span class=n>HTTPError</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 5xx 서버 오류는 재시도 가능</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=nb>hasattr</span><span class=p>(</span><span class=n>exception</span><span class=p>,</span> <span class=s1>&#39;response&#39;</span><span class=p>)</span> <span class=ow>and</span> <span class=n>exception</span><span class=o>.</span><span class=n>response</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=k>return</span> <span class=mi>500</span> <span class=o>&lt;=</span> <span class=n>exception</span><span class=o>.</span><span class=n>response</span><span class=o>.</span><span class=n>status_code</span> <span class=o>&lt;</span> <span class=mi>600</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>False</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>calculate_backoff_delay</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>attempt</span><span class=p>:</span> <span class=nb>int</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>float</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;백오프 지연 시간 계산&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 지수 백오프 계산</span>
+</span></span><span class=line><span class=cl>        <span class=n>delay</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>config</span><span class=o>.</span><span class=n>base_delay</span> <span class=o>*</span> <span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>config</span><span class=o>.</span><span class=n>exponential_factor</span> <span class=o>**</span> <span class=n>attempt</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 최대 지연 시간 제한</span>
+</span></span><span class=line><span class=cl>        <span class=n>delay</span> <span class=o>=</span> <span class=nb>min</span><span class=p>(</span><span class=n>delay</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>config</span><span class=o>.</span><span class=n>max_delay</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 지터 적용</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>config</span><span class=o>.</span><span class=n>jitter</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=c1># Full jitter: 0과 계산된 delay 사이의 랜덤 값</span>
+</span></span><span class=line><span class=cl>            <span class=n>delay</span> <span class=o>=</span> <span class=n>random</span><span class=o>.</span><span class=n>uniform</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=n>delay</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>delay</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>retry_with_backoff</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>func</span><span class=p>:</span> <span class=n>Callable</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Callable</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;재시도 데코레이터&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=nd>@wraps</span><span class=p>(</span><span class=n>func</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>def</span> <span class=nf>wrapper</span><span class=p>(</span><span class=o>*</span><span class=n>args</span><span class=p>,</span> <span class=o>**</span><span class=n>kwargs</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Any</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>last_exception</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=k>for</span> <span class=n>attempt</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>config</span><span class=o>.</span><span class=n>max_retries</span> <span class=o>+</span> <span class=mi>1</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>                <span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                    <span class=c1># 함수 실행</span>
+</span></span><span class=line><span class=cl>                    <span class=n>result</span> <span class=o>=</span> <span class=n>func</span><span class=p>(</span><span class=o>*</span><span class=n>args</span><span class=p>,</span> <span class=o>**</span><span class=n>kwargs</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                    
+</span></span><span class=line><span class=cl>                    <span class=c1># 성공 시 결과 반환</span>
+</span></span><span class=line><span class=cl>                    <span class=k>if</span> <span class=n>attempt</span> <span class=o>&gt;</span> <span class=mi>0</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;✅ 재시도 성공 - 시도 횟수: </span><span class=si>{</span><span class=n>attempt</span> <span class=o>+</span> <span class=mi>1</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                    
+</span></span><span class=line><span class=cl>                    <span class=k>return</span> <span class=n>result</span>
+</span></span><span class=line><span class=cl>                    
+</span></span><span class=line><span class=cl>                <span class=k>except</span> <span class=ne>Exception</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                    <span class=n>last_exception</span> <span class=o>=</span> <span class=n>e</span>
+</span></span><span class=line><span class=cl>                    
+</span></span><span class=line><span class=cl>                    <span class=c1># 마지막 시도인 경우 예외 발생</span>
+</span></span><span class=line><span class=cl>                    <span class=k>if</span> <span class=n>attempt</span> <span class=o>==</span> <span class=bp>self</span><span class=o>.</span><span class=n>config</span><span class=o>.</span><span class=n>max_retries</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;❌ 최대 재시도 횟수 도달 - 실패&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=k>raise</span> <span class=n>e</span>
+</span></span><span class=line><span class=cl>                    
+</span></span><span class=line><span class=cl>                    <span class=c1># 일시적 오류가 아닌 경우 즉시 실패</span>
+</span></span><span class=line><span class=cl>                    <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>is_transient_error</span><span class=p>(</span><span class=n>e</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>                        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;❌ 영구적 오류 감지 - 재시도 중단: </span><span class=si>{</span><span class=nb>type</span><span class=p>(</span><span class=n>e</span><span class=p>)</span><span class=o>.</span><span class=vm>__name__</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=k>raise</span> <span class=n>e</span>
+</span></span><span class=line><span class=cl>                    
+</span></span><span class=line><span class=cl>                    <span class=c1># 백오프 지연 계산 및 대기</span>
+</span></span><span class=line><span class=cl>                    <span class=n>delay</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>calculate_backoff_delay</span><span class=p>(</span><span class=n>attempt</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;⏳ 재시도 </span><span class=si>{</span><span class=n>attempt</span> <span class=o>+</span> <span class=mi>1</span><span class=si>}</span><span class=s2>/</span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>config</span><span class=o>.</span><span class=n>max_retries</span><span class=si>}</span><span class=s2> - &#34;</span>
+</span></span><span class=line><span class=cl>                          <span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>delay</span><span class=si>:</span><span class=s2>.2f</span><span class=si>}</span><span class=s2>초 후 재시도 (오류: </span><span class=si>{</span><span class=nb>type</span><span class=p>(</span><span class=n>e</span><span class=p>)</span><span class=o>.</span><span class=vm>__name__</span><span class=si>}</span><span class=s2>)&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                    
+</span></span><span class=line><span class=cl>                    <span class=n>time</span><span class=o>.</span><span class=n>sleep</span><span class=p>(</span><span class=n>delay</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=c1># 여기에 도달하면 안됨 (안전장치)</span>
+</span></span><span class=line><span class=cl>            <span class=k>raise</span> <span class=n>last_exception</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>wrapper</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Netflix 영화 추천 서비스 시뮬레이션</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>MovieRecommendationService</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;영화 추천 서비스 클래스&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>retry_config</span> <span class=o>=</span> <span class=n>RetryConfig</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>            <span class=n>max_retries</span><span class=o>=</span><span class=mi>3</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>base_delay</span><span class=o>=</span><span class=mf>1.0</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>max_delay</span><span class=o>=</span><span class=mf>30.0</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>exponential_factor</span><span class=o>=</span><span class=mf>2.0</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>jitter</span><span class=o>=</span><span class=kc>True</span>
+</span></span><span class=line><span class=cl>        <span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>retry_pattern</span> <span class=o>=</span> <span class=n>RetryPattern</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>retry_config</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 서비스 인스턴스 시뮬레이션</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>service_instances</span> <span class=o>=</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;http://recommendation-service-1:8080&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;http://recommendation-service-2:8080&#34;</span><span class=p>,</span> 
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;http://recommendation-service-3:8080&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>current_instance</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>    <span class=nd>@property</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>retry_with_backoff</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;재시도 데코레이터 반환&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>retry_pattern</span><span class=o>.</span><span class=n>retry_with_backoff</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>simulate_network_failure</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bool</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;네트워크 장애 시뮬레이션 (30% 확률)&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>random</span><span class=o>.</span><span class=n>random</span><span class=p>()</span> <span class=o>&lt;</span> <span class=mf>0.3</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>get_next_instance</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>str</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;다음 서비스 인스턴스 선택 (라운드 로빈)&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=n>instance</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>service_instances</span><span class=p>[</span><span class=bp>self</span><span class=o>.</span><span class=n>current_instance</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>current_instance</span> <span class=o>=</span> <span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>current_instance</span> <span class=o>+</span> <span class=mi>1</span><span class=p>)</span> <span class=o>%</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>service_instances</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>instance</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=nd>@retry_with_backoff</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>get_movie_recommendations</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>user_id</span><span class=p>:</span> <span class=nb>int</span><span class=p>,</span> <span class=n>genre</span><span class=p>:</span> <span class=nb>str</span> <span class=o>=</span> <span class=s2>&#34;action&#34;</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>dict</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;영화 추천 API 호출 (재시도 적용)&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=n>instance_url</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>get_next_instance</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;🎬 영화 추천 요청 - 사용자: </span><span class=si>{</span><span class=n>user_id</span><span class=si>}</span><span class=s2>, 장르: </span><span class=si>{</span><span class=n>genre</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;📡 요청 대상: </span><span class=si>{</span><span class=n>instance_url</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 네트워크 장애 시뮬레이션</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>simulate_network_failure</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>            <span class=k>raise</span> <span class=n>requests</span><span class=o>.</span><span class=n>exceptions</span><span class=o>.</span><span class=n>ConnectionError</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>                <span class=sa>f</span><span class=s2>&#34;Connection failed to </span><span class=si>{</span><span class=n>instance_url</span><span class=si>}</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>            <span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 서버 과부하 시뮬레이션 (20% 확률)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>random</span><span class=o>.</span><span class=n>random</span><span class=p>()</span> <span class=o>&lt;</span> <span class=mf>0.2</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>error_response</span> <span class=o>=</span> <span class=n>requests</span><span class=o>.</span><span class=n>Response</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>            <span class=n>error_response</span><span class=o>.</span><span class=n>status_code</span> <span class=o>=</span> <span class=mi>503</span>
+</span></span><span class=line><span class=cl>            <span class=k>raise</span> <span class=n>requests</span><span class=o>.</span><span class=n>exceptions</span><span class=o>.</span><span class=n>HTTPError</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>                <span class=s2>&#34;Service Unavailable&#34;</span><span class=p>,</span> <span class=n>response</span><span class=o>=</span><span class=n>error_response</span>
+</span></span><span class=line><span class=cl>            <span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 성공적인 응답 시뮬레이션</span>
+</span></span><span class=line><span class=cl>        <span class=n>recommendations</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;user_id&#34;</span><span class=p>:</span> <span class=n>user_id</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;genre&#34;</span><span class=p>:</span> <span class=n>genre</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;movies&#34;</span><span class=p>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>                <span class=p>{</span><span class=s2>&#34;title&#34;</span><span class=p>:</span> <span class=s2>&#34;액션 영화 1&#34;</span><span class=p>,</span> <span class=s2>&#34;rating&#34;</span><span class=p>:</span> <span class=mf>4.5</span><span class=p>},</span>
+</span></span><span class=line><span class=cl>                <span class=p>{</span><span class=s2>&#34;title&#34;</span><span class=p>:</span> <span class=s2>&#34;액션 영화 2&#34;</span><span class=p>,</span> <span class=s2>&#34;rating&#34;</span><span class=p>:</span> <span class=mf>4.2</span><span class=p>},</span>
+</span></span><span class=line><span class=cl>                <span class=p>{</span><span class=s2>&#34;title&#34;</span><span class=p>:</span> <span class=s2>&#34;액션 영화 3&#34;</span><span class=p>,</span> <span class=s2>&#34;rating&#34;</span><span class=p>:</span> <span class=mf>4.7</span><span class=p>}</span>
+</span></span><span class=line><span class=cl>            <span class=p>],</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;instance&#34;</span><span class=p>:</span> <span class=n>instance_url</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;timestamp&#34;</span><span class=p>:</span> <span class=n>time</span><span class=o>.</span><span class=n>time</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>recommendations</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 실제 사용 예시</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>main</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;메인 실행 함수&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;🚀 Netflix 영화 추천 서비스 - Retry Pattern 데모&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;=&#34;</span> <span class=o>*</span> <span class=mi>60</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=n>recommendation_service</span> <span class=o>=</span> <span class=n>MovieRecommendationService</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 영화 추천 요청</span>
+</span></span><span class=line><span class=cl>        <span class=n>result</span> <span class=o>=</span> <span class=n>recommendation_service</span><span class=o>.</span><span class=n>get_movie_recommendations</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>            <span class=n>user_id</span><span class=o>=</span><span class=mi>12345</span><span class=p>,</span> 
+</span></span><span class=line><span class=cl>            <span class=n>genre</span><span class=o>=</span><span class=s2>&#34;action&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>✅ 최종 결과:&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;추천 영화 수: </span><span class=si>{</span><span class=nb>len</span><span class=p>(</span><span class=n>result</span><span class=p>[</span><span class=s1>&#39;movies&#39;</span><span class=p>])</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;응답 서버: </span><span class=si>{</span><span class=n>result</span><span class=p>[</span><span class=s1>&#39;instance&#39;</span><span class=p>]</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;영화 목록:&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>movie</span> <span class=ow>in</span> <span class=n>result</span><span class=p>[</span><span class=s1>&#39;movies&#39;</span><span class=p>]:</span>
+</span></span><span class=line><span class=cl>            <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;  - </span><span class=si>{</span><span class=n>movie</span><span class=p>[</span><span class=s1>&#39;title&#39;</span><span class=p>]</span><span class=si>}</span><span class=s2> (평점: </span><span class=si>{</span><span class=n>movie</span><span class=p>[</span><span class=s1>&#39;rating&#39;</span><span class=p>]</span><span class=si>}</span><span class=s2>)&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>    <span class=k>except</span> <span class=ne>Exception</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>❌ 영화 추천 서비스 최종 실패: </span><span class=si>{</span><span class=n>e</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=vm>__name__</span> <span class=o>==</span> <span class=s2>&#34;__main__&#34;</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>main</span><span class=p>()</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=도전-과제>도전 과제<a hidden class=anchor aria-hidden=true href=#도전-과제>#</a></h4><h5 id=기술적-도전-과제>기술적 도전 과제<a hidden class=anchor aria-hidden=true href=#기술적-도전-과제>#</a></h5><p><strong>1. 동적 백오프 전략</strong></p><ul><li><strong>원인</strong>: 정적 백오프는 다양한 장애 상황에 비효율적</li><li><strong>영향</strong>: 복구 시간 지연, 리소스 낭비</li><li><strong>탐지 및 진단</strong>: 재시도 성공률 및 시간 분석</li><li><strong>예방 방법</strong>: 적응형 백오프 알고리즘 연구</li><li><strong>해결 방법</strong>: AI/ML 기반 동적 파라미터 조정</li></ul><p><strong>2. 분산 환경에서의 재시도 조정</strong></p><ul><li><strong>원인</strong>: 서비스 간 재시도 정책 불일치</li><li><strong>영향</strong>: 전체 시스템 성능 저하</li><li><strong>탐지 및 진단</strong>: 분산 트레이싱 분석</li><li><strong>예방 방법</strong>: 중앙화된 재시도 정책 관리</li><li><strong>해결 방법</strong>: 서비스 메시 기반 통합 제어</li></ul><h5 id=운영적-도전-과제>운영적 도전 과제<a hidden class=anchor aria-hidden=true href=#운영적-도전-과제>#</a></h5><p><strong>3. 재시도 폭풍 (Retry Storm) 방지</strong></p><ul><li><strong>원인</strong>: 대규모 동시 재시도로 인한 서버 과부하</li><li><strong>영향</strong>: 시스템 복구 지연, 연쇄 장애</li><li><strong>탐지 및 진단</strong>: 실시간 재시도 패턴 모니터링</li><li><strong>예방 방법</strong>: 지터, Circuit Breaker 적용</li><li><strong>해결 방법</strong>: 백프레셔 메커니즘 구현</li></ul><h4 id=실무에서-효과적으로-적용하기-위한-고려사항-및-주의할-점>실무에서 효과적으로 적용하기 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#실무에서-효과적으로-적용하기-위한-고려사항-및-주의할-점>#</a></h4><table><thead><tr><th>구분</th><th>고려사항</th><th>설명</th><th>권장사항</th></tr></thead><tbody><tr><td>설계</td><td>멱등성 보장</td><td>중복 실행 시 부작용 방지</td><td>멱등 키 사용, 상태 체크</td></tr><tr><td>설계</td><td>적절한 타임아웃</td><td>전체 작업 시간 제한</td><td>재시도 시간 포함한 deadline 설정</td></tr><tr><td>구현</td><td>장애 유형 분류</td><td>재시도 가능한 오류 식별</td><td>상태 코드별 재시도 정책 정의</td></tr><tr><td>구현</td><td>백오프 전략 선택</td><td>서비스 특성에 맞는 전략</td><td>지수 백오프 + 지터 조합 권장</td></tr><tr><td>운영</td><td>모니터링 강화</td><td>재시도 패턴 효과성 추적</td><td>재시도율, 성공률, 지연시간 측정</td></tr><tr><td>운영</td><td>로깅 정책</td><td>디버깅을 위한 상세 기록</td><td>재시도 시도별 로그 레벨 차별화</td></tr></tbody></table><h4 id=최적화하기-위한-고려사항-및-주의할-점>최적화하기 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#최적화하기-위한-고려사항-및-주의할-점>#</a></h4><table><thead><tr><th>구분</th><th>고려사항</th><th>설명</th><th>권장사항</th></tr></thead><tbody><tr><td>성능</td><td>재시도 횟수 조정</td><td>비용 대비 효과 최적화</td><td>통계 기반 최적 재시도 횟수 산정</td></tr><tr><td>성능</td><td>병렬 재시도</td><td>동시 요청 최적화</td><td>Hedged Request 패턴 활용</td></tr><tr><td>비용</td><td>리소스 사용량 관리</td><td>재시도로 인한 비용 증가 제어</td><td>비용 기반 재시도 정책 수립</td></tr><tr><td>비용</td><td>네트워크 대역폭</td><td>불필요한 트래픽 최소화</td><td>압축, 캐싱과 재시도 조합</td></tr><tr><td>안정성</td><td>Circuit Breaker 연동</td><td>장애 전파 방지</td><td>재시도 실패율 기반 회로 차단</td></tr><tr><td>안정성</td><td>Bulkhead 패턴 적용</td><td>격리를 통한 안정성 확보</td><td>서비스별 독립적 재시도 풀</td></tr></tbody></table><hr><h3 id=제-3-부-실무-적용-및-고급-주제>제 3 부: 실무 적용 및 고급 주제<a hidden class=anchor aria-hidden=true href=#제-3-부-실무-적용-및-고급-주제>#</a></h3><h4 id=주제와-관련하여-주목할-내용>주제와 관련하여 주목할 내용<a hidden class=anchor aria-hidden=true href=#주제와-관련하여-주목할-내용>#</a></h4><table><thead><tr><th>카테고리</th><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>신기술</td><td>적응형 재시도</td><td>AI/ML 기반 백오프</td><td>머신러닝으로 최적 재시도 간격 학습</td></tr><tr><td>신기술</td><td>서비스 메시 통합</td><td>Istio Retry Policy</td><td>인프라 레벨에서 투명한 재시도 처리</td></tr><tr><td>클라우드</td><td>AWS Retry</td><td>SDK 내장 재시도</td><td>클라우드 서비스별 최적화된 재시도 정책</td></tr><tr><td>클라우드</td><td>Kubernetes</td><td>Pod Restart Policy</td><td>컨테이너 레벨 재시도 메커니즘</td></tr><tr><td>라이브러리</td><td>Resilience4j</td><td>Java 재시도 라이브러리</td><td>Spring Boot 생태계 통합</td></tr><tr><td>라이브러리</td><td>Polly</td><td>.NET 재시도 라이브러리</td><td>선언적 재시도 정책 정의</td></tr><tr><td>모니터링</td><td>재시도 메트릭</td><td>Prometheus/Grafana</td><td>재시도 패턴 성능 시각화</td></tr><tr><td>모니터링</td><td>분산 트레이싱</td><td>Jaeger/Zipkin</td><td>재시도 경로 추적 및 분석</td></tr></tbody></table><h4 id=반드시-학습해야-할-내용>반드시 학습해야 할 내용<a hidden class=anchor aria-hidden=true href=#반드시-학습해야-할-내용>#</a></h4><table><thead><tr><th>카테고리</th><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>기초 개념</td><td>회복탄력성 패턴</td><td>Circuit Breaker</td><td>재시도와 조합하는 핵심 패턴</td></tr><tr><td>기초 개념</td><td>백오프 알고리즘</td><td>Exponential Backoff</td><td>지수적 간격 증가 메커니즘</td></tr><tr><td>기초 개념</td><td>멱등성</td><td>Idempotent Operations</td><td>안전한 재시도를 위한 필수 속성</td></tr><tr><td>구현 기술</td><td>HTTP 재시도</td><td>상태 코드별 처리</td><td>웹 서비스 재시도 구현 방법</td></tr><tr><td>구현 기술</td><td>데이터베이스 재시도</td><td>Connection Pool</td><td>DB 연결 재시도 최적화</td></tr><tr><td>구현 기술</td><td>메시지 큐 재시도</td><td>Dead Letter Queue</td><td>메시지 처리 실패 복구</td></tr><tr><td>모니터링</td><td>재시도 메트릭</td><td>성공률, 지연시간</td><td>성능 측정 및 최적화 지표</td></tr><tr><td>모니터링</td><td>알람 설정</td><td>임계값 기반 알림</td><td>재시도 패턴 이상 탐지</td></tr></tbody></table><hr><h3 id=제-4-부-결론-및-참고자료>제 4 부: 결론 및 참고자료<a hidden class=anchor aria-hidden=true href=#제-4-부-결론-및-참고자료>#</a></h3><p>Retry Pattern 은 현대 분산 시스템에서 필수적인 회복탄력성 패턴으로, 일시적 장애에 대한 자동 복구 메커니즘을 제공합니다. 적절한 백오프 전략과 지터 적용을 통해 시스템 안정성을 크게 향상시킬 수 있으며, Circuit Breaker 등 다른 패턴과의 조합으로 더욱 강력한 회복탄력성을 구현할 수 있습니다.</p><p>성공적인 Retry Pattern 적용을 위해서는 멱등성 보장, 적절한 재시도 정책 설정, 지속적인 모니터링이 핵심이며, 비즈니스 요구사항과 기술적 제약사항을 균형있게 고려해야 합니다.</p><hr><h3 id=용어-정리-1>용어 정리<a hidden class=anchor aria-hidden=true href=#용어-정리-1>#</a></h3><table><thead><tr><th>카테고리</th><th>용어</th><th>설명</th></tr></thead><tbody><tr><td>핵심 개념</td><td>Transient Failure</td><td>일시적으로 발생하는 자가 복구 가능한 장애</td></tr><tr><td>핵심 개념</td><td>Exponential Backoff</td><td>재시도 간격을 지수적으로 증가시키는 전략</td></tr><tr><td>핵심 개념</td><td>Jitter</td><td>재시도 시점에 무작위성을 추가하는 기법</td></tr><tr><td>핵심 개념</td><td>Idempotency</td><td>동일한 작업을 여러 번 수행해도 결과가 같은 속성</td></tr><tr><td>구현 기술</td><td>Circuit Breaker</td><td>연속 실패 시 요청을 차단하는 보호 메커니즘</td></tr><tr><td>구현 기술</td><td>Bulkhead Pattern</td><td>시스템 구성 요소를 격리하여 장애 전파 방지</td></tr><tr><td>구현 기술</td><td>Fallback</td><td>재시도 실패 시 대안 응답을 제공하는 메커니즘</td></tr><tr><td>운영</td><td>Retry Storm</td><td>대량의 동시 재시도로 인한 시스템 과부하</td></tr><tr><td>운영</td><td>Thundering Herd</td><td>동시에 발생하는 대량 요청으로 인한 성능 문제</td></tr><tr><td>운영</td><td>Dead Letter Queue</td><td>처리 실패한 메시지를 보관하는 특별한 큐</td></tr></tbody></table><hr><h3 id=참고-및-출처-2>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처-2>#</a></h3><ul><li><a href=https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/>AWS Architecture Blog - Exponential Backoff and Jitter</a></li><li><a href=https://learn.microsoft.com/en-us/azure/architecture/patterns/retry>Microsoft Azure - Retry Pattern</a></li><li><a href=https://netflixtechblog.com/making-the-netflix-api-more-resilient-a8ec62159c2d>Netflix Technology Blog - Making the Netflix API More Resilient</a></li><li><a href=https://martinfowler.com/bliki/CircuitBreaker.html>Martin Fowler - Circuit Breaker</a></li><li><a href=https://resilience4j.readme.io/docs>Resilience4j Documentation</a></li><li><a href=https://cloud.google.com/architecture/scalable-and-resilient-apps>Google Cloud - Retry Pattern Best Practices</a></li><li><a href=https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/>Amazon Builders&rsquo; Library - Timeouts, retries, and backoff with jitter</a></li><li><a href=https://www.codecentric.de/en/knowledge-hub/blog/resilience-design-patterns-retry-fallback-timeout-circuit-breaker>CodeCentric - Resilience design patterns: retry, fallback, timeout, circuit breaker</a></li></ul><hr><p>Retry Pattern 은 일시적인 오류가 발생했을 때 동일한 작업을 자동으로 재시도하여 시스템의 안정성과 신뢰성을 향상시키는 패턴이다.<br>특히 네트워크 문제나 일시적인 서비스 장애와 같은 상황에서 유용하다.</p><p>Retry Pattern 은 MSA 환경에서 시스템의 신뢰성을 높이는 중요한 패턴이다.<br>일시적인 오류에 대해 자동으로 대응함으로써 서비스의 안정성을 향상시킬 수 있다. 그러나 적절한 구현과 신중한 사용이 필요하며, 다른 패턴들 (예: Circuit Breaker) 과 함께 사용하여 더 강력한 신뢰성을 확보할 수 있다.</p><h4 id=retry-pattern-의-주요-특징>Retry Pattern 의 주요 특징<a hidden class=anchor aria-hidden=true href=#retry-pattern-의-주요-특징>#</a></h4><ol><li><strong>재시도 횟수</strong>: 최대 재시도 횟수를 지정하여 무한 루프를 방지한다.</li><li><strong>재시도 간격</strong>: 재시도 사이의 대기 시간을 설정하여 시스템에 과부하를 주지 않도록 한다.</li><li><strong>백오프 전략</strong>: 재시도 간격을 점진적으로 늘리는 전략으로, 시스템의 회복 시간을 고려한다.</li><li><strong>조건부 재시도</strong>: 특정 오류 코드나 예외 유형에 따라 재시도 여부를 결정한다.</li></ol><h4 id=retry-pattern-구현-방법>Retry Pattern 구현 방법<a hidden class=anchor aria-hidden=true href=#retry-pattern-구현-방법>#</a></h4><ol><li><strong>Spring Retry 사용</strong>: Spring 기반 애플리케이션에서는 @Retryable 어노테이션을 사용하여 간단히 구현할 수 있다.</li><li><strong>Resilience4j 사용</strong>: 더 복잡한 재시도 로직을 구현할 때 사용할 수 있는 라이브러리이다.</li><li><strong>커스텀 구현</strong>: 특정 요구사항에 맞춰 직접 재시도 로직을 구현할 수 있다.</li></ol><h4 id=재시도-패턴-구현-시-고려사항>재시도 패턴 구현 시 고려사항<a hidden class=anchor aria-hidden=true href=#재시도-패턴-구현-시-고려사항>#</a></h4><p>재시도 패턴을 효과적으로 구현하기 위해 다음과 같은 요소를 고려해야 한다:</p><ol><li><p>재시도 대상 오류 식별<br>모든 오류에 대해 재시도를 시도하는 것은 비효율적일 수 있다.<br>따라서 재시도가 효과적인 오류와 그렇지 않은 오류를 구분해야 한다.<br>예를 들어:</p><ul><li><strong>재시도에 적합한 오류</strong>: 네트워크 타임아웃, 일시적인 서비스 불가 등</li><li><strong>재시도에 부적합한 오류</strong>: 인증 실패, 잘못된 요청 등</li></ul></li><li><p>재시도 횟수 및 간격 설정<br>무한정 재시도를 시도하는 것은 시스템 자원을 낭비하고, 대상 서비스에 추가적인 부하를 줄 수 있다.<br>따라서:</p><ul><li><strong>최대 재시도 횟수</strong>를 설정하여 무한 재시도를 방지한다.</li><li><strong>재시도 간격</strong>을 설정하여 연속적인 재시도로 인한 부하를 완화한다.</li></ul></li><li><p>백오프 (Backoff) 전략<br>재시도 간격을 점진적으로 늘리는 <strong>백오프 전략</strong>을 적용하면, 대상 서비스에 가해지는 부하를 줄이고 복구 시간을 확보할 수 있다.<br>일반적인 백오프 전략으로는 <strong>지수 백오프 (Exponential Backoff)</strong> 가 있으며, 이는 재시도 간격을 지수 함수적으로 증가시키는 방식이다.</p></li><li><p>멱등성 (Idempotency) 보장<br>재시도 시 동일한 요청이 여러 번 처리될 수 있으므로, 대상 서비스의 작업이 멱등성을 보장해야 한다.<br>즉, 동일한 요청이 여러 번 수행되더라도 시스템의 상태가 일관되게 유지되어야 한다.</p></li><li><p>재시도 스톰 방지<br>여러 서비스가 동시에 재시도를 수행하여 시스템에 과부하를 주는 상황을 피해야 한다.</p></li><li><p>타임아웃 설정<br>각 재시도에 적절한 타임아웃을 설정하여 전체 처리 시간을 제한해야 한다.</p></li><li><p>로깅과 모니터링<br>재시도 횟수와 결과를 로깅하고 모니터링하여 시스템의 동작을 파악해야 한다.</p></li></ol><h4 id=retry-pattern-의-장단점>Retry Pattern 의 장단점<a hidden class=anchor aria-hidden=true href=#retry-pattern-의-장단점>#</a></h4><p>장점:</p><ul><li>일시적인 오류를 자동으로 복구할 수 있다.</li><li>시스템의 안정성과 가용성을 향상시킨다.</li></ul><p>단점:</p><ul><li>구현이 복잡해질 수 있다.</li><li>부적절한 사용 시 시스템 부하를 증가시킬 수 있다.</li></ul><h4 id=구현-예시-1>구현 예시<a hidden class=anchor aria-hidden=true href=#구현-예시-1>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-12-1><a class=lnlinks href=#hl-12-1> 1</a>
+</span><span class=lnt id=hl-12-2><a class=lnlinks href=#hl-12-2> 2</a>
+</span><span class=lnt id=hl-12-3><a class=lnlinks href=#hl-12-3> 3</a>
+</span><span class=lnt id=hl-12-4><a class=lnlinks href=#hl-12-4> 4</a>
+</span><span class=lnt id=hl-12-5><a class=lnlinks href=#hl-12-5> 5</a>
+</span><span class=lnt id=hl-12-6><a class=lnlinks href=#hl-12-6> 6</a>
+</span><span class=lnt id=hl-12-7><a class=lnlinks href=#hl-12-7> 7</a>
+</span><span class=lnt id=hl-12-8><a class=lnlinks href=#hl-12-8> 8</a>
+</span><span class=lnt id=hl-12-9><a class=lnlinks href=#hl-12-9> 9</a>
+</span><span class=lnt id=hl-12-10><a class=lnlinks href=#hl-12-10>10</a>
+</span><span class=lnt id=hl-12-11><a class=lnlinks href=#hl-12-11>11</a>
+</span><span class=lnt id=hl-12-12><a class=lnlinks href=#hl-12-12>12</a>
+</span><span class=lnt id=hl-12-13><a class=lnlinks href=#hl-12-13>13</a>
+</span><span class=lnt id=hl-12-14><a class=lnlinks href=#hl-12-14>14</a>
+</span><span class=lnt id=hl-12-15><a class=lnlinks href=#hl-12-15>15</a>
+</span><span class=lnt id=hl-12-16><a class=lnlinks href=#hl-12-16>16</a>
+</span><span class=lnt id=hl-12-17><a class=lnlinks href=#hl-12-17>17</a>
+</span><span class=lnt id=hl-12-18><a class=lnlinks href=#hl-12-18>18</a>
+</span><span class=lnt id=hl-12-19><a class=lnlinks href=#hl-12-19>19</a>
+</span><span class=lnt id=hl-12-20><a class=lnlinks href=#hl-12-20>20</a>
+</span><span class=lnt id=hl-12-21><a class=lnlinks href=#hl-12-21>21</a>
+</span><span class=lnt id=hl-12-22><a class=lnlinks href=#hl-12-22>22</a>
+</span><span class=lnt id=hl-12-23><a class=lnlinks href=#hl-12-23>23</a>
+</span><span class=lnt id=hl-12-24><a class=lnlinks href=#hl-12-24>24</a>
+</span><span class=lnt id=hl-12-25><a class=lnlinks href=#hl-12-25>25</a>
+</span><span class=lnt id=hl-12-26><a class=lnlinks href=#hl-12-26>26</a>
+</span><span class=lnt id=hl-12-27><a class=lnlinks href=#hl-12-27>27</a>
+</span><span class=lnt id=hl-12-28><a class=lnlinks href=#hl-12-28>28</a>
+</span><span class=lnt id=hl-12-29><a class=lnlinks href=#hl-12-29>29</a>
+</span><span class=lnt id=hl-12-30><a class=lnlinks href=#hl-12-30>30</a>
+</span><span class=lnt id=hl-12-31><a class=lnlinks href=#hl-12-31>31</a>
+</span><span class=lnt id=hl-12-32><a class=lnlinks href=#hl-12-32>32</a>
+</span><span class=lnt id=hl-12-33><a class=lnlinks href=#hl-12-33>33</a>
+</span><span class=lnt id=hl-12-34><a class=lnlinks href=#hl-12-34>34</a>
+</span><span class=lnt id=hl-12-35><a class=lnlinks href=#hl-12-35>35</a>
+</span><span class=lnt id=hl-12-36><a class=lnlinks href=#hl-12-36>36</a>
+</span><span class=lnt id=hl-12-37><a class=lnlinks href=#hl-12-37>37</a>
+</span><span class=lnt id=hl-12-38><a class=lnlinks href=#hl-12-38>38</a>
+</span><span class=lnt id=hl-12-39><a class=lnlinks href=#hl-12-39>39</a>
+</span><span class=lnt id=hl-12-40><a class=lnlinks href=#hl-12-40>40</a>
+</span><span class=lnt id=hl-12-41><a class=lnlinks href=#hl-12-41>41</a>
+</span><span class=lnt id=hl-12-42><a class=lnlinks href=#hl-12-42>42</a>
+</span><span class=lnt id=hl-12-43><a class=lnlinks href=#hl-12-43>43</a>
+</span><span class=lnt id=hl-12-44><a class=lnlinks href=#hl-12-44>44</a>
+</span><span class=lnt id=hl-12-45><a class=lnlinks href=#hl-12-45>45</a>
+</span><span class=lnt id=hl-12-46><a class=lnlinks href=#hl-12-46>46</a>
+</span><span class=lnt id=hl-12-47><a class=lnlinks href=#hl-12-47>47</a>
+</span><span class=lnt id=hl-12-48><a class=lnlinks href=#hl-12-48>48</a>
+</span><span class=lnt id=hl-12-49><a class=lnlinks href=#hl-12-49>49</a>
+</span><span class=lnt id=hl-12-50><a class=lnlinks href=#hl-12-50>50</a>
+</span><span class=lnt id=hl-12-51><a class=lnlinks href=#hl-12-51>51</a>
+</span><span class=lnt id=hl-12-52><a class=lnlinks href=#hl-12-52>52</a>
+</span><span class=lnt id=hl-12-53><a class=lnlinks href=#hl-12-53>53</a>
+</span><span class=lnt id=hl-12-54><a class=lnlinks href=#hl-12-54>54</a>
+</span><span class=lnt id=hl-12-55><a class=lnlinks href=#hl-12-55>55</a>
+</span><span class=lnt id=hl-12-56><a class=lnlinks href=#hl-12-56>56</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 재시도 로직을 포함한 서비스 클라이언트 구현
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>class</span> <span class=nx>ServiceClient</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>constructor</span><span class=p>(</span><span class=nx>options</span> <span class=o>=</span> <span class=p>{})</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=p>.</span><span class=nx>maxRetries</span> <span class=o>=</span> <span class=nx>options</span><span class=p>.</span><span class=nx>maxRetries</span> <span class=o>||</span> <span class=mi>3</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=p>.</span><span class=nx>initialDelay</span> <span class=o>=</span> <span class=nx>options</span><span class=p>.</span><span class=nx>initialDelay</span> <span class=o>||</span> <span class=mi>1000</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=p>.</span><span class=nx>maxDelay</span> <span class=o>=</span> <span class=nx>options</span><span class=p>.</span><span class=nx>maxDelay</span> <span class=o>||</span> <span class=mi>5000</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=p>.</span><span class=nx>backoffMultiplier</span> <span class=o>=</span> <span class=nx>options</span><span class=p>.</span><span class=nx>backoffMultiplier</span> <span class=o>||</span> <span class=mi>2</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kr>async</span> <span class=nx>executeWithRetry</span><span class=p>(</span><span class=nx>operation</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kd>let</span> <span class=nx>lastError</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=kd>let</span> <span class=nx>delay</span> <span class=o>=</span> <span class=k>this</span><span class=p>.</span><span class=nx>initialDelay</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1>// 재시도 횟수만큼 반복
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=k>for</span> <span class=p>(</span><span class=kd>let</span> <span class=nx>attempt</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=nx>attempt</span> <span class=o>&lt;=</span> <span class=k>this</span><span class=p>.</span><span class=nx>maxRetries</span><span class=p>;</span> <span class=nx>attempt</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>try</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=c1>// 작업 실행
+</span></span></span><span class=line><span class=cl><span class=c1></span>                <span class=kr>const</span> <span class=nx>result</span> <span class=o>=</span> <span class=kr>await</span> <span class=nx>operation</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>                
+</span></span><span class=line><span class=cl>                <span class=c1>// 성공 시 즉시 반환
+</span></span></span><span class=line><span class=cl><span class=c1></span>                <span class=k>return</span> <span class=nx>result</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span> <span class=k>catch</span> <span class=p>(</span><span class=nx>error</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=nx>lastError</span> <span class=o>=</span> <span class=nx>error</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>                <span class=c1>// 재시도 가능한 오류인지 확인
+</span></span></span><span class=line><span class=cl><span class=c1></span>                <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=k>this</span><span class=p>.</span><span class=nx>isRetryable</span><span class=p>(</span><span class=nx>error</span><span class=p>))</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                    <span class=k>throw</span> <span class=nx>error</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>                <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>                <span class=c1>// 마지막 시도였다면 오류 발생
+</span></span></span><span class=line><span class=cl><span class=c1></span>                <span class=k>if</span> <span class=p>(</span><span class=nx>attempt</span> <span class=o>===</span> <span class=k>this</span><span class=p>.</span><span class=nx>maxRetries</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                    <span class=k>throw</span> <span class=k>new</span> <span class=nb>Error</span><span class=p>(</span><span class=sb>`작업 실패 after </span><span class=si>${</span><span class=k>this</span><span class=p>.</span><span class=nx>maxRetries</span><span class=si>}</span><span class=sb> attempts: </span><span class=si>${</span><span class=nx>error</span><span class=p>.</span><span class=nx>message</span><span class=si>}</span><span class=sb>`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>                <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>                <span class=c1>// 대기 후 재시도
+</span></span></span><span class=line><span class=cl><span class=c1></span>                <span class=kr>await</span> <span class=k>this</span><span class=p>.</span><span class=nx>wait</span><span class=p>(</span><span class=nx>delay</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>                
+</span></span><span class=line><span class=cl>                <span class=c1>// 지연 시간을 지수적으로 증가
+</span></span></span><span class=line><span class=cl><span class=c1></span>                <span class=nx>delay</span> <span class=o>=</span> <span class=nb>Math</span><span class=p>.</span><span class=nx>min</span><span class=p>(</span><span class=nx>delay</span> <span class=o>*</span> <span class=k>this</span><span class=p>.</span><span class=nx>backoffMultiplier</span><span class=p>,</span> <span class=k>this</span><span class=p>.</span><span class=nx>maxDelay</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 재시도 가능한 오류인지 판단
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>isRetryable</span><span class=p>(</span><span class=nx>error</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>error</span><span class=p>.</span><span class=nx>status</span> <span class=o>===</span> <span class=mi>429</span> <span class=o>||</span> <span class=c1>// Too Many Requests
+</span></span></span><span class=line><span class=cl><span class=c1></span>               <span class=nx>error</span><span class=p>.</span><span class=nx>status</span> <span class=o>===</span> <span class=mi>503</span> <span class=o>||</span> <span class=c1>// Service Unavailable
+</span></span></span><span class=line><span class=cl><span class=c1></span>               <span class=nx>error</span><span class=p>.</span><span class=nx>code</span> <span class=o>===</span> <span class=s1>&#39;ECONNRESET&#39;</span> <span class=o>||</span> <span class=c1>// 연결 재설정
+</span></span></span><span class=line><span class=cl><span class=c1></span>               <span class=nx>error</span><span class=p>.</span><span class=nx>code</span> <span class=o>===</span> <span class=s1>&#39;ETIMEDOUT&#39;</span><span class=p>;</span> <span class=c1>// 타임아웃
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 지정된 시간만큼 대기
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>wait</span><span class=p>(</span><span class=nx>ms</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=k>new</span> <span class=nb>Promise</span><span class=p>(</span><span class=nx>resolve</span> <span class=p>=&gt;</span> <span class=nx>setTimeout</span><span class=p>(</span><span class=nx>resolve</span><span class=p>,</span> <span class=nx>ms</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><hr><h3 id=참고-및-출처-3>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처-3>#</a></h3></div><article class=post-entry><header class=entry-header><h2 class=entry-hint-parent>Retry Pattern</h2></header><div class=entry-content><p>Retry Pattern Retry Pattern은 분산 시스템이나 마이크로서비스 아키텍처에서 일시적인 오류(Transient Failure)를 처리하기 위한 핵심 설계 패턴이다.
+네트워크 불안정, 일시적인 서비스 중단 등 일시적인 실패 상황에서 시스템의 복원력(Resilience)을 강화하는 데 목적을 둔다.
+이 패턴은 분산 시스템의 안정성을 높이는 필수 도구이지만, 남용할 경우 역효과를 낼 수 있으므로 신중한 정책 수립이 필요하다.
+Retry Pattern의 핵심 개념 작동 원리
+실패한 작업 자동 재시도: API 호출, 데이터베이스 접근 등 실패 가능성이 있는 작업을 정의된 정책에 따라 재시도한다. 일시적 오류 감지: 네트워크 타임아웃, HTTP 5xx 에러, 데이터베이스 연결 실패 등 일시적인 오류만 대상으로 한다. 주요 구성 요소
+...</p></div><footer class=entry-footer><span title='2024-09-27 11:31:00 +0000 UTC'>September 27, 2024</span>&nbsp;·&nbsp;3 min&nbsp;·&nbsp;Me</footer><a class=entry-link aria-label="post link to Retry Pattern" href=https://buenhyden.github.io/posts/software-engineering/design-and-architecture/architecture-styles-and-patterns/architecture-patterns/resilience-patterns/fault-tolerance/retry/retry-pattern/></a></article></main><script type=module>
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true });
+  </script><footer class=footer><span>&copy; 2025 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>
