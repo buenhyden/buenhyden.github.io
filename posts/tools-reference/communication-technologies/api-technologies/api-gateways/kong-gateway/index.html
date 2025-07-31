@@ -1,0 +1,979 @@
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Kong | hyunyoun's Blog</title><meta name=keywords content="System-Design,System-Components,Traffic-Control-and-Routing,API-Gateway,Implementations,Kong"><meta name=description content="Kong은 마이크로서비스 아키텍처를 위한 클라우드 네이티브, 오픈 소스 API 게이트웨이 및 서비스 메시이다."><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/tools-reference/communication-technologies/api-technologies/api-gateways/kong-gateway/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.a9863521b3bd3c240bc506f46b95e3c06ccef2ae37f529d5f99bdaef442bccce.css integrity="sha256-qYY1IbO9PCQLxQb0a5XjwGzO8q439SnV+Zva70QrzM4=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate type=application/rss+xml href=https://buenhyden.github.io/posts/tools-reference/communication-technologies/api-technologies/api-gateways/kong-gateway/index.xml><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/tools-reference/communication-technologies/api-technologies/api-gateways/kong-gateway/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/tools-reference/communication-technologies/api-technologies/api-gateways/kong-gateway/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="Kong"><meta property="og:description" content="Kong은 마이크로서비스 아키텍처를 위한 클라우드 네이티브, 오픈 소스 API 게이트웨이 및 서비스 메시이다."><meta property="og:locale" content="en"><meta property="og:type" content="website"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="Kong"><meta name=twitter:description content="Kong은 마이크로서비스 아키텍처를 위한 클라우드 네이티브, 오픈 소스 API 게이트웨이 및 서비스 메시이다."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"기록하고 기억하고 활용하자.","item":"https://buenhyden.github.io/posts/"},{"@type":"ListItem","position":2,"name":"Kong","item":"https://buenhyden.github.io/posts/tools-reference/communication-technologies/api-technologies/api-gateways/kong-gateway/"}]}</script></head><body class=list id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><header class=page-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/>기록하고 기억하고 활용하자.</a></div><h1>Kong</h1><div class=post-description>Kong은 마이크로서비스 아키텍처를 위한 클라우드 네이티브, 오픈 소스 API 게이트웨이 및 서비스 메시이다.</div></header><div class=post-content><h2 id=kong>Kong<a hidden class=anchor aria-hidden=true href=#kong>#</a></h2><h3 id=1-적절한-태그-영어-대시로-구분>1. 적절한 태그 (영어, 대시로 구분)<a hidden class=anchor aria-hidden=true href=#1-적절한-태그-영어-대시로-구분>#</a></h3><p>API-Gateway, Cloud-Native, Microservices, Traffic-Management</p><h3 id=2-분류-구조-타당성-검토-및-분석>2. 분류 구조 타당성 검토 및 분석<a hidden class=anchor aria-hidden=true href=#2-분류-구조-타당성-검토-및-분석>#</a></h3><ul><li>현재 구조에서 &lsquo;Kong&rsquo; 은 &ldquo;System Design > System Components > Traffic Control and Routing > API Gateway > Implementations&rdquo; 로 분류됨.</li><li>Kong 은 실제로 &lsquo;API 게이트웨이 (API Gateway)&rsquo; 로 크게 분류되며, 시스템 컴포넌트 (System Components), 트래픽 제어 및 라우팅 (Traffic Control and Routing) 에 속하므로, 계층 구조가 적절함.</li><li>API Gateway 구현체는 클라우드 네이티브 (Cloud Native), 마이크로서비스 (Microservices) 환경에서 필수 요소이며, 해당 분류에서 &ldquo;Kong&rdquo; 의 포지셔닝이 논리적으로 타당함.</li></ul><h3 id=3-200-자-내외-한줄-요약>3. 200 자 내외 한줄 요약<a hidden class=anchor aria-hidden=true href=#3-200-자-내외-한줄-요약>#</a></h3><p>Kong 은 마이크로서비스 (Microservices) 아키텍처와 클라우드 환경에서 트래픽 관리, 인증, 로깅, 보안 기능을 제공하는 오픈 소스 API 게이트웨이 (API Gateway) 솔루션으로, 다양한 플러그인과 고가용성, 확장성을 지원하여 복잡한 시스템을 효율적으로 운영할 수 있게 한다.</p><h3 id=4-250-자-내외-개요>4. 250 자 내외 개요<a hidden class=anchor aria-hidden=true href=#4-250-자-내외-개요>#</a></h3><p>Kong 은 엔터프라이즈용 오픈소스 API 게이트웨이로, 네트워크 요청 트래픽을 제어, 인증, 정책 적용, 로깅 등 다양한 미들웨어 역할을 수행한다. 플러그인 기반 구조로 인증, 보안, 트래픽 제한, 관측성 (Observability) 등을 확장할 수 있고, 컨테이너 및 클라우드 네이티브 환경에서 고가용성과 운영 효율성을 제공한다. 복잡한 마이크로서비스 환경에서 핵심 인프라로 활용되고 있다.</p><h2 id=5-핵심-개념>5. 핵심 개념<a hidden class=anchor aria-hidden=true href=#5-핵심-개념>#</a></h2><ul><li><strong>API 게이트웨이 (API Gateway) 란?</strong><ul><li>내부 서비스 및 외부 클라이언트 사이의 요청 경계 역할</li><li>인증, 권한 부여, 로깅, 라우팅, 트래픽 제어 등 다양한 통제와 정책 적용 지점</li></ul></li><li><strong>Kong 의 핵심</strong><ul><li>플러그인 아키텍처로 다양한 기능 제공 (예: 인증, 제한, 로깅)</li><li>확장성과 고가용성 지원 (분산 환경 가능)</li><li>보안 정책, 트래픽 관리, API 분석 등 실무에서 요구되는 API 관리 전반 지원</li></ul></li></ul><h3 id=51-실무-구현-연관성>5.1 실무 구현 연관성<a hidden class=anchor aria-hidden=true href=#51-실무-구현-연관성>#</a></h3><ul><li><strong>API 통합/관리</strong>: 여러 백엔드 서비스를 일관된 API 로 외부에 제공</li><li><strong>트래픽 조율</strong>: 높은 트래픽 처리 및 트래픽 제한/분산 정책 구현에 용이</li><li><strong>관측성 및 모니터링</strong>: 로깅, 분석 플러그인으로 실시간 상태 파악</li><li><strong>운영 자동화</strong>: IaaS, PaaS, 컨테이너 (예: 쿠버네티스) 환경과 결합해 데브옵스 (devops) 자동화에 적합</li></ul><h2 id=6-필수-조사-내용-정리>6. 필수 조사 내용 정리<a hidden class=anchor aria-hidden=true href=#6-필수-조사-내용-정리>#</a></h2><h3 id=등장-배경-및-발전-과정>등장 배경 및 발전 과정<a hidden class=anchor aria-hidden=true href=#등장-배경-및-발전-과정>#</a></h3><ul><li>마이크로서비스, 클라우드 네이티브 환경 확장과 함께 복잡해진 API/트래픽 관리 요구로, NGINX 와 Cassandra 기반의 첫 버전 (2015 년) 출시.</li></ul><h3 id=목적-및-필요성>목적 및 필요성<a hidden class=anchor aria-hidden=true href=#목적-및-필요성>#</a></h3><ul><li>다양한 서비스에 걸친 API 엔드포인트의 인증, 트래픽 제어, 정책 적용, 확장성 요구를 해결</li><li>집중적인 정책 관리, 관측성, 확장성 제공</li></ul><h3 id=주요-기능-및-역할>주요 기능 및 역할<a hidden class=anchor aria-hidden=true href=#주요-기능-및-역할>#</a></h3><table><thead><tr><th>구분</th><th>기능</th><th>역할</th></tr></thead><tbody><tr><td>인증/인가</td><td>요청 검증, 사용자 권한 확인</td><td>API 접근 보안성 제공</td></tr><tr><td>라우팅</td><td>경로 및 서비스로 트래픽 분배</td><td>백엔드 서비스와 연결 담당</td></tr><tr><td>상한/트래픽관리</td><td>속도 제한, 부하 분산</td><td>자원 소모 및 DDoS 방어</td></tr><tr><td>로깅/모니터링</td><td>트랜잭션 기록, 성능 모니터링</td><td>운영 및 문제 진단 지원</td></tr></tbody></table><h3 id=특징>특징<a hidden class=anchor aria-hidden=true href=#특징>#</a></h3><ul><li>플러그인 (Plugin) 기반 구조로 모듈형 확장성</li><li>고가용성 (High Availability), 장애조치 (Failover) 지원</li><li>퍼포먼스 극대화를 위한 경량 엔진</li></ul><h3 id=핵심-원칙>핵심 원칙<a hidden class=anchor aria-hidden=true href=#핵심-원칙>#</a></h3><ul><li>마이크로서비스 아키텍처 (Microservices Architecture) 트래픽 중심 허브 역할</li><li>보안, 유연성, 확장성, 자동화 우선</li></ul><h3 id=주요-원리작동-방식-다이어그램-아래-참고>주요 원리/작동 방식 (다이어그램 아래 참고)<a hidden class=anchor aria-hidden=true href=#주요-원리작동-방식-다이어그램-아래-참고>#</a></h3><ul><li>클라이언트 -API 게이트웨이 - 백엔드 서비스 체계</li><li>플러그인 체인을 통한 요청 처리 과정</li></ul><h4 id=주요-원리작동-원리-다이어그램-mermaid>주요 원리/작동 원리 다이어그램 (Mermaid)<a hidden class=anchor aria-hidden=true href=#주요-원리작동-원리-다이어그램-mermaid>#</a></h4><pre class=mermaid>sequenceDiagram
+    participant Client
+    participant Kong
+    participant Backend
+    Client-&gt;&gt;Kong: API 요청
+    Kong-&gt;&gt;Kong: 인증/인가 플러그인 실행
+    Kong-&gt;&gt;Kong: 트래픽 정책 플러그인 실행
+    Kong-&gt;&gt;Backend: 라우팅 후 요청 전달
+    Backend--&gt;&gt;Kong: 응답
+    Kong--&gt;&gt;Client: 결과 전달
+</pre><h3 id=구조-및-아키텍처>구조 및 아키텍처<a hidden class=anchor aria-hidden=true href=#구조-및-아키텍처>#</a></h3><ul><li>핵심: 프록시 (Proxy), 관리자 (Manager/Control Plane), 플러그인 (Plugin), DB, 인프라 확장 지원</li><li>구성 요소별 설명 하단 표 참고</li></ul><h4 id=구조-다이어그램-mermaid>구조 다이어그램 (Mermaid)<a hidden class=anchor aria-hidden=true href=#구조-다이어그램-mermaid>#</a></h4><pre class=mermaid>graph TD
+  Client --&gt; Proxy
+  Proxy --API 요청/응답--&gt; Plugins
+  Plugins --&gt; DB[(Configuration DB)]
+  Proxy --&gt; Backend_Services
+  Admin_GUI --&gt; Proxy
+</pre><h4 id=구성-요소-구분-필수선택>구성 요소 구분 (필수/선택)<a hidden class=anchor aria-hidden=true href=#구성-요소-구분-필수선택>#</a></h4><table><thead><tr><th>구분</th><th>구성요소</th><th>기능</th><th>역할</th><th>특징</th></tr></thead><tbody><tr><td>필수</td><td>프록시 (Proxy)</td><td>클라이언트 트래픽 수신</td><td>정책 처리, 백엔드 연동</td><td>고성능 경량 처리</td></tr><tr><td>필수</td><td>플러그인 (Plugin)</td><td>정책 적용</td><td>기능 확장 (인증, 로깅 등)</td><td>모듈성</td></tr><tr><td>필수</td><td>DB(Cassandra/PostgreSQL)</td><td>구성 관리</td><td>정책, 엔드포인트 저장</td><td>확장성</td></tr><tr><td>선택</td><td>Manager(Control Plane)</td><td>관리자 UI/API</td><td>운영 정책 관리</td><td>GUI/API 제공</td></tr><tr><td>선택</td><td>Analytics</td><td>분석/모니터링</td><td>트래픽/성능 분석</td><td>통합성</td></tr></tbody></table><h3 id=구현-기법-및-방법>구현 기법 및 방법<a hidden class=anchor aria-hidden=true href=#구현-기법-및-방법>#</a></h3><ul><li>NGINX/EnvoyProxy 등으로 로우 - 레벨 HTTP/HTTPS 처리</li><li>Lua 로 작성되는 플러그인 확장 (동적 로딩 지원)</li><li>DB 연동을 통한 중앙집중 정책 관리, 쿠버네티스 연동 지원</li></ul><h4 id=실제-구현-예시>실제 구현 예시<a hidden class=anchor aria-hidden=true href=#실제-구현-예시>#</a></h4><ul><li>Kong Ingress 컨트롤러: 쿠버네티스에서 API Gateway 로 동작하며, YAML 기반 정책 적용</li></ul><h3 id=장점>장점<a hidden class=anchor aria-hidden=true href=#장점>#</a></h3><table><thead><tr><th>구분</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>장점</td><td>확장성</td><td>플러그인 기반 구조로 유연한 기능 추가/제거 가능</td></tr><tr><td></td><td>신속 배포</td><td>경량 프록시로 빠른 배포, 롤링 업데이트 용이</td></tr><tr><td></td><td>다양한 인증/보안</td><td>OAuth2.0, JWT 등 최신 인증 지원</td></tr><tr><td></td><td>분산 및 HA 지원</td><td>멀티노드 확장, 장애 복구, 고가용성</td></tr><tr><td></td><td>트래픽 관리</td><td>요청 제한, 속도 제한 등 다양한 정책 지원</td></tr><tr><td></td><td>통합 관리</td><td>관리자 UI, RESTful API 통한 중앙 관리</td></tr></tbody></table><h3 id=단점과-문제점-그리고-해결방안>단점과 문제점 그리고 해결방안<a hidden class=anchor aria-hidden=true href=#단점과-문제점-그리고-해결방안>#</a></h3><h4 id=단점>단점<a hidden class=anchor aria-hidden=true href=#단점>#</a></h4><table><thead><tr><th>구분</th><th>항목</th><th>설명</th><th>해결책</th></tr></thead><tbody><tr><td>단점</td><td>학습 곡선</td><td>플러그인/정책 구조와 운영 자동화에 익숙하지 않으면 진입장벽</td><td>공식 문서, 커뮤니티 레퍼런스 활용</td></tr><tr><td></td><td>외부 DB 의존성</td><td>구성 상태 관리에 반드시 DB 필요</td><td>DB 장애 대비 이중화 구성</td></tr><tr><td></td><td>초기 설정 복잡성</td><td>YAML/JSON 등 다양한 정책 선언 필요</td><td>예시 템플릿, 자동화 도구 지원</td></tr><tr><td></td><td>플러그인 개발 난이도</td><td>Lua 기반 커스텀 플러그인 작성에 러닝 커브 존재</td><td>표준 플러그인/SDK 활용</td></tr></tbody></table><h4 id=문제점>문제점<a hidden class=anchor aria-hidden=true href=#문제점>#</a></h4><table><thead><tr><th>구분</th><th>항목</th><th>원인</th><th>영향</th><th>탐지 및 진단</th><th>예방 방법</th><th>해결 방법 및 기법</th></tr></thead><tbody><tr><td>문제점</td><td>DB 장애</td><td>외부 DB 와 네트워크 연결 문제</td><td>정책 업데이트/트래픽 처리 중단</td><td>모니터링 시스템, 건강 체크</td><td>이중화, 자동 복구</td><td>장애 시 Failover 및 Backup 이용</td></tr><tr><td>문제점</td><td>리소스 과점</td><td>트래픽 급증/부적절한 정책설정</td><td>응답 지연/시스템 다운</td><td>트래픽 모니터링, 경고 시스템</td><td>로드 밸런싱, 트래픽 제한</td><td>오토스케일링 도입</td></tr><tr><td>문제점</td><td>플러그인 충돌</td><td>다중 플러그인 비효율적 설계</td><td>트래픽 라우팅 오류, 보안 취약</td><td>로그 분석, 플러그인 간 의존성 검사</td><td>표준화, Best Practice 준수</td><td>테스트, 단계적 롤아웃</td></tr></tbody></table><h3 id=실무-사용-예시>실무 사용 예시<a hidden class=anchor aria-hidden=true href=#실무-사용-예시>#</a></h3><table><thead><tr><th>사용 환경</th><th>주요 연동 대상</th><th>목적</th><th>효과</th></tr></thead><tbody><tr><td>마이크로서비스 인프라</td><td>쿠버네티스 (Kubernetes)</td><td>API 집합 라우팅, 트래픽 중앙 제어</td><td>운영 효율, 장애 복구</td></tr><tr><td>인증 집중화</td><td>OAuth2.0/JWT 인증 서버</td><td>모든 API 호출에 인증 적용</td><td>보안 강화</td></tr><tr><td>SaaS 서비스 게이트웨이</td><td>외부 고객사 트래픽 관리</td><td>서비스 라우팅, 요금제 적용</td><td>유연한 비즈니스 구축</td></tr></tbody></table><h2 id=활용-사례>활용 사례<a hidden class=anchor aria-hidden=true href=#활용-사례>#</a></h2><p><strong>시나리오</strong>:<br>B2B SaaS(Software-as-a-Service) 기업에서 고객 클라이언트들이 각기 다양한 API 요청을 보낼 때, Kong 을 통해 트래픽 라우팅, 인증, 속도 제한, 모니터링을 한 번에 관리</p><p><strong>시스템 구성</strong>:</p><ul><li>SaaS 서비스, Kong API 게이트웨이, 인증 서버, 로그 서버, 백엔드 서비스</li></ul><p><strong>시스템 구성 다이어그램</strong>:</p><pre class=mermaid>graph TD
+    Client1 &amp; Client2 --&gt;|API 요청| Kong
+    Kong -- 인증 --&gt; AuthServer
+    Kong -- 로그/모니터링 --&gt; LogServer
+    Kong --&gt; BackendService
+</pre><p><strong>Workflow</strong>:</p><ul><li>클라이언트가 Kong 으로 API 요청</li><li>Kong 이 인증/인가 플러그인으로 유효성 검사</li><li>인증 성공 시 로깅/속도제한 플러그인 실행</li><li>최종 트래픽을 백엔드 서비스로 전달, 응답 반환</li><li>로그 서버에 기록, 통합 모니터링 구현</li></ul><p><strong>역할</strong>:</p><ul><li>Kong: 모든 트래픽의 정책 적용, 인증/로깅, 트래픽 제어</li><li>인증 서버: OAuth/JWT 등 인증 정보 제공</li><li>로그 서버: API 요청/응답 기록 및 모니터링</li></ul><p><strong>유무에 따른 차이점</strong>:</p><ul><li>Kong 사용 시: 정책 및 트래픽 제어, 인증, 로깅 기능이 중앙 집중화, 운영 자동화 및 효율성 극대화</li><li>Kong 미사용 시: 각 API 에 정책을 개별 구현, 중복코드 증가, 확장성 및 운영 복잡성 증가</li></ul><p><strong>구현 예시 (YAML, 쿠버네티스 Ingress Controller)</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-3-1><a class=lnlinks href=#hl-3-1> 1</a>
+</span><span class=lnt id=hl-3-2><a class=lnlinks href=#hl-3-2> 2</a>
+</span><span class=lnt id=hl-3-3><a class=lnlinks href=#hl-3-3> 3</a>
+</span><span class=lnt id=hl-3-4><a class=lnlinks href=#hl-3-4> 4</a>
+</span><span class=lnt id=hl-3-5><a class=lnlinks href=#hl-3-5> 5</a>
+</span><span class=lnt id=hl-3-6><a class=lnlinks href=#hl-3-6> 6</a>
+</span><span class=lnt id=hl-3-7><a class=lnlinks href=#hl-3-7> 7</a>
+</span><span class=lnt id=hl-3-8><a class=lnlinks href=#hl-3-8> 8</a>
+</span><span class=lnt id=hl-3-9><a class=lnlinks href=#hl-3-9> 9</a>
+</span><span class=lnt id=hl-3-10><a class=lnlinks href=#hl-3-10>10</a>
+</span><span class=lnt id=hl-3-11><a class=lnlinks href=#hl-3-11>11</a>
+</span><span class=lnt id=hl-3-12><a class=lnlinks href=#hl-3-12>12</a>
+</span><span class=lnt id=hl-3-13><a class=lnlinks href=#hl-3-13>13</a>
+</span><span class=lnt id=hl-3-14><a class=lnlinks href=#hl-3-14>14</a>
+</span><span class=lnt id=hl-3-15><a class=lnlinks href=#hl-3-15>15</a>
+</span><span class=lnt id=hl-3-16><a class=lnlinks href=#hl-3-16>16</a>
+</span><span class=lnt id=hl-3-17><a class=lnlinks href=#hl-3-17>17</a>
+</span><span class=lnt id=hl-3-18><a class=lnlinks href=#hl-3-18>18</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>networking.k8s.io/v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Ingress</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>example-ingress</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>annotations</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>konghq.com/plugins</span><span class=p>:</span><span class=w> </span><span class=l>rate-limiting, jwt</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>rules</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>host</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;api.example.com&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>http</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>paths</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>path</span><span class=p>:</span><span class=w> </span><span class=l>/service1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>pathType</span><span class=p>:</span><span class=w> </span><span class=l>Prefix</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>backend</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>service</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>service1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=nt>port</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>              </span><span class=nt>number</span><span class=p>:</span><span class=w> </span><span class=m>80</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=도전-과제>도전 과제<a hidden class=anchor aria-hidden=true href=#도전-과제>#</a></h3><ul><li><strong>고가용성/지속성</strong>: 대규모 장애 복구 (Disaster Recovery), 분산 환경 관리</li><li><strong>플러그인 표준화</strong>: 이질적 플러그인 관리/업데이트, 보안 취약점 최소화</li><li><strong>관측성과 모니터링</strong>: 실시간 트래픽/정책 동적 분석, 머신러닝 결합</li><li><strong>오토스케일링</strong>: 동적 인프라 변화 시 트래픽 예측 및 자원 최적화</li></ul><h3 id=분류-기준에-따른-종류-및-유형>분류 기준에 따른 종류 및 유형<a hidden class=anchor aria-hidden=true href=#분류-기준에-따른-종류-및-유형>#</a></h3><table><thead><tr><th>기준</th><th>유형</th><th>설명</th></tr></thead><tbody><tr><td>배포 방식</td><td>OSS/Enterprise</td><td>오픈소스/엔터프라이즈 버전</td></tr><tr><td>운영 형태</td><td>싱글 노드/클러스터</td><td>단일/다중 노드 분산 구성</td></tr><tr><td>실행 환경</td><td>스탠드얼론/쿠버네티스</td><td>일반 서버/쿠버네티스와 통합된 형태</td></tr><tr><td>연동 DB</td><td>Cassandra/PostgreSQL</td><td>구동에 사용되는 설정 저장소</td></tr></tbody></table><h3 id=실무에서-효과적으로-적용하기-위한-고려사항-및-주의할-점>실무에서 효과적으로 적용하기 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#실무에서-효과적으로-적용하기-위한-고려사항-및-주의할-점>#</a></h3><table><thead><tr><th>항목</th><th>설명</th><th>권장사항</th></tr></thead><tbody><tr><td>DB 이중화</td><td>장애 대비를 위한 DB 이중화 필요</td><td>Replication 적용</td></tr><tr><td>플러그인 정책 표준화</td><td>운영 중 플러그인/정책 일관성 유지</td><td>베스트프랙티스 준수</td></tr><tr><td>모니터링</td><td>성능 및 장애 즉각 감지</td><td>외부 통합 모니터링 연동</td></tr><tr><td>장애 복구 플랜</td><td>장애시 신속한 자동 복구 절차 마련</td><td>DR 테스트 주기적으로 실시</td></tr></tbody></table><h3 id=최적화하기-위한-고려사항-및-주의할-점>최적화하기 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#최적화하기-위한-고려사항-및-주의할-점>#</a></h3><table><thead><tr><th>항목</th><th>설명</th><th>권장사항</th></tr></thead><tbody><tr><td>트래픽 분산</td><td>부하 집중 방지</td><td>앞단 로드밸런서 활용</td></tr><tr><td>캐싱정책</td><td>자주 쓰는 정책/응답 캐싱으로 성능 향상</td><td>캐시 TTL 주기적 확인</td></tr><tr><td>자동화 구축</td><td>업데이트/스케일링 자동화</td><td>CI/CD 파이프라인 구성</td></tr><tr><td>관측성 추가</td><td>실시간 로깅/모니터링 강화</td><td>외부 로그 분석 도구 연동</td></tr></tbody></table><h2 id=주목할-내용>주목할 내용<a hidden class=anchor aria-hidden=true href=#주목할-내용>#</a></h2><table><thead><tr><th>카테고리</th><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>인프라</td><td>클라우드 네이티브</td><td>컨테이너 배포</td><td>K8s 환경에서 통합</td></tr><tr><td>보안</td><td>인증/인가정책</td><td>OAuth2.0, JWT</td><td>API 보안체계 통합</td></tr><tr><td>운영/관리</td><td>중앙 관리</td><td>Admin GUI, REST API</td><td>정책 및 설정 일원화</td></tr><tr><td>확장성</td><td>플러그인 시스템</td><td>Lua 기반 동적 확장</td><td>커스텀 기능 추가 용이</td></tr><tr><td>관측성</td><td>로깅/모니터링</td><td>실시간 트래픽 분석</td><td>운영 상태 실시간 파악</td></tr></tbody></table><h2 id=반드시-학습해야할-내용>반드시 학습해야할 내용<a hidden class=anchor aria-hidden=true href=#반드시-학습해야할-내용>#</a></h2><table><thead><tr><th>카테고리</th><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>API 게이트웨이</td><td>Kong</td><td>API 관리/실무적용</td><td>시스템 트래픽 통합 제어, 정책 운영</td></tr><tr><td>플러그인</td><td>인증/트래픽/로깅</td><td>표준/커스텀 플러그인</td><td>플러그인 설계와 운영</td></tr><tr><td>클라우드 인프라</td><td>쿠버네티스 연동</td><td>Ingress Controller</td><td>클라우드 네이티브 연동</td></tr><tr><td>보안</td><td>JWT, OAuth2.0</td><td>인증/인가/토큰 관리</td><td>현대 API 의 인증 체계 활용</td></tr></tbody></table><h2 id=용어-정리>용어 정리<a hidden class=anchor aria-hidden=true href=#용어-정리>#</a></h2><table><thead><tr><th>카테고리</th><th>용어</th><th>설명</th></tr></thead><tbody><tr><td>API 관련</td><td>API 게이트웨이</td><td>클라이언트와 백엔드 서비스 중계/정책 적용 서버</td></tr><tr><td>아키텍처</td><td>마이크로서비스</td><td>각각의 독립적인 서비스 집합 시스템 구조형태</td></tr><tr><td>클라우드</td><td>쿠버네티스 (Kubernetes)</td><td>컨테이너 오케스트레이션 시스템</td></tr><tr><td>보안</td><td>OAuth2.0, JWT</td><td>API 인증/인가 표준, 토큰 기반 인증 체계</td></tr><tr><td>플러그인</td><td>플러그인 (Plugin)</td><td>기능 확장을 위한 모듈 구조</td></tr></tbody></table><h2 id=참고-및-출처>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처>#</a></h2><ul><li><a href=https://konghq.com/>Kong 공식 사이트</a></li><li><a href=https://github.com/Kong/kong>Kong 깃허브</a></li><li><a href=https://github.com/Kong/kubernetes-ingress-controller>Kong Ingress Controller (Kubernetes)</a></li><li><a href=https://www.nginx.com/blog/how-nginx-compares-to-kong/>NGINX와 Kong 비교</a></li><li><a href=https://docs.konghq.com/gateway/latest/plugin-development/>플러그인 개발 공식 문서</a></li><li><a href=https://martinfowler.com/articles/apigateway.html>API Gateway Architecture Explained</a></li></ul><p><a href=https://imesh.ai/blog/introduction-to-api-gateway-in-microservices-architecture/><figure><img alt="Introduction to API Gateway in Microservices Architecture" loading=lazy src="https://tse1.mm.bing.net/th/id/OIP.bgyj2BHoG7jRzQ0VzyYKsgHaDH?pid=Api"></figure></a></p><p>다음은 &ldquo;Kong API Gateway&rdquo; 에 대한 정밀 조사 요약입니다.</p><hr><h2 id=1-태그-tags>1. 태그 (Tags)<a hidden class=anchor aria-hidden=true href=#1-태그-tags>#</a></h2><ul><li>API-Gateway</li><li>Cloud-Native</li><li>Plugin-Extensible</li><li>Multi-Cloud</li></ul><hr><h2 id=2-현재-분류-구조의-적절성-검토>2. 현재 분류 구조의 적절성 검토<a hidden class=anchor aria-hidden=true href=#2-현재-분류-구조의-적절성-검토>#</a></h2><p>&ldquo;Computer Science and Engineering > Systems Design > System Components > Traffic Control and Routing > API Gateway > Implementations&rdquo;<br>→ Kong 은 API Gateway 구현체로 정확히 해당 분류에 적합하며, 구조가 적절합니다. 다만 &ldquo;Cloud‑Native&rdquo; 기반인 점 고려하면 &ldquo;System Design > Distributed Systems&rdquo; 하위에도 관련됨을 참고해두면 좋습니다.</p><hr><h2 id=3-요약-문장-200-자>3. 요약 문장 (≈200 자)<a hidden class=anchor aria-hidden=true href=#3-요약-문장-200-자>#</a></h2><p>Kong 은 NGINX 기반의 오픈소스 API 게이트웨이로, REST/gRPC/GraphQL 등 다양한 프로토콜을 지원하며 인증, 라우팅, 로드밸런싱, 레이트 리미팅, 로깅 등의 기능을 플러그인 방식으로 제공하는 고성능 클라우드 네이티브 솔루션입니다 (<a href="https://konghq.com/products/kong-gateway?utm_source=chatgpt.com" title="Most Trusted Open Source API Gateway - Kong Inc.">Kong Inc.</a>, <a href="https://api7.ai/learning-center/api-gateway-guide/api-gateway-architecture?utm_source=chatgpt.com" title="Deep Dive into API Gateway Architecture: Core Components and …">api7.ai</a>).</p><hr><h2 id=4-개요-250-자>4. 개요 (≈250 자)<a hidden class=anchor aria-hidden=true href=#4-개요-250-자>#</a></h2><p>Kong 은 마샤페 (Mashape) 기술에서 출발해 2015 년에 오픈소스로 공개된 API Gateway 입니다. PostgreSQL 혹은 Cassandra 기반 데이터스토어를 사용하거나 DB‑less 선언형 모드로도 운영 가능하며, 플러그인 기반 확장성, Kubernetes Ingress Controller 지원, Kong Konnect 클라우드 콘트롤플레인, 서비스 메쉬 (Kuma 기반) 등을 통해 멀티클라우드 및 마이크로서비스 환경에서 통합 API 관리 플랫폼 역할을 수행합니다 (<a href="https://en.wikipedia.org/wiki/Kong_Inc.?utm_source=chatgpt.com" title="Kong Inc.">위키백과</a>).</p><hr><h2 id=5-핵심-개념-1>5. 핵심 개념<a hidden class=anchor aria-hidden=true href=#5-핵심-개념-1>#</a></h2><ul><li><strong>Proxy Layer / Kong Core</strong>: 클라이언트 요청을 라우팅, 검증, 변환하고 백엔드에 전달 (<a href="https://apipark.com/techblog/en/master-your-api-game-ultimate-guide-to-kong-api-gateway-mastery-2/?utm_source=chatgpt.com" title="Master Your API Game: Ultimate Guide to Kong API Gateway Mastery">apipark.com</a>)</li><li><strong>Admin API & Kong Manager</strong>: 서비스, 라우트, 플러그인, 소비자 관리를 위한 API 및 GUI</li><li><strong>Plugins</strong>: 인증, 인가, 로깅, 레이트 리밋, 트랜스포메이션 등 기능을 모듈화</li><li><strong>Datastore</strong>: 구성 저장소로 PostgreSQL 또는 Cassandra 사용 (DB-less 모드도 가능)</li><li><strong>데이터 플레인 vs 컨트롤 플레인</strong>: 분산 노드 (Kong Node) 가 트래픽 처리하는 데이터 플레인, Konnect 나 K8s Controller 가 설정을 전파하는 제어 플레인 역할</li></ul><h3 id=실무-관련-연관성>실무 관련 연관성<a hidden class=anchor aria-hidden=true href=#실무-관련-연관성>#</a></h3><ul><li>실시간 인증·인가 플러그인 사용 시 Admin API 설정 → Core 에서 실행</li><li>선언형 GitOps(deck, Terraform) 기반 구성 관리 → DB-less 구성, 무중단 환경 구축에서 실무 활용</li><li>K8s Ingress Controller 또는 자체 Operator 사용 시 컨트롤 플레인/데이터 플레인 역할 구조 명확히 이해 필요 (<a href="https://developer.konghq.com/gateway/?utm_source=chatgpt.com" title="Kong Gateway">Kong Docs</a>, <a href="https://imesh.ai/blog/introduction-to-api-gateway-in-microservices-architecture/?utm_source=chatgpt.com" title="Introduction to API Gateway in Microservices Architecture">imesh.ai</a>)</li></ul><hr><h2 id=6-조사-내용-정리-6-항목-기반>6. 조사 내용 정리 (##6 항목 기반)<a hidden class=anchor aria-hidden=true href=#6-조사-내용-정리-6-항목-기반>#</a></h2><p>필수 조사 항목 대부분 핵심 개념과 개요에서 커버되었으며, 추가해야 할 내용은 다음과 같습니다:</p><ul><li>등장 및 발전 배경 (Mashape→Kong Inc 역사)</li><li>목적 및 필요성</li><li>특징, 핵심 원칙</li><li>장단점 및 문제점과 해결방안</li><li>도전 과제</li><li>분류 기준별 유형</li><li>실무 사용 예시 및 활용 사례</li><li>고려사항 및 최적화 전략<br>→ 이후 분석 작업 단계에서 깊이 있게 정리해야 합니다.</li></ul><hr><h2 id=9-주목할-내용-정리>9. 주목할 내용 정리<a hidden class=anchor aria-hidden=true href=#9-주목할-내용-정리>#</a></h2><table><thead><tr><th>카테고리</th><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>Background</td><td>History</td><td>Mashape → Kong 오픈소스, Kong Inc. 이관 과정 등</td><td>마샤페의 API 마켓플레이스에서 API 통행량 관리 솔루션으로 전환한 배경 (<a href="https://en.wikipedia.org/wiki/Kong_Inc.?utm_source=chatgpt.com" title="Kong Inc.">위키백과</a>)</td></tr><tr><td>Architecture</td><td>Deployment Modes</td><td>Traditional, Hybrid, DB‑less</td><td>구성 방식에 따른 장단점 존재 (<a href="https://developer.konghq.com/gateway/?utm_source=chatgpt.com" title="Kong Gateway">Kong Docs</a>)</td></tr><tr><td>Security</td><td>Admin API Exposure</td><td>공개 설정 시 설정 변조 가능</td><td>관리 API 는 내부망만 접근 허용해야 함 (<a href="https://www.trendmicro.com/vinfo/us/security/news/virtualization-and-cloud/kong-api-gateway-misconfigurations-an-api-gateway-security-case-study?utm_source=chatgpt.com" title="An API Gateway Security Case Study | Trend Micro (US)">Trend Micro</a>)</td></tr></tbody></table><hr><h2 id=10-반드시-학습해야-할-내용>10. 반드시 학습해야 할 내용<a hidden class=anchor aria-hidden=true href=#10-반드시-학습해야-할-내용>#</a></h2><table><thead><tr><th>카테고리</th><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>Security</td><td>Hardening</td><td>Admin API 보호, mTLS 설정, Vault 연동</td><td>오픈소스와 엔터프라이즈 기능 차이 및 안전 운영 기준 이해</td></tr><tr><td>DevOps</td><td>Configuration as Code</td><td>deck, Terraform, declarative config</td><td>GitOps 방식으로 운영 자동화 및 일관된 구성 유지</td></tr><tr><td>Cloud Native</td><td>Kubernetes Integration</td><td>KIC(Kong Ingress Controller), Operator</td><td>K8s 기반 분산 환경에서 Kong 운영 및 구성 관리</td></tr><tr><td>Observability</td><td>Metrics & Logging</td><td>OpenTelemetry, Prometheus, ELK 연동</td><td>API 성능, 이상 탐지, SLA 기준 모니터링 체계 구성</td></tr></tbody></table><hr><h2 id=용어-정리-1>용어 정리<a hidden class=anchor aria-hidden=true href=#용어-정리-1>#</a></h2><table><thead><tr><th>카테고리</th><th>용어</th><th>설명</th></tr></thead><tbody><tr><td>Core Concepts</td><td>Data Plane</td><td>클라이언트 요청을 처리하는 Kong 노드</td></tr><tr><td>Core Concepts</td><td>Control Plane</td><td>구성 정보를 전파하는 관리자 수준 구성 요소</td></tr><tr><td>Deployment</td><td>DB-less Mode</td><td>외부 DB 없이 선언형 파일 기반 구성 방식</td></tr><tr><td>Security</td><td>Admin API</td><td>Kong 구성 요소를 통제하기 위한 REST API</td></tr></tbody></table><hr><h2 id=참고-및-출처-1>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처-1>#</a></h2><ul><li>Kong 공식 문서 및 개요 설명 (<a href="https://medium.com/async-software/gateway-pattern-introduction-on-the-bases-of-kong-gateway-e788e8c5662f?utm_source=chatgpt.com" title="Gateway Pattern: Introduction on the bases of Kong Gateway - Medium">Medium</a>, <a href="https://konghq.com/products/kong-gateway?utm_source=chatgpt.com" title="Most Trusted Open Source API Gateway - Kong Inc.">Kong Inc.</a>, <a href="https://imesh.ai/blog/introduction-to-api-gateway-in-microservices-architecture/?utm_source=chatgpt.com" title="Introduction to API Gateway in Microservices Architecture">imesh.ai</a>)</li><li>API Gateway 아키텍처 구성 요소 분석 (<a href="https://api7.ai/learning-center/api-gateway-guide/api-gateway-architecture?utm_source=chatgpt.com" title="Deep Dive into API Gateway Architecture: Core Components and …">api7.ai</a>)</li><li>Kong 역사 및 비즈니스 발전 과정 (<a href="https://en.wikipedia.org/wiki/Kong_Inc.?utm_source=chatgpt.com" title="Kong Inc.">위키백과</a>)</li><li>보안 사례 및 관리 API 노출 위험 내용 (<a href="https://www.trendmicro.com/vinfo/us/security/news/virtualization-and-cloud/kong-api-gateway-misconfigurations-an-api-gateway-security-case-study?utm_source=chatgpt.com" title="An API Gateway Security Case Study | Trend Micro (US)">Trend Micro</a>)</li></ul><p><a href=https://intverse.medium.com/kong-api-gateway-k8s-architecture-5597570da34a><figure><img alt="Kong API Gateway - K8s Architecture | by IntVerse.io | Medium" loading=lazy src="https://tse2.mm.bing.net/th/id/OIP.4h-NSaceuJnEG7F6EwDQOQHaFB?pid=Api"></figure></a></p><p>아래부터 Kong API Gateway 의 주요 항목들을 <strong>계속해서</strong> 정리하겠습니다.</p><hr><h2 id=특징-features>특징 (Features)<a hidden class=anchor aria-hidden=true href=#특징-features>#</a></h2><ul><li><strong>고성능 & 확장성</strong>: NGINX + LuaJIT 기반으로 초당 수백만 요청 처리 가능하며, 수평 확장에 효과적입니다 (<a href="https://konghq.com/products/kong-gateway?utm_source=chatgpt.com" title="Most Trusted Open Source API Gateway - Kong Inc.">LinkedIn</a>).</li><li><strong>플러그인 아키텍처</strong>: 인증 (JWT, OAuth2, Key Auth), 트래픽 제어 (rate limiting), 캐싱, 로깅, 트랜스포메이션 등 다양한 기능을 플러그인으로 모듈화 제공 (<a href="https://konghq.com/products/kong-gateway?utm_source=chatgpt.com" title="Most Trusted Open Source API Gateway - Kong Inc.">LinkedIn</a>).</li><li><strong>클라우드 네이티브 통합</strong>: Kubernetes Ingress Controller (KIC), GitOps 도구 (decK, Terraform), Konnect 플랫폼 연동 지원 (<a href="https://api7.ai/learning-center/api-gateway-guide/api-gateway-architecture?utm_source=chatgpt.com" title="Deep Dive into API Gateway Architecture: Core Components and …">Kong Docs</a>).</li><li><strong>멀티테넌시 지원</strong>: Workspace 와 RBAC 기반 여러 팀 단위 관리 및 격리된 구성 가능 (<a href="https://en.wikipedia.org/wiki/Kong_Inc.?utm_source=chatgpt.com" title="Kong Inc.">Kong Inc.</a>).</li><li><strong>보안 중심 설계</strong>: RBAC 제어 Admin API, mTLS, API 보안 플러그인, WAF 연동 등 보안 강화 기능 제공 (<a href="https://apipark.com/techblog/en/master-your-api-game-ultimate-guide-to-kong-api-gateway-mastery-2/?utm_source=chatgpt.com" title="Master Your API Game: Ultimate Guide to Kong API Gateway Mastery">Kong Inc.</a>).</li></ul><hr><h2 id=핵심-원칙-principles>핵심 원칙 (Principles)<a hidden class=anchor aria-hidden=true href=#핵심-원칙-principles>#</a></h2><ul><li><strong>경량 & 효율적 프록시 중심 설계</strong>: 최저 지연 (latency) 으로 다양한 기능을 필터 체인으로 수행.</li><li><strong>데이터 평면 (Data Plane) 과 제어 평면 (Control Plane) 의 명확한 분리</strong>: 구성과 실행 분리로 안정성과 확장성 확보 (<a href="https://en.wikipedia.org/wiki/Kong_Inc.?utm_source=chatgpt.com" title="Kong Inc.">Kong Inc.</a>).</li><li><strong>구성 선언 중심 및 동적 재구성</strong>: DB-less 또는 관리를 위한 Admin API/GitOps 기반 상태 선언 모델 지원.</li><li><strong>보안 우선 설계 (Security-first)</strong>: Admin API 접근 제어, 인증/인가 일관성 유지, 입력 검증을 통한 위협 방어 (<a href="https://developer.konghq.com/gateway/?utm_source=chatgpt.com" title="Kong Gateway">imesh.ai</a>).</li></ul><hr><h2 id=주요-원리-및-작동-방식-operational-principles--flow>주요 원리 및 작동 방식 (Operational Principles & Flow)<a hidden class=anchor aria-hidden=true href=#주요-원리-및-작동-방식-operational-principles--flow>#</a></h2><p>아래 그림은 Kong 의 동작 원리를 보여줍니다:</p><pre class=mermaid>flowchart LR
+  Client --&gt;|요청| Kong[API Gateway\n(Data Plane)]
+  Kong --&gt; Plugins{플러그인 체인}
+  Plugins --&gt;|인증/인가| Auth
+  Plugins --&gt;|Rate Limit| Rate
+  Plugins --&gt;|Transform| Transform
+  Plugins --&gt;|Logging| Logging
+  Kong --&gt; Upstream[Backend Service]
+</pre><ul><li><strong>Client 요청 → Kong 프록시 → 플러그인 처리 (인증, 로깅 등) → 백엔드 서비스</strong></li><li>Admin API / GitOps 구성으로 Data Plane 에 설정 전달 및 반영</li><li>상태 기반 선언 구성 (declarative config) 또는 데이터베이스 기반 모델 지원</li></ul><hr><h2 id=구조-및-아키텍처-1>구조 및 아키텍처<a hidden class=anchor aria-hidden=true href=#구조-및-아키텍처-1>#</a></h2><ul><li><strong>Control Plane</strong>: Admin API, Kong Manager, Konnect(클라우드 제어), decK, Terraform</li><li><strong>Data Plane</strong>: 요청 처리 노드, NGINX 기반 라우팅 & 플러그인 실행</li><li><strong>Datastore</strong>: PostgreSQL 또는 Cassandra 기반 (DB-less 모드에서는 config file)</li><li><strong>클라우드 네이티브 통합</strong>: Kubernetes Ingress Controller (KIC), Service Mesh(Kuma), Vault/Secret 연동</li></ul><p><strong>구성 요소별 정리:</strong></p><table><thead><tr><th>구성 요소</th><th>역할 및 기능</th><th>필수/선택</th></tr></thead><tbody><tr><td>Data Plane</td><td>요청 처리, 플러그인 실행, 라우팅</td><td>필수</td></tr><tr><td>Control Plane</td><td>환경 구성, Admin API, GUI, 배포 관리</td><td>필수</td></tr><tr><td>Datastore</td><td>서비스/라우트/플러그인 설정 저장</td><td>필수</td></tr><tr><td>Plugins</td><td>인증·인가, 로그, 변환 등 기능 모듈화</td><td>필수</td></tr><tr><td>GitOps 도구</td><td>선언형 설정 자동 배포 (decK, Terraform 등)</td><td>선택</td></tr><tr><td>Konnect/KIC/Kuma</td><td>멀티클라우드 운영, Kubernetes 통합, 서비스 메시 통합</td><td>선택</td></tr></tbody></table><hr><h2 id=장점-advantages>장점 (Advantages)<a hidden class=anchor aria-hidden=true href=#장점-advantages>#</a></h2><table><thead><tr><th>구분</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>장점</td><td>고성능 & 저지연</td><td>LuaJIT 기반 NGINX 로 초당 수백만 요청, 저지연 처리 가능</td></tr><tr><td></td><td>유연한 확장성</td><td>multi‑cloud / hybrid 환경에서 클러스터링 및 무중단 확장 용이</td></tr><tr><td></td><td>강력한 보안 기능</td><td>인증, 레이트 제한, Admin API RBAC, mTLS, WAF 통합 보안 제공</td></tr><tr><td></td><td>구성 선언 기반 운영</td><td>GitOps, DB-less 선언 구성 통한 일관된 배포 및 관리 가능</td></tr></tbody></table><hr><h2 id=단점-및-문제점과-해결방안-disadvantages--issues>단점 및 문제점과 해결방안 (Disadvantages & Issues)<a hidden class=anchor aria-hidden=true href=#단점-및-문제점과-해결방안-disadvantages--issues>#</a></h2><h3 id=단점-표>단점 표<a hidden class=anchor aria-hidden=true href=#단점-표>#</a></h3><table><thead><tr><th>구분</th><th>항목</th><th>설명</th><th>해결책</th></tr></thead><tbody><tr><td>단점</td><td>복잡한 설정 관리</td><td>수많은 플러그인과 구성 요소로 초기 설정 어려움</td><td>GitOps 도구 활용, 구성 모듈화 및 템플릿화</td></tr><tr><td></td><td>Enterprise 기능 제한</td><td>커뮤니티 버전에는 Vault 통합, 암호화, Dev Portal 등 미제공</td><td>필요한 경우 Enterprise 또는 Konnect 고려</td></tr></tbody></table><h3 id=문제점-표>문제점 표<a hidden class=anchor aria-hidden=true href=#문제점-표>#</a></h3><table><thead><tr><th>구분</th><th>항목</th><th>원인</th><th>영향</th><th>탐지 및 진단</th><th>예방 방법</th><th>해결 방법 및 기법</th></tr></thead><tbody><tr><td>문제점</td><td>Admin API 노출</td><td>방화벽 미설정 또는 외부 노출</td><td>구성 변조, 구성 정보 유출</td><td>공개 포트 탐지, Shodan 검색</td><td>Admin API 내부망 제한, IP 화이트리스트 적용</td><td>네트워크 ACL 설정, RBAC 강화</td></tr><tr><td></td><td>플러그인 플로우 겹침</td><td>잘못된 라우트 or plugin 충돌 설정</td><td>예기치 않은 트래픽 처리 흐름</td><td>구성 충돌 감지 실패</td><td>사전 라우트 충돌 검증, workspace 도입</td><td>구성 테스트 및 컨플릭트 해결</td></tr></tbody></table><hr><h2 id=실무-적용-사례-개요-use-cases>실무 적용 사례 개요 (Use Cases)<a hidden class=anchor aria-hidden=true href=#실무-적용-사례-개요-use-cases>#</a></h2><table><thead><tr><th>환경</th><th>목적</th><th>함께 사용하는 구성 요소</th><th>효과</th></tr></thead><tbody><tr><td>Kubernetes</td><td>클러스터 외부 API 노출</td><td>KIC, GitOps, Prometheus, OpenTelemetry</td><td>안정적 Ingress 관리, 자동화 구성 및 가시성 확보</td></tr><tr><td>멀티테넌시</td><td>여러 팀/서비스 API 분리 운영</td><td>Workspace, RBAC, Shared Data Plane</td><td>팀 간 독립성 확보, 중앙관리 가능</td></tr><tr><td>보안 중심 구성</td><td>민감 API 보호 및 컴플라이언스</td><td>mTLS, Vault, Rate Limit, WAF</td><td>공격 방어, 규정 준수, 감사 로그 확보</td></tr></tbody></table><hr><h2 id=참고-용어-정리>참고 용어 정리<a hidden class=anchor aria-hidden=true href=#참고-용어-정리>#</a></h2><table><thead><tr><th>카테고리</th><th>용어 훈</th><th>설명</th></tr></thead><tbody><tr><td>핵심 개념</td><td>Data Plane</td><td>API 요청을 직접 처리하는 Kong 노드</td></tr><tr><td>핵심 개념</td><td>Control Plane</td><td>구성 변경 및 플러그인 배포 지점</td></tr><tr><td>설정 운영</td><td>DB‑less Mode</td><td>외부 DB 없이 선언형 구성 파일 기반 운용 방식</td></tr><tr><td>보안</td><td>Admin API</td><td>Kong 구성 조작을 위한 REST API, 내부망으로 제한되어야 함</td></tr></tbody></table><hr><p>더 깊이 있는 구성 예시, 활용 사례 워크플로우, 코드 설정 예는 이후 단계에 이어 제공해드릴 수 있습니다. 필요한 부분 말씀해 주세요!</p><p>이어서 <strong>Kong</strong>에 대한 실무 활용 사례 중 하나를 깊이 있게 분석하고, 시스템 구성, 워크플로우, 역할, 구현 예시까지 정리해드리겠습니다.</p><hr><h2 id=-활용-사례>## 활용 사례<a hidden class=anchor aria-hidden=true href=#-활용-사례>#</a></h2><h3 id=mercedesbenz-connectivity-services><strong>Mercedes‑Benz Connectivity Services</strong><a hidden class=anchor aria-hidden=true href=#mercedesbenz-connectivity-services>#</a></h3><p><strong>시나리오</strong>:<br>Mercedes‑Benz 는 커넥티드 차량 데이터 제공 API 를 외부 파트너에 안정적이고 확장 가능하게 노출해야 했습니다. 이를 위해 Kong Gateway 를 API Gateway 로 도입하여 클라우드 네이티브 환경에서 API 라우팅, 인증, 레이트 리밋, 구성 선언 기반 자동화 등을 구현했습니다.(<a href="https://konghq.com/products/kong-gateway?utm_source=chatgpt.com" title="Most Trusted Open Source API Gateway - Kong Inc.">Kong Inc.</a>)</p><p><strong>시스템 구성</strong>:</p><ul><li>클러스터 내 Kong Ingress Controller(KIC)</li><li>GitOps 기반 선언형 구성 관리 (Git 저장소)</li><li>플러그인: Rate Limiting, 인증, 로깅 등</li><li>Observability: Prometheus, OpenTelemetry 등 연동</li></ul><p><strong>시스템 구성 다이어그램</strong>:</p><pre class=mermaid>graph LR
+  subgraph GitOps
+    Repo[Git repo: kong.yml]
+    deck[decK / CI/CD]
+  end
+  GitOps --&gt; deck
+  deck --&gt; ControlPlane[Kong Admin API / Manager]
+  ControlPlane --&gt; DataPlane[Kong Nodes / KIC]
+  DataPlane --&gt; Plugins{Plugin Chain}
+  Plugins --&gt; Auth[Authentication]
+  Plugins --&gt; RateLimiting
+  Plugins --&gt; Logging
+  DataPlane --&gt; Upstream1[Vehicle Service API]
+  DataPlane --&gt; Upstream2[Diagnostics Service API]
+  Observability[Prometheus / OpenTelemetry] --&gt; DataPlane
+</pre><p><strong>Workflow</strong>:</p><ul><li>Git 저장소에 <code>kong.yml</code> 선언 구성 파일을 저장</li><li>CI/CD 파이프라인에서 <strong>decK</strong>를 통해 Kong Control Plane 에 배포</li><li>Data Plane(KIC) 이 해당 설정을 자동으로 적용</li><li>플러그인을 통한 인증, 트래픽 제어, 로깅 처리</li><li>Metrics 는 Prometheus / OpenTelemetry 로 수집, 중앙 모니터링</li></ul><p><strong>역할</strong>:</p><ul><li><strong>Kong (Ingress Controller 역할)</strong>: 외부 요청을 인증·역할 기반 제어, 라우팅</li><li><strong>decK / GitOps</strong>: 구성 선언 파일을 통해 일관된 배포 자동화</li><li><strong>Plugins</strong>: 인증, 레이트 리밋, 로깅 등 핵심 기능 모듈</li><li><strong>Observability Stack</strong>: API 호출 추적 및 상태 모니터링</li></ul><p><strong>유무에 따른 차이점</strong>:</p><ul><li><strong>Kong 미적용 시</strong>: 각 서비스별 API 직접 노출, 일관성 없는 정책, 관리 어려움</li><li><strong>적용 후</strong>: 통합된 엔드포인트 제공, 중앙에서 일관된 보안 및 제어 정책 적용, 무중단 구성 변경 가능</li></ul><p><strong>구현 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-6-1><a class=lnlinks href=#hl-6-1> 1</a>
+</span><span class=lnt id=hl-6-2><a class=lnlinks href=#hl-6-2> 2</a>
+</span><span class=lnt id=hl-6-3><a class=lnlinks href=#hl-6-3> 3</a>
+</span><span class=lnt id=hl-6-4><a class=lnlinks href=#hl-6-4> 4</a>
+</span><span class=lnt id=hl-6-5><a class=lnlinks href=#hl-6-5> 5</a>
+</span><span class=lnt id=hl-6-6><a class=lnlinks href=#hl-6-6> 6</a>
+</span><span class=lnt id=hl-6-7><a class=lnlinks href=#hl-6-7> 7</a>
+</span><span class=lnt id=hl-6-8><a class=lnlinks href=#hl-6-8> 8</a>
+</span><span class=lnt id=hl-6-9><a class=lnlinks href=#hl-6-9> 9</a>
+</span><span class=lnt id=hl-6-10><a class=lnlinks href=#hl-6-10>10</a>
+</span><span class=lnt id=hl-6-11><a class=lnlinks href=#hl-6-11>11</a>
+</span><span class=lnt id=hl-6-12><a class=lnlinks href=#hl-6-12>12</a>
+</span><span class=lnt id=hl-6-13><a class=lnlinks href=#hl-6-13>13</a>
+</span><span class=lnt id=hl-6-14><a class=lnlinks href=#hl-6-14>14</a>
+</span><span class=lnt id=hl-6-15><a class=lnlinks href=#hl-6-15>15</a>
+</span><span class=lnt id=hl-6-16><a class=lnlinks href=#hl-6-16>16</a>
+</span><span class=lnt id=hl-6-17><a class=lnlinks href=#hl-6-17>17</a>
+</span><span class=lnt id=hl-6-18><a class=lnlinks href=#hl-6-18>18</a>
+</span><span class=lnt id=hl-6-19><a class=lnlinks href=#hl-6-19>19</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># kong.yml (declarative config)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>_format_version</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;3.0&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>_transform</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>services</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>vehicle-service</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>url</span><span class=p>:</span><span class=w> </span><span class=l>https://vehicle.internal</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>routes</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>vehicle-route</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>paths</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>/api/vehicle</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>plugins</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>rate-limiting</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>service</span><span class=p>:</span><span class=w> </span><span class=l>vehicle-service</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>config</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>minute</span><span class=p>:</span><span class=w> </span><span class=m>100</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>policy</span><span class=p>:</span><span class=w> </span><span class=l>local</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>key-auth</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>service</span><span class=p>:</span><span class=w> </span><span class=l>vehicle-service</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-7-1><a class=lnlinks href=#hl-7-1>1</a>
+</span><span class=lnt id=hl-7-2><a class=lnlinks href=#hl-7-2>2</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># decK 동기화 예시 (CI/CD 스크립트 일부)</span>
+</span></span><span class=line><span class=cl>deck sync --state kong.yml --kong-addr http://kong-admin:8001
+</span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-8-1><a class=lnlinks href=#hl-8-1> 1</a>
+</span><span class=lnt id=hl-8-2><a class=lnlinks href=#hl-8-2> 2</a>
+</span><span class=lnt id=hl-8-3><a class=lnlinks href=#hl-8-3> 3</a>
+</span><span class=lnt id=hl-8-4><a class=lnlinks href=#hl-8-4> 4</a>
+</span><span class=lnt id=hl-8-5><a class=lnlinks href=#hl-8-5> 5</a>
+</span><span class=lnt id=hl-8-6><a class=lnlinks href=#hl-8-6> 6</a>
+</span><span class=lnt id=hl-8-7><a class=lnlinks href=#hl-8-7> 7</a>
+</span><span class=lnt id=hl-8-8><a class=lnlinks href=#hl-8-8> 8</a>
+</span><span class=lnt id=hl-8-9><a class=lnlinks href=#hl-8-9> 9</a>
+</span><span class=lnt id=hl-8-10><a class=lnlinks href=#hl-8-10>10</a>
+</span><span class=lnt id=hl-8-11><a class=lnlinks href=#hl-8-11>11</a>
+</span><span class=lnt id=hl-8-12><a class=lnlinks href=#hl-8-12>12</a>
+</span><span class=lnt id=hl-8-13><a class=lnlinks href=#hl-8-13>13</a>
+</span><span class=lnt id=hl-8-14><a class=lnlinks href=#hl-8-14>14</a>
+</span><span class=lnt id=hl-8-15><a class=lnlinks href=#hl-8-15>15</a>
+</span><span class=lnt id=hl-8-16><a class=lnlinks href=#hl-8-16>16</a>
+</span><span class=lnt id=hl-8-17><a class=lnlinks href=#hl-8-17>17</a>
+</span><span class=lnt id=hl-8-18><a class=lnlinks href=#hl-8-18>18</a>
+</span><span class=lnt id=hl-8-19><a class=lnlinks href=#hl-8-19>19</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-nginx data-lang=nginx><span class=line><span class=cl><span class=c1># Kong Ingress Controller 예시 Kubernetes 리소스
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>apiVersion:</span> <span class=s>networking.k8s.io/v1</span>
+</span></span><span class=line><span class=cl><span class=s>kind:</span> <span class=s>Ingress</span>
+</span></span><span class=line><span class=cl><span class=s>metadata:</span>
+</span></span><span class=line><span class=cl>  <span class=s>name:</span> <span class=s>vehicle-ingress</span>
+</span></span><span class=line><span class=cl>  <span class=s>annotations:</span>
+</span></span><span class=line><span class=cl>    <span class=s>konghq.com/strip-path:</span> <span class=s>&#34;true&#34;</span>
+</span></span><span class=line><span class=cl><span class=s>spec:</span>
+</span></span><span class=line><span class=cl>  <span class=s>rules:</span>
+</span></span><span class=line><span class=cl>  <span class=s>-</span> <span class=s>host:</span> <span class=s>api.mercedes.com</span>
+</span></span><span class=line><span class=cl>    <span class=s>http:</span>
+</span></span><span class=line><span class=cl>      <span class=s>paths:</span>
+</span></span><span class=line><span class=cl>      <span class=s>-</span> <span class=s>path:</span> <span class=s>/api/vehicle</span>
+</span></span><span class=line><span class=cl>        <span class=s>pathType:</span> <span class=s>Prefix</span>
+</span></span><span class=line><span class=cl>        <span class=s>backend:</span>
+</span></span><span class=line><span class=cl>          <span class=s>service:</span>
+</span></span><span class=line><span class=cl>            <span class=s>name:</span> <span class=s>vehicle-service</span>
+</span></span><span class=line><span class=cl>            <span class=s>port:</span>
+</span></span><span class=line><span class=cl>              <span class=s>number:</span> <span class=mi>443</span>
+</span></span></code></pre></td></tr></table></div></div><hr><h2 id=추가-실무-fooddelivery-microservices-사례>추가 실무 <strong>Food‑Delivery Microservices</strong> 사례<a hidden class=anchor aria-hidden=true href=#추가-실무-fooddelivery-microservices-사례>#</a></h2><ul><li><strong>Docker Compose 기반 DB-less 모드</strong> 설정<ul><li><code>kong.yml</code> 에 auth, restaurant, order, notification 서비스 선언</li><li>DB-less 방식으로 Git 선언만으로 구성 적용 가능 (<a href="https://api7.ai/learning-center/api-gateway-guide/api-gateway-architecture?utm_source=chatgpt.com" title="Deep Dive into API Gateway Architecture: Core Components and …">Kong Nation</a>, <a href="https://en.wikipedia.org/wiki/Kong_Inc.?utm_source=chatgpt.com" title="Kong Inc.">CloudRaft</a>, <a href="https://apipark.com/techblog/en/master-your-api-game-ultimate-guide-to-kong-api-gateway-mastery-2/?utm_source=chatgpt.com" title="Master Your API Game: Ultimate Guide to Kong API Gateway Mastery">Medium</a>, <a href="https://developer.konghq.com/gateway/?utm_source=chatgpt.com" title="Kong Gateway">GitHub</a>, <a href="https://imesh.ai/blog/introduction-to-api-gateway-in-microservices-architecture/?utm_source=chatgpt.com" title="Introduction to API Gateway in Microservices Architecture">위키백과</a>, <a href="https://www.trendmicro.com/vinfo/us/security/news/virtualization-and-cloud/kong-api-gateway-misconfigurations-an-api-gateway-security-case-study?utm_source=chatgpt.com" title="An API Gateway Security Case Study | Trend Micro (US)">Medium</a>)</li></ul></li><li>구성 예시 기반 워크플로우:<ul><li>Kong 컨테이너 실행 → 선언 구성 반영 → 경로 기반 라우팅 → 플러그인 실행</li></ul></li></ul><hr><h3 id=기타-주목할-사항>기타 주목할 사항<a hidden class=anchor aria-hidden=true href=#기타-주목할-사항>#</a></h3><h4 id=-declarative-config-확장>☑️ Declarative Config 확장<a hidden class=anchor aria-hidden=true href=#-declarative-config-확장>#</a></h4><ul><li><strong>decK</strong>: GitOps 방식으로 선언 파일을 Kong 에 자동 동기화. CI/CD 파이프라인 통합에 용이 (<a href="https://medium.com/async-software/gateway-pattern-introduction-on-the-bases-of-kong-gateway-e788e8c5662f?utm_source=chatgpt.com" title="Gateway Pattern: Introduction on the bases of Kong Gateway - Medium">Kong Docs</a>, <a href="https://dev.to/deepanshup04/what-is-deck-and-how-can-it-be-used-in-kong-a-hands-on-guide-7kh?utm_source=chatgpt.com" title="What is deck and How can it be used in Kong? A Hands-on Guide">DEV Community</a>, <a href="https://api7.ai/learning-center/api-gateway-guide/api-gateway-architecture?utm_source=chatgpt.com" title="Deep Dive into API Gateway Architecture: Core Components and …">Kong Nation</a>)</li></ul><h4 id=-커스터마이징-플러그인>☑️ 커스터마이징 플러그인<a hidden class=anchor aria-hidden=true href=#-커스터마이징-플러그인>#</a></h4><ul><li>Lua 기반 custom plugin 구현 가능 (예: header_filter 에서 커스텀 로깅) (<a href="https://stackoverflow.com/questions/78373365/how-can-i-install-custom-plugins-in-kong-using-declarative-configuration?utm_source=chatgpt.com" title="docker - How can I install custom plugins in Kong using declarative …">Stack Overflow</a>)</li></ul><h4 id=-openapi-integration>☑️ OpenAPI Integration<a hidden class=anchor aria-hidden=true href=#-openapi-integration>#</a></h4><ul><li>Springdoc + Insomnia Inso CLI 를 통해 OpenAPI 스펙 기반으로 Kong config 자동 생성 가능 (<a href="https://stackoverflow.com/questions/61754819/how-to-configure-kong-api-gateway-with-service-discovery?utm_source=chatgpt.com" title="How to configure kong api gateway with service discovery?">Stack Overflow</a>)</li></ul><hr><h2 id=요약>요약<a hidden class=anchor aria-hidden=true href=#요약>#</a></h2><ul><li>Mercedes‑Benz 사례는 클라우드 네이티브 API 라우팅, 보안, 선언형 구성 및 GitOps 기반 효율화의 모범 사례</li><li>Docker Compose 기반 약식 사례도 Kong 의 DB-less 모드와 선언형 구성의 단순함과 장점을 보여줌</li><li>decK·GitOps·custom plugins·OpenAPI 자동 구성은 Kong 실무 적용 시 핵심 구성 요소입니다</li></ul><hr><p>다음에 원하시는 부분이 있다면 예를 들어 인증 방식 비교, 상세 플러그인 구성 예, Kubernetes Operator 설정 등 이어서 도와드릴 수 있습니다!</p><p>다음은 <strong>Kong API Gateway</strong>에 대한 <strong>추가 심화 분석</strong>입니다. 아래 내용은 앞선 단계에 이어 도전 과제, 분류 기준별 유형, 적용 시 고려사항 및 최적화 전략을 다룹니다.</p><hr><h2 id=-도전-과제-challenges>🧩 도전 과제 (Challenges)<a hidden class=anchor aria-hidden=true href=#-도전-과제-challenges>#</a></h2><h3 id=reliability--performance>Reliability & Performance<a hidden class=anchor aria-hidden=true href=#reliability--performance>#</a></h3><ul><li><strong>타이머 시스템 고갈</strong>: DB‑less 모드에서 DNS 조회량 증가 시 internal timer exhaustion 발생 가능 → DNS 설정 (ndots 등) 및 timer resolution 조정 필요 (<a href="https://konghq.com/products/kong-gateway?utm_source=chatgpt.com" title="Most Trusted Open Source API Gateway - Kong Inc.">Medium</a>)</li><li><strong>P99 레이턴시 증가</strong>: 플러그인 수 및 라우팅 복잡도 증가 시 요청 처리 지연 발생 → 라우트/플러그인 최소화, 경량화 구성 권장 (<a href="https://konghq.com/products/kong-gateway?utm_source=chatgpt.com" title="Most Trusted Open Source API Gateway - Kong Inc.">Medium</a>)</li><li><strong>메모리 사용 이슈</strong>: 반복적인 구성을 <code>/config</code> 로 적용할 경우 메모리 누수 가능 → <code>check_hash</code> 설정 활성화 권장 (<a href="https://konghq.com/products/kong-gateway?utm_source=chatgpt.com" title="Most Trusted Open Source API Gateway - Kong Inc.">Medium</a>)</li></ul><h3 id=기술-도입커스터마이징>기술 도입/커스터마이징<a hidden class=anchor aria-hidden=true href=#기술-도입커스터마이징>#</a></h3><ul><li><strong>Lua 언어 의존도</strong>: 커스텀 플러그인 작성 시 Lua 전문가 필요, 디버깅 및 유지 보수가 어려움 (<a href="https://api7.ai/learning-center/api-gateway-guide/api-gateway-architecture?utm_source=chatgpt.com" title="Deep Dive into API Gateway Architecture: Core Components and …">Solo</a>)</li><li><strong>Enterprise 커스터마이징 한계</strong>: 암호화, Vault 연동, DevPortal 등 고급 기능은 유료 버전에서 가능 (<a href="https://en.wikipedia.org/wiki/Kong_Inc.?utm_source=chatgpt.com" title="Kong Inc.">Trend Micro</a>)</li></ul><h3 id=멀티-클라우드-확장성>멀티 클라우드 확장성<a hidden class=anchor aria-hidden=true href=#멀티-클라우드-확장성>#</a></h3><ul><li>여러 클라우드 간 API Gateway 구성 시 설정 중복 또는 네트워크 지연, 구성 일관성 유지 어려움 → <strong>Kong Mesh</strong> 기반으로 zone ingress 와 MeshTLS 방식 활용 (<a href="https://apipark.com/techblog/en/master-your-api-game-ultimate-guide-to-kong-api-gateway-mastery-2/?utm_source=chatgpt.com" title="Master Your API Game: Ultimate Guide to Kong API Gateway Mastery">Kong Inc.</a>)</li></ul><hr><h2 id=분류-기준에-따른-종류-및-유형-1>분류 기준에 따른 종류 및 유형<a hidden class=anchor aria-hidden=true href=#분류-기준에-따른-종류-및-유형-1>#</a></h2><table><thead><tr><th>분류 기준</th><th>유형</th><th>설명</th></tr></thead><tbody><tr><td><strong>배포 모드</strong></td><td>Traditional</td><td>Control + Data Plane 이 동일 서버/클러스터 내부에 위치</td></tr><tr><td></td><td>Hybrid</td><td>CP 와 DP 분리, 지리적 독립성, DB 접근 최소화</td></tr><tr><td></td><td>DB-less (Declarative)</td><td>설정 파일 기반, Admin API 를 통한 선언적 구성 관리</td></tr><tr><td><strong>라이선스 에디션</strong></td><td>OSS / Free</td><td>오픈소스 기반, Kong Manager 포함 (무제한 사용 가능) (<a href="https://developer.konghq.com/gateway/?utm_source=chatgpt.com" title="Kong Gateway">Kong Docs</a>, <a href="https://konghq.com/products/kong-gateway?utm_source=chatgpt.com" title="Most Trusted Open Source API Gateway - Kong Inc.">Medium</a>, <a href="https://imesh.ai/blog/introduction-to-api-gateway-in-microservices-architecture/?utm_source=chatgpt.com" title="Introduction to API Gateway in Microservices Architecture">GitHub</a>)</td></tr><tr><td></td><td>Enterprise / Konnect</td><td>Vault, RBAC, DevPortal, GraphQL 보안 등 고급 기능 지원</td></tr></tbody></table><hr><h2 id=실무에서-효과적으로-적용하기-위한-고려사항-및-주의점>실무에서 효과적으로 적용하기 위한 고려사항 및 주의점<a hidden class=anchor aria-hidden=true href=#실무에서-효과적으로-적용하기-위한-고려사항-및-주의점>#</a></h2><table><thead><tr><th>카테고리</th><th>항목</th><th>설명</th><th>권장사항</th></tr></thead><tbody><tr><td>Security</td><td>Admin API 노출</td><td>외부에 노출 시 설정 조작 및 정보 노출 위험</td><td>내부망 접속 제한, IP 화이트리스트 구성</td></tr><tr><td>Security</td><td>플러그인 보안</td><td>일부 커뮤니티 플러그인에서 암호화 미지원, RCE 가능성 존재</td><td>엔터프라이즈 버전 사용 또는 검증된 플러그인 사용</td></tr><tr><td>Operations</td><td>설정 복잡도 관리</td><td>라우트, 플러그인 수 증가 시 관리 및 유지보수 어려움</td><td>GitOps 기반 구성 관리 (decK, Terraform)</td></tr><tr><td>Infra</td><td>리소스 사이징</td><td>high QPS 환경에서 CPU 및 메모리 요구치 증가</td><td>성능 테스트 기반 용량 산정, Auto-scaling 구성</td></tr></tbody></table><hr><h2 id=최적화를-위한-고려사항-및-주의할-점>최적화를 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#최적화를-위한-고려사항-및-주의할-점>#</a></h2><table><thead><tr><th>최적화 범주</th><th>항목</th><th>설명</th><th>권장사항</th></tr></thead><tbody><tr><td>Latency 최적화</td><td>플러그인 최소화</td><td>경량 플러그인 중심 구성 및 chain 최적화</td><td>핵심 기능만 활성화, 복잡한 변환은 Upstream 에서 처리</td></tr><tr><td>Configuration</td><td>Declarative 구성 최소화</td><td>큰 YAML config 는 부하 증가 가능, 빈번한 <code>/config</code> 호출 자제</td><td>GitOps + <code>check_hash</code> 설정으로 변경 최소화 관리</td></tr><tr><td>Cache/Timeout</td><td>DNS/Timer 조정</td><td>Kubernetes 내부 DNS 조회 및 Timer exhaustion 문제 대응</td><td><code>ndots</code>, timeout 설정 조정, DNS 캐시 활용</td></tr><tr><td>Horizontal Scaling</td><td>Data Plane 확장</td><td>노드 수 증가 시 라우팅 테이블 증가로 설정 재동기화 고려</td><td>Hybrid 모드 구성, 설정 동기화 지연 허용 가능한 구성 설계</td></tr></tbody></table><hr><h2 id=용어-정리-2>용어 정리<a hidden class=anchor aria-hidden=true href=#용어-정리-2>#</a></h2><table><thead><tr><th>카테고리</th><th>용어</th><th>설명</th></tr></thead><tbody><tr><td>Reliability</td><td>Timer Exhaustion</td><td>Kong 내부 타이머 소진으로 DNS 실패 또는 타임아웃 발생 현상</td></tr><tr><td>Licenses</td><td>Kong Gateway Free</td><td>OSS 기능 + Kong Manager 포함, 무제한으로 사용 가능 (<a href="https://www.trendmicro.com/vinfo/us/security/news/virtualization-and-cloud/kong-api-gateway-misconfigurations-an-api-gateway-security-case-study?utm_source=chatgpt.com" title="An API Gateway Security Case Study | Trend Micro (US)">Kong Docs</a>, <a href="https://medium.com/async-software/gateway-pattern-introduction-on-the-bases-of-kong-gateway-e788e8c5662f?utm_source=chatgpt.com" title="Gateway Pattern: Introduction on the bases of Kong Gateway - Medium">API7</a>, <a href="https://konghq.com/products/kong-gateway?utm_source=chatgpt.com" title="Most Trusted Open Source API Gateway - Kong Inc.">Medium</a>, <a href="https://imesh.ai/blog/introduction-to-api-gateway-in-microservices-architecture/?utm_source=chatgpt.com" title="Introduction to API Gateway in Microservices Architecture">GitHub</a>)</td></tr><tr><td>Deployment</td><td>Hybrid Mode</td><td>컨트롤 플레인과 데이터 플레인 분리 구성, 지리적 분산 지원</td></tr><tr><td>Optimization</td><td>P99 Latency</td><td>전체 요청 중 상위 1% 지연 시간, 핵심 지표로 사용됨</td></tr><tr><td>Config</td><td>check_hash</td><td>Kong DB-less 모드에서 선언 config 무결성 확인을 위한 해시 검증 옵션</td></tr></tbody></table><hr><p>필요하시면 특정 항목 (예: GraphQL 보안, 서비스 메시 통합, mTLS 설정, 커스텀 Lua 플러그인 작성 등) 에 대해 추가로 깊이 있는 정보도 제공해드릴 수 있습니다!</p><p>아래는 <strong>Kong API Gateway</strong>에 대한 <strong>추가 심화 분석</strong>입니다. 이번에는 <strong>추가 학습 필요 항목</strong>, 정리된 주목할 내용, 그리고 용어 정리를 보완했습니다.</p><hr><h2 id=-주목할-내용-additional-highlights>📌 주목할 내용 (Additional Highlights)<a hidden class=anchor aria-hidden=true href=#-주목할-내용-additional-highlights>#</a></h2><table><thead><tr><th>카테고리</th><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td><strong>Reliability</strong></td><td>Timer Exhaustion</td><td>P99 Latency, Timer System</td><td>고트래픽 환경에서 Kong 타이머 리소스 고갈로 DNS 오류 및 latency 증가 발생 (<a href="https://konghq.com/products/kong-gateway?utm_source=chatgpt.com" title="Most Trusted Open Source API Gateway - Kong Inc.">Medium</a>, <a href="https://api7.ai/learning-center/api-gateway-guide/api-gateway-architecture?utm_source=chatgpt.com" title="Deep Dive into API Gateway Architecture: Core Components and …">Medium</a>)</td></tr><tr><td><strong>Deployment</strong></td><td>Hybrid vs DB-less</td><td>구성 방식 차이</td><td>Traditional, Hybrid, DB-less 모드 간 제약 및 이점 비교 (<a href="https://en.wikipedia.org/wiki/Kong_Inc.?utm_source=chatgpt.com" title="Kong Inc.">Kong Docs</a>, <a href="https://apipark.com/techblog/en/master-your-api-game-ultimate-guide-to-kong-api-gateway-mastery-2/?utm_source=chatgpt.com" title="Master Your API Game: Ultimate Guide to Kong API Gateway Mastery">softrams.com</a>)</td></tr><tr><td><strong>Security</strong></td><td>Admin API Exposure</td><td>외부 노출 위험</td><td>설정·인증 정보 조작 가능, Shodan 표시 노출 사례 존재 (<a href="https://developer.konghq.com/gateway/?utm_source=chatgpt.com" title="Kong Gateway">Trend Micro</a>)</td></tr><tr><td><strong>Scalability</strong></td><td>Incremental Sync</td><td>Hybrid 모드 최적화</td><td>Kong 3.10+ incremental sync 기능으로 전체 config push 가 아닌 변경만 전파 (<a href="https://imesh.ai/blog/introduction-to-api-gateway-in-microservices-architecture/?utm_source=chatgpt.com" title="Introduction to API Gateway in Microservices Architecture">Kong Docs</a>, <a href="https://www.trendmicro.com/vinfo/us/security/news/virtualization-and-cloud/kong-api-gateway-misconfigurations-an-api-gateway-security-case-study?utm_source=chatgpt.com" title="An API Gateway Security Case Study | Trend Micro (US)">Kong Docs</a>)</td></tr><tr><td><strong>Caching</strong></td><td>API Caching 전략</td><td>응답 캐싱</td><td>Kong 캐싱 플러그인 또는 외부 캐시 활용으로 backend 부하 최소화 (<a href="https://medium.com/async-software/gateway-pattern-introduction-on-the-bases-of-kong-gateway-e788e8c5662f?utm_source=chatgpt.com" title="Gateway Pattern: Introduction on the bases of Kong Gateway - Medium">BytePlus</a>)</td></tr></tbody></table><hr><h2 id=-반드시-학습해야-할-내용>📘 반드시 학습해야 할 내용<a hidden class=anchor aria-hidden=true href=#-반드시-학습해야-할-내용>#</a></h2><table><thead><tr><th>카테고리</th><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td><strong>Reliability</strong></td><td>타이머 리소스 최적화</td><td>Timer Exhaustion 해결</td><td>ndots, timeout 설정 및 check_hash 사용법 익히기</td></tr><tr><td><strong>Deployment</strong></td><td>배포 모드별 특징</td><td>Deployment Modes</td><td>Traditional, Hybrid(mTLS), DB-less 선언형 구성 이해</td></tr><tr><td><strong>Security</strong></td><td>운영 API 보안</td><td>Admin API Protection</td><td>네트워크 ACL, RBAC, mTLS 적용 방법</td></tr><tr><td><strong>Performance</strong></td><td>캐시 전략</td><td>Caching 플러그인 예시</td><td>kong-redis-cache 혹은 internal memory cache 구성법</td></tr><tr><td><strong>Sync 방식</strong></td><td>Config 동기화 방식</td><td>Incremental Sync</td><td>Hybrid 모드 incremental synchronization 도입 방식</td></tr><tr><td><strong>Observability</strong></td><td>모니터링과 추적</td><td>Metrics 수집</td><td>OpenTelemetry, Prometheus 와 연동하여 P99 지연 추적 관리</td></tr></tbody></table><hr><h2 id=용어-정리-3>용어 정리<a hidden class=anchor aria-hidden=true href=#용어-정리-3>#</a></h2><table><thead><tr><th>카테고리</th><th>용어</th><th>설명</th></tr></thead><tbody><tr><td>Reliability</td><td>Timer Exhaustion</td><td>Kong 내부 타이머 리소스 고갈로 DNS timeout 또는 처리 오류 발생 현상</td></tr><tr><td>Performance</td><td>P99 Latency</td><td>전체 요청 중 상위 1% 요청의 응답 지연 시간</td></tr><tr><td>Deployment</td><td>Hybrid Mode</td><td>CP 와 DP 를 분리한 구성으로 CP 는 설정관리, DP 는 요청 처리</td></tr><tr><td>Deployment</td><td>Incremental Sync</td><td>Hybrid 모드에서 설정 변경 시 전체가 아닌 변경된 부분만 전파</td></tr><tr><td>Configuration</td><td>check_hash</td><td>DB-less 구성에서 설정 변경 여부 체크를 위해 변경 내용 해시 관리</td></tr><tr><td>Security</td><td>Admin API</td><td>Kong 구성 변경을 위한 API, 외부 노출 시 보안 위험 존재</td></tr><tr><td>Performance</td><td>API Caching</td><td>캐시 레이어를 통한 backend 부하 감소 및 응답 속도 개선</td></tr><tr><td>Deployment</td><td>DB-less Mode</td><td>외부 DB 없이 선언형 YAML/JSON 기반 구성 모드</td></tr></tbody></table><hr><h2 id=-정리-요약>✅ 정리 요약<a hidden class=anchor aria-hidden=true href=#-정리-요약>#</a></h2><ul><li><strong>Reliability</strong> 영역에서는 <strong>Timer Exhaustion</strong>과 <strong>P99 latency</strong> 관리가 핵심으로, <code>ndots</code>, <code>timeout</code>, <code>check_hash</code> 등 설정 최적화 필요</li><li><strong>Deployment</strong> 모드는 전통적 (DB‑backed), Hybrid(cp/dp 분리, mTLS 사용), DB‑less 선언형 모드로 구분되며 각 모드별 장단점과 제약 사항 이해 필수</li><li><strong>Security</strong> 측면에서 Admin API 노출은 큰 리스크이며, 내부망 접근 제한 및 ACL/RBAC 적용이 권장</li><li><strong>Scalability 최적화</strong>는 Kong 3.10+ 의 <strong>Incremental Sync</strong> 기능을 활용해 config 전파 부하를 줄이는 것이 효과적</li><li><strong>Performance 향상</strong>을 위해 Kong 자체 캐시 또는 외부 캐싱 활용을 통해 backend 호출을 줄이고 응답성을 개선할 수 있음</li></ul><hr><p>다음 단계로 <strong>GraphQL 보안 플러그인 비교</strong>, <strong>mTLS 설정 예시</strong>, 또는 <strong>커스텀 Lua 플러그인 코드 예제</strong> 등 특정 항목에 대해 더 깊이 있게 다루길 원하시면 말씀해 주세요!</p><p>아래는 <strong>Kong API Gateway</strong>에 대한 마지막 심화 정리입니다. <strong>GraphQL 보안 플러그인 비교</strong>, <strong>Kong 3.10 의 Incremental Sync</strong> 관련 핵심 내용, <strong>추가 학습 항목</strong>, 그리고 최종 요약입니다.</p><hr><h2 id=-graphql-보안-및-기능-플러그인-비교>🔐 GraphQL 보안 및 기능 플러그인 비교<a hidden class=anchor aria-hidden=true href=#-graphql-보안-및-기능-플러그인-비교>#</a></h2><p>Kong 은 GraphQL API 에 대해 다음과 같은 플러그인을 제공합니다:</p><ul><li><strong>GraphQL Proxy Caching Advanced</strong>: GraphQL 쿼리 본문 기반 캐싱으로 응답 속도 향상 및 백엔드 부하 감소 (<a href="https://konghq.com/products/kong-gateway?utm_source=chatgpt.com" title="Most Trusted Open Source API Gateway - Kong Inc.">Kong Inc.</a>)</li><li><strong>GraphQL Rate Limiting Advanced</strong>: 쿼리 복잡도를 고려한 지능형 레이트 리밋 기능 제공 (<a href="https://api7.ai/learning-center/api-gateway-guide/api-gateway-architecture?utm_source=chatgpt.com" title="Deep Dive into API Gateway Architecture: Core Components and …">Inigo</a>)</li><li><strong>JWT 인증 및 보안 플러그인</strong>: HTTP 헤더 기반 JWT 인증, Kong 의 보안 플러그인 생태계를 지원 (<a href="https://en.wikipedia.org/wiki/Kong_Inc.?utm_source=chatgpt.com" title="Kong Inc.">Kong Inc.</a>)</li></ul><p>또한 외부 벤더 플러그인인 <strong>Inigo Kong Plugin</strong>은 다음과 같은 특장점을 갖고 있습니다:</p><ul><li>실시간 쿼리 분석 및 성능 모니터링</li><li>스키마 검증 및 린팅으로 GraphQL 변경사항 통제</li><li>보안 강화 및 CI/CD 통합 기능 제공 (<a href="https://api7.ai/learning-center/api-gateway-guide/api-gateway-architecture?utm_source=chatgpt.com" title="Deep Dive into API Gateway Architecture: Core Components and …">Inigo</a>)</li></ul><hr><h2 id=-kong-310incremental-config-sync-주요-내용>⚙️ Kong 3.10—Incremental Config Sync 주요 내용<a hidden class=anchor aria-hidden=true href=#-kong-310incremental-config-sync-주요-내용>#</a></h2><p>Kong Gateway <strong>버전 3.10 부터</strong>는 Hybrid 모드에서 <strong>Incremental Config Sync</strong> 기능이 GA(General Availability) 되었으며, 이를 통해 다음과 같은 이점이 있습니다:</p><ul><li>전체 구성이 아닌 변경된 구성만 데이터 플레인에 전달 → CPU/메모리 사용량 및 지연 (latency) 감소 (<a href="https://apipark.com/techblog/en/master-your-api-game-ultimate-guide-to-kong-api-gateway-mastery-2/?utm_source=chatgpt.com" title="Master Your API Game: Ultimate Guide to Kong API Gateway Mastery">Kong Inc.</a>)</li><li>Kong 3.10 LTS 로 출시되며, 3 년 장기 지원 (LTS) 버전 전략 적용 (<a href="https://developer.konghq.com/gateway/?utm_source=chatgpt.com" title="Kong Gateway">LinkedIn</a>)</li></ul><p><strong>구성 설정 예시</strong>: <code>kong.conf</code> 또는 환경변수에 <code>incremental_sync = on</code> (또는 <code>KONG_INCREMENTAL_SYNC=on</code>) 설정 필요 (<a href="https://imesh.ai/blog/introduction-to-api-gateway-in-microservices-architecture/?utm_source=chatgpt.com" title="Introduction to API Gateway in Microservices Architecture">Kong Docs</a>)</p><hr><h2 id=-추가-학습-및-심화-항목>📚 추가 학습 및 심화 항목<a hidden class=anchor aria-hidden=true href=#-추가-학습-및-심화-항목>#</a></h2><table><thead><tr><th>카테고리</th><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>GraphQL 및 보안</td><td>GraphQL 플러그인 비교</td><td>Native vs Inigo 플러그인 분석</td><td>캐시, Rate Limiting, 스키마 검증, CI 통합 등 비교 검토</td></tr><tr><td>운영 및 최적화</td><td>Incremental Sync 비교 및 구성법</td><td>Kong 3.10 Hybrid Mode</td><td>설정 방법, 제한사항, 커스텀 플러그인 호환성 이해 필요</td></tr><tr><td>성능 튜닝</td><td>Custom Plugin Cache Invalidation</td><td>check_hash, kong.worker_events</td><td>incremental sync 호환 custom plugin 작성법 학습 (<a href="https://api7.ai/learning-center/api-gateway-guide/api-gateway-architecture?utm_source=chatgpt.com" title="Deep Dive into API Gateway Architecture: Core Components and …">Inigo</a>, <a href="https://apipark.com/techblog/en/master-your-api-game-ultimate-guide-to-kong-api-gateway-mastery-2/?utm_source=chatgpt.com" title="Master Your API Game: Ultimate Guide to Kong API Gateway Mastery">Kong Inc.</a>, <a href="https://imesh.ai/blog/introduction-to-api-gateway-in-microservices-architecture/?utm_source=chatgpt.com" title="Introduction to API Gateway in Microservices Architecture">Kong Docs</a>)</td></tr><tr><td>배포 및 관리</td><td>decK Drift Detection</td><td>선언 구성과 실제 구성 동기화</td><td>구성 drift 탐지 및 자동 동기화 워크플로우 이해 (<a href="https://www.trendmicro.com/vinfo/us/security/news/virtualization-and-cloud/kong-api-gateway-misconfigurations-an-api-gateway-security-case-study?utm_source=chatgpt.com" title="An API Gateway Security Case Study | Trend Micro (US)">GitHub</a>)</td></tr></tbody></table><hr><h2 id=-최종-요약>✅ 최종 요약<a hidden class=anchor aria-hidden=true href=#-최종-요약>#</a></h2><ul><li><strong>GraphQL 관점</strong>: Kong Gateway 는 GraphQL API 에 대한 보안, 캐싱, 복잡도 기반 Rate Limiting 을 지원하며, <strong>Inigo 플러그인</strong>은 추가적으로 스키마 린팅, 실시간 분석, CI 통합 기능을 제공 (<a href="https://api7.ai/learning-center/api-gateway-guide/api-gateway-architecture?utm_source=chatgpt.com" title="Deep Dive into API Gateway Architecture: Core Components and …">Inigo</a>).</li><li><strong>버전 3.10 의 주요 변화</strong>: Hybrid 모드의 Incremental Config Sync 가 정식 기능화되었으며, 구성을 효율적으로 전파하고 리소스 사용을 최적화할 수 있음 (<a href="https://apipark.com/techblog/en/master-your-api-game-ultimate-guide-to-kong-api-gateway-mastery-2/?utm_source=chatgpt.com" title="Master Your API Game: Ultimate Guide to Kong API Gateway Mastery">Kong Inc.</a>).</li><li><strong>Custom 플러그인 대응</strong>: incremental sync 활성화 시 custom plugin 은 cache invalidation 및 entity CRUD 이벤트 등록으로 호환성 확보 필요 (<a href="https://imesh.ai/blog/introduction-to-api-gateway-in-microservices-architecture/?utm_source=chatgpt.com" title="Introduction to API Gateway in Microservices Architecture">Kong Docs</a>).</li></ul><hr><h2 id=-용어-정리>📌 용어 정리<a hidden class=anchor aria-hidden=true href=#-용어-정리>#</a></h2><table><thead><tr><th>카테고리</th><th>용어</th><th>설명</th></tr></thead><tbody><tr><td>GraphQL Security</td><td>Inigo Kong Plugin</td><td>GraphQL 보안·관측·스키마 린팅 통합 플러그인</td></tr><tr><td>Deployment</td><td>Incremental Config Sync</td><td>Hybrid 모드에서 변경된 구성만 전파하여 효율 개선</td></tr><tr><td>Optimization</td><td>Cache Invalidation in Plugins</td><td>Custom plugin 이 incremental sync 환경에서 일관성을 유지하도록 캐시 무효화 처리</td></tr><tr><td>DevOps</td><td>decK Drift Detection</td><td>Git 선언 구성과 Kong 실제 구성의 차이 감지 및 동기화 도구</td></tr></tbody></table><hr><p>다음으로 <strong>mTLS 설정 예시</strong>, <strong>서비스 메시 통합 (Kong Mesh)</strong>, 또는 <strong>GraphQL CI/CD 워크플로우 예시</strong> 등 특정 항목에 대해 더 깊이 다루길 원하시면 말씀해 주세요!</p><p>Kong API Gateway 에 대한 포괄적인 조사와 분석을 진행하겠습니다. 먼저 최신 정보를 수집하고 체계적으로 분석해보겠습니다.</p><h2 id=kong-api-gateway-종합-분석>Kong API Gateway 종합 분석<a hidden class=anchor aria-hidden=true href=#kong-api-gateway-종합-분석>#</a></h2><h3 id=1-태그>1. 태그<a hidden class=anchor aria-hidden=true href=#1-태그>#</a></h3><p><code>API-Gateway</code>, <code>Kong-Gateway</code>, <code>Microservices-Management</code>, <code>Traffic-Control</code></p><h3 id=2-분류-구조-검증>2. 분류 구조 검증<a hidden class=anchor aria-hidden=true href=#2-분류-구조-검증>#</a></h3><p><strong>현재 분류</strong>: <code>Computer Science and Engineering > Systems Design > System Components > Traffic Control and Routing > API Gateway > Implementations</code></p><p><strong>검증 결과</strong>: 적절함<br><strong>근거</strong>: Kong 은 API Gateway 의 구체적인 구현체로서, 트래픽 제어 및 라우팅 시스템의 구성 요소에 해당하며, 시스템 설계 범주 내에서 올바르게 분류됨</p><h3 id=3-요약-설명-200-자>3. 요약 설명 (200 자)<a hidden class=anchor aria-hidden=true href=#3-요약-설명-200-자>#</a></h3><p>Kong 은 클라우드 네이티브 환경에 최적화된 오픈소스 API Gateway 로, NGINX 기반의 고성능 프록시 엔진과 확장 가능한 플러그인 아키텍처를 통해 마이크로서비스 간 트래픽 관리, 인증/인가, 보안, 모니터링을 제공하는 현대적 API 관리 솔루션입니다.</p><h3 id=4-개요-250-자-1>4. 개요 (250 자)<a hidden class=anchor aria-hidden=true href=#4-개요-250-자-1>#</a></h3><p>Kong Gateway 는 REST, gRPC, GraphQL 등 다양한 프로토콜을 지원하는 경량 API Gateway 입니다. Control Plane 과 Data Plane 분리 아키텍처, DB-less 모드, 하이브리드 배포를 통해 확장성과 유연성을 제공하며, 풍부한 플러그인 생태계로 인증, Rate Limiting, 변환, 분석 기능을 지원합니다. 온프레미스부터 멀티클라우드까지 다양한 환경에서 배포 가능합니다.</p><hr><h3 id=5-핵심-개념-2>5. 핵심 개념<a hidden class=anchor aria-hidden=true href=#5-핵심-개념-2>#</a></h3><h4 id=51-기본-개념>5.1 기본 개념<a hidden class=anchor aria-hidden=true href=#51-기본-개념>#</a></h4><p><strong>API Gateway</strong></p><ul><li>클라이언트와 백엔드 서비스 사이의 중간 레이어 역할</li><li>모든 API 요청의 단일 진입점 제공</li><li>횡단 관심사 (Cross-cutting Concerns) 처리</li></ul><p><strong>Control Plane vs Data Plane</strong></p><ul><li>Control Plane (CP): 구성 관리 및 Admin API 제공</li><li>Data Plane (DP): 실제 프록시 트래픽 처리</li><li>분리된 아키텍처로 확장성과 안정성 향상</li></ul><p><strong>플러그인 아키텍처</strong></p><ul><li>모듈식 확장 시스템</li><li>Lua, Go, Rust, JavaScript, Python 으로 개발 가능</li><li>요청/응답 라이프사이클의 다양한 단계에서 실행</li></ul><h4 id=52-실무-구현-연관성>5.2 실무 구현 연관성<a hidden class=anchor aria-hidden=true href=#52-실무-구현-연관성>#</a></h4><p><strong>구성 관리</strong></p><ul><li>선언적 구성 (Declarative Configuration) 지원</li><li>GitOps 및 CI/CD 파이프라인 통합</li><li>Admin API 와 Kong Manager 를 통한 중앙집중식 관리</li></ul><p><strong>배포 토폴로지</strong></p><ul><li>Traditional Mode: 데이터베이스 기반 클러스터</li><li>Hybrid Mode: CP/DP 분리 배포</li><li>DB-less Mode: 메모리 기반 구성 관리</li></ul><p><strong>보안 및 인증</strong></p><ul><li>다중 인증 방식 지원 (JWT, OAuth, API Key 등)</li><li>mTLS 기반 보안 통신</li><li>Rate Limiting 및 트래픽 제어</li></ul><hr><h3 id=6-상세-조사-내용>6. 상세 조사 내용<a hidden class=anchor aria-hidden=true href=#6-상세-조사-내용>#</a></h3><h4 id=등장-및-발전-배경>등장 및 발전 배경<a hidden class=anchor aria-hidden=true href=#등장-및-발전-배경>#</a></h4><p>Kong 은 2015 년 Mashape(현 Kong Inc.) 에서 API 관리의 복잡성을 해결하기 위해 개발되었습니다. 마이크로서비스 아키텍처의 급속한 확산과 함께 다음과 같은 문제들을 해결하고자 등장했습니다:</p><ul><li><strong>모놀리식 API 관리의 한계</strong>: 기존 API 관리 솔루션들의 복잡성과 확장성 부족</li><li><strong>마이크로서비스 관리 복잡성</strong>: 서비스 간 통신, 보안, 모니터링의 분산화 문제</li><li><strong>클라우드 네이티브 요구사항</strong>: 컨테이너 환경과 Kubernetes 지원 필요성</li><li><strong>개발자 친화적 솔루션 부재</strong>: 코드 중심의 구성 관리와 자동화 요구</li></ul><p>2017 년 Kong Enterprise 출시, 2019 년 Kong Konnect 서비스 출시, 2024 년 Kong AI Gateway 기능 추가 등으로 지속적으로 발전하고 있습니다.</p><h4 id=목적-및-필요성-1>목적 및 필요성<a hidden class=anchor aria-hidden=true href=#목적-및-필요성-1>#</a></h4><p><strong>주요 목적</strong></p><ul><li>API 트래픽의 중앙집중식 관리 및 제어</li><li>마이크로서비스 간 안전하고 효율적인 통신 보장</li><li>개발팀의 생산성 향상 및 운영 부담 감소</li><li>확장 가능하고 안정적인 API 인프라 구축</li></ul><p><strong>필요성</strong></p><ul><li><strong>보안 강화</strong>: 통합된 인증/인가 체계로 API 보안 일관성 확보</li><li><strong>성능 최적화</strong>: Load Balancing, Caching, Rate Limiting 을 통한 성능 향상</li><li><strong>운영 효율성</strong>: 중앙집중식 모니터링, 로깅, 분석으로 운영 효율성 극대화</li><li><strong>개발 가속화</strong>: 횡단 관심사의 플랫폼 차원 해결로 개발 집중력 향상</li></ul><h4 id=주요-기능-및-역할-1>주요 기능 및 역할<a hidden class=anchor aria-hidden=true href=#주요-기능-및-역할-1>#</a></h4><p><strong>핵심 기능</strong></p><ol><li><p><strong>트래픽 관리</strong></p><ul><li>로드 밸런싱 및 헬스 체크</li><li>Rate Limiting 및 Circuit Breaking</li><li>요청/응답 변환</li></ul></li><li><p><strong>보안 기능</strong></p><ul><li>다중 인증 방식 지원</li><li>SSL/TLS 종료</li><li>IP 화이트리스트/블랙리스트</li></ul></li><li><p><strong>모니터링 및 분석</strong></p><ul><li>실시간 트래픽 분석</li><li>로깅 및 메트릭 수집</li><li>OpenTelemetry 지원</li></ul></li></ol><p><strong>주요 역할</strong></p><ul><li><strong>프록시 서버</strong>: 클라이언트 요청을 적절한 업스트림 서비스로 라우팅</li><li><strong>보안 게이트웨이</strong>: API 접근 제어 및 보안 정책 적용</li><li><strong>트래픽 제어기</strong>: 요청량 제한 및 부하 분산</li><li><strong>변환 엔진</strong>: 요청/응답 데이터 형식 변환</li><li><strong>모니터링 허브</strong>: API 사용량 및 성능 지표 수집</li></ul><h4 id=특징-1>특징<a hidden class=anchor aria-hidden=true href=#특징-1>#</a></h4><p><strong>고성능</strong></p><ul><li>NGINX 기반 아키텍처로 초당 수만 건의 요청 처리 가능</li><li>메모리 기반 구성 캐싱으로 빠른 응답 시간 보장</li></ul><p><strong>확장 가능성</strong></p><ul><li>플러그인 아키텍처를 통한 무한 확장성</li><li>수평적 스케일링 지원</li></ul><p><strong>클라우드 네이티브</strong></p><ul><li>Kubernetes 네이티브 지원</li><li>컨테이너 기반 배포 최적화</li></ul><p><strong>다중 프로토콜 지원</strong></p><ul><li>REST, gRPC, GraphQL, WebSocket 등 지원</li><li>HTTP/1.1, HTTP/2, HTTP/3 지원</li></ul><h4 id=핵심-원칙-1>핵심 원칙<a hidden class=anchor aria-hidden=true href=#핵심-원칙-1>#</a></h4><ol><li><strong>성능 우선</strong>: 고성능 프록시 엔진 기반 설계</li><li><strong>확장성</strong>: 모듈식 플러그인 아키텍처</li><li><strong>운영 용이성</strong>: 선언적 구성 및 GitOps 지원</li><li><strong>보안</strong>: 기본적으로 안전한 설계 원칙</li><li><strong>개방성</strong>: 오픈소스 기반 투명한 개발</li></ol><h4 id=주요-원리-및-작동-원리>주요 원리 및 작동 원리<a hidden class=anchor aria-hidden=true href=#주요-원리-및-작동-원리>#</a></h4><pre class=mermaid>graph TB
+    Client[클라이언트] --&gt; Kong[Kong Gateway]
+    Kong --&gt; Plugin1[인증 플러그인]
+    Kong --&gt; Plugin2[Rate Limiting 플러그인]
+    Kong --&gt; Plugin3[변환 플러그인]
+    Kong --&gt; LoadBalancer[로드 밸런서]
+    LoadBalancer --&gt; Service1[서비스 1]
+    LoadBalancer --&gt; Service2[서비스 2]
+    LoadBalancer --&gt; Service3[서비스 3]
+    
+    subgraph &#34;Kong 내부 처리&#34;
+        Plugin1 --&gt; Plugin2
+        Plugin2 --&gt; Plugin3
+        Plugin3 --&gt; LoadBalancer
+    end
+</pre><p><strong>작동 방식</strong></p><ol><li><strong>요청 수신</strong>: 클라이언트로부터 HTTP 요청 수신</li><li><strong>라우팅 결정</strong>: Route 와 Service 매칭을 통한 대상 서비스 결정</li><li><strong>플러그인 실행</strong>: 구성된 플러그인들의 순차적 실행</li><li><strong>업스트림 전달</strong>: 처리된 요청을 대상 서비스로 전달</li><li><strong>응답 처리</strong>: 업스트림 응답에 대한 플러그인 처리</li><li><strong>응답 반환</strong>: 최종 처리된 응답을 클라이언트에 반환</li></ol><h4 id=구조-및-아키텍처-2>구조 및 아키텍처<a hidden class=anchor aria-hidden=true href=#구조-및-아키텍처-2>#</a></h4><pre class=mermaid>graph TB
+    subgraph &#34;Control Plane&#34;
+        AdminAPI[Admin API]
+        KongManager[Kong Manager]
+        Database[(PostgreSQL)]
+        AdminAPI &lt;--&gt; Database
+        KongManager &lt;--&gt; Database
+    end
+    
+    subgraph &#34;Data Plane Cluster&#34;
+        DP1[Data Plane 1]
+        DP2[Data Plane 2]
+        DP3[Data Plane 3]
+    end
+    
+    subgraph &#34;External Components&#34;
+        Client[클라이언트]
+        Services[업스트림 서비스들]
+        Redis[(Redis Cache)]
+    end
+    
+    AdminAPI -.-&gt; DP1
+    AdminAPI -.-&gt; DP2
+    AdminAPI -.-&gt; DP3
+    
+    Client --&gt; DP1
+    Client --&gt; DP2
+    Client --&gt; DP3
+    
+    DP1 --&gt; Services
+    DP2 --&gt; Services
+    DP3 --&gt; Services
+    
+    DP1 &lt;--&gt; Redis
+    DP2 &lt;--&gt; Redis
+    DP3 &lt;--&gt; Redis
+</pre><p><strong>구성 요소</strong></p><p><strong>필수 구성요소</strong></p><ol><li><p><strong>Kong Core</strong></p><ul><li>NGINX 기반 프록시 엔진</li><li>요청/응답 처리 및 라우팅</li><li>플러그인 실행 환경</li></ul></li><li><p><strong>Admin API</strong></p><ul><li>RESTful API 를 통한 구성 관리</li><li>엔티티 CRUD 작업</li><li>실시간 구성 업데이트</li></ul></li><li><p><strong>Route 및 Service</strong></p><ul><li>Route: 클라이언트 요청을 매칭하는 규칙</li><li>Service: 업스트림 서비스 추상화</li></ul></li></ol><p><strong>선택 구성요소</strong></p><ol><li><p><strong>Kong Manager</strong></p><ul><li>웹 기반 관리 GUI</li><li>시각적 구성 관리</li></ul></li><li><p><strong>Database</strong></p><ul><li>PostgreSQL (권장) 또는 Cassandra</li><li>DB-less 모드에서는 선택사항</li></ul></li><li><p><strong>플러그인</strong></p><ul><li>확장 기능 제공</li><li>커뮤니티 및 엔터프라이즈 플러그인</li></ul></li><li><p><strong>Cache (Redis)</strong></p><ul><li>성능 향상을 위한 캐싱</li><li>Rate Limiting 데이터 저장</li></ul></li></ol><h4 id=구현-기법-및-방법-1>구현 기법 및 방법<a hidden class=anchor aria-hidden=true href=#구현-기법-및-방법-1>#</a></h4><p><strong>1. 전통적 배포 (Traditional Mode)</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-11-1><a class=lnlinks href=#hl-11-1>1</a>
+</span><span class=lnt id=hl-11-2><a class=lnlinks href=#hl-11-2>2</a>
+</span><span class=lnt id=hl-11-3><a class=lnlinks href=#hl-11-3>3</a>
+</span><span class=lnt id=hl-11-4><a class=lnlinks href=#hl-11-4>4</a>
+</span><span class=lnt id=hl-11-5><a class=lnlinks href=#hl-11-5>5</a>
+</span><span class=lnt id=hl-11-6><a class=lnlinks href=#hl-11-6>6</a>
+</span><span class=lnt id=hl-11-7><a class=lnlinks href=#hl-11-7>7</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># kong.conf 설정 예시</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>database = postgres</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>pg_host = localhost</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>pg_port = 5432</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>pg_database = kong</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>pg_user = kong</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>pg_password = kong</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p><strong>2. 하이브리드 모드 (Hybrid Mode)</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-12-1><a class=lnlinks href=#hl-12-1> 1</a>
+</span><span class=lnt id=hl-12-2><a class=lnlinks href=#hl-12-2> 2</a>
+</span><span class=lnt id=hl-12-3><a class=lnlinks href=#hl-12-3> 3</a>
+</span><span class=lnt id=hl-12-4><a class=lnlinks href=#hl-12-4> 4</a>
+</span><span class=lnt id=hl-12-5><a class=lnlinks href=#hl-12-5> 5</a>
+</span><span class=lnt id=hl-12-6><a class=lnlinks href=#hl-12-6> 6</a>
+</span><span class=lnt id=hl-12-7><a class=lnlinks href=#hl-12-7> 7</a>
+</span><span class=lnt id=hl-12-8><a class=lnlinks href=#hl-12-8> 8</a>
+</span><span class=lnt id=hl-12-9><a class=lnlinks href=#hl-12-9> 9</a>
+</span><span class=lnt id=hl-12-10><a class=lnlinks href=#hl-12-10>10</a>
+</span><span class=lnt id=hl-12-11><a class=lnlinks href=#hl-12-11>11</a>
+</span><span class=lnt id=hl-12-12><a class=lnlinks href=#hl-12-12>12</a>
+</span><span class=lnt id=hl-12-13><a class=lnlinks href=#hl-12-13>13</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># Control Plane 구성</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>role = control_plane</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>database = postgres</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>cluster_cert = /path/to/cluster.crt</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>cluster_cert_key = /path/to/cluster.key</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>cluster_listen = 0.0.0.0:8005</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># Data Plane 구성</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>role = data_plane</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>database = off</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>cluster_control_plane = cp.example.com:8005</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>cluster_cert = /path/to/cluster.crt</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>cluster_cert_key = /path/to/cluster.key</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p><strong>3. DB-less 모드</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-13-1><a class=lnlinks href=#hl-13-1> 1</a>
+</span><span class=lnt id=hl-13-2><a class=lnlinks href=#hl-13-2> 2</a>
+</span><span class=lnt id=hl-13-3><a class=lnlinks href=#hl-13-3> 3</a>
+</span><span class=lnt id=hl-13-4><a class=lnlinks href=#hl-13-4> 4</a>
+</span><span class=lnt id=hl-13-5><a class=lnlinks href=#hl-13-5> 5</a>
+</span><span class=lnt id=hl-13-6><a class=lnlinks href=#hl-13-6> 6</a>
+</span><span class=lnt id=hl-13-7><a class=lnlinks href=#hl-13-7> 7</a>
+</span><span class=lnt id=hl-13-8><a class=lnlinks href=#hl-13-8> 8</a>
+</span><span class=lnt id=hl-13-9><a class=lnlinks href=#hl-13-9> 9</a>
+</span><span class=lnt id=hl-13-10><a class=lnlinks href=#hl-13-10>10</a>
+</span><span class=lnt id=hl-13-11><a class=lnlinks href=#hl-13-11>11</a>
+</span><span class=lnt id=hl-13-12><a class=lnlinks href=#hl-13-12>12</a>
+</span><span class=lnt id=hl-13-13><a class=lnlinks href=#hl-13-13>13</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># kong.yml 선언적 구성 예시</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>_format_version</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;3.0&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>services</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>my-service</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>url</span><span class=p>:</span><span class=w> </span><span class=l>http://backend.example.com</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>routes</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>my-route</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>paths</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>/api/v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>plugins</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>rate-limiting</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>config</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>minute</span><span class=p>:</span><span class=w> </span><span class=m>5</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p><strong>4. Kubernetes 배포</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-14-1><a class=lnlinks href=#hl-14-1> 1</a>
+</span><span class=lnt id=hl-14-2><a class=lnlinks href=#hl-14-2> 2</a>
+</span><span class=lnt id=hl-14-3><a class=lnlinks href=#hl-14-3> 3</a>
+</span><span class=lnt id=hl-14-4><a class=lnlinks href=#hl-14-4> 4</a>
+</span><span class=lnt id=hl-14-5><a class=lnlinks href=#hl-14-5> 5</a>
+</span><span class=lnt id=hl-14-6><a class=lnlinks href=#hl-14-6> 6</a>
+</span><span class=lnt id=hl-14-7><a class=lnlinks href=#hl-14-7> 7</a>
+</span><span class=lnt id=hl-14-8><a class=lnlinks href=#hl-14-8> 8</a>
+</span><span class=lnt id=hl-14-9><a class=lnlinks href=#hl-14-9> 9</a>
+</span><span class=lnt id=hl-14-10><a class=lnlinks href=#hl-14-10>10</a>
+</span><span class=lnt id=hl-14-11><a class=lnlinks href=#hl-14-11>11</a>
+</span><span class=lnt id=hl-14-12><a class=lnlinks href=#hl-14-12>12</a>
+</span><span class=lnt id=hl-14-13><a class=lnlinks href=#hl-14-13>13</a>
+</span><span class=lnt id=hl-14-14><a class=lnlinks href=#hl-14-14>14</a>
+</span><span class=lnt id=hl-14-15><a class=lnlinks href=#hl-14-15>15</a>
+</span><span class=lnt id=hl-14-16><a class=lnlinks href=#hl-14-16>16</a>
+</span><span class=lnt id=hl-14-17><a class=lnlinks href=#hl-14-17>17</a>
+</span><span class=lnt id=hl-14-18><a class=lnlinks href=#hl-14-18>18</a>
+</span><span class=lnt id=hl-14-19><a class=lnlinks href=#hl-14-19>19</a>
+</span><span class=lnt id=hl-14-20><a class=lnlinks href=#hl-14-20>20</a>
+</span><span class=lnt id=hl-14-21><a class=lnlinks href=#hl-14-21>21</a>
+</span><span class=lnt id=hl-14-22><a class=lnlinks href=#hl-14-22>22</a>
+</span><span class=lnt id=hl-14-23><a class=lnlinks href=#hl-14-23>23</a>
+</span><span class=lnt id=hl-14-24><a class=lnlinks href=#hl-14-24>24</a>
+</span><span class=lnt id=hl-14-25><a class=lnlinks href=#hl-14-25>25</a>
+</span><span class=lnt id=hl-14-26><a class=lnlinks href=#hl-14-26>26</a>
+</span><span class=lnt id=hl-14-27><a class=lnlinks href=#hl-14-27>27</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>apps/v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Deployment</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>kong-gateway</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>replicas</span><span class=p>:</span><span class=w> </span><span class=m>3</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>selector</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>matchLabels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>kong-gateway</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>template</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>kong-gateway</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>containers</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>kong</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>image</span><span class=p>:</span><span class=w> </span><span class=l>kong:3.8</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>env</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>KONG_DATABASE</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>value</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;off&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>KONG_DECLARATIVE_CONFIG</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>value</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;/kong/kong.yml&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>ports</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=nt>containerPort</span><span class=p>:</span><span class=w> </span><span class=m>8000</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>proxy</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=nt>containerPort</span><span class=p>:</span><span class=w> </span><span class=m>8443</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>proxy-ssl</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h4 id=장점-1>장점<a hidden class=anchor aria-hidden=true href=#장점-1>#</a></h4><table><thead><tr><th>구분</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>장점</td><td>고성능</td><td>NGINX 기반 아키텍처로 초당 수만 건의 요청 처리 가능, 메모리 기반 구성 캐싱으로 지연 시간 최소화</td></tr><tr><td></td><td>확장성</td><td>수평적 스케일링 지원, 플러그인 아키텍처를 통한 기능 확장, 다양한 배포 토폴로지 지원</td></tr><tr><td></td><td>유연성</td><td>DB-less, Hybrid, Traditional 모드 지원으로 다양한 환경에 적응 가능</td></tr><tr><td></td><td>개발자 친화적</td><td>선언적 구성, GitOps 지원, 다양한 프로그래밍 언어로 플러그인 개발 가능</td></tr><tr><td></td><td>풍부한 생태계</td><td>200 개 이상의 플러그인 제공, 활발한 커뮤니티 지원</td></tr><tr><td></td><td>멀티 프로토콜 지원</td><td>REST, gRPC, GraphQL, WebSocket 등 다양한 프로토콜 지원</td></tr><tr><td></td><td>보안</td><td>다중 인증 방식, mTLS, 세밀한 접근 제어 기능</td></tr></tbody></table><h4 id=단점과-문제점-그리고-해결방안-1>단점과 문제점 그리고 해결방안<a hidden class=anchor aria-hidden=true href=#단점과-문제점-그리고-해결방안-1>#</a></h4><p><strong>단점</strong></p><table><thead><tr><th>구분</th><th>항목</th><th>설명</th><th>해결책</th></tr></thead><tbody><tr><td>단점</td><td>학습 곡선</td><td>다양한 배포 모드와 구성 옵션으로 인한 초기 학습 비용</td><td>단계적 도입, 문서화된 베스트 프랙티스 활용, 교육 프로그램 참여</td></tr><tr><td></td><td>메모리 사용량</td><td>모든 구성을 메모리에 로드하여 메모리 사용량이 높음</td><td>적절한 인스턴스 사이징, 메모리 최적화 구성</td></tr><tr><td></td><td>플러그인 호환성</td><td>버전 간 플러그인 호환성 문제 발생 가능</td><td>엄격한 버전 관리, 단계적 업그레이드 전략</td></tr><tr><td></td><td>DB-less 모드 제약</td><td>일부 플러그인이 DB-less 모드에서 제한적 기능</td><td>Hybrid 모드 활용, 엔터프라이즈 버전 고려</td></tr></tbody></table><p><strong>문제점</strong></p><table><thead><tr><th>구분</th><th>항목</th><th>원인</th><th>영향</th><th>탐지 및 진단</th><th>예방 방법</th><th>해결 방법 및 기법</th></tr></thead><tbody><tr><td>문제점</td><td>구성 동기화 지연</td><td>대규모 클러스터에서 구성 전파 지연</td><td>일시적 서비스 불일치</td><td>모니터링 대시보드, 로그 분석</td><td>점진적 배포, 구성 검증</td><td>Incremental Configuration Sync 기능 활용</td></tr><tr><td></td><td>메모리 누수</td><td>장기 실행 시 메모리 누수 발생</td><td>성능 저하, 서비스 중단</td><td>메모리 모니터링, 프로파일링</td><td>정기적 재시작, 메모리 최적화</td><td>버전 업그레이드, 메모리 프로파일링</td></tr><tr><td></td><td>플러그인 충돌</td><td>플러그인 간 실행 순서 충돌</td><td>예상하지 못한 동작</td><td>요청 추적, 플러그인 로그</td><td>플러그인 우선순위 설정</td><td>플러그인 재구성, 단계별 테스트</td></tr><tr><td></td><td>Certificate 만료</td><td>mTLS 인증서 만료</td><td>클러스터 통신 중단</td><td>인증서 만료 모니터링</td><td>자동 갱신 설정</td><td>인증서 갱신, 롤링 업데이트</td></tr></tbody></table><h4 id=도전-과제-1>도전 과제<a hidden class=anchor aria-hidden=true href=#도전-과제-1>#</a></h4><p><strong>1. 성능 최적화</strong></p><ul><li><strong>원인</strong>: 대규모 트래픽과 복잡한 플러그인 체인</li><li><strong>영향</strong>: 응답 지연 시간 증가, 처리량 감소</li><li><strong>해결방안</strong>:<ul><li>플러그인 최적화 및 순서 조정</li><li>캐싱 전략 개선</li><li>하드웨어 스케일링</li></ul></li></ul><p><strong>2. 보안 강화</strong></p><ul><li><strong>원인</strong>: 다양한 보안 위협과 규제 요구사항</li><li><strong>영향</strong>: 보안 취약성 노출, 컴플라이언스 문제</li><li><strong>해결방안</strong>:<ul><li>Zero Trust 아키텍처 도입</li><li>정기적 보안 감사</li><li>최신 보안 플러그인 적용</li></ul></li></ul><p><strong>3. 멀티클라우드 관리</strong></p><ul><li><strong>원인</strong>: 클라우드 벤더별 서로 다른 네트워킹 요구사항</li><li><strong>영향</strong>: 운영 복잡성 증가, 일관성 부족</li><li><strong>해결방안</strong>:<ul><li>Kong Konnect 를 통한 중앙집중식 관리</li><li>인프라 as 코드 활용</li><li>표준화된 배포 파이프라인</li></ul></li></ul><h4 id=분류-기준에-따른-종류-및-유형-2>분류 기준에 따른 종류 및 유형<a hidden class=anchor aria-hidden=true href=#분류-기준에-따른-종류-및-유형-2>#</a></h4><table><thead><tr><th>분류 기준</th><th>유형</th><th>설명</th></tr></thead><tbody><tr><td>배포 모드</td><td>Traditional</td><td>데이터베이스 기반 클러스터 배포</td></tr><tr><td></td><td>Hybrid</td><td>Control Plane 과 Data Plane 분리 배포</td></tr><tr><td></td><td>DB-less</td><td>메모리 기반 선언적 구성</td></tr><tr><td>라이선스</td><td>Community Edition</td><td>오픈소스 무료 버전</td></tr><tr><td></td><td>Enterprise Edition</td><td>상용 라이선스, 추가 기능 제공</td></tr><tr><td></td><td>Kong Konnect</td><td>SaaS 형태의 매니지드 서비스</td></tr><tr><td>플러그인 유형</td><td>Authentication</td><td>Key Auth, JWT, OAuth, LDAP 등</td></tr><tr><td></td><td>Security</td><td>Rate Limiting, IP Restriction, CORS 등</td></tr><tr><td></td><td>Traffic Control</td><td>Load Balancing, Circuit Breaker 등</td></tr><tr><td></td><td>Transformation</td><td>Request/Response Transformer 등</td></tr><tr><td></td><td>Analytics</td><td>Prometheus, Datadog, Logging 등</td></tr><tr><td>프로토콜 지원</td><td>HTTP/REST</td><td>표준 HTTP/HTTPS 프로토콜</td></tr><tr><td></td><td>gRPC</td><td>Google 의 RPC 프로토콜</td></tr><tr><td></td><td>GraphQL</td><td>Facebook 의 쿼리 언어</td></tr><tr><td></td><td>WebSocket</td><td>실시간 양방향 통신</td></tr></tbody></table><h4 id=실무-사용-예시-1>실무 사용 예시<a hidden class=anchor aria-hidden=true href=#실무-사용-예시-1>#</a></h4><table><thead><tr><th>사용 사례</th><th>목적</th><th>효과</th></tr></thead><tbody><tr><td>마이크로서비스 API Gateway</td><td>서비스 간 통신 중앙화</td><td>보안 일관성, 모니터링 통합</td></tr><tr><td>E-commerce 플랫폼</td><td>트래픽 관리 및 보안</td><td>성능 향상, DDoS 방어</td></tr><tr><td>금융 서비스 API</td><td>규제 준수 및 보안</td><td>컴플라이언스 달성, 감사 추적</td></tr><tr><td>IoT 플랫폼</td><td>대량 디바이스 연결 관리</td><td>확장성, 디바이스 인증</td></tr><tr><td>미디어 스트리밍</td><td>콘텐츠 배포 최적화</td><td>글로벌 배포, 캐싱 효율성</td></tr></tbody></table><h3 id=활용-사례-1>활용 사례<a hidden class=anchor aria-hidden=true href=#활용-사례-1>#</a></h3><p><strong>시나리오</strong>: 대규모 E-commerce 플랫폼의 마이크로서비스 API 관리</p><p><strong>시스템 구성</strong>:</p><ul><li>Kong Gateway Hybrid Mode (CP 2 대, DP 6 대)</li><li>PostgreSQL 클러스터 (Control Plane 용)</li><li>Redis 클러스터 (캐싱 및 Rate Limiting)</li><li>Kubernetes 환경 배포</li><li>Prometheus + Grafana 모니터링</li></ul><p><strong>시스템 구성 다이어그램</strong>:</p><pre class=mermaid>graph TB
+    subgraph &#34;External&#34;
+        Client[모바일/웹 클라이언트]
+        LB[로드 밸런서]
+    end
+    
+    subgraph &#34;Kong Control Plane&#34;
+        CP1[Control Plane 1]
+        CP2[Control Plane 2]
+        DB[(PostgreSQL 클러스터)]
+        CP1 &lt;--&gt; DB
+        CP2 &lt;--&gt; DB
+    end
+    
+    subgraph &#34;Kong Data Plane&#34;
+        DP1[Data Plane 1]
+        DP2[Data Plane 2]
+        DP3[Data Plane 3]
+        DP4[Data Plane 4]
+        DP5[Data Plane 5]
+        DP6[Data Plane 6]
+    end
+    
+    subgraph &#34;Microservices&#34;
+        UserSvc[사용자 서비스]
+        ProductSvc[상품 서비스]
+        OrderSvc[주문 서비스]
+        PaymentSvc[결제 서비스]
+        InventorySvc[재고 서비스]
+    end
+    
+    subgraph &#34;Infrastructure&#34;
+        Redis[(Redis 클러스터)]
+        Prometheus[Prometheus]
+        Grafana[Grafana]
+    end
+    
+    Client --&gt; LB
+    LB --&gt; DP1
+    LB --&gt; DP2
+    LB --&gt; DP3
+    
+    CP1 -.-&gt; DP1
+    CP1 -.-&gt; DP2
+    CP1 -.-&gt; DP3
+    CP2 -.-&gt; DP4
+    CP2 -.-&gt; DP5
+    CP2 -.-&gt; DP6
+    
+    DP1 --&gt; UserSvc
+    DP2 --&gt; ProductSvc
+    DP3 --&gt; OrderSvc
+    DP4 --&gt; PaymentSvc
+    DP5 --&gt; InventorySvc
+    DP6 --&gt; UserSvc
+    
+    DP1 &lt;--&gt; Redis
+    DP2 &lt;--&gt; Redis
+    DP3 &lt;--&gt; Redis
+    
+    DP1 --&gt; Prometheus
+    DP2 --&gt; Prometheus
+    DP3 --&gt; Prometheus
+    Prometheus --&gt; Grafana
+</pre><p><strong>Workflow</strong>:</p><ol><li>클라이언트 요청이 로드 밸런서를 통해 Kong Data Plane 으로 전달</li><li>Kong 에서 JWT 토큰 검증 및 사용자 인증 수행</li><li>Rate Limiting 플러그인으로 API 호출 제한 적용</li><li>요청 변환 플러그인으로 내부 API 형식에 맞게 변환</li><li>로드 밸런싱을 통해 적절한 마이크로서비스로 라우팅</li><li>응답 변환 및 로깅 후 클라이언트에 반환</li></ol><p><strong>역할</strong>:</p><ul><li><strong>트래픽 게이트웨이</strong>: 모든 API 요청의 단일 진입점</li><li><strong>보안 레이어</strong>: JWT 인증, API Key 관리, IP 화이트리스트</li><li><strong>트래픽 제어</strong>: Rate Limiting, Circuit Breaking</li><li><strong>모니터링 허브</strong>: 메트릭 수집, 로깅, 알림</li></ul><p><strong>유무에 따른 차이점</strong>:</p><ul><li><strong>Kong 있음</strong>: 중앙집중식 보안, 일관된 모니터링, 운영 효율성</li><li><strong>Kong 없음</strong>: 서비스별 개별 보안 구현, 분산된 로깅, 운영 복잡성 증가</li></ul><p><strong>구현 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-16-1><a class=lnlinks href=#hl-16-1> 1</a>
+</span><span class=lnt id=hl-16-2><a class=lnlinks href=#hl-16-2> 2</a>
+</span><span class=lnt id=hl-16-3><a class=lnlinks href=#hl-16-3> 3</a>
+</span><span class=lnt id=hl-16-4><a class=lnlinks href=#hl-16-4> 4</a>
+</span><span class=lnt id=hl-16-5><a class=lnlinks href=#hl-16-5> 5</a>
+</span><span class=lnt id=hl-16-6><a class=lnlinks href=#hl-16-6> 6</a>
+</span><span class=lnt id=hl-16-7><a class=lnlinks href=#hl-16-7> 7</a>
+</span><span class=lnt id=hl-16-8><a class=lnlinks href=#hl-16-8> 8</a>
+</span><span class=lnt id=hl-16-9><a class=lnlinks href=#hl-16-9> 9</a>
+</span><span class=lnt id=hl-16-10><a class=lnlinks href=#hl-16-10>10</a>
+</span><span class=lnt id=hl-16-11><a class=lnlinks href=#hl-16-11>11</a>
+</span><span class=lnt id=hl-16-12><a class=lnlinks href=#hl-16-12>12</a>
+</span><span class=lnt id=hl-16-13><a class=lnlinks href=#hl-16-13>13</a>
+</span><span class=lnt id=hl-16-14><a class=lnlinks href=#hl-16-14>14</a>
+</span><span class=lnt id=hl-16-15><a class=lnlinks href=#hl-16-15>15</a>
+</span><span class=lnt id=hl-16-16><a class=lnlinks href=#hl-16-16>16</a>
+</span><span class=lnt id=hl-16-17><a class=lnlinks href=#hl-16-17>17</a>
+</span><span class=lnt id=hl-16-18><a class=lnlinks href=#hl-16-18>18</a>
+</span><span class=lnt id=hl-16-19><a class=lnlinks href=#hl-16-19>19</a>
+</span><span class=lnt id=hl-16-20><a class=lnlinks href=#hl-16-20>20</a>
+</span><span class=lnt id=hl-16-21><a class=lnlinks href=#hl-16-21>21</a>
+</span><span class=lnt id=hl-16-22><a class=lnlinks href=#hl-16-22>22</a>
+</span><span class=lnt id=hl-16-23><a class=lnlinks href=#hl-16-23>23</a>
+</span><span class=lnt id=hl-16-24><a class=lnlinks href=#hl-16-24>24</a>
+</span><span class=lnt id=hl-16-25><a class=lnlinks href=#hl-16-25>25</a>
+</span><span class=lnt id=hl-16-26><a class=lnlinks href=#hl-16-26>26</a>
+</span><span class=lnt id=hl-16-27><a class=lnlinks href=#hl-16-27>27</a>
+</span><span class=lnt id=hl-16-28><a class=lnlinks href=#hl-16-28>28</a>
+</span><span class=lnt id=hl-16-29><a class=lnlinks href=#hl-16-29>29</a>
+</span><span class=lnt id=hl-16-30><a class=lnlinks href=#hl-16-30>30</a>
+</span><span class=lnt id=hl-16-31><a class=lnlinks href=#hl-16-31>31</a>
+</span><span class=lnt id=hl-16-32><a class=lnlinks href=#hl-16-32>32</a>
+</span><span class=lnt id=hl-16-33><a class=lnlinks href=#hl-16-33>33</a>
+</span><span class=lnt id=hl-16-34><a class=lnlinks href=#hl-16-34>34</a>
+</span><span class=lnt id=hl-16-35><a class=lnlinks href=#hl-16-35>35</a>
+</span><span class=lnt id=hl-16-36><a class=lnlinks href=#hl-16-36>36</a>
+</span><span class=lnt id=hl-16-37><a class=lnlinks href=#hl-16-37>37</a>
+</span><span class=lnt id=hl-16-38><a class=lnlinks href=#hl-16-38>38</a>
+</span><span class=lnt id=hl-16-39><a class=lnlinks href=#hl-16-39>39</a>
+</span><span class=lnt id=hl-16-40><a class=lnlinks href=#hl-16-40>40</a>
+</span><span class=lnt id=hl-16-41><a class=lnlinks href=#hl-16-41>41</a>
+</span><span class=lnt id=hl-16-42><a class=lnlinks href=#hl-16-42>42</a>
+</span><span class=lnt id=hl-16-43><a class=lnlinks href=#hl-16-43>43</a>
+</span><span class=lnt id=hl-16-44><a class=lnlinks href=#hl-16-44>44</a>
+</span><span class=lnt id=hl-16-45><a class=lnlinks href=#hl-16-45>45</a>
+</span><span class=lnt id=hl-16-46><a class=lnlinks href=#hl-16-46>46</a>
+</span><span class=lnt id=hl-16-47><a class=lnlinks href=#hl-16-47>47</a>
+</span><span class=lnt id=hl-16-48><a class=lnlinks href=#hl-16-48>48</a>
+</span><span class=lnt id=hl-16-49><a class=lnlinks href=#hl-16-49>49</a>
+</span><span class=lnt id=hl-16-50><a class=lnlinks href=#hl-16-50>50</a>
+</span><span class=lnt id=hl-16-51><a class=lnlinks href=#hl-16-51>51</a>
+</span><span class=lnt id=hl-16-52><a class=lnlinks href=#hl-16-52>52</a>
+</span><span class=lnt id=hl-16-53><a class=lnlinks href=#hl-16-53>53</a>
+</span><span class=lnt id=hl-16-54><a class=lnlinks href=#hl-16-54>54</a>
+</span><span class=lnt id=hl-16-55><a class=lnlinks href=#hl-16-55>55</a>
+</span><span class=lnt id=hl-16-56><a class=lnlinks href=#hl-16-56>56</a>
+</span><span class=lnt id=hl-16-57><a class=lnlinks href=#hl-16-57>57</a>
+</span><span class=lnt id=hl-16-58><a class=lnlinks href=#hl-16-58>58</a>
+</span><span class=lnt id=hl-16-59><a class=lnlinks href=#hl-16-59>59</a>
+</span><span class=lnt id=hl-16-60><a class=lnlinks href=#hl-16-60>60</a>
+</span><span class=lnt id=hl-16-61><a class=lnlinks href=#hl-16-61>61</a>
+</span><span class=lnt id=hl-16-62><a class=lnlinks href=#hl-16-62>62</a>
+</span><span class=lnt id=hl-16-63><a class=lnlinks href=#hl-16-63>63</a>
+</span><span class=lnt id=hl-16-64><a class=lnlinks href=#hl-16-64>64</a>
+</span><span class=lnt id=hl-16-65><a class=lnlinks href=#hl-16-65>65</a>
+</span><span class=lnt id=hl-16-66><a class=lnlinks href=#hl-16-66>66</a>
+</span><span class=lnt id=hl-16-67><a class=lnlinks href=#hl-16-67>67</a>
+</span><span class=lnt id=hl-16-68><a class=lnlinks href=#hl-16-68>68</a>
+</span><span class=lnt id=hl-16-69><a class=lnlinks href=#hl-16-69>69</a>
+</span><span class=lnt id=hl-16-70><a class=lnlinks href=#hl-16-70>70</a>
+</span><span class=lnt id=hl-16-71><a class=lnlinks href=#hl-16-71>71</a>
+</span><span class=lnt id=hl-16-72><a class=lnlinks href=#hl-16-72>72</a>
+</span><span class=lnt id=hl-16-73><a class=lnlinks href=#hl-16-73>73</a>
+</span><span class=lnt id=hl-16-74><a class=lnlinks href=#hl-16-74>74</a>
+</span><span class=lnt id=hl-16-75><a class=lnlinks href=#hl-16-75>75</a>
+</span><span class=lnt id=hl-16-76><a class=lnlinks href=#hl-16-76>76</a>
+</span><span class=lnt id=hl-16-77><a class=lnlinks href=#hl-16-77>77</a>
+</span><span class=lnt id=hl-16-78><a class=lnlinks href=#hl-16-78>78</a>
+</span><span class=lnt id=hl-16-79><a class=lnlinks href=#hl-16-79>79</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># Kong 서비스 및 라우트 구성</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>_format_version</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;3.0&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>services</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>user-service</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>url</span><span class=p>:</span><span class=w> </span><span class=l>http://user-service:8080</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>routes</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>user-api</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>paths</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>/api/v1/users</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>methods</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>GET</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>POST</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>PUT</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>plugins</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>jwt</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>config</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>key_claim_name</span><span class=p>:</span><span class=w> </span><span class=l>kid</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>secret_is_base64</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>rate-limiting-advanced</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>config</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>limit</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=m>100</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=m>1000</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>window_size</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=m>60</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=m>3600</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>identifier</span><span class=p>:</span><span class=w> </span><span class=l>consumer</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w></span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>product-service</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>url</span><span class=p>:</span><span class=w> </span><span class=l>http://product-service:8080</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>routes</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>product-api</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>paths</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>/api/v1/products</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>plugins</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>prometheus</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>config</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>per_consumer</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>proxy-cache</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>config</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>request_method</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=l>GET</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>response_code</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=m>200</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>content_type</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=l>application/json</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>cache_ttl</span><span class=p>:</span><span class=w> </span><span class=m>300</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>strategy</span><span class=p>:</span><span class=w> </span><span class=l>redis</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>consumers</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span>- <span class=nt>username</span><span class=p>:</span><span class=w> </span><span class=l>mobile-app</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>jwt_secrets</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>key</span><span class=p>:</span><span class=w> </span><span class=l>mobile-app-key</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>secret</span><span class=p>:</span><span class=w> </span><span class=l>your-jwt-secret-key</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>plugins</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>cors</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>config</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>origins</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=s2>&#34;https://www.example.com&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=s2>&#34;https://mobile.example.com&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>methods</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>GET</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>POST</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>PUT</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>DELETE</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>headers</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>Accept</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>Accept-Version</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>Content-Length</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>Content-MD5</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>Content-Type</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>Date</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>X-Auth-Token</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>exposed_headers</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>X-Auth-Token</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>credentials</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>max_age</span><span class=p>:</span><span class=w> </span><span class=m>3600</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h4 id=실무에서-효과적으로-적용하기-위한-고려사항-및-주의할-점-1>실무에서 효과적으로 적용하기 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#실무에서-효과적으로-적용하기-위한-고려사항-및-주의할-점-1>#</a></h4><table><thead><tr><th>구분</th><th>고려사항</th><th>권장사항</th></tr></thead><tbody><tr><td>아키텍처 설계</td><td>배포 모드 선택</td><td>환경과 요구사항에 맞는 배포 모드 선택, 단계적 마이그레이션 계획</td></tr><tr><td></td><td>플러그인 설계</td><td>플러그인 실행 순서 최적화, 불필요한 플러그인 제거</td></tr><tr><td>성능 최적화</td><td>메모리 관리</td><td>적절한 인스턴스 사이징, 메모리 모니터링</td></tr><tr><td></td><td>캐싱 전략</td><td>Redis 클러스터 구성, 캐시 TTL 최적화</td></tr><tr><td>보안</td><td>인증/인가</td><td>강력한 JWT 구성, mTLS 활성화</td></tr><tr><td></td><td>네트워크 보안</td><td>VPC 격리, 방화벽 규칙 설정</td></tr><tr><td>운영 관리</td><td>모니터링</td><td>Prometheus, Grafana 대시보드 구성</td></tr><tr><td></td><td>로깅</td><td>구조화된 로깅, 중앙집중식 로그 관리</td></tr><tr><td>자동화</td><td>CI/CD</td><td>GitOps 기반 구성 관리, 자동화된 배포</td></tr><tr><td></td><td>스케일링</td><td>HPA 설정, 자동 스케일링 정책</td></tr></tbody></table><h4 id=최적화하기-위한-고려사항-및-주의할-점-1>최적화하기 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#최적화하기-위한-고려사항-및-주의할-점-1>#</a></h4><table><thead><tr><th>구분</th><th>최적화 포인트</th><th>권장사항</th></tr></thead><tbody><tr><td>성능 최적화</td><td>플러그인 최적화</td><td>불필요한 플러그인 제거, 실행 순서 최적화, 경량 플러그인 사용</td></tr><tr><td></td><td>메모리 최적화</td><td>적절한 worker 프로세스 수 설정, 메모리 풀 조정</td></tr><tr><td></td><td>네트워크 최적화</td><td>Keep-alive 설정, 연결 풀 최적화</td></tr><tr><td>확장성</td><td>수평 스케일링</td><td>로드 밸런서 구성, 세션 무상태 설계</td></tr><tr><td></td><td>데이터베이스 최적화</td><td>읽기 복제본 활용, 커넥션 풀 최적화</td></tr><tr><td>가용성</td><td>고가용성 설계</td><td>다중 리전 배포, 장애 복구 계획</td></tr><tr><td></td><td>모니터링 강화</td><td>실시간 알림, 자동 복구 메커니즘</td></tr><tr><td>보안 강화</td><td>접근 제어</td><td>최소 권한 원칙, 세밀한 RBAC 설정</td></tr><tr><td></td><td>데이터 보호</td><td>암호화 강화, 민감 데이터 마스킹</td></tr></tbody></table><hr><h3 id=주제와-관련하여-주목할-내용>주제와 관련하여 주목할 내용<a hidden class=anchor aria-hidden=true href=#주제와-관련하여-주목할-내용>#</a></h3><table><thead><tr><th>카테고리</th><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>최신 기술</td><td>AI Gateway</td><td>Kong AI Gateway</td><td>LLM 통합, AI 프롬프트 가드, 시맨틱 캐싱 기능</td></tr><tr><td></td><td>Incremental Sync</td><td>점진적 구성 동기화</td><td>메모리 및 CPU 사용량 최적화, 대규모 클러스터 성능 향상</td></tr><tr><td>클라우드 네이티브</td><td>Kubernetes</td><td>Kong Ingress Controller</td><td>Kubernetes 네이티브 구성, CRD 기반 관리</td></tr><tr><td></td><td>Service Mesh</td><td>Kong Mesh</td><td>Kuma 기반 서비스 메시 솔루션</td></tr><tr><td>보안</td><td>Zero Trust</td><td>mTLS, RBAC</td><td>종단간 암호화, 세밀한 접근 제어</td></tr><tr><td></td><td>Secrets Management</td><td>Vault 통합</td><td>중앙집중식 비밀 관리</td></tr><tr><td>모니터링</td><td>가시성</td><td>OpenTelemetry</td><td>분산 추적, 메트릭, 로깅 통합</td></tr><tr><td></td><td>분석</td><td>Advanced Analytics</td><td>실시간 API 분석, 사용량 대시보드</td></tr></tbody></table><h3 id=반드시-학습해야할-내용-1>반드시 학습해야할 내용<a hidden class=anchor aria-hidden=true href=#반드시-학습해야할-내용-1>#</a></h3><table><thead><tr><th>카테고리</th><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>기초 개념</td><td>API Gateway</td><td>패턴 이해</td><td>API Gateway 패턴의 필요성과 장단점</td></tr><tr><td></td><td>프록시</td><td>리버스 프록시</td><td>NGINX 기반 프록시 동작 원리</td></tr><tr><td>Kong 핵심</td><td>엔티티</td><td>Service, Route, Consumer</td><td>Kong 의 핵심 구성 요소 이해</td></tr><tr><td></td><td>플러그인</td><td>플러그인 아키텍처</td><td>플러그인 개발 및 활용 방법</td></tr><tr><td>배포</td><td>토폴로지</td><td>Hybrid, DB-less, Traditional</td><td>각 배포 모드의 특징과 선택 기준</td></tr><tr><td></td><td>Kubernetes</td><td>KIC, Helm Chart</td><td>Kubernetes 네이티브 배포 방법</td></tr><tr><td>운영</td><td>모니터링</td><td>메트릭, 로깅</td><td>운영 환경에서의 모니터링 전략</td></tr><tr><td></td><td>보안</td><td>인증, 인가, 암호화</td><td>보안 베스트 프랙티스</td></tr><tr><td>고급</td><td>성능 튜닝</td><td>최적화 기법</td><td>고성능 운영을 위한 튜닝 방법</td></tr><tr><td></td><td>확장성</td><td>스케일링 전략</td><td>대규모 환경 운영 방법</td></tr></tbody></table><hr><h3 id=용어-정리-4>용어 정리<a hidden class=anchor aria-hidden=true href=#용어-정리-4>#</a></h3><table><thead><tr><th>카테고리</th><th>용어</th><th>설명</th></tr></thead><tbody><tr><td>아키텍처</td><td>Control Plane (CP)</td><td>구성 관리 및 Admin API 를 제공하는 Kong 노드</td></tr><tr><td></td><td>Data Plane (DP)</td><td>실제 프록시 트래픽을 처리하는 Kong 노드</td></tr><tr><td></td><td>Hybrid Mode</td><td>CP 와 DP 가 분리된 배포 모드</td></tr><tr><td></td><td>DB-less Mode</td><td>데이터베이스 없이 메모리 기반으로 동작하는 모드</td></tr><tr><td>구성 요소</td><td>Service</td><td>업스트림 서비스를 추상화한 Kong 엔티티</td></tr><tr><td></td><td>Route</td><td>클라이언트 요청을 매칭하는 규칙</td></tr><tr><td></td><td>Consumer</td><td>API 를 사용하는 클라이언트 식별자</td></tr><tr><td></td><td>Plugin</td><td>Kong 의 기능을 확장하는 모듈</td></tr><tr><td>배포</td><td>decK</td><td>선언적 구성 관리 도구</td></tr><tr><td></td><td>Kong Manager</td><td>Kong 의 웹 기반 관리 GUI</td></tr><tr><td></td><td>Konnect</td><td>Kong 의 SaaS 형태 매니지드 서비스</td></tr><tr><td></td><td>KIC</td><td>Kong Ingress Controller</td></tr><tr><td>보안</td><td>mTLS</td><td>상호 TLS 인증</td></tr><tr><td></td><td>JWT</td><td>JSON Web Token 기반 인증</td></tr><tr><td></td><td>RBAC</td><td>역할 기반 접근 제어</td></tr><tr><td>성능</td><td>Rate Limiting</td><td>API 호출 빈도 제한</td></tr><tr><td></td><td>Load Balancing</td><td>부하 분산</td></tr><tr><td></td><td>Circuit Breaker</td><td>장애 전파 차단 메커니즘</td></tr></tbody></table><hr><h3 id=참고-및-출처-2>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처-2>#</a></h3><ul><li><a href=https://docs.konghq.com/gateway/latest/>Kong Gateway 공식 문서</a></li><li><a href=https://github.com/Kong/kong>Kong Gateway GitHub 리포지토리</a></li><li><a href=https://konghq.com/>Kong Inc. 공식 웹사이트</a></li><li><a href=https://docs.konghq.com/konnect/architecture/>Kong Gateway 아키텍처 가이드</a></li><li><a href=https://docs.konghq.com/gateway/latest/production/deployment-topologies/hybrid-mode/>Kong Hybrid Mode 문서</a></li><li><a href=https://developer.konghq.com/gateway/db-less-mode/>Kong DB-less Mode 가이드</a></li><li><a href=https://docs.konghq.com/hub/kong-inc/rate-limiting/>Kong Rate Limiting 플러그인 문서</a></li><li><a href=https://docs.konghq.com/gateway/latest/production/deployment-topologies/kubernetes/>Kong Kubernetes 배포 가이드</a></li><li><a href=https://konghq.com/company/press-room/press-release/kong-wins-best-in-api-gateway-at-api-world-2024>Kong AI Gateway 발표자료</a></li><li><a href=https://www.prnewswire.com/news-releases/kong-gateway-3-8-elevates-api-management-with-unmatched-performance-security-and-ai-integration-302244512.html>Kong Gateway 3.8 릴리스 노트</a></li></ul><hr><p>Kong 은 마이크로서비스 아키텍처를 위한 클라우드 네이티브, 오픈 소스 API 게이트웨이 및 서비스 메시이다.<br>2015 년에 출시되어 현재 Kong Inc.에서 개발 및 유지보수하고 있으며, 많은 기업과 조직에서 API 트래픽 관리, 보안, 모니터링 등을 위한 핵심 인프라로 채택하고 있다.</p><p>Kong 은 기본적으로 두 가지 에디션으로 제공된다:</p><ul><li><strong>Kong Gateway 커뮤니티 에디션</strong>: 오픈 소스 버전으로 핵심 기능 제공</li><li><strong>Kong Gateway 엔터프라이즈 에디션</strong>: 추가적인 엔터프라이즈급 기능이 포함된 상용 버전</li></ul><p>Kong 의 설계 철학은 &rsquo; 모든 것이 API&rsquo; 라는 개념에 기반하며, 고성능, 확장성, 유연성을 핵심 가치로 삼고 있다.</p><h4 id=kong-의-핵심-아키텍처>Kong 의 핵심 아키텍처<a hidden class=anchor aria-hidden=true href=#kong-의-핵심-아키텍처>#</a></h4><p>Kong 은 다음과 같은 주요 구성 요소로 이루어져 있다:</p><h5 id=코어-구성요소>코어 구성요소<a hidden class=anchor aria-hidden=true href=#코어-구성요소>#</a></h5><p><strong>Kong 게이트웨이</strong>: API 트래픽의 중앙 진입점으로, 요청 라우팅, 트랜스폼, 보안 등을 처리한다. OpenResty(Nginx + Lua) 위에 구축되어 높은 성능과 확장성을 제공한다.</p><p><strong>데이터 스토어</strong>: Kong 의 설정, 라우트, 서비스, 플러그인 정보를 저장한다. PostgreSQL 과 Cassandra 를 지원하며, DB-less 모드도 제공한다.</p><p><strong>Admin API</strong>: Kong 의 구성을 관리하기 위한 RESTful API 로, 라우트, 서비스, 플러그인 등을 동적으로 추가, 수정, 삭제할 수 있다.</p><p><strong>플러그인 시스템</strong>: Kong 의 가장 강력한 특징 중 하나로, 다양한 기능을 모듈식으로 추가할 수 있게 해준다.</p><h5 id=데이터-모델>데이터 모델<a hidden class=anchor aria-hidden=true href=#데이터-모델>#</a></h5><p>Kong 의 주요 데이터 개체들은 다음과 같다:</p><p><strong>서비스 (Services)</strong>: 업스트림 API 나 마이크로서비스를 나타낸다. URL, 프로토콜, 호스트, 포트 등의 정보를 포함한다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-17-1><a class=lnlinks href=#hl-17-1>1</a>
+</span><span class=lnt id=hl-17-2><a class=lnlinks href=#hl-17-2>2</a>
+</span><span class=lnt id=hl-17-3><a class=lnlinks href=#hl-17-3>3</a>
+</span><span class=lnt id=hl-17-4><a class=lnlinks href=#hl-17-4>4</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-json data-lang=json><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;user-service&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;url&#34;</span><span class=p>:</span> <span class=s2>&#34;http://user-api.internal:8080&#34;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p><strong>라우트 (Routes)</strong>: 서비스로 들어오는 요청을 매칭하기 위한 규칙을 정의한다. 경로, 호스트, 메서드 등으로 구성된다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-18-1><a class=lnlinks href=#hl-18-1>1</a>
+</span><span class=lnt id=hl-18-2><a class=lnlinks href=#hl-18-2>2</a>
+</span><span class=lnt id=hl-18-3><a class=lnlinks href=#hl-18-3>3</a>
+</span><span class=lnt id=hl-18-4><a class=lnlinks href=#hl-18-4>4</a>
+</span><span class=lnt id=hl-18-5><a class=lnlinks href=#hl-18-5>5</a>
+</span><span class=lnt id=hl-18-6><a class=lnlinks href=#hl-18-6>6</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-json data-lang=json><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;user-api-route&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;paths&#34;</span><span class=p>:</span> <span class=p>[</span><span class=s2>&#34;/users&#34;</span><span class=p>],</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;methods&#34;</span><span class=p>:</span> <span class=p>[</span><span class=s2>&#34;GET&#34;</span><span class=p>,</span> <span class=s2>&#34;POST&#34;</span><span class=p>],</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;service&#34;</span><span class=p>:</span> <span class=p>{</span> <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;7fca61eb-2d6b-4a6d-8f9a-9318b413b709&#34;</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p><strong>소비자 (Consumers)</strong>: API 를 사용하는 클라이언트나 개발자를 나타낸다. 인증 및 권한 부여에 사용된다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-19-1><a class=lnlinks href=#hl-19-1>1</a>
+</span><span class=lnt id=hl-19-2><a class=lnlinks href=#hl-19-2>2</a>
+</span><span class=lnt id=hl-19-3><a class=lnlinks href=#hl-19-3>3</a>
+</span><span class=lnt id=hl-19-4><a class=lnlinks href=#hl-19-4>4</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-json data-lang=json><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;username&#34;</span><span class=p>:</span> <span class=s2>&#34;app-client&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;custom_id&#34;</span><span class=p>:</span> <span class=s2>&#34;consumer-123&#34;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p><strong>플러그인 (Plugins)</strong>: 특정 서비스, 라우트, 소비자 또는 전역 수준에서 동작할 수 있는 확장 모듈이다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-20-1><a class=lnlinks href=#hl-20-1>1</a>
+</span><span class=lnt id=hl-20-2><a class=lnlinks href=#hl-20-2>2</a>
+</span><span class=lnt id=hl-20-3><a class=lnlinks href=#hl-20-3>3</a>
+</span><span class=lnt id=hl-20-4><a class=lnlinks href=#hl-20-4>4</a>
+</span><span class=lnt id=hl-20-5><a class=lnlinks href=#hl-20-5>5</a>
+</span><span class=lnt id=hl-20-6><a class=lnlinks href=#hl-20-6>6</a>
+</span><span class=lnt id=hl-20-7><a class=lnlinks href=#hl-20-7>7</a>
+</span><span class=lnt id=hl-20-8><a class=lnlinks href=#hl-20-8>8</a>
+</span><span class=lnt id=hl-20-9><a class=lnlinks href=#hl-20-9>9</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-json data-lang=json><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;rate-limiting&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;service&#34;</span><span class=p>:</span> <span class=p>{</span> <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;7fca61eb-2d6b-4a6d-8f9a-9318b413b709&#34;</span> <span class=p>},</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;config&#34;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;minute&#34;</span><span class=p>:</span> <span class=mi>60</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;hour&#34;</span><span class=p>:</span> <span class=mi>1000</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;policy&#34;</span><span class=p>:</span> <span class=s2>&#34;local&#34;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=트래픽-흐름>트래픽 흐름<a hidden class=anchor aria-hidden=true href=#트래픽-흐름>#</a></h4><p>Kong 을 통과하는 API 요청의 일반적인 흐름은 다음과 같다:</p><ol><li>클라이언트가 Kong 에 API 요청을 보낸다.</li><li>Kong 은 요청을 라우트와 매칭한다.</li><li>요청 단계 플러그인 (인증, 레이트 리밋 등) 이 실행된다.</li><li>매칭된 라우트에 따라 요청이 업스트림 서비스로 전달된다.</li><li>업스트림 서비스가 응답을 반환한다.</li><li>응답 단계 플러그인 (로깅, 트랜스폼 등) 이 실행된다.</li><li>최종 응답이 클라이언트에게 전달된다.</li></ol><h4 id=kong-의-핵심-기능>Kong 의 핵심 기능<a hidden class=anchor aria-hidden=true href=#kong-의-핵심-기능>#</a></h4><ol><li><p>트래픽 제어 및 라우팅</p><ol><li><strong>API 버전 관리</strong>: 다양한 버전의 API 를 동시에 지원하고 관리할 수 있다.</li><li><strong>부하 분산</strong>: 여러 업스트림 인스턴스 간에 트래픽을 분산시켜 고가용성을 보장한다.</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-21-1><a class=lnlinks href=#hl-21-1>1</a>
+</span><span class=lnt id=hl-21-2><a class=lnlinks href=#hl-21-2>2</a>
+</span><span class=lnt id=hl-21-3><a class=lnlinks href=#hl-21-3>3</a>
+</span><span class=lnt id=hl-21-4><a class=lnlinks href=#hl-21-4>4</a>
+</span><span class=lnt id=hl-21-5><a class=lnlinks href=#hl-21-5>5</a>
+</span><span class=lnt id=hl-21-6><a class=lnlinks href=#hl-21-6>6</a>
+</span><span class=lnt id=hl-21-7><a class=lnlinks href=#hl-21-7>7</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-json data-lang=json><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;user-service&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;targets&#34;</span><span class=p>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span><span class=nt>&#34;target&#34;</span><span class=p>:</span> <span class=s2>&#34;user-api.internal:8080&#34;</span><span class=p>,</span> <span class=nt>&#34;weight&#34;</span><span class=p>:</span> <span class=mi>100</span><span class=p>},</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span><span class=nt>&#34;target&#34;</span><span class=p>:</span> <span class=s2>&#34;user-api-backup.internal:8080&#34;</span><span class=p>,</span> <span class=nt>&#34;weight&#34;</span><span class=p>:</span> <span class=mi>50</span><span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><ol start=3><li><strong>서킷 브레이킹</strong>: 장애가 발생한 서비스로부터 트래픽을 격리하여 시스템 안정성을 유지한다.</li><li><strong>트래픽 미러링</strong>: 실제 트래픽을 복제하여 새 버전의 API 를 테스트할 수 있다.</li><li><strong>카나리 배포</strong>: 특정 비율의 트래픽만 새 버전의 API 로 라우팅하여 점진적인 롤아웃이 가능하다.</li></ol></li><li><p>보안 기능</p><ol><li><strong>인증</strong>: API 키, JWT, OAuth2, LDAP, 상호 TLS 등 다양한 인증 방법을 지원한다.</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-22-1><a class=lnlinks href=#hl-22-1>1</a>
+</span><span class=lnt id=hl-22-2><a class=lnlinks href=#hl-22-2>2</a>
+</span><span class=lnt id=hl-22-3><a class=lnlinks href=#hl-22-3>3</a>
+</span><span class=lnt id=hl-22-4><a class=lnlinks href=#hl-22-4>4</a>
+</span><span class=lnt id=hl-22-5><a class=lnlinks href=#hl-22-5>5</a>
+</span><span class=lnt id=hl-22-6><a class=lnlinks href=#hl-22-6>6</a>
+</span><span class=lnt id=hl-22-7><a class=lnlinks href=#hl-22-7>7</a>
+</span><span class=lnt id=hl-22-8><a class=lnlinks href=#hl-22-8>8</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-json data-lang=json><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;jwt&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;route&#34;</span><span class=p>:</span> <span class=p>{</span> <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;e8fb37f1-5235-4c12-8e9c-06629a788593&#34;</span> <span class=p>},</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;config&#34;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;secret_is_base64&#34;</span><span class=p>:</span> <span class=kc>true</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;key_claim_name&#34;</span><span class=p>:</span> <span class=s2>&#34;kid&#34;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><ol start=2><li><strong>CORS</strong>: Cross-Origin Resource Sharing 을 관리하여 웹 애플리케이션의 API 접근을 제어한다.</li><li><strong>IP 제한</strong>: 특정 IP 주소 또는 범위에서의 접근을 제한한다.</li><li><strong>봇 방지</strong>: 봇 트래픽을 감지하고 제한한다.</li><li><strong>ACME</strong>: Let&rsquo;s Encrypt 와 같은 서비스를 통해 자동 SSL/TLS 인증서 발급 및 갱신을 지원한다.</li></ol></li><li><p>모니터링 및 분석</p><ol><li><strong>로깅</strong>: HTTP, TCP, UDP, 파일 등 다양한 대상으로 로그를 전송한다.</li><li><strong>메트릭</strong>: Prometheus, StatsD, Datadog 등과 통합하여 성능 메트릭을 수집한다.</li><li><strong>트레이싱</strong>: OpenTelemetry, Zipkin, Jaeger 등과 통합하여 분산 트레이싱을 지원한다.</li><li><strong>알림</strong>: 이상 징후나 장애 상황을 감지하고 알림을 발송한다.</li></ol></li><li><p>트랜스포메이션</p><ol><li><strong>요청/응답 변환</strong>: 요청이나 응답의 형식을 변환한다 (XML → JSON, JSON → JSON 등).</li><li><strong>헤더 수정</strong>: 요청이나 응답 헤더를 추가, 수정, 삭제한다.</li><li><strong>고급 라우팅</strong>: URL 재작성, 쿼리 파라미터 수정 등을 지원한다.</li></ol></li><li><p>개발자 포털 (엔터프라이즈 에디션)</p><ol><li>Kong 엔터프라이즈 에디션에서는 다음과 같은 추가 기능을 제공한다:<ol><li><strong>API 카탈로그</strong>: 제공되는 모든 API 의 목록과 문서를 제공합니다.</li><li><strong>개발자 온보딩</strong>: API 키 발급, 사용량 확인 등 개발자 셀프 서비스 기능을 제공한다.</li><li><strong>API 분석</strong>: API 사용 현황, 성능, 오류 등을 분석할 수 있는 대시보드를 제공한다.</li></ol></li></ol></li></ol><h4 id=kong-설치-및-구성>Kong 설치 및 구성<a hidden class=anchor aria-hidden=true href=#kong-설치-및-구성>#</a></h4><h5 id=41-설치-방법>4.1 설치 방법<a hidden class=anchor aria-hidden=true href=#41-설치-방법>#</a></h5><p>Kong 은 다양한 방식으로 설치할 수 있다:</p><p><strong>Docker</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-23-1><a class=lnlinks href=#hl-23-1> 1</a>
+</span><span class=lnt id=hl-23-2><a class=lnlinks href=#hl-23-2> 2</a>
+</span><span class=lnt id=hl-23-3><a class=lnlinks href=#hl-23-3> 3</a>
+</span><span class=lnt id=hl-23-4><a class=lnlinks href=#hl-23-4> 4</a>
+</span><span class=lnt id=hl-23-5><a class=lnlinks href=#hl-23-5> 5</a>
+</span><span class=lnt id=hl-23-6><a class=lnlinks href=#hl-23-6> 6</a>
+</span><span class=lnt id=hl-23-7><a class=lnlinks href=#hl-23-7> 7</a>
+</span><span class=lnt id=hl-23-8><a class=lnlinks href=#hl-23-8> 8</a>
+</span><span class=lnt id=hl-23-9><a class=lnlinks href=#hl-23-9> 9</a>
+</span><span class=lnt id=hl-23-10><a class=lnlinks href=#hl-23-10>10</a>
+</span><span class=lnt id=hl-23-11><a class=lnlinks href=#hl-23-11>11</a>
+</span><span class=lnt id=hl-23-12><a class=lnlinks href=#hl-23-12>12</a>
+</span><span class=lnt id=hl-23-13><a class=lnlinks href=#hl-23-13>13</a>
+</span><span class=lnt id=hl-23-14><a class=lnlinks href=#hl-23-14>14</a>
+</span><span class=lnt id=hl-23-15><a class=lnlinks href=#hl-23-15>15</a>
+</span><span class=lnt id=hl-23-16><a class=lnlinks href=#hl-23-16>16</a>
+</span><span class=lnt id=hl-23-17><a class=lnlinks href=#hl-23-17>17</a>
+</span><span class=lnt id=hl-23-18><a class=lnlinks href=#hl-23-18>18</a>
+</span><span class=lnt id=hl-23-19><a class=lnlinks href=#hl-23-19>19</a>
+</span><span class=lnt id=hl-23-20><a class=lnlinks href=#hl-23-20>20</a>
+</span><span class=lnt id=hl-23-21><a class=lnlinks href=#hl-23-21>21</a>
+</span><span class=lnt id=hl-23-22><a class=lnlinks href=#hl-23-22>22</a>
+</span><span class=lnt id=hl-23-23><a class=lnlinks href=#hl-23-23>23</a>
+</span><span class=lnt id=hl-23-24><a class=lnlinks href=#hl-23-24>24</a>
+</span><span class=lnt id=hl-23-25><a class=lnlinks href=#hl-23-25>25</a>
+</span><span class=lnt id=hl-23-26><a class=lnlinks href=#hl-23-26>26</a>
+</span><span class=lnt id=hl-23-27><a class=lnlinks href=#hl-23-27>27</a>
+</span><span class=lnt id=hl-23-28><a class=lnlinks href=#hl-23-28>28</a>
+</span><span class=lnt id=hl-23-29><a class=lnlinks href=#hl-23-29>29</a>
+</span><span class=lnt id=hl-23-30><a class=lnlinks href=#hl-23-30>30</a>
+</span><span class=lnt id=hl-23-31><a class=lnlinks href=#hl-23-31>31</a>
+</span><span class=lnt id=hl-23-32><a class=lnlinks href=#hl-23-32>32</a>
+</span><span class=lnt id=hl-23-33><a class=lnlinks href=#hl-23-33>33</a>
+</span><span class=lnt id=hl-23-34><a class=lnlinks href=#hl-23-34>34</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Kong 데이터베이스 준비</span>
+</span></span><span class=line><span class=cl>docker run -d --name kong-database <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -p 5432:5432 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -e <span class=s2>&#34;POSTGRES_USER=kong&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -e <span class=s2>&#34;POSTGRES_DB=kong&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -e <span class=s2>&#34;POSTGRES_PASSWORD=kong&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  postgres:13
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Kong 마이그레이션</span>
+</span></span><span class=line><span class=cl>docker run --rm <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --link kong-database:kong-database <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -e <span class=s2>&#34;KONG_DATABASE=postgres&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -e <span class=s2>&#34;KONG_PG_HOST=kong-database&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -e <span class=s2>&#34;KONG_PG_USER=kong&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -e <span class=s2>&#34;KONG_PG_PASSWORD=kong&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  kong:latest kong migrations bootstrap
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Kong 시작</span>
+</span></span><span class=line><span class=cl>docker run -d --name kong <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --link kong-database:kong-database <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -e <span class=s2>&#34;KONG_DATABASE=postgres&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -e <span class=s2>&#34;KONG_PG_HOST=kong-database&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -e <span class=s2>&#34;KONG_PG_USER=kong&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -e <span class=s2>&#34;KONG_PG_PASSWORD=kong&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -e <span class=s2>&#34;KONG_PROXY_ACCESS_LOG=/dev/stdout&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -e <span class=s2>&#34;KONG_ADMIN_ACCESS_LOG=/dev/stdout&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -e <span class=s2>&#34;KONG_PROXY_ERROR_LOG=/dev/stderr&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -e <span class=s2>&#34;KONG_ADMIN_ERROR_LOG=/dev/stderr&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -e <span class=s2>&#34;KONG_ADMIN_LISTEN=0.0.0.0:8001, 0.0.0.0:8444 ssl&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -p 8000:8000 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -p 8443:8443 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -p 8001:8001 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -p 8444:8444 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  kong:latest
+</span></span></code></pre></td></tr></table></div></div><p><strong>Kubernetes (Helm)</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-24-1><a class=lnlinks href=#hl-24-1>1</a>
+</span><span class=lnt id=hl-24-2><a class=lnlinks href=#hl-24-2>2</a>
+</span><span class=lnt id=hl-24-3><a class=lnlinks href=#hl-24-3>3</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>helm repo add kong https://charts.konghq.com
+</span></span><span class=line><span class=cl>helm repo update
+</span></span><span class=line><span class=cl>helm install kong kong/kong
+</span></span></code></pre></td></tr></table></div></div><p><strong>패키지 관리자</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-25-1><a class=lnlinks href=#hl-25-1>1</a>
+</span><span class=lnt id=hl-25-2><a class=lnlinks href=#hl-25-2>2</a>
+</span><span class=lnt id=hl-25-3><a class=lnlinks href=#hl-25-3>3</a>
+</span><span class=lnt id=hl-25-4><a class=lnlinks href=#hl-25-4>4</a>
+</span><span class=lnt id=hl-25-5><a class=lnlinks href=#hl-25-5>5</a>
+</span><span class=lnt id=hl-25-6><a class=lnlinks href=#hl-25-6>6</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Debian/Ubuntu</span>
+</span></span><span class=line><span class=cl>apt-get update
+</span></span><span class=line><span class=cl>apt-get install -y kong
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># CentOS/RHEL</span>
+</span></span><span class=line><span class=cl>yum install -y kong
+</span></span></code></pre></td></tr></table></div></div><h5 id=기본-구성>기본 구성<a hidden class=anchor aria-hidden=true href=#기본-구성>#</a></h5><p>Kong 의 기본 구성은 <code>kong.conf</code> 파일을 통해 이루어진다.</p><p>주요 설정 옵션은 다음과 같다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-26-1><a class=lnlinks href=#hl-26-1> 1</a>
+</span><span class=lnt id=hl-26-2><a class=lnlinks href=#hl-26-2> 2</a>
+</span><span class=lnt id=hl-26-3><a class=lnlinks href=#hl-26-3> 3</a>
+</span><span class=lnt id=hl-26-4><a class=lnlinks href=#hl-26-4> 4</a>
+</span><span class=lnt id=hl-26-5><a class=lnlinks href=#hl-26-5> 5</a>
+</span><span class=lnt id=hl-26-6><a class=lnlinks href=#hl-26-6> 6</a>
+</span><span class=lnt id=hl-26-7><a class=lnlinks href=#hl-26-7> 7</a>
+</span><span class=lnt id=hl-26-8><a class=lnlinks href=#hl-26-8> 8</a>
+</span><span class=lnt id=hl-26-9><a class=lnlinks href=#hl-26-9> 9</a>
+</span><span class=lnt id=hl-26-10><a class=lnlinks href=#hl-26-10>10</a>
+</span><span class=lnt id=hl-26-11><a class=lnlinks href=#hl-26-11>11</a>
+</span><span class=lnt id=hl-26-12><a class=lnlinks href=#hl-26-12>12</a>
+</span><span class=lnt id=hl-26-13><a class=lnlinks href=#hl-26-13>13</a>
+</span><span class=lnt id=hl-26-14><a class=lnlinks href=#hl-26-14>14</a>
+</span><span class=lnt id=hl-26-15><a class=lnlinks href=#hl-26-15>15</a>
+</span><span class=lnt id=hl-26-16><a class=lnlinks href=#hl-26-16>16</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl># 데이터베이스 설정
+</span></span><span class=line><span class=cl>database = postgres         # postgres, cassandra, off
+</span></span><span class=line><span class=cl>pg_host = 127.0.0.1
+</span></span><span class=line><span class=cl>pg_port = 5432
+</span></span><span class=line><span class=cl>pg_user = kong
+</span></span><span class=line><span class=cl>pg_password = kong
+</span></span><span class=line><span class=cl>pg_database = kong
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl># 서버 설정
+</span></span><span class=line><span class=cl>proxy_listen = 0.0.0.0:8000, 0.0.0.0:8443 ssl
+</span></span><span class=line><span class=cl>admin_listen = 127.0.0.1:8001, 127.0.0.1:8444 ssl
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl># 로그 설정
+</span></span><span class=line><span class=cl>log_level = notice          # debug, info, notice, warn, error, crit
+</span></span><span class=line><span class=cl>proxy_access_log = logs/access.log
+</span></span><span class=line><span class=cl>proxy_error_log = logs/error.log
+</span></span></code></pre></td></tr></table></div></div><p>DB-less 모드 사용 시 선언적 구성은 YAML 로 정의할 수 있다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-27-1><a class=lnlinks href=#hl-27-1> 1</a>
+</span><span class=lnt id=hl-27-2><a class=lnlinks href=#hl-27-2> 2</a>
+</span><span class=lnt id=hl-27-3><a class=lnlinks href=#hl-27-3> 3</a>
+</span><span class=lnt id=hl-27-4><a class=lnlinks href=#hl-27-4> 4</a>
+</span><span class=lnt id=hl-27-5><a class=lnlinks href=#hl-27-5> 5</a>
+</span><span class=lnt id=hl-27-6><a class=lnlinks href=#hl-27-6> 6</a>
+</span><span class=lnt id=hl-27-7><a class=lnlinks href=#hl-27-7> 7</a>
+</span><span class=lnt id=hl-27-8><a class=lnlinks href=#hl-27-8> 8</a>
+</span><span class=lnt id=hl-27-9><a class=lnlinks href=#hl-27-9> 9</a>
+</span><span class=lnt id=hl-27-10><a class=lnlinks href=#hl-27-10>10</a>
+</span><span class=lnt id=hl-27-11><a class=lnlinks href=#hl-27-11>11</a>
+</span><span class=lnt id=hl-27-12><a class=lnlinks href=#hl-27-12>12</a>
+</span><span class=lnt id=hl-27-13><a class=lnlinks href=#hl-27-13>13</a>
+</span><span class=lnt id=hl-27-14><a class=lnlinks href=#hl-27-14>14</a>
+</span><span class=lnt id=hl-27-15><a class=lnlinks href=#hl-27-15>15</a>
+</span><span class=lnt id=hl-27-16><a class=lnlinks href=#hl-27-16>16</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>_format_version</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;2.1&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>services</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>user-service</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>url</span><span class=p>:</span><span class=w> </span><span class=l>http://user-api.internal:8080</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>routes</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>user-api-route</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>paths</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>/users</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>methods</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>GET</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>POST</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>plugins</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>rate-limiting</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>config</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>minute</span><span class=p>:</span><span class=w> </span><span class=m>60</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>hour</span><span class=p>:</span><span class=w> </span><span class=m>1000</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h5 id=admin-api-사용>Admin API 사용<a hidden class=anchor aria-hidden=true href=#admin-api-사용>#</a></h5><p>Kong 의 Admin API 를 사용하여 서비스, 라우트, 플러그인 등을 관리할 수 있다:</p><p><strong>서비스 생성</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-28-1><a class=lnlinks href=#hl-28-1>1</a>
+</span><span class=lnt id=hl-28-2><a class=lnlinks href=#hl-28-2>2</a>
+</span><span class=lnt id=hl-28-3><a class=lnlinks href=#hl-28-3>3</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>curl -i -X POST http://localhost:8001/services <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --data <span class=nv>name</span><span class=o>=</span>example-service <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --data <span class=nv>url</span><span class=o>=</span><span class=s1>&#39;http://mockbin.org&#39;</span>
+</span></span></code></pre></td></tr></table></div></div><p><strong>라우트 생성</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-29-1><a class=lnlinks href=#hl-29-1>1</a>
+</span><span class=lnt id=hl-29-2><a class=lnlinks href=#hl-29-2>2</a>
+</span><span class=lnt id=hl-29-3><a class=lnlinks href=#hl-29-3>3</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>curl -i -X POST http://localhost:8001/services/example-service/routes <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --data <span class=s1>&#39;paths[]=/example&#39;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --data <span class=nv>name</span><span class=o>=</span>example-route
+</span></span></code></pre></td></tr></table></div></div><p><strong>플러그인 추가</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-30-1><a class=lnlinks href=#hl-30-1>1</a>
+</span><span class=lnt id=hl-30-2><a class=lnlinks href=#hl-30-2>2</a>
+</span><span class=lnt id=hl-30-3><a class=lnlinks href=#hl-30-3>3</a>
+</span><span class=lnt id=hl-30-4><a class=lnlinks href=#hl-30-4>4</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>curl -i -X POST http://localhost:8001/services/example-service/plugins <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --data <span class=nv>name</span><span class=o>=</span>rate-limiting <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --data config.minute<span class=o>=</span><span class=m>5</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --data config.policy<span class=o>=</span><span class=nb>local</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=kong-플러그인-시스템>Kong 플러그인 시스템<a hidden class=anchor aria-hidden=true href=#kong-플러그인-시스템>#</a></h4><p>Kong 의 플러그인 시스템은 핵심 기능을 확장하는 강력한 방법을 제공한다.</p><h5 id=핵심-플러그인-카테고리>핵심 플러그인 카테고리<a hidden class=anchor aria-hidden=true href=#핵심-플러그인-카테고리>#</a></h5><p><strong>인증 및 보안</strong>:</p><ul><li><code>basic-auth</code>: 기본 인증</li><li><code>key-auth</code>: API 키 인증</li><li><code>jwt</code>: JSON Web Token 인증</li><li><code>oauth2</code>: OAuth 2.0 인증</li><li><code>acl</code>: 접근 제어 목록</li></ul><p><strong>트래픽 제어</strong>:</p><ul><li><code>rate-limiting</code>: 요청 속도 제한</li><li><code>request-termination</code>: 특정 조건에서 요청 종료</li><li><code>response-ratelimiting</code>: 응답 기반 속도 제한</li><li><code>proxy-cache</code>: 응답 캐싱</li></ul><p><strong>로깅 및 모니터링</strong>:</p><ul><li><code>file-log</code>: 파일에 로그 기록</li><li><code>http-log</code>: HTTP 엔드포인트로 로그 전송</li><li><code>tcp-log</code>: TCP 서버로 로그 전송</li><li><code>udp-log</code>: UDP 서버로 로그 전송</li><li><code>prometheus</code>: Prometheus 메트릭 노출</li></ul><p><strong>트랜스포메이션</strong>:</p><ul><li><code>request-transformer</code>: 요청 변환</li><li><code>response-transformer</code>: 응답 변환</li><li><code>correlation-id</code>: 상관 관계 ID 추가</li></ul><h5 id=플러그인-구성-예제>플러그인 구성 예제<a hidden class=anchor aria-hidden=true href=#플러그인-구성-예제>#</a></h5><p><strong>레이트 리밋 설정</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-31-1><a class=lnlinks href=#hl-31-1> 1</a>
+</span><span class=lnt id=hl-31-2><a class=lnlinks href=#hl-31-2> 2</a>
+</span><span class=lnt id=hl-31-3><a class=lnlinks href=#hl-31-3> 3</a>
+</span><span class=lnt id=hl-31-4><a class=lnlinks href=#hl-31-4> 4</a>
+</span><span class=lnt id=hl-31-5><a class=lnlinks href=#hl-31-5> 5</a>
+</span><span class=lnt id=hl-31-6><a class=lnlinks href=#hl-31-6> 6</a>
+</span><span class=lnt id=hl-31-7><a class=lnlinks href=#hl-31-7> 7</a>
+</span><span class=lnt id=hl-31-8><a class=lnlinks href=#hl-31-8> 8</a>
+</span><span class=lnt id=hl-31-9><a class=lnlinks href=#hl-31-9> 9</a>
+</span><span class=lnt id=hl-31-10><a class=lnlinks href=#hl-31-10>10</a>
+</span><span class=lnt id=hl-31-11><a class=lnlinks href=#hl-31-11>11</a>
+</span><span class=lnt id=hl-31-12><a class=lnlinks href=#hl-31-12>12</a>
+</span><span class=lnt id=hl-31-13><a class=lnlinks href=#hl-31-13>13</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-json data-lang=json><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;rate-limiting&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;service&#34;</span><span class=p>:</span> <span class=p>{</span> <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;5fd1z584-1adb-40a5-c042-63b19db421d1&#34;</span> <span class=p>},</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;config&#34;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;second&#34;</span><span class=p>:</span> <span class=mi>5</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;minute&#34;</span><span class=p>:</span> <span class=mi>30</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;hour&#34;</span><span class=p>:</span> <span class=mi>100</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;policy&#34;</span><span class=p>:</span> <span class=s2>&#34;redis&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;redis_host&#34;</span><span class=p>:</span> <span class=s2>&#34;redis.internal&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;redis_port&#34;</span><span class=p>:</span> <span class=mi>6379</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;redis_timeout&#34;</span><span class=p>:</span> <span class=mi>2000</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p><strong>JWT 인증 설정</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-32-1><a class=lnlinks href=#hl-32-1>1</a>
+</span><span class=lnt id=hl-32-2><a class=lnlinks href=#hl-32-2>2</a>
+</span><span class=lnt id=hl-32-3><a class=lnlinks href=#hl-32-3>3</a>
+</span><span class=lnt id=hl-32-4><a class=lnlinks href=#hl-32-4>4</a>
+</span><span class=lnt id=hl-32-5><a class=lnlinks href=#hl-32-5>5</a>
+</span><span class=lnt id=hl-32-6><a class=lnlinks href=#hl-32-6>6</a>
+</span><span class=lnt id=hl-32-7><a class=lnlinks href=#hl-32-7>7</a>
+</span><span class=lnt id=hl-32-8><a class=lnlinks href=#hl-32-8>8</a>
+</span><span class=lnt id=hl-32-9><a class=lnlinks href=#hl-32-9>9</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-json data-lang=json><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;jwt&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;service&#34;</span><span class=p>:</span> <span class=p>{</span> <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;5fd1z584-1adb-40a5-c042-63b19db421d1&#34;</span> <span class=p>},</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;config&#34;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;claims_to_verify&#34;</span><span class=p>:</span> <span class=p>[</span><span class=s2>&#34;exp&#34;</span><span class=p>,</span> <span class=s2>&#34;nbf&#34;</span><span class=p>],</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;key_claim_name&#34;</span><span class=p>:</span> <span class=s2>&#34;kid&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;secret_is_base64&#34;</span><span class=p>:</span> <span class=kc>false</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p><strong>CORS 플러그인 설정</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-33-1><a class=lnlinks href=#hl-33-1> 1</a>
+</span><span class=lnt id=hl-33-2><a class=lnlinks href=#hl-33-2> 2</a>
+</span><span class=lnt id=hl-33-3><a class=lnlinks href=#hl-33-3> 3</a>
+</span><span class=lnt id=hl-33-4><a class=lnlinks href=#hl-33-4> 4</a>
+</span><span class=lnt id=hl-33-5><a class=lnlinks href=#hl-33-5> 5</a>
+</span><span class=lnt id=hl-33-6><a class=lnlinks href=#hl-33-6> 6</a>
+</span><span class=lnt id=hl-33-7><a class=lnlinks href=#hl-33-7> 7</a>
+</span><span class=lnt id=hl-33-8><a class=lnlinks href=#hl-33-8> 8</a>
+</span><span class=lnt id=hl-33-9><a class=lnlinks href=#hl-33-9> 9</a>
+</span><span class=lnt id=hl-33-10><a class=lnlinks href=#hl-33-10>10</a>
+</span><span class=lnt id=hl-33-11><a class=lnlinks href=#hl-33-11>11</a>
+</span><span class=lnt id=hl-33-12><a class=lnlinks href=#hl-33-12>12</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-json data-lang=json><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;name&#34;</span><span class=p>:</span> <span class=s2>&#34;cors&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;service&#34;</span><span class=p>:</span> <span class=p>{</span> <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;5fd1z584-1adb-40a5-c042-63b19db421d1&#34;</span> <span class=p>},</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;config&#34;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;origins&#34;</span><span class=p>:</span> <span class=p>[</span><span class=s2>&#34;https://example.com&#34;</span><span class=p>],</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;methods&#34;</span><span class=p>:</span> <span class=p>[</span><span class=s2>&#34;GET&#34;</span><span class=p>,</span> <span class=s2>&#34;POST&#34;</span><span class=p>,</span> <span class=s2>&#34;PUT&#34;</span><span class=p>,</span> <span class=s2>&#34;DELETE&#34;</span><span class=p>],</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;headers&#34;</span><span class=p>:</span> <span class=p>[</span><span class=s2>&#34;Authorization&#34;</span><span class=p>,</span> <span class=s2>&#34;Content-Type&#34;</span><span class=p>],</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;exposed_headers&#34;</span><span class=p>:</span> <span class=p>[</span><span class=s2>&#34;X-Auth-Token&#34;</span><span class=p>],</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;credentials&#34;</span><span class=p>:</span> <span class=kc>true</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;max_age&#34;</span><span class=p>:</span> <span class=mi>3600</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h5 id=커스텀-플러그인-개발>커스텀 플러그인 개발<a hidden class=anchor aria-hidden=true href=#커스텀-플러그인-개발>#</a></h5><p>Kong 은 Lua 로 작성된 커스텀 플러그인을 지원한다.</p><p>기본 구조는 다음과 같다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-34-1><a class=lnlinks href=#hl-34-1> 1</a>
+</span><span class=lnt id=hl-34-2><a class=lnlinks href=#hl-34-2> 2</a>
+</span><span class=lnt id=hl-34-3><a class=lnlinks href=#hl-34-3> 3</a>
+</span><span class=lnt id=hl-34-4><a class=lnlinks href=#hl-34-4> 4</a>
+</span><span class=lnt id=hl-34-5><a class=lnlinks href=#hl-34-5> 5</a>
+</span><span class=lnt id=hl-34-6><a class=lnlinks href=#hl-34-6> 6</a>
+</span><span class=lnt id=hl-34-7><a class=lnlinks href=#hl-34-7> 7</a>
+</span><span class=lnt id=hl-34-8><a class=lnlinks href=#hl-34-8> 8</a>
+</span><span class=lnt id=hl-34-9><a class=lnlinks href=#hl-34-9> 9</a>
+</span><span class=lnt id=hl-34-10><a class=lnlinks href=#hl-34-10>10</a>
+</span><span class=lnt id=hl-34-11><a class=lnlinks href=#hl-34-11>11</a>
+</span><span class=lnt id=hl-34-12><a class=lnlinks href=#hl-34-12>12</a>
+</span><span class=lnt id=hl-34-13><a class=lnlinks href=#hl-34-13>13</a>
+</span><span class=lnt id=hl-34-14><a class=lnlinks href=#hl-34-14>14</a>
+</span><span class=lnt id=hl-34-15><a class=lnlinks href=#hl-34-15>15</a>
+</span><span class=lnt id=hl-34-16><a class=lnlinks href=#hl-34-16>16</a>
+</span><span class=lnt id=hl-34-17><a class=lnlinks href=#hl-34-17>17</a>
+</span><span class=lnt id=hl-34-18><a class=lnlinks href=#hl-34-18>18</a>
+</span><span class=lnt id=hl-34-19><a class=lnlinks href=#hl-34-19>19</a>
+</span><span class=lnt id=hl-34-20><a class=lnlinks href=#hl-34-20>20</a>
+</span><span class=lnt id=hl-34-21><a class=lnlinks href=#hl-34-21>21</a>
+</span><span class=lnt id=hl-34-22><a class=lnlinks href=#hl-34-22>22</a>
+</span><span class=lnt id=hl-34-23><a class=lnlinks href=#hl-34-23>23</a>
+</span><span class=lnt id=hl-34-24><a class=lnlinks href=#hl-34-24>24</a>
+</span><span class=lnt id=hl-34-25><a class=lnlinks href=#hl-34-25>25</a>
+</span><span class=lnt id=hl-34-26><a class=lnlinks href=#hl-34-26>26</a>
+</span><span class=lnt id=hl-34-27><a class=lnlinks href=#hl-34-27>27</a>
+</span><span class=lnt id=hl-34-28><a class=lnlinks href=#hl-34-28>28</a>
+</span><span class=lnt id=hl-34-29><a class=lnlinks href=#hl-34-29>29</a>
+</span><span class=lnt id=hl-34-30><a class=lnlinks href=#hl-34-30>30</a>
+</span><span class=lnt id=hl-34-31><a class=lnlinks href=#hl-34-31>31</a>
+</span><span class=lnt id=hl-34-32><a class=lnlinks href=#hl-34-32>32</a>
+</span><span class=lnt id=hl-34-33><a class=lnlinks href=#hl-34-33>33</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-lua data-lang=lua><span class=line><span class=cl><span class=c1>-- myPlugin.lua</span>
+</span></span><span class=line><span class=cl><span class=kd>local</span> <span class=n>plugin</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=n>PRIORITY</span> <span class=o>=</span> <span class=mi>1000</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=n>VERSION</span> <span class=o>=</span> <span class=s2>&#34;1.0.0&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>-- 플러그인 구성 스키마 정의</span>
+</span></span><span class=line><span class=cl><span class=kr>function</span> <span class=nc>plugin</span><span class=p>:</span><span class=nf>schema</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>  <span class=kr>return</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>name</span> <span class=o>=</span> <span class=s2>&#34;my-plugin&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>fields</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=p>{</span> <span class=n>config</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>          <span class=n>type</span> <span class=o>=</span> <span class=s2>&#34;record&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>          <span class=n>fields</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=p>{</span> <span class=n>some_field</span> <span class=o>=</span> <span class=p>{</span> <span class=n>type</span> <span class=o>=</span> <span class=s2>&#34;string&#34;</span><span class=p>,</span> <span class=n>required</span> <span class=o>=</span> <span class=kc>true</span> <span class=p>}</span> <span class=p>},</span>
+</span></span><span class=line><span class=cl>          <span class=p>},</span>
+</span></span><span class=line><span class=cl>        <span class=p>},</span>
+</span></span><span class=line><span class=cl>      <span class=p>},</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=kr>end</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>-- 요청 처리 단계</span>
+</span></span><span class=line><span class=cl><span class=kr>function</span> <span class=nc>plugin</span><span class=p>:</span><span class=nf>access</span><span class=p>(</span><span class=n>conf</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>  <span class=c1>-- 요청이 들어올 때 수행할 로직</span>
+</span></span><span class=line><span class=cl>  <span class=n>kong.log</span><span class=p>.</span><span class=n>info</span><span class=p>(</span><span class=s2>&#34;MyPlugin executing with conf: &#34;</span><span class=p>,</span> <span class=n>conf.some_field</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>-- 헤더 추가 예제</span>
+</span></span><span class=line><span class=cl>  <span class=n>kong.service</span><span class=p>.</span><span class=n>request.set_header</span><span class=p>(</span><span class=s2>&#34;X-My-Header&#34;</span><span class=p>,</span> <span class=s2>&#34;Hello World&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=kr>end</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>-- 플러그인 모듈 반환</span>
+</span></span><span class=line><span class=cl><span class=kr>return</span> <span class=n>plugin</span>
+</span></span></code></pre></td></tr></table></div></div><p>플러그인 등록을 위한 <code>kong.conf</code> 설정:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-35-1><a class=lnlinks href=#hl-35-1>1</a>
+</span><span class=lnt id=hl-35-2><a class=lnlinks href=#hl-35-2>2</a>
+</span><span class=lnt id=hl-35-3><a class=lnlinks href=#hl-35-3>3</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>plugins = bundled,my-plugin
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>lua_package_path = /path/to/custom/plugins/?.lua;
+</span></span></code></pre></td></tr></table></div></div><h4 id=kong-고급-주제>Kong 고급 주제<a hidden class=anchor aria-hidden=true href=#kong-고급-주제>#</a></h4><h5 id=하이브리드-모드>하이브리드 모드<a hidden class=anchor aria-hidden=true href=#하이브리드-모드>#</a></h5><p>Kong 의 하이브리드 모드는 데이터 플레인 (DP) 과 컨트롤 플레인 (CP) 을 분리하여 대규모 분산 배포를 가능하게 한다:</p><p><strong>컨트롤 플레인 설정</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-36-1><a class=lnlinks href=#hl-36-1>1</a>
+</span><span class=lnt id=hl-36-2><a class=lnlinks href=#hl-36-2>2</a>
+</span><span class=lnt id=hl-36-3><a class=lnlinks href=#hl-36-3>3</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>role = control_plane
+</span></span><span class=line><span class=cl>cluster_cert = /path/to/cluster.crt
+</span></span><span class=line><span class=cl>cluster_cert_key = /path/to/cluster.key
+</span></span></code></pre></td></tr></table></div></div><p><strong>데이터 플레인 설정</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-37-1><a class=lnlinks href=#hl-37-1>1</a>
+</span><span class=lnt id=hl-37-2><a class=lnlinks href=#hl-37-2>2</a>
+</span><span class=lnt id=hl-37-3><a class=lnlinks href=#hl-37-3>3</a>
+</span><span class=lnt id=hl-37-4><a class=lnlinks href=#hl-37-4>4</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>role = data_plane
+</span></span><span class=line><span class=cl>cluster_cert = /path/to/cluster.crt
+</span></span><span class=line><span class=cl>cluster_cert_key = /path/to/cluster.key
+</span></span><span class=line><span class=cl>cluster_control_plane = control-plane.example.com:8005
+</span></span></code></pre></td></tr></table></div></div><h5 id=멀티-테넌시>멀티 테넌시<a hidden class=anchor aria-hidden=true href=#멀티-테넌시>#</a></h5><p>Kong Enterprise 에서는 워크스페이스 (Workspace) 를 통해 멀티 테넌시를 지원한다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-38-1><a class=lnlinks href=#hl-38-1>1</a>
+</span><span class=lnt id=hl-38-2><a class=lnlinks href=#hl-38-2>2</a>
+</span><span class=lnt id=hl-38-3><a class=lnlinks href=#hl-38-3>3</a>
+</span><span class=lnt id=hl-38-4><a class=lnlinks href=#hl-38-4>4</a>
+</span><span class=lnt id=hl-38-5><a class=lnlinks href=#hl-38-5>5</a>
+</span><span class=lnt id=hl-38-6><a class=lnlinks href=#hl-38-6>6</a>
+</span><span class=lnt id=hl-38-7><a class=lnlinks href=#hl-38-7>7</a>
+</span><span class=lnt id=hl-38-8><a class=lnlinks href=#hl-38-8>8</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 워크스페이스 생성</span>
+</span></span><span class=line><span class=cl>curl -X POST http://localhost:8001/workspaces <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --data <span class=nv>name</span><span class=o>=</span>team-finance
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 워크스페이스별 서비스 생성</span>
+</span></span><span class=line><span class=cl>curl -X POST http://localhost:8001/team-finance/services <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --data <span class=nv>name</span><span class=o>=</span>billing-api <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --data <span class=nv>url</span><span class=o>=</span>http://billing.internal:8080
+</span></span></code></pre></td></tr></table></div></div><h5 id=서비스-메시-통합>서비스 메시 통합<a hidden class=anchor aria-hidden=true href=#서비스-메시-통합>#</a></h5><p>Kong Mesh 는 Kong 과 함께 작동하는 서비스 메시 솔루션으로, 다음과 같은 기능을 제공한다:</p><ul><li>mTLS 를 통한 서비스 간 암호화된 통신</li><li>트래픽 컨트롤 (서킷 브레이킹, 타임아웃, 재시도 등)</li><li>메시 내부 트래픽 정책 적용</li><li>멀티 클러스터 연결</li></ul><h5 id=고가용성-설정>고가용성 설정<a hidden class=anchor aria-hidden=true href=#고가용성-설정>#</a></h5><p>프로덕션 환경에서 Kong 의 고가용성을 보장하기 위한 설정:</p><ul><li><strong>로드 밸런서 사용</strong>: 여러 Kong 인스턴스 앞에 로드 밸런서를 배치하여 트래픽을 분산</li><li><strong>데이터베이스 복제</strong>: PostgreSQL 또는 Cassandra 클러스터 구성으로 데이터 내구성 확보</li><li><strong>지역적 분산</strong>: 여러 지역에 Kong 인스턴스를 배포하여 지연 시간 최소화 및 장애 격리</li></ul><h4 id=선택-시-고려-사항>선택 시 고려 사항<a hidden class=anchor aria-hidden=true href=#선택-시-고려-사항>#</a></h4><p>API 게이트웨이 선택 시 고려해야 할 주요 요소:</p><ol><li><p><strong>성능 요구 사항</strong>:</p><ul><li>초당 처리해야 할 요청 수</li><li>응답 시간 요구 사항</li><li>리소스 사용량 (메모리, CPU)</li></ul></li><li><p><strong>배포 환경</strong>:</p><ul><li>온프레미스 vs 클라우드</li><li>컨테이너 오케스트레이션 (Kubernetes 등) 과의 통합</li><li>멀티 클라우드/하이브리드 클라우드 요구 사항</li></ul></li><li><p><strong>기능 요구 사항</strong>:</p><ul><li>인증 및 권한 부여 메커니즘</li><li>트래픽 관리 기능</li><li>모니터링 및 로깅 필요성</li><li>개발자 포털 요구 사항</li></ul></li><li><p><strong>비용 및 라이선스</strong>:</p><ul><li>오픈 소스 vs 상용 솔루션</li><li>지원 서비스 필요성</li><li>총 소유 비용 (TCO) 분석</li></ul></li></ol><h4 id=실제-사용-사례-및-성공-사례>실제 사용 사례 및 성공 사례<a hidden class=anchor aria-hidden=true href=#실제-사용-사례-및-성공-사례>#</a></h4><h5 id=기업-사례-연구>기업 사례 연구<a hidden class=anchor aria-hidden=true href=#기업-사례-연구>#</a></h5><ol><li><p><strong>글로벌 금융 서비스 회사</strong>:</p><ul><li>과제: 레거시 시스템과 마이크로서비스 간의 통합</li><li>솔루션: Kong 을 통해 통합 레이어 구축, JWT 인증, 레이트 리밋 구현</li><li>결과: API 호출 지연 시간 50% 감소, 개발자 생산성 향상</li></ul></li><li><p><strong>전자 상거래 플랫폼</strong>:</p><ul><li>과제: 확장 가능한 API 인프라 구축, 제 3 자 통합 지원</li><li>솔루션: Kong 의 플러그인 시스템을 활용한 맞춤형 인증 및 로깅 솔루션</li><li>결과: API 온보딩 시간 75% 단축, 시스템 안정성 향상</li></ul></li><li><p><strong>의료 정보 서비스</strong>:</p><ul><li>과제: 규정 준수 (HIPAA) 및 보안 강화</li><li>솔루션: Kong 의 보안 플러그인과 세분화된 접근 제어로 규정 준수 보장</li><li>결과: 보안 감사 간소화, 규정 위반 위험 감소</li></ul></li></ol><h5 id=kong-배포-모범-사례>Kong 배포 모범 사례<a hidden class=anchor aria-hidden=true href=#kong-배포-모범-사례>#</a></h5><ol><li><p><strong>인프라 설계</strong>:</p><ul><li>프로덕션 환경에서는 최소 3 개의 Kong 인스턴스 배포</li><li>데이터베이스 클러스터링 및 백업 전략 구현</li><li>블루/그린 배포 전략으로 무중단 업데이트</li></ul></li><li><p><strong>보안 강화</strong>:</p><ul><li>Kong Admin API 에 대한 접근 제한</li><li>민감한 데이터 암호화</li><li>정기적인 보안 감사 및 취약점 스캔</li></ul></li><li><p><strong>모니터링 및 로깅</strong>:</p><ul><li>핵심 메트릭 모니터링: 응답 시간, 오류율, 요청 볼륨</li><li>중앙 집중식 로깅 솔루션 구현</li><li>알림 시스템 설정</li></ul></li><li><p><strong>성능 최적화</strong>:</p><ul><li>적절한 캐싱 전략 구현</li><li>불필요한 플러그인 비활성화</li><li>하드웨어 리소스 적절히 할당</li></ul></li></ol><hr><h3 id=용어-정리-5>용어 정리<a hidden class=anchor aria-hidden=true href=#용어-정리-5>#</a></h3><table><thead><tr><th>용어</th><th>설명</th></tr></thead><tbody><tr><td></td><td></td></tr></tbody></table><hr><h3 id=참고-및-출처-3>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처-3>#</a></h3></div></main><script type=module>
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true });
+  </script><footer class=footer><span>&copy; 2025 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>
