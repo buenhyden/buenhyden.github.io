@@ -1,0 +1,568 @@
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Batch Processing | hyunyoun's Blog</title><meta name=keywords content="Software-Engineering,Design-and-Architecture,Architecture-Styles-and-Patterns,Architecture-Styles,Data-Flow,Processing-Types,Batch-Processing"><meta name=description content="배치 처리 (Batch Processing) 는 대량의 데이터를 일정한 주기나 조건에 따라 일괄적으로 처리하는 방식이다.  실시간성이 요구되지 않는 데이터 집계, 변환, 보고서 생성 등에서 주로 활용되며, 처리 효율성과 자동화, 신뢰성을 높이는 핵심 데이터 처리 패턴이다."><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/software-design-and-architecture/architecture/data-architecture/data-flow-architecture/processing-paradigms/batch-processing/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.a9863521b3bd3c240bc506f46b95e3c06ccef2ae37f529d5f99bdaef442bccce.css integrity="sha256-qYY1IbO9PCQLxQb0a5XjwGzO8q439SnV+Zva70QrzM4=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate type=application/rss+xml href=https://buenhyden.github.io/posts/software-design-and-architecture/architecture/data-architecture/data-flow-architecture/processing-paradigms/batch-processing/index.xml><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/software-design-and-architecture/architecture/data-architecture/data-flow-architecture/processing-paradigms/batch-processing/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/software-design-and-architecture/architecture/data-architecture/data-flow-architecture/processing-paradigms/batch-processing/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="Batch Processing"><meta property="og:description" content="배치 처리 (Batch Processing) 는 대량의 데이터를 일정한 주기나 조건에 따라 일괄적으로 처리하는 방식이다.  실시간성이 요구되지 않는 데이터 집계, 변환, 보고서 생성 등에서 주로 활용되며, 처리 효율성과 자동화, 신뢰성을 높이는 핵심 데이터 처리 패턴이다."><meta property="og:locale" content="en"><meta property="og:type" content="website"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="Batch Processing"><meta name=twitter:description content="배치 처리 (Batch Processing) 는 대량의 데이터를 일정한 주기나 조건에 따라 일괄적으로 처리하는 방식이다.  실시간성이 요구되지 않는 데이터 집계, 변환, 보고서 생성 등에서 주로 활용되며, 처리 효율성과 자동화, 신뢰성을 높이는 핵심 데이터 처리 패턴이다."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Computer Science and Engineering","item":"https://buenhyden.github.io/posts/"},{"@type":"ListItem","position":2,"name":"Design and Architecture","item":""},{"@type":"ListItem","position":3,"name":"Architecture","item":"https://buenhyden.github.io/posts/software-design-and-architecture/architecture/"},{"@type":"ListItem","position":5,"name":"Data-Flow Architecture","item":"https://buenhyden.github.io/posts/software-design-and-architecture/architecture/data-architecture/data-flow-architecture/"},{"@type":"ListItem","position":6,"name":"Processing Types","item":"https://buenhyden.github.io/posts/software-design-and-architecture/architecture/data-architecture/data-flow-architecture/processing-paradigms/"},{"@type":"ListItem","position":7,"name":"Batch Processing","item":"https://buenhyden.github.io/posts/software-design-and-architecture/architecture/data-architecture/data-flow-architecture/processing-paradigms/batch-processing/"}]}</script></head><body class=list id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><header class=page-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/>Computer Science and Engineering</a>&nbsp;»&nbsp;<a href>Design and Architecture</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/software-design-and-architecture/architecture/>Architecture</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/software-design-and-architecture/architecture/data-architecture/data-flow-architecture/>Data-Flow Architecture</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/software-design-and-architecture/architecture/data-architecture/data-flow-architecture/processing-paradigms/>Processing Types</a></div><h1>Batch Processing</h1><div class=post-description>배치 처리 (Batch Processing) 는 대량의 데이터를 일정한 주기나 조건에 따라 일괄적으로 처리하는 방식이다. 실시간성이 요구되지 않는 데이터 집계, 변환, 보고서 생성 등에서 주로 활용되며, 처리 효율성과 자동화, 신뢰성을 높이는 핵심 데이터 처리 패턴이다.</div></header><div class=post-content><h2 id=batch-processing>Batch Processing<a hidden class=anchor aria-hidden=true href=#batch-processing>#</a></h2><p>배치 처리 (Batch Processing) 는 여러 데이터 작업을 묶어 한 번에 처리하는 데이터 처리 방식이다. 이는 주로 대용량 데이터 집계, 변환, 백업, 보고서 생성 등 반복적이고 대규모 작업에 적용된다. 배치 처리는 데이터 흐름 아키텍처의 한 형태로, 자동화, 확장성, 일관성, 오류 복구 등에서 강점을 가지며, 실시간 처리와는 다른 효율성과 안정성을 제공한다. 현대 IT 시스템에서는 분산 처리, 스케줄링, 장애 복구 등과 결합되어 다양한 산업에서 핵심 역할을 수행한다.</p><h3 id=배경>배경<a hidden class=anchor aria-hidden=true href=#배경>#</a></h3><ul><li>대규모 데이터가 실시간으로 처리될 필요가 없을 때, 리소스 효율성과 자동화, 신뢰성을 위해 배치 처리 방식이 도입됨.</li><li>초기 메인프레임 환경에서부터 현대의 분산 시스템, 클라우드 환경까지 널리 사용됨.</li></ul><h3 id=목적-및-필요성>목적 및 필요성<a hidden class=anchor aria-hidden=true href=#목적-및-필요성>#</a></h3><p><strong>주요 목적</strong></p><ul><li>시스템 리소스의 효율적 활용</li><li>대용량 데이터 처리 능력 확보</li><li>운영 비용 절감</li><li>처리 품질 및 일관성 보장</li></ul><p><strong>필요성</strong></p><ul><li>실시간 처리로는 불가능한 대용량 연산</li><li>시스템 부하 분산 및 관리</li><li>정기적인 데이터 분석 및 보고서 생성</li><li>규제 준수 및 감사 요구사항 충족</li></ul><h3 id=핵심-개념>핵심 개념<a hidden class=anchor aria-hidden=true href=#핵심-개념>#</a></h3><p><strong>배치 처리 (Batch Processing)</strong> 란, 대량의 데이터를 일정한 시간 간격이나 조건에 따라 일괄적으로 처리하는 데이터 처리 방식이다. 실시간 처리 (Real-time Processing) 와 달리, 즉각적인 결과가 필요한 것이 아니라, 데이터가 충분히 모인 후 한 번에 처리한다. 데이터 플로우 아키텍처 (Data-Flow Architecture) 내에서, 데이터가 여러 처리 단계를 거치며 흐르는 구조로 설계된다.</p><h4 id=기본-개념>기본 개념<a hidden class=anchor aria-hidden=true href=#기본-개념>#</a></h4><p>배치 처리에서 반드시 알아야 하는 핵심 개념들을 분석하면 다음과 같다:</p><table><thead><tr><th>항목</th><th>정의</th><th>주요 특징 및 목적</th></tr></thead><tbody><tr><td><strong>배치 작업 (Batch Job)</strong></td><td>사용자 개입 없이 자동 실행되는 일련의 명령어 또는 프로그램 집합</td><td>- 순차 실행<br>- 정해진 스케줄 기반 실행<br>- 무인 처리, 반복 가능</td></tr><tr><td><strong>청크 처리 (Chunk Processing)</strong></td><td>대용량 데이터를 작은 단위 (청크) 로 나누어 순차적으로 처리</td><td>- 메모리 사용 최소화<br>- 장애 발생 시 청크 단위 복구<br>- 효율적 리소스 관리</td></tr><tr><td><strong>배치 윈도우 (Batch Window)</strong></td><td>시스템이 배치 작업을 실행하도록 허용된 특정 시간 구간</td><td>- 낮은 트래픽 시간 활용<br>- 시스템 부하 최소화<br>- 운영 안정성 확보</td></tr><tr><td><strong>ETL 패턴</strong></td><td>데이터를 추출 (Extract) 하고, 변환 (Transform) 하여, 적재 (Load) 하는 3 단계 처리 패턴</td><td>- 데이터 웨어하우스, BI 시스템의 기본<br>- 주로 배치 작업으로 수행됨</td></tr></tbody></table><h4 id=실무-구현을-위한-연관성-분석>실무 구현을 위한 연관성 분석<a hidden class=anchor aria-hidden=true href=#실무-구현을-위한-연관성-분석>#</a></h4><p>핵심 개념들이 실무 구현에서 갖는 연관성을 다음과 같이 분석할 수 있다:</p><p><strong>처리 효율성 측면</strong></p><ul><li>청크 처리와 메모리 관리의 연관성</li><li>병렬 처리와 스케줄링의 상호작용</li></ul><p><strong>시스템 안정성 측면</strong></p><ul><li>체크포인트와 장애 복구 메커니즘</li><li>재시작 기능과 상태 관리</li></ul><p><strong>운영 관리 측면</strong></p><ul><li>모니터링과 로깅 시스템 통합</li><li>알림 시스템과 에러 핸들링</li></ul><h3 id=주요-기능-및-역할>주요 기능 및 역할<a hidden class=anchor aria-hidden=true href=#주요-기능-및-역할>#</a></h3><p><strong>데이터 수집 및 집계</strong></p><ul><li>다양한 소스로부터 데이터 수집</li><li>데이터 품질 검증 및 정제</li><li>통계 및 집계 연산 수행</li></ul><p><strong>스케줄링 및 워크플로우 관리</strong></p><ul><li>시간 기반 또는 이벤트 기반 실행</li><li>작업 간 의존성 관리</li><li>실행 순서 제어</li></ul><p><strong>리소스 관리</strong></p><ul><li>CPU, 메모리, 스토리지 최적화</li><li>네트워크 대역폭 효율적 사용</li><li>시스템 부하 분산</li></ul><h3 id=특징>특징<a hidden class=anchor aria-hidden=true href=#특징>#</a></h3><table><thead><tr><th>구분</th><th>특징</th><th>설명</th></tr></thead><tbody><tr><td>처리 방식</td><td>일괄 처리</td><td>데이터를 모아서 한 번에 처리</td></tr><tr><td>실행 시점</td><td>지연 처리</td><td>실시간이 아닌 스케줄된 시점에 실행</td></tr><tr><td>리소스 사용</td><td>집중적 사용</td><td>특정 시간대에 리소스를 집중 활용</td></tr><tr><td>처리량</td><td>고처리량</td><td>단위 시간당 많은 데이터 처리 가능</td></tr></tbody></table><h3 id=핵심-원칙>핵심 원칙<a hidden class=anchor aria-hidden=true href=#핵심-원칙>#</a></h3><ol><li><p><strong>단순성 (Simplicity)</strong></p><ul><li>복잡한 실시간 동기화 없이 단순한 순차 처리</li></ul></li><li><p><strong>확장성 (Scalability)</strong></p><ul><li>데이터 양과 처리 요구사항에 따른 수평적 확장</li></ul></li><li><p><strong>내결함성 (Fault Tolerance)</strong></p><ul><li>장애 발생 시 복구 및 재시작 능력</li></ul></li><li><p><strong>재현성 (Reproducibility)</strong></p><ul><li>동일한 입력에 대해 일관된 결과 보장</li></ul></li></ol><h3 id=주요-원리>주요 원리<a hidden class=anchor aria-hidden=true href=#주요-원리>#</a></h3><ul><li>입력 데이터 집합을 모아 한 번에 처리</li><li>각 처리 단계는 독립적이거나 파이프라인 형태로 연결됨</li><li>작업 단위 (Job) 로 분할하여 관리</li></ul><pre class=mermaid>graph TD
+    A[데이터 소스] --&gt; B[데이터 수집]
+    B --&gt; C[큐/버퍼]
+    C --&gt; D[배치 작업 스케줄러]
+    D --&gt; E[배치 프로세서]
+    E --&gt; F[데이터 변환]
+    F --&gt; G[결과 저장]
+    G --&gt; H[모니터링 및 로깅]
+    
+    D --&gt; I[작업1]
+    D --&gt; J[작업2]
+    D --&gt; K[작업N]
+    
+    I --&gt; L[청크 처리]
+    J --&gt; M[청크 처리]
+    K --&gt; N[청크 처리]
+</pre><p>배치 처리의 핵심 작동 방식은 다음과 같다:</p><ol><li><strong>데이터 수집 단계</strong>: 다양한 소스에서 데이터를 수집하여 임시 저장소에 축적</li><li><strong>스케줄링 단계</strong>: 미리 정의된 스케줄에 따라 배치 작업 실행</li><li><strong>처리 단계</strong>: 수집된 데이터를 청크 단위로 나누어 순차적 또는 병렬 처리</li><li><strong>출력 단계</strong>: 처리 결과를 목적지 시스템에 저장</li></ol><h3 id=작동-원리-및-방식>작동 원리 및 방식<a hidden class=anchor aria-hidden=true href=#작동-원리-및-방식>#</a></h3><p>Batch Processing 은 보통 다음과 같은 순서로 동작한다:</p><pre class=mermaid>sequenceDiagram
+  participant Scheduler
+  participant Source
+  participant Staging
+  participant Processor
+  participant Target
+  participant Monitor
+
+  Scheduler-&gt;&gt;Source: Trigger Batch Job
+  Source-&gt;&gt;Staging: Extract Data
+  Staging-&gt;&gt;Processor: Provide Raw Data
+  Processor-&gt;&gt;Target: Load Transformed Data
+  Processor-&gt;&gt;Monitor: Emit Logs &amp; Metrics
+  Monitor--&gt;&gt;Scheduler: Notify Completion/Error
+</pre><ol><li><strong>Trigger</strong>: 특정 시간/이벤트 기반으로 배치 작업 시작</li><li><strong>Ingestion</strong>: 원본 시스템에서 데이터 추출</li><li><strong>Staging</strong>: 임시 저장소에 데이터 저장 (HDFS, S3 등)</li><li><strong>Processing</strong>: Spark, Hadoop, SQL 등으로 처리 수행</li><li><strong>Validation</strong>: 처리 결과 유효성 검사 (null, outlier 등)</li><li><strong>Load</strong>: 결과를 Data Warehouse 또는 DB 에 저장</li><li><strong>Logging/Monitoring</strong>: 실행 이력 및 에러 로깅</li><li><strong>Alerting</strong>: 실패 시 알림 전송</li></ol><h3 id=구조-및-아키텍처>구조 및 아키텍처<a hidden class=anchor aria-hidden=true href=#구조-및-아키텍처>#</a></h3><p>Batch Processing 시스템은 다음과 같은 주요 컴포넌트로 구성된다.<br>이 구조는 <strong>데이터 수집 → 처리 → 저장 → 모니터링/알림</strong>까지 전체 워크플로우를 포괄한다.</p><pre class=mermaid>graph TD
+  A[Data Source] --&gt; B[Data Ingestion]
+  B --&gt; C[Staging Area / Raw Storage]
+  C --&gt; D[&#34;Batch Scheduler (e.g., Airflow, StepFn)&#34;]
+  D --&gt; E[&#34;Batch Processing Engine (e.g., Spark, Hadoop)&#34;]
+  E --&gt; F[&#34;Target System (e.g., Data Warehouse)&#34;]
+  E --&gt; G[Monitoring &amp; Logging]
+  G --&gt; H[&#34;Alerting System (e.g., SNS, Email)&#34;]
+</pre><h4 id=구성-요소>구성 요소<a hidden class=anchor aria-hidden=true href=#구성-요소>#</a></h4><table><thead><tr><th>구분</th><th>구성 요소</th><th>설명</th><th>기능 및 역할</th></tr></thead><tbody><tr><td>필수</td><td><strong>Data Source</strong></td><td>원본 데이터</td><td>운영 DB, 로그, API, 파일 등 다양한 소스에서 데이터 수집</td></tr><tr><td></td><td><strong>Ingestion Layer</strong></td><td>데이터 수집 계층</td><td>배치 주기 또는 이벤트 기반으로 원본 데이터를 수집</td></tr><tr><td></td><td><strong>Staging / Raw Storage</strong></td><td>임시 저장소</td><td>수집된 원본 데이터를 저장하여 이후 처리나 검증을 위한 중간 저장소 역할</td></tr><tr><td></td><td><strong>Batch Scheduler</strong></td><td>작업 스케줄러</td><td>정해진 시간이나 조건에 따라 배치 작업 흐름 제어 (예: cron, Airflow 등)</td></tr><tr><td></td><td><strong>Processing Engine</strong></td><td>데이터 처리 엔진</td><td>Spark, Hadoop, SQL 엔진 등을 이용하여 데이터를 변환, 가공, 집계</td></tr><tr><td></td><td><strong>Target System</strong></td><td>결과 저장소</td><td>처리된 데이터를 적재할 최종 저장소 (예: DWH, 데이터 마트, 분석 시스템 등)</td></tr><tr><td>선택</td><td><strong>Monitoring System</strong></td><td>모니터링 도구</td><td>작업 실행 상태 모니터링, 성능 분석, 리소스 사용량 시각화 (예: Grafana, CloudWatch)</td></tr><tr><td></td><td><strong>Alerting System</strong></td><td>알림 시스템</td><td>오류/실패 발생 시 즉시 알림 전송 (예: SNS, Slack, PagerDuty 등)</td></tr><tr><td></td><td><strong>Metadata Store</strong></td><td>메타데이터 저장소</td><td>배치 작업 실행 이력, 파이프라인 버전 관리, 작업 상태 저장</td></tr><tr><td></td><td><strong>Lineage Tracker</strong></td><td>데이터 라인리지 추적 시스템</td><td>데이터가 어디서 왔고 어떻게 가공되었는지를 추적하여 거버넌스와 감사 용도로 사용</td></tr></tbody></table><h3 id=구현-기법>구현 기법<a hidden class=anchor aria-hidden=true href=#구현-기법>#</a></h3><table><thead><tr><th><strong>카테고리</strong></th><th><strong>구현 기법</strong></th><th><strong>정의/핵심 기술</strong></th><th><strong>대표 도구/프레임워크</strong></th><th><strong>적용 시나리오/예시</strong></th></tr></thead><tbody><tr><td><strong>처리 단위 설계</strong></td><td>청크 기반 처리 (Chunking)</td><td>대용량 데이터를 일정 단위로 분할하여 메모리 효율적 처리</td><td>Spring Batch, JSR-352</td><td>1 천만 건 주문 데이터 → 1 천 건 단위로 청크 처리</td></tr><tr><td></td><td>증분 처리 (Incremental Load)</td><td>변경된 데이터만 추출하여 적재; 전체 리소스 소모 절감</td><td>Airbyte, dbt, Kafka Connect</td><td>전날 이후 변경된 사용자 로그만 적재</td></tr><tr><td><strong>파이프라인 구성</strong></td><td>파이프라인 처리 (Pipeline)</td><td>데이터 흐름을 단계별로 처리 (필터링, 변환, 집계 등)</td><td>Spring Batch, Cascading, NiFi</td><td>로그 → 파싱 → 필터링 → 집계 → 저장</td></tr><tr><td></td><td>파이프라인 추상화</td><td>Source-Pipe-Sink 추상화 구조로 흐름 재사용</td><td>Cascading, StreamSets</td><td>재사용 가능한 데이터 흐름 구성</td></tr><tr><td><strong>실행 및 스케줄링</strong></td><td>정기 스케줄링 (Scheduling)</td><td>정해진 시간에 자동 실행; 주로 cron 기반</td><td>Linux Cron, Windows Scheduler</td><td>매일 새벽 2 시 로그 집계 작업 수행</td></tr><tr><td></td><td>워크플로 오케스트레이션</td><td>작업 간 의존성, 재시도, 분기 흐름을 제어하는 복합 스케줄링</td><td>Apache Airflow, AWS Step Functions, Luigi</td><td>단계별 ETL 처리: 추출 → 정제 → 분석 → 적재</td></tr><tr><td><strong>병렬 및 분산 처리</strong></td><td>병렬 처리 (Parallelism)</td><td>병렬로 독립적인 작업 실행; 처리 시간 단축</td><td>Java ThreadPool, Python multiprocessing</td><td>지역별 데이터 집계 병렬 수행</td></tr><tr><td></td><td>분산 처리 (Distributed Batch)</td><td>여러 노드/서버에 작업 분산; 대용량 고속 처리</td><td>Hadoop MapReduce, Apache Spark</td><td>수 TB 규모의 로그 처리 작업 분산 수행</td></tr><tr><td><strong>이벤트 기반</strong></td><td>이벤트 트리거 처리</td><td>이벤트 발생 시 배치 트리거 실행 (on-demand batch)</td><td>AWS Lambda + S3, Cloud Functions + PubSub</td><td>파일 업로드 → 자동 데이터 추출 및 적재 실행</td></tr><tr><td><strong>트랜잭션/복구</strong></td><td>트랜잭션 및 롤백 처리</td><td>청크 단위 트랜잭션, 실패 시 롤백 및 재처리 지원</td><td>Spring Batch, Quartz</td><td>일부 실패 시 재시도 가능하도록 트랜잭션 설정</td></tr><tr><td></td><td>체크포인트/라인리지</td><td>처리 중단 시 상태 저장 → 이후 이어서 실행 가능</td><td>Apache Spark Lineage, Apache Flink Checkpoint</td><td>실패 시 체크포인트부터 다시 실행</td></tr><tr><td><strong>최적화 기법</strong></td><td>파티셔닝</td><td>파티션 기준으로 데이터 분할 → I/O 최적화</td><td>Hive, BigQuery, Delta Lake</td><td>일자별 파티션으로 로그 처리 속도 향상</td></tr><tr><td></td><td>병렬 청크 처리</td><td>청크 단위로 병렬 처리 및 병합; 트랜잭션 범위 내에서 동작</td><td>Spring Batch Parallel Steps</td><td>고객 데이터 10 만 건 병렬 청크 처리</td></tr><tr><td><strong>ETL 구성</strong></td><td>전통적 ETL 패턴</td><td>Extract → Transform → Load 순서의 일괄 처리</td><td>Informatica, Talend, Apache Beam</td><td>ERP 데이터 → 정규화 → 분석용 적재</td></tr></tbody></table><h3 id=장점>장점<a hidden class=anchor aria-hidden=true href=#장점>#</a></h3><table><thead><tr><th>카테고리</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td><strong>1. 자원 효율성</strong></td><td>리소스 집중 사용</td><td>오프피크 시간대에 작업 수행하여 유휴 자원을 효과적으로 활용</td></tr><tr><td></td><td>높은 처리량</td><td>대량 데이터를 청크 기반으로 효율적으로 병렬 처리 가능</td></tr><tr><td></td><td>시스템 리소스 최적화</td><td>특정 시간대에 집중 처리하여 전체적인 시스템 리소스 사용률 향상</td></tr><tr><td><strong>2. 신뢰성과 일관성</strong></td><td>데이터 일관성 보장</td><td>트랜잭션 단위 처리와 검증을 통해 정합성과 무결성 유지 가능</td></tr><tr><td></td><td>장애 복구 능력</td><td>처리 중 장애 발생 시 중단된 청크부터 재처리 가능, 복구 메커니즘 내장</td></tr><tr><td></td><td>예측 가능성</td><td>정해진 흐름과 순서로 동작하여 안정적이고 일관된 결과 제공</td></tr><tr><td><strong>3. 자동화 및 운영 효율</strong></td><td>자동화된 실행</td><td>스케줄러 또는 이벤트 기반으로 무중단 자동 실행 가능</td></tr><tr><td></td><td>운영 효율성</td><td>반복 작업을 자동화하여 인적 개입 최소화, 오류 가능성 감소</td></tr><tr><td><strong>4. 확장성과 유연성</strong></td><td>확장성</td><td>분산 처리 엔진 (Spark 등) 과 결합해 대규모 워크로드도 손쉽게 확장 가능</td></tr><tr><td></td><td>다양한 처리 방식 지원</td><td>청크 처리, 병렬 처리, 파이프라인 구성 등 다양한 처리 전략 적용 가능</td></tr><tr><td><strong>5. 비용 최적화</strong></td><td>인프라 비용 절감</td><td>고성능 실시간 시스템 대신 저비용 인스턴스로도 운영 가능</td></tr><tr><td></td><td>온디맨드 자원 사용</td><td>클라우드 환경에서 작업 시간에만 리소스를 할당하여 비용 효율 극대화</td></tr></tbody></table><h3 id=단점과-문제점-그리고-해결방안>단점과 문제점 그리고 해결방안<a hidden class=anchor aria-hidden=true href=#단점과-문제점-그리고-해결방안>#</a></h3><h4 id=단점>단점<a hidden class=anchor aria-hidden=true href=#단점>#</a></h4><table><thead><tr><th>카테고리</th><th>항목</th><th>설명</th><th>대표 해결책</th></tr></thead><tbody><tr><td><strong>1. 실시간성 부족</strong></td><td>지연 시간</td><td>배치 주기 사이의 공백으로 인해 실시간 피드백 불가</td><td>마이크로 배치, Lambda/Kappa 아키텍처 구성</td></tr><tr><td></td><td>실시간성 미지원</td><td>긴 주기 또는 단일 대량 처리로 인해 실시간 이벤트 대응 어려움</td><td>실시간 처리와의 하이브리드 구성</td></tr><tr><td><strong>2. 리소스 문제</strong></td><td>리소스 집중</td><td>특정 시간대 (배치 윈도우) 에 과도한 부하 발생</td><td>작업 분산, Auto-Scaling, 스케줄링 최적화</td></tr><tr><td></td><td>자원 경합</td><td>복수 배치 병렬 실행 시 CPU, IO 병목 발생</td><td>실행 타임슬롯 분리, QoS 기반 스케줄링, 쓰로틀링 적용</td></tr><tr><td><strong>3. 복잡성 및 운영 이슈</strong></td><td>시스템 복잡성</td><td>클러스터, 의존성, 스케줄, 실패 처리 등 복잡한 오케스트레이션 필요</td><td>표준화된 파이프라인 설계, 워크플로우 엔진 사용</td></tr><tr><td></td><td>디버깅 어려움</td><td>대량 처리 중 발생한 오류를 찾기 어려움</td><td>세분화된 로그, 샘플링 기반 테스트, APM 도구 도입</td></tr><tr><td></td><td>의존성 관리 어려움</td><td>순서와 의존성이 많은 경우 관리가 복잡해짐</td><td>의존성 그래프 및 워크플로우 엔진 활용</td></tr><tr><td><strong>4. 장애에 대한 취약성</strong></td><td>전체 실패 위험</td><td>하나의 오류로 전체 작업 실패 가능성</td><td>청크 단위 처리, 단계별 체크포인트, 실패 격리 로직 적용</td></tr></tbody></table><h4 id=문제점>문제점<a hidden class=anchor aria-hidden=true href=#문제점>#</a></h4><table><thead><tr><th>카테고리</th><th>항목</th><th>원인</th><th>영향</th><th>탐지 및 진단 방식</th><th>예방 전략</th><th>해결 기법</th></tr></thead><tbody><tr><td><strong>1. 처리 실패</strong></td><td>작업 실패</td><td>네트워크 장애, 시스템 다운 등</td><td>전체 작업 실패, 데이터 유실</td><td>시스템/네트워크 모니터링, 알림 시스템</td><td>장애 복구 구조 (Failover), 이중화</td><td>재시도 로직, 체크포인트 복원</td></tr><tr><td></td><td>스케줄 실패</td><td>트리거 누락, 시간 이벤트 불일치</td><td>배치 누락, 데이터 손실</td><td>스케줄 모니터링, 로그 분석</td><td>이벤트 조합 기반 스케줄링</td><td>재스케줄링, 예외 알람</td></tr><tr><td><strong>2. 데이터 무결성</strong></td><td>데이터 불일치</td><td>처리 도중 원본 데이터 변경</td><td>결과 오류, 비즈니스 영향</td><td>버전 관리, 체크섬 검증</td><td>스냅샷 처리, 락 메커니즘 적용</td><td>트랜잭션 격리, 재처리 로직</td></tr><tr><td></td><td>부분 실패 시 전체 실패</td><td>일괄 커밋 구조에서 일부 청크 오류가 전체 실패로 확대됨</td><td>재처리 비용 증가, 운영 지연</td><td>에러 로그 추적, 청크 단위 상태 기록</td><td>청크 단위 커밋, 중간 체크포인트 적용</td><td>실패 청크 재처리, Retry 로직 적용</td></tr><tr><td><strong>3. 리소스 관리 실패</strong></td><td>메모리 부족</td><td>대용량 데이터 처리 중 메모리 초과</td><td>작업 실패, OOM, 성능 저하</td><td>JVM 모니터링, 메모리 사용량 추적</td><td>청크 크기 조정, 힙 메모리 설정 최적화</td><td>GC 튜닝, 스트리밍 처리 적용</td></tr><tr><td></td><td>리소스 과다 사용</td><td>동시 작업 및 대량 데이터 투입</td><td>시스템 전체 성능 저하, 비용 상승</td><td>Prometheus, CloudWatch 등 리소스 모니터링</td><td>배치 분산, 시간대 분리</td><td>분산 처리 엔진 도입, 리소스 제한 설정</td></tr><tr><td><strong>4. 의존성 오류</strong></td><td>의존성 충돌 및 순서 오류</td><td>설계 미비, 선행 작업 실패</td><td>데이터 누락, 오류 전파</td><td>워크플로우 상태 시각화, 그래프 기반 검증</td><td>순서 명확화, 의존성 도식화</td><td>작업 재설계, 조건 기반 실행 제어</td></tr></tbody></table><h3 id=도전-과제>도전 과제<a hidden class=anchor aria-hidden=true href=#도전-과제>#</a></h3><table><thead><tr><th><strong>카테고리</strong></th><th><strong>도전 과제</strong></th><th><strong>원인/배경</strong></th><th><strong>영향</strong></th><th><strong>해결 방안</strong></th><th><strong>적용 아키텍처/기법</strong></th></tr></thead><tbody><tr><td><strong>실시간성 통합</strong></td><td>실시간성 요구 증가</td><td>데이터 기반 의사결정 속도 요구 증가</td><td>기존 배치 처리의 지연 한계 노출</td><td>Kappa/Lambda 구조, 하이브리드 처리 설계</td><td>Lambda, Kappa, Streaming + Batch 병합</td></tr><tr><td><strong>복잡도 관리</strong></td><td>워크플로우 복잡성 증가</td><td>의존성, 조건 분기, 트랜잭션 제어 로직 증가</td><td>설계/테스트/운영 난이도 상승</td><td>Airflow/Luigi 등 DSL 기반 워크플로 도구 활용, 작업 단위 모듈화</td><td>DAG 기반 워크플로우, Step Functions</td></tr><tr><td><strong>장애 복구/안정성</strong></td><td>분산 환경에서의 장애 대응</td><td>병렬·분산 처리 환경 확대로 오류 감지/복구 어려움</td><td>처리 실패 후 전체 재처리 부담, SLA 위반 위험</td><td>체크포인트, 라인리지, 멱등성 설계, 이벤트 소싱</td><td>Spark Lineage, Flink Checkpoint</td></tr><tr><td><strong>데이터 품질</strong></td><td>자동 검증/정합성 보장</td><td>대량 처리 시 수동 검증 불가, 오류 발생 위치 추적 어려움</td><td>품질 저하, 데이터 분석/ML 결과 왜곡</td><td>검증 파이프라인 삽입, 테스트 더블, Schema Registry, Validation Rule 자동화</td><td>Great Expectations, dbt tests</td></tr><tr><td><strong>규제 대응/보안</strong></td><td>데이터 거버넌스 및 컴플라이언스</td><td>GDPR, SOC2, ISMS 등 외부 감사 기준 강화</td><td>로그 누락/무단 접근 시 법적 이슈</td><td>Masking, Logging 강화, Role 기반 접근제어, 감사로그 기록</td><td>Fine-grained Audit Logging</td></tr><tr><td><strong>클라우드 전환</strong></td><td>클라우드 네이티브 최적화</td><td>온프레미스 배치 시스템의 클라우드 이식성 부족</td><td>리소스 낭비, 배포 복잡성, 비용 상승</td><td>서버리스 (FaaS) 배치, 자동 스케일링 도구, 관리형 워크플로우 도입</td><td>AWS Batch, GCP Dataflow, Argo</td></tr><tr><td><strong>확장성/성능</strong></td><td>대규모 데이터 볼륨 증가</td><td>로그, IoT, 이벤트 기반 시스템에서 데이터 폭증</td><td>처리 지연, I/O 병목, 스토리지 비용 증가</td><td>데이터 파티셔닝, 병렬 청크 처리, 마이크로서비스 기반 분산 설계</td><td>Kafka + Spark, Containerized Batcher</td></tr><tr><td><strong>비용/리소스</strong></td><td>리소스 최적화 요구</td><td>클라우드 과금 모델로 비용 예측 어려움</td><td>비효율적인 리소스 할당으로 비용 급등</td><td>Auto-scaling, 비용 예측 모델링, 스팟 인스턴스 활용</td><td>Kubernetes CronJob + Horizontal Autoscaler</td></tr></tbody></table><h3 id=분류-기준에-따른-종류-및-유형>분류 기준에 따른 종류 및 유형<a hidden class=anchor aria-hidden=true href=#분류-기준에-따른-종류-및-유형>#</a></h3><table><thead><tr><th>분류 기준</th><th>유형</th><th>설명</th><th>주요 특징 및 기술 예시</th></tr></thead><tbody><tr><td><strong>1. 실행 시점</strong></td><td>시간 기반 (Time-based)</td><td>지정된 시간에 정기적으로 실행됨 (예: cron)</td><td>예측 가능성 높음, 주기적 데이터 수집</td></tr><tr><td></td><td>이벤트 기반 (Event-driven)</td><td>특정 트리거 또는 이벤트 발생 시 실행</td><td>실시간 연계 가능, 동적 처리</td></tr><tr><td><strong>2. 처리 방식</strong></td><td>순차 처리 (Sequential)</td><td>단일 스레드 또는 단일 노드에서 순차적으로 실행</td><td>단순 구조, 디버깅 용이</td></tr><tr><td></td><td>병렬 처리 (Parallel)</td><td>다중 스레드/프로세스를 활용한 동시 실행</td><td>처리 성능 향상, 리소스 최적화</td></tr><tr><td></td><td>분산 처리 (Distributed)</td><td>클러스터 기반 병렬 처리 (예: Hadoop, Spark)</td><td>대규모 데이터 처리 적합, 복잡한 인프라 필요</td></tr><tr><td><strong>3. 실행 환경</strong></td><td>온프레미스 (On-Premises)</td><td>자체 서버 또는 데이터센터 기반에서 실행</td><td>보안/제어 용이, 초기 투자 비용 큼</td></tr><tr><td></td><td>클라우드 (Cloud-based)</td><td>AWS Batch, Google Dataflow 등 클라우드 서비스 기반 실행</td><td>확장성, 유연성, 사용량 기반 비용 구조</td></tr><tr><td><strong>4. 스케줄링 방식</strong></td><td>정기적 배치 (Scheduled)</td><td>주기적으로 실행되는 방식 (시간 기반)</td><td>크론, Airflow 등 활용 가능</td></tr><tr><td></td><td>이벤트 기반 배치</td><td>메시지 수신, 파일 도착 등 이벤트 발생 시 트리거</td><td>Lambda, Step Functions 등과 연계</td></tr><tr><td><strong>5. 데이터 범위</strong></td><td>Full Batch</td><td>전체 데이터를 매번 새로 적재/처리</td><td>데이터 재처리 중심, 정확도 중시</td></tr><tr><td></td><td>Incremental / Micro-Batch</td><td>변경된 데이터만 처리 또는 수초 단위의 소규모 배치 처리</td><td>성능/자원 최적화, 실시간성과 유사</td></tr><tr><td><strong>6. 처리 위치</strong></td><td>단일 서버 (Single-node)</td><td>하나의 서버에서 전체 파이프라인 처리</td><td>설정 간편, 확장성 낮음</td></tr><tr><td></td><td>분산 시스템 (Multi-node)</td><td>여러 서버에서 역할 분산하여 처리 (ETL/저장 등 분리)</td><td>병목 방지, 안정성 향상</td></tr><tr><td><strong>7. 저장소 유형</strong></td><td>파일 기반 배치</td><td>CSV, Parquet 등 파일 입출력을 중심으로 처리</td><td>S3, HDFS 등과 연계, 로그 기반 처리에 적합</td></tr><tr><td></td><td>DB 기반 배치</td><td>RDB, NoSQL 등에서 데이터를 읽고 쓰는 방식</td><td>정형 데이터 중심, 트랜잭션 보장 필요 시 적합</td></tr></tbody></table><h3 id=실무-사용-예시>실무 사용 예시<a hidden class=anchor aria-hidden=true href=#실무-사용-예시>#</a></h3><table><thead><tr><th><strong>도메인/산업</strong></th><th><strong>사용 목적</strong></th><th><strong>대표 기술 스택</strong></th><th><strong>성과/효과</strong></th></tr></thead><tbody><tr><td>금융</td><td>일일 거래/지급 내역 정산</td><td>RDBMS + 배치 스케줄러 (Quartz, cron), ETL</td><td>회계 정확도 향상, 규정 준수, 수작업 90% 감소</td></tr><tr><td>전자상거래</td><td>상품 추천 모델 학습 전처리</td><td>Spark, Kafka, ML Pipeline</td><td>개인화 향상, 학습 시간 2 배 단축, 매출 증대</td></tr><tr><td>헬스케어</td><td>의료 이미지 데이터 전처리</td><td>AI/ML 플랫폼 (TensorFlow, PyTorch), Object Storage</td><td>진단 정확도 향상, 처리 시간 단축</td></tr><tr><td>제조업</td><td>생산/품질 데이터 집계 및 분석</td><td>IoT 센서 + Data Warehouse (Snowflake, BigQuery)</td><td>생산성 향상, 품질 제어, 불량률 감소</td></tr><tr><td>통신</td><td>통화/네트워크 로그 분석</td><td>Hadoop, Flink, Spark</td><td>네트워크 부하 분석, 요금 계산 정확도 개선</td></tr><tr><td>웹/플랫폼 서비스</td><td>서버/접속 로그 집계</td><td>MapReduce, Spark, CloudWatch Logs</td><td>탐지 시간 단축 (24h → 1h), 스토리지 비용 절감</td></tr><tr><td>관리/운영</td><td>정기 리포트 및 보고서 자동화</td><td>Airflow, Excel Automation, PDF Generator</td><td>반복 작업 자동화, 인적 오류 감소, 의사결정 속도 향상</td></tr><tr><td>시스템 관리</td><td>데이터 마이그레이션/백업</td><td>DB 덤프 + 정기 스케줄러, S3, Rsync</td><td>안정성 확보, 데이터 정합성 유지, 수작업 제거</td></tr></tbody></table><h3 id=활용-사례>활용 사례<a hidden class=anchor aria-hidden=true href=#활용-사례>#</a></h3><h4 id=사례-1-데이터-웨어하우스-etl-배치-처리>사례 1: 데이터 웨어하우스 ETL 배치 처리<a hidden class=anchor aria-hidden=true href=#사례-1-데이터-웨어하우스-etl-배치-처리>#</a></h4><p><strong>시스템 구성</strong>:</p><ul><li>입력 데이터 소스 (운영 DB) → 배치 스케줄러 → ETL 처리 (추출, 변환, 적재) → 데이터 웨어하우스 → 모니터링/알림</li></ul><p><strong>Workflow</strong></p><ol><li>운영 DB 에서 데이터 추출</li><li>변환 및 정제</li><li>데이터 웨어하우스에 적재</li><li>결과 모니터링, 오류 발생 시 알림 및 재처리</li></ol><pre class=mermaid>flowchart TD
+    A[운영 DB] --&gt; B[배치 스케줄러]
+    B --&gt; C[ETL 처리]
+    C --&gt; D[데이터 웨어하우스]
+    C --&gt; E[모니터링/알림]
+</pre><p><strong>주제의 역할</strong>: 대량의 운영 데이터를 정기적으로 집계·정제·적재하여 분석 환경에 제공</p><p><strong>유무에 따른 차이점</strong>: 배치 처리 미적용 시, 데이터 적재 지연, 인적 오류, 일관성 저하 발생</p><h4 id=사례-2-은행-eodtransaction-reconciliation>사례 2: 은행 EOD(Transaction Reconciliation)<a hidden class=anchor aria-hidden=true href=#사례-2-은행-eodtransaction-reconciliation>#</a></h4><p><strong>구성</strong>: DB→추출→Spark MapReduce 집계→데이터 웨어하우스 로드</p><p><strong>워크플로</strong>:</p><ol><li><strong>Trigger</strong>: 23:00 스케줄러 실행</li><li><strong>Extract</strong>: 당일 트랜잭션 추출</li><li><strong>Transform</strong>: MapReduce 집계</li><li><strong>Load</strong>: 보고용 테이블에 저장</li><li><strong>Report</strong>: 알림 및 리포트 전송</li></ol><pre class=mermaid>flowchart TD
+  SCHEDULER--&gt;EXTRACT[Extract DB]
+  EXTRACT--&gt;MAPREDUCE[Batch Transform]
+  MAPREDUCE--&gt;LOAD[Load to Warehouse]
+  LOAD--&gt;REPORT[Generate Reports]
+</pre><h4 id=사례-3-전자상거래-상품-추천-시스템>사례 3: 전자상거래 상품 추천 시스템<a hidden class=anchor aria-hidden=true href=#사례-3-전자상거래-상품-추천-시스템>#</a></h4><p><strong>시스템 구성</strong></p><ul><li>데이터 소스: 사용자 행동 로그, 상품 정보, 거래 내역</li><li>처리 엔진: Apache Spark 클러스터</li><li>스케줄러: Apache Airflow</li><li>저장소: HDFS, Redis, PostgreSQL</li><li>모니터링: Grafana, Prometheus</li></ul><pre class=mermaid>graph TB
+    subgraph &#34;상품 추천 배치 시스템&#34;
+        A[웹/앱 로그] --&gt; B[데이터 수집]
+        C[거래 DB] --&gt; B
+        D[상품 DB] --&gt; B
+        
+        B --&gt; E[데이터 전처리]
+        E --&gt; F[특성 추출]
+        F --&gt; G[모델 학습]
+        G --&gt; H[추천 결과 생성]
+        H --&gt; I[Redis 캐시]
+        H --&gt; J[추천 DB]
+        
+        K[Airflow] --&gt; E
+        K --&gt; F
+        K --&gt; G
+        K --&gt; H
+    end
+</pre><p><strong>Workflow</strong></p><ol><li>매일 새벽 2 시에 Airflow 가 배치 작업 실행</li><li>전날 수집된 사용자 행동 데이터 전처리</li><li>Spark 클러스터에서 협업 필터링 모델 학습</li><li>모든 사용자에 대한 추천 결과 생성</li><li>Redis 와 데이터베이스에 결과 저장</li></ol><p><strong>배치 처리의 역할</strong></p><ul><li>대용량 사용자 데이터 효율적 처리</li><li>복잡한 머신러닝 모델 학습</li><li>시스템 리소스 최적화</li></ul><p><strong>배치 처리 유무에 따른 차이점</strong></p><ul><li>배치 처리 적용: 일관된 품질의 추천, 시스템 안정성</li><li>실시간 처리만 사용: 즉시성은 높지만 모델 품질 저하, 높은 시스템 부하</li></ul><h3 id=구현-예시>구현 예시<a hidden class=anchor aria-hidden=true href=#구현-예시>#</a></h3><h4 id=python-전자상거래-상품-추천-배치-처리-시스템>Python: 전자상거래 상품 추천 배치 처리 시스템<a hidden class=anchor aria-hidden=true href=#python-전자상거래-상품-추천-배치-처리-시스템>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-6-1><a class=lnlinks href=#hl-6-1>  1</a>
+</span><span class=lnt id=hl-6-2><a class=lnlinks href=#hl-6-2>  2</a>
+</span><span class=lnt id=hl-6-3><a class=lnlinks href=#hl-6-3>  3</a>
+</span><span class=lnt id=hl-6-4><a class=lnlinks href=#hl-6-4>  4</a>
+</span><span class=lnt id=hl-6-5><a class=lnlinks href=#hl-6-5>  5</a>
+</span><span class=lnt id=hl-6-6><a class=lnlinks href=#hl-6-6>  6</a>
+</span><span class=lnt id=hl-6-7><a class=lnlinks href=#hl-6-7>  7</a>
+</span><span class=lnt id=hl-6-8><a class=lnlinks href=#hl-6-8>  8</a>
+</span><span class=lnt id=hl-6-9><a class=lnlinks href=#hl-6-9>  9</a>
+</span><span class=lnt id=hl-6-10><a class=lnlinks href=#hl-6-10> 10</a>
+</span><span class=lnt id=hl-6-11><a class=lnlinks href=#hl-6-11> 11</a>
+</span><span class=lnt id=hl-6-12><a class=lnlinks href=#hl-6-12> 12</a>
+</span><span class=lnt id=hl-6-13><a class=lnlinks href=#hl-6-13> 13</a>
+</span><span class=lnt id=hl-6-14><a class=lnlinks href=#hl-6-14> 14</a>
+</span><span class=lnt id=hl-6-15><a class=lnlinks href=#hl-6-15> 15</a>
+</span><span class=lnt id=hl-6-16><a class=lnlinks href=#hl-6-16> 16</a>
+</span><span class=lnt id=hl-6-17><a class=lnlinks href=#hl-6-17> 17</a>
+</span><span class=lnt id=hl-6-18><a class=lnlinks href=#hl-6-18> 18</a>
+</span><span class=lnt id=hl-6-19><a class=lnlinks href=#hl-6-19> 19</a>
+</span><span class=lnt id=hl-6-20><a class=lnlinks href=#hl-6-20> 20</a>
+</span><span class=lnt id=hl-6-21><a class=lnlinks href=#hl-6-21> 21</a>
+</span><span class=lnt id=hl-6-22><a class=lnlinks href=#hl-6-22> 22</a>
+</span><span class=lnt id=hl-6-23><a class=lnlinks href=#hl-6-23> 23</a>
+</span><span class=lnt id=hl-6-24><a class=lnlinks href=#hl-6-24> 24</a>
+</span><span class=lnt id=hl-6-25><a class=lnlinks href=#hl-6-25> 25</a>
+</span><span class=lnt id=hl-6-26><a class=lnlinks href=#hl-6-26> 26</a>
+</span><span class=lnt id=hl-6-27><a class=lnlinks href=#hl-6-27> 27</a>
+</span><span class=lnt id=hl-6-28><a class=lnlinks href=#hl-6-28> 28</a>
+</span><span class=lnt id=hl-6-29><a class=lnlinks href=#hl-6-29> 29</a>
+</span><span class=lnt id=hl-6-30><a class=lnlinks href=#hl-6-30> 30</a>
+</span><span class=lnt id=hl-6-31><a class=lnlinks href=#hl-6-31> 31</a>
+</span><span class=lnt id=hl-6-32><a class=lnlinks href=#hl-6-32> 32</a>
+</span><span class=lnt id=hl-6-33><a class=lnlinks href=#hl-6-33> 33</a>
+</span><span class=lnt id=hl-6-34><a class=lnlinks href=#hl-6-34> 34</a>
+</span><span class=lnt id=hl-6-35><a class=lnlinks href=#hl-6-35> 35</a>
+</span><span class=lnt id=hl-6-36><a class=lnlinks href=#hl-6-36> 36</a>
+</span><span class=lnt id=hl-6-37><a class=lnlinks href=#hl-6-37> 37</a>
+</span><span class=lnt id=hl-6-38><a class=lnlinks href=#hl-6-38> 38</a>
+</span><span class=lnt id=hl-6-39><a class=lnlinks href=#hl-6-39> 39</a>
+</span><span class=lnt id=hl-6-40><a class=lnlinks href=#hl-6-40> 40</a>
+</span><span class=lnt id=hl-6-41><a class=lnlinks href=#hl-6-41> 41</a>
+</span><span class=lnt id=hl-6-42><a class=lnlinks href=#hl-6-42> 42</a>
+</span><span class=lnt id=hl-6-43><a class=lnlinks href=#hl-6-43> 43</a>
+</span><span class=lnt id=hl-6-44><a class=lnlinks href=#hl-6-44> 44</a>
+</span><span class=lnt id=hl-6-45><a class=lnlinks href=#hl-6-45> 45</a>
+</span><span class=lnt id=hl-6-46><a class=lnlinks href=#hl-6-46> 46</a>
+</span><span class=lnt id=hl-6-47><a class=lnlinks href=#hl-6-47> 47</a>
+</span><span class=lnt id=hl-6-48><a class=lnlinks href=#hl-6-48> 48</a>
+</span><span class=lnt id=hl-6-49><a class=lnlinks href=#hl-6-49> 49</a>
+</span><span class=lnt id=hl-6-50><a class=lnlinks href=#hl-6-50> 50</a>
+</span><span class=lnt id=hl-6-51><a class=lnlinks href=#hl-6-51> 51</a>
+</span><span class=lnt id=hl-6-52><a class=lnlinks href=#hl-6-52> 52</a>
+</span><span class=lnt id=hl-6-53><a class=lnlinks href=#hl-6-53> 53</a>
+</span><span class=lnt id=hl-6-54><a class=lnlinks href=#hl-6-54> 54</a>
+</span><span class=lnt id=hl-6-55><a class=lnlinks href=#hl-6-55> 55</a>
+</span><span class=lnt id=hl-6-56><a class=lnlinks href=#hl-6-56> 56</a>
+</span><span class=lnt id=hl-6-57><a class=lnlinks href=#hl-6-57> 57</a>
+</span><span class=lnt id=hl-6-58><a class=lnlinks href=#hl-6-58> 58</a>
+</span><span class=lnt id=hl-6-59><a class=lnlinks href=#hl-6-59> 59</a>
+</span><span class=lnt id=hl-6-60><a class=lnlinks href=#hl-6-60> 60</a>
+</span><span class=lnt id=hl-6-61><a class=lnlinks href=#hl-6-61> 61</a>
+</span><span class=lnt id=hl-6-62><a class=lnlinks href=#hl-6-62> 62</a>
+</span><span class=lnt id=hl-6-63><a class=lnlinks href=#hl-6-63> 63</a>
+</span><span class=lnt id=hl-6-64><a class=lnlinks href=#hl-6-64> 64</a>
+</span><span class=lnt id=hl-6-65><a class=lnlinks href=#hl-6-65> 65</a>
+</span><span class=lnt id=hl-6-66><a class=lnlinks href=#hl-6-66> 66</a>
+</span><span class=lnt id=hl-6-67><a class=lnlinks href=#hl-6-67> 67</a>
+</span><span class=lnt id=hl-6-68><a class=lnlinks href=#hl-6-68> 68</a>
+</span><span class=lnt id=hl-6-69><a class=lnlinks href=#hl-6-69> 69</a>
+</span><span class=lnt id=hl-6-70><a class=lnlinks href=#hl-6-70> 70</a>
+</span><span class=lnt id=hl-6-71><a class=lnlinks href=#hl-6-71> 71</a>
+</span><span class=lnt id=hl-6-72><a class=lnlinks href=#hl-6-72> 72</a>
+</span><span class=lnt id=hl-6-73><a class=lnlinks href=#hl-6-73> 73</a>
+</span><span class=lnt id=hl-6-74><a class=lnlinks href=#hl-6-74> 74</a>
+</span><span class=lnt id=hl-6-75><a class=lnlinks href=#hl-6-75> 75</a>
+</span><span class=lnt id=hl-6-76><a class=lnlinks href=#hl-6-76> 76</a>
+</span><span class=lnt id=hl-6-77><a class=lnlinks href=#hl-6-77> 77</a>
+</span><span class=lnt id=hl-6-78><a class=lnlinks href=#hl-6-78> 78</a>
+</span><span class=lnt id=hl-6-79><a class=lnlinks href=#hl-6-79> 79</a>
+</span><span class=lnt id=hl-6-80><a class=lnlinks href=#hl-6-80> 80</a>
+</span><span class=lnt id=hl-6-81><a class=lnlinks href=#hl-6-81> 81</a>
+</span><span class=lnt id=hl-6-82><a class=lnlinks href=#hl-6-82> 82</a>
+</span><span class=lnt id=hl-6-83><a class=lnlinks href=#hl-6-83> 83</a>
+</span><span class=lnt id=hl-6-84><a class=lnlinks href=#hl-6-84> 84</a>
+</span><span class=lnt id=hl-6-85><a class=lnlinks href=#hl-6-85> 85</a>
+</span><span class=lnt id=hl-6-86><a class=lnlinks href=#hl-6-86> 86</a>
+</span><span class=lnt id=hl-6-87><a class=lnlinks href=#hl-6-87> 87</a>
+</span><span class=lnt id=hl-6-88><a class=lnlinks href=#hl-6-88> 88</a>
+</span><span class=lnt id=hl-6-89><a class=lnlinks href=#hl-6-89> 89</a>
+</span><span class=lnt id=hl-6-90><a class=lnlinks href=#hl-6-90> 90</a>
+</span><span class=lnt id=hl-6-91><a class=lnlinks href=#hl-6-91> 91</a>
+</span><span class=lnt id=hl-6-92><a class=lnlinks href=#hl-6-92> 92</a>
+</span><span class=lnt id=hl-6-93><a class=lnlinks href=#hl-6-93> 93</a>
+</span><span class=lnt id=hl-6-94><a class=lnlinks href=#hl-6-94> 94</a>
+</span><span class=lnt id=hl-6-95><a class=lnlinks href=#hl-6-95> 95</a>
+</span><span class=lnt id=hl-6-96><a class=lnlinks href=#hl-6-96> 96</a>
+</span><span class=lnt id=hl-6-97><a class=lnlinks href=#hl-6-97> 97</a>
+</span><span class=lnt id=hl-6-98><a class=lnlinks href=#hl-6-98> 98</a>
+</span><span class=lnt id=hl-6-99><a class=lnlinks href=#hl-6-99> 99</a>
+</span><span class=lnt id=hl-6-100><a class=lnlinks href=#hl-6-100>100</a>
+</span><span class=lnt id=hl-6-101><a class=lnlinks href=#hl-6-101>101</a>
+</span><span class=lnt id=hl-6-102><a class=lnlinks href=#hl-6-102>102</a>
+</span><span class=lnt id=hl-6-103><a class=lnlinks href=#hl-6-103>103</a>
+</span><span class=lnt id=hl-6-104><a class=lnlinks href=#hl-6-104>104</a>
+</span><span class=lnt id=hl-6-105><a class=lnlinks href=#hl-6-105>105</a>
+</span><span class=lnt id=hl-6-106><a class=lnlinks href=#hl-6-106>106</a>
+</span><span class=lnt id=hl-6-107><a class=lnlinks href=#hl-6-107>107</a>
+</span><span class=lnt id=hl-6-108><a class=lnlinks href=#hl-6-108>108</a>
+</span><span class=lnt id=hl-6-109><a class=lnlinks href=#hl-6-109>109</a>
+</span><span class=lnt id=hl-6-110><a class=lnlinks href=#hl-6-110>110</a>
+</span><span class=lnt id=hl-6-111><a class=lnlinks href=#hl-6-111>111</a>
+</span><span class=lnt id=hl-6-112><a class=lnlinks href=#hl-6-112>112</a>
+</span><span class=lnt id=hl-6-113><a class=lnlinks href=#hl-6-113>113</a>
+</span><span class=lnt id=hl-6-114><a class=lnlinks href=#hl-6-114>114</a>
+</span><span class=lnt id=hl-6-115><a class=lnlinks href=#hl-6-115>115</a>
+</span><span class=lnt id=hl-6-116><a class=lnlinks href=#hl-6-116>116</a>
+</span><span class=lnt id=hl-6-117><a class=lnlinks href=#hl-6-117>117</a>
+</span><span class=lnt id=hl-6-118><a class=lnlinks href=#hl-6-118>118</a>
+</span><span class=lnt id=hl-6-119><a class=lnlinks href=#hl-6-119>119</a>
+</span><span class=lnt id=hl-6-120><a class=lnlinks href=#hl-6-120>120</a>
+</span><span class=lnt id=hl-6-121><a class=lnlinks href=#hl-6-121>121</a>
+</span><span class=lnt id=hl-6-122><a class=lnlinks href=#hl-6-122>122</a>
+</span><span class=lnt id=hl-6-123><a class=lnlinks href=#hl-6-123>123</a>
+</span><span class=lnt id=hl-6-124><a class=lnlinks href=#hl-6-124>124</a>
+</span><span class=lnt id=hl-6-125><a class=lnlinks href=#hl-6-125>125</a>
+</span><span class=lnt id=hl-6-126><a class=lnlinks href=#hl-6-126>126</a>
+</span><span class=lnt id=hl-6-127><a class=lnlinks href=#hl-6-127>127</a>
+</span><span class=lnt id=hl-6-128><a class=lnlinks href=#hl-6-128>128</a>
+</span><span class=lnt id=hl-6-129><a class=lnlinks href=#hl-6-129>129</a>
+</span><span class=lnt id=hl-6-130><a class=lnlinks href=#hl-6-130>130</a>
+</span><span class=lnt id=hl-6-131><a class=lnlinks href=#hl-6-131>131</a>
+</span><span class=lnt id=hl-6-132><a class=lnlinks href=#hl-6-132>132</a>
+</span><span class=lnt id=hl-6-133><a class=lnlinks href=#hl-6-133>133</a>
+</span><span class=lnt id=hl-6-134><a class=lnlinks href=#hl-6-134>134</a>
+</span><span class=lnt id=hl-6-135><a class=lnlinks href=#hl-6-135>135</a>
+</span><span class=lnt id=hl-6-136><a class=lnlinks href=#hl-6-136>136</a>
+</span><span class=lnt id=hl-6-137><a class=lnlinks href=#hl-6-137>137</a>
+</span><span class=lnt id=hl-6-138><a class=lnlinks href=#hl-6-138>138</a>
+</span><span class=lnt id=hl-6-139><a class=lnlinks href=#hl-6-139>139</a>
+</span><span class=lnt id=hl-6-140><a class=lnlinks href=#hl-6-140>140</a>
+</span><span class=lnt id=hl-6-141><a class=lnlinks href=#hl-6-141>141</a>
+</span><span class=lnt id=hl-6-142><a class=lnlinks href=#hl-6-142>142</a>
+</span><span class=lnt id=hl-6-143><a class=lnlinks href=#hl-6-143>143</a>
+</span><span class=lnt id=hl-6-144><a class=lnlinks href=#hl-6-144>144</a>
+</span><span class=lnt id=hl-6-145><a class=lnlinks href=#hl-6-145>145</a>
+</span><span class=lnt id=hl-6-146><a class=lnlinks href=#hl-6-146>146</a>
+</span><span class=lnt id=hl-6-147><a class=lnlinks href=#hl-6-147>147</a>
+</span><span class=lnt id=hl-6-148><a class=lnlinks href=#hl-6-148>148</a>
+</span><span class=lnt id=hl-6-149><a class=lnlinks href=#hl-6-149>149</a>
+</span><span class=lnt id=hl-6-150><a class=lnlinks href=#hl-6-150>150</a>
+</span><span class=lnt id=hl-6-151><a class=lnlinks href=#hl-6-151>151</a>
+</span><span class=lnt id=hl-6-152><a class=lnlinks href=#hl-6-152>152</a>
+</span><span class=lnt id=hl-6-153><a class=lnlinks href=#hl-6-153>153</a>
+</span><span class=lnt id=hl-6-154><a class=lnlinks href=#hl-6-154>154</a>
+</span><span class=lnt id=hl-6-155><a class=lnlinks href=#hl-6-155>155</a>
+</span><span class=lnt id=hl-6-156><a class=lnlinks href=#hl-6-156>156</a>
+</span><span class=lnt id=hl-6-157><a class=lnlinks href=#hl-6-157>157</a>
+</span><span class=lnt id=hl-6-158><a class=lnlinks href=#hl-6-158>158</a>
+</span><span class=lnt id=hl-6-159><a class=lnlinks href=#hl-6-159>159</a>
+</span><span class=lnt id=hl-6-160><a class=lnlinks href=#hl-6-160>160</a>
+</span><span class=lnt id=hl-6-161><a class=lnlinks href=#hl-6-161>161</a>
+</span><span class=lnt id=hl-6-162><a class=lnlinks href=#hl-6-162>162</a>
+</span><span class=lnt id=hl-6-163><a class=lnlinks href=#hl-6-163>163</a>
+</span><span class=lnt id=hl-6-164><a class=lnlinks href=#hl-6-164>164</a>
+</span><span class=lnt id=hl-6-165><a class=lnlinks href=#hl-6-165>165</a>
+</span><span class=lnt id=hl-6-166><a class=lnlinks href=#hl-6-166>166</a>
+</span><span class=lnt id=hl-6-167><a class=lnlinks href=#hl-6-167>167</a>
+</span><span class=lnt id=hl-6-168><a class=lnlinks href=#hl-6-168>168</a>
+</span><span class=lnt id=hl-6-169><a class=lnlinks href=#hl-6-169>169</a>
+</span><span class=lnt id=hl-6-170><a class=lnlinks href=#hl-6-170>170</a>
+</span><span class=lnt id=hl-6-171><a class=lnlinks href=#hl-6-171>171</a>
+</span><span class=lnt id=hl-6-172><a class=lnlinks href=#hl-6-172>172</a>
+</span><span class=lnt id=hl-6-173><a class=lnlinks href=#hl-6-173>173</a>
+</span><span class=lnt id=hl-6-174><a class=lnlinks href=#hl-6-174>174</a>
+</span><span class=lnt id=hl-6-175><a class=lnlinks href=#hl-6-175>175</a>
+</span><span class=lnt id=hl-6-176><a class=lnlinks href=#hl-6-176>176</a>
+</span><span class=lnt id=hl-6-177><a class=lnlinks href=#hl-6-177>177</a>
+</span><span class=lnt id=hl-6-178><a class=lnlinks href=#hl-6-178>178</a>
+</span><span class=lnt id=hl-6-179><a class=lnlinks href=#hl-6-179>179</a>
+</span><span class=lnt id=hl-6-180><a class=lnlinks href=#hl-6-180>180</a>
+</span><span class=lnt id=hl-6-181><a class=lnlinks href=#hl-6-181>181</a>
+</span><span class=lnt id=hl-6-182><a class=lnlinks href=#hl-6-182>182</a>
+</span><span class=lnt id=hl-6-183><a class=lnlinks href=#hl-6-183>183</a>
+</span><span class=lnt id=hl-6-184><a class=lnlinks href=#hl-6-184>184</a>
+</span><span class=lnt id=hl-6-185><a class=lnlinks href=#hl-6-185>185</a>
+</span><span class=lnt id=hl-6-186><a class=lnlinks href=#hl-6-186>186</a>
+</span><span class=lnt id=hl-6-187><a class=lnlinks href=#hl-6-187>187</a>
+</span><span class=lnt id=hl-6-188><a class=lnlinks href=#hl-6-188>188</a>
+</span><span class=lnt id=hl-6-189><a class=lnlinks href=#hl-6-189>189</a>
+</span><span class=lnt id=hl-6-190><a class=lnlinks href=#hl-6-190>190</a>
+</span><span class=lnt id=hl-6-191><a class=lnlinks href=#hl-6-191>191</a>
+</span><span class=lnt id=hl-6-192><a class=lnlinks href=#hl-6-192>192</a>
+</span><span class=lnt id=hl-6-193><a class=lnlinks href=#hl-6-193>193</a>
+</span><span class=lnt id=hl-6-194><a class=lnlinks href=#hl-6-194>194</a>
+</span><span class=lnt id=hl-6-195><a class=lnlinks href=#hl-6-195>195</a>
+</span><span class=lnt id=hl-6-196><a class=lnlinks href=#hl-6-196>196</a>
+</span><span class=lnt id=hl-6-197><a class=lnlinks href=#hl-6-197>197</a>
+</span><span class=lnt id=hl-6-198><a class=lnlinks href=#hl-6-198>198</a>
+</span><span class=lnt id=hl-6-199><a class=lnlinks href=#hl-6-199>199</a>
+</span><span class=lnt id=hl-6-200><a class=lnlinks href=#hl-6-200>200</a>
+</span><span class=lnt id=hl-6-201><a class=lnlinks href=#hl-6-201>201</a>
+</span><span class=lnt id=hl-6-202><a class=lnlinks href=#hl-6-202>202</a>
+</span><span class=lnt id=hl-6-203><a class=lnlinks href=#hl-6-203>203</a>
+</span><span class=lnt id=hl-6-204><a class=lnlinks href=#hl-6-204>204</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 전자상거래 상품 추천 배치 처리 시스템</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>pandas</span> <span class=k>as</span> <span class=nn>pd</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>numpy</span> <span class=k>as</span> <span class=nn>np</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>datetime</span> <span class=kn>import</span> <span class=n>datetime</span><span class=p>,</span> <span class=n>timedelta</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>sklearn.feature_extraction.text</span> <span class=kn>import</span> <span class=n>TfidfVectorizer</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>sklearn.metrics.pairwise</span> <span class=kn>import</span> <span class=n>cosine_similarity</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>logging</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>time</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>RecommendationBatchProcessor</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>    상품 추천을 위한 배치 처리 시스템
+</span></span></span><span class=line><span class=cl><span class=s2>    &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>chunk_size</span><span class=o>=</span><span class=mi>10000</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>        배치 프로세서 초기화
+</span></span></span><span class=line><span class=cl><span class=s2>        
+</span></span></span><span class=line><span class=cl><span class=s2>        Args:
+</span></span></span><span class=line><span class=cl><span class=s2>            chunk_size: 청크 단위로 처리할 데이터 크기
+</span></span></span><span class=line><span class=cl><span class=s2>        &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>chunk_size</span> <span class=o>=</span> <span class=n>chunk_size</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>logger</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_setup_logger</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>_setup_logger</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;로깅 설정&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=n>logging</span><span class=o>.</span><span class=n>basicConfig</span><span class=p>(</span><span class=n>level</span><span class=o>=</span><span class=n>logging</span><span class=o>.</span><span class=n>INFO</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>logging</span><span class=o>.</span><span class=n>getLogger</span><span class=p>(</span><span class=vm>__name__</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>extract_user_behavior_data</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>start_date</span><span class=p>,</span> <span class=n>end_date</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>        사용자 행동 데이터 추출 (ETL의 Extract 단계)
+</span></span></span><span class=line><span class=cl><span class=s2>        
+</span></span></span><span class=line><span class=cl><span class=s2>        Args:
+</span></span></span><span class=line><span class=cl><span class=s2>            start_date: 데이터 추출 시작 날짜
+</span></span></span><span class=line><span class=cl><span class=s2>            end_date: 데이터 추출 종료 날짜
+</span></span></span><span class=line><span class=cl><span class=s2>            
+</span></span></span><span class=line><span class=cl><span class=s2>        Returns:
+</span></span></span><span class=line><span class=cl><span class=s2>            DataFrame: 사용자 행동 데이터
+</span></span></span><span class=line><span class=cl><span class=s2>        &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>logger</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;사용자 행동 데이터 추출 시작: </span><span class=si>{</span><span class=n>start_date</span><span class=si>}</span><span class=s2> ~ </span><span class=si>{</span><span class=n>end_date</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 실제 구현에서는 데이터베이스에서 데이터를 추출</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 여기서는 샘플 데이터 생성</span>
+</span></span><span class=line><span class=cl>        <span class=n>sample_data</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;user_id&#39;</span><span class=p>:</span> <span class=n>np</span><span class=o>.</span><span class=n>random</span><span class=o>.</span><span class=n>randint</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mi>10000</span><span class=p>,</span> <span class=mi>50000</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;product_id&#39;</span><span class=p>:</span> <span class=n>np</span><span class=o>.</span><span class=n>random</span><span class=o>.</span><span class=n>randint</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mi>1000</span><span class=p>,</span> <span class=mi>50000</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;action&#39;</span><span class=p>:</span> <span class=n>np</span><span class=o>.</span><span class=n>random</span><span class=o>.</span><span class=n>choice</span><span class=p>([</span><span class=s1>&#39;view&#39;</span><span class=p>,</span> <span class=s1>&#39;cart&#39;</span><span class=p>,</span> <span class=s1>&#39;purchase&#39;</span><span class=p>],</span> <span class=mi>50000</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;timestamp&#39;</span><span class=p>:</span> <span class=n>pd</span><span class=o>.</span><span class=n>date_range</span><span class=p>(</span><span class=n>start_date</span><span class=p>,</span> <span class=n>end_date</span><span class=p>,</span> <span class=n>periods</span><span class=o>=</span><span class=mi>50000</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>pd</span><span class=o>.</span><span class=n>DataFrame</span><span class=p>(</span><span class=n>sample_data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>transform_data</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>raw_data</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>        데이터 변환 및 전처리 (ETL의 Transform 단계)
+</span></span></span><span class=line><span class=cl><span class=s2>        
+</span></span></span><span class=line><span class=cl><span class=s2>        Args:
+</span></span></span><span class=line><span class=cl><span class=s2>            raw_data: 원시 데이터
+</span></span></span><span class=line><span class=cl><span class=s2>            
+</span></span></span><span class=line><span class=cl><span class=s2>        Returns:
+</span></span></span><span class=line><span class=cl><span class=s2>            DataFrame: 변환된 데이터
+</span></span></span><span class=line><span class=cl><span class=s2>        &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>logger</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=s2>&#34;데이터 변환 시작&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 사용자-상품 상호작용 매트릭스 생성</span>
+</span></span><span class=line><span class=cl>        <span class=n>user_item_matrix</span> <span class=o>=</span> <span class=n>raw_data</span><span class=o>.</span><span class=n>pivot_table</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>            <span class=n>index</span><span class=o>=</span><span class=s1>&#39;user_id&#39;</span><span class=p>,</span> 
+</span></span><span class=line><span class=cl>            <span class=n>columns</span><span class=o>=</span><span class=s1>&#39;product_id&#39;</span><span class=p>,</span> 
+</span></span><span class=line><span class=cl>            <span class=n>values</span><span class=o>=</span><span class=s1>&#39;action&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>aggfunc</span><span class=o>=</span><span class=s1>&#39;count&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>fill_value</span><span class=o>=</span><span class=mi>0</span>
+</span></span><span class=line><span class=cl>        <span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 가중치 적용 (구매 &gt; 장바구니 &gt; 조회)</span>
+</span></span><span class=line><span class=cl>        <span class=n>weights</span> <span class=o>=</span> <span class=p>{</span><span class=s1>&#39;view&#39;</span><span class=p>:</span> <span class=mi>1</span><span class=p>,</span> <span class=s1>&#39;cart&#39;</span><span class=p>:</span> <span class=mi>3</span><span class=p>,</span> <span class=s1>&#39;purchase&#39;</span><span class=p>:</span> <span class=mi>5</span><span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>action</span><span class=p>,</span> <span class=n>weight</span> <span class=ow>in</span> <span class=n>weights</span><span class=o>.</span><span class=n>items</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>            <span class=n>mask</span> <span class=o>=</span> <span class=n>raw_data</span><span class=p>[</span><span class=s1>&#39;action&#39;</span><span class=p>]</span> <span class=o>==</span> <span class=n>action</span>
+</span></span><span class=line><span class=cl>            <span class=n>user_item_matrix</span> <span class=o>+=</span> <span class=n>weight</span> <span class=o>*</span> <span class=n>mask</span><span class=o>.</span><span class=n>groupby</span><span class=p>([</span><span class=s1>&#39;user_id&#39;</span><span class=p>,</span> <span class=s1>&#39;product_id&#39;</span><span class=p>])</span><span class=o>.</span><span class=n>size</span><span class=p>()</span><span class=o>.</span><span class=n>unstack</span><span class=p>(</span><span class=n>fill_value</span><span class=o>=</span><span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>user_item_matrix</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>process_in_chunks</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>data</span><span class=p>,</span> <span class=n>processing_func</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>        청크 단위로 데이터 처리
+</span></span></span><span class=line><span class=cl><span class=s2>        
+</span></span></span><span class=line><span class=cl><span class=s2>        Args:
+</span></span></span><span class=line><span class=cl><span class=s2>            data: 처리할 데이터
+</span></span></span><span class=line><span class=cl><span class=s2>            processing_func: 처리 함수
+</span></span></span><span class=line><span class=cl><span class=s2>            
+</span></span></span><span class=line><span class=cl><span class=s2>        Returns:
+</span></span></span><span class=line><span class=cl><span class=s2>            결과 데이터
+</span></span></span><span class=line><span class=cl><span class=s2>        &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>logger</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;청크 단위 처리 시작 (청크 크기: </span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>chunk_size</span><span class=si>}</span><span class=s2>)&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=n>total_chunks</span> <span class=o>=</span> <span class=nb>len</span><span class=p>(</span><span class=n>data</span><span class=p>)</span> <span class=o>//</span> <span class=bp>self</span><span class=o>.</span><span class=n>chunk_size</span> <span class=o>+</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>        <span class=n>results</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=nb>len</span><span class=p>(</span><span class=n>data</span><span class=p>),</span> <span class=bp>self</span><span class=o>.</span><span class=n>chunk_size</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=n>chunk</span> <span class=o>=</span> <span class=n>data</span><span class=p>[</span><span class=n>i</span><span class=p>:</span><span class=n>i</span> <span class=o>+</span> <span class=bp>self</span><span class=o>.</span><span class=n>chunk_size</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>            <span class=n>chunk_result</span> <span class=o>=</span> <span class=n>processing_func</span><span class=p>(</span><span class=n>chunk</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=n>results</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>chunk_result</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>logger</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;청크 처리 완료: </span><span class=si>{</span><span class=n>i</span><span class=o>//</span><span class=bp>self</span><span class=o>.</span><span class=n>chunk_size</span> <span class=o>+</span> <span class=mi>1</span><span class=si>}</span><span class=s2>/</span><span class=si>{</span><span class=n>total_chunks</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>pd</span><span class=o>.</span><span class=n>concat</span><span class=p>(</span><span class=n>results</span><span class=p>)</span> <span class=k>if</span> <span class=n>results</span> <span class=k>else</span> <span class=n>pd</span><span class=o>.</span><span class=n>DataFrame</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>generate_recommendations</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>user_item_matrix</span><span class=p>,</span> <span class=n>top_k</span><span class=o>=</span><span class=mi>10</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>        협업 필터링을 통한 추천 생성
+</span></span></span><span class=line><span class=cl><span class=s2>        
+</span></span></span><span class=line><span class=cl><span class=s2>        Args:
+</span></span></span><span class=line><span class=cl><span class=s2>            user_item_matrix: 사용자-상품 매트릭스
+</span></span></span><span class=line><span class=cl><span class=s2>            top_k: 추천할 상품 개수
+</span></span></span><span class=line><span class=cl><span class=s2>            
+</span></span></span><span class=line><span class=cl><span class=s2>        Returns:
+</span></span></span><span class=line><span class=cl><span class=s2>            dict: 사용자별 추천 상품 리스트
+</span></span></span><span class=line><span class=cl><span class=s2>        &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>logger</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=s2>&#34;추천 생성 시작&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 코사인 유사도 계산</span>
+</span></span><span class=line><span class=cl>        <span class=n>user_similarity</span> <span class=o>=</span> <span class=n>cosine_similarity</span><span class=p>(</span><span class=n>user_item_matrix</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=n>recommendations</span> <span class=o>=</span> <span class=p>{}</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>user_idx</span><span class=p>,</span> <span class=n>user_id</span> <span class=ow>in</span> <span class=nb>enumerate</span><span class=p>(</span><span class=n>user_item_matrix</span><span class=o>.</span><span class=n>index</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 유사한 사용자 찾기</span>
+</span></span><span class=line><span class=cl>            <span class=n>similar_users</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>argsort</span><span class=p>(</span><span class=n>user_similarity</span><span class=p>[</span><span class=n>user_idx</span><span class=p>])[::</span><span class=o>-</span><span class=mi>1</span><span class=p>][</span><span class=mi>1</span><span class=p>:</span><span class=mi>11</span><span class=p>]</span>  <span class=c1># 상위 10명</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=c1># 추천 점수 계산</span>
+</span></span><span class=line><span class=cl>            <span class=n>scores</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>zeros</span><span class=p>(</span><span class=nb>len</span><span class=p>(</span><span class=n>user_item_matrix</span><span class=o>.</span><span class=n>columns</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=k>for</span> <span class=n>similar_user_idx</span> <span class=ow>in</span> <span class=n>similar_users</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=n>similarity_score</span> <span class=o>=</span> <span class=n>user_similarity</span><span class=p>[</span><span class=n>user_idx</span><span class=p>][</span><span class=n>similar_user_idx</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>                <span class=n>user_ratings</span> <span class=o>=</span> <span class=n>user_item_matrix</span><span class=o>.</span><span class=n>iloc</span><span class=p>[</span><span class=n>similar_user_idx</span><span class=p>]</span><span class=o>.</span><span class=n>values</span>
+</span></span><span class=line><span class=cl>                <span class=n>scores</span> <span class=o>+=</span> <span class=n>similarity_score</span> <span class=o>*</span> <span class=n>user_ratings</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=c1># 이미 상호작용한 상품 제외</span>
+</span></span><span class=line><span class=cl>            <span class=n>user_interactions</span> <span class=o>=</span> <span class=n>user_item_matrix</span><span class=o>.</span><span class=n>iloc</span><span class=p>[</span><span class=n>user_idx</span><span class=p>]</span><span class=o>.</span><span class=n>values</span>
+</span></span><span class=line><span class=cl>            <span class=n>scores</span><span class=p>[</span><span class=n>user_interactions</span> <span class=o>&gt;</span> <span class=mi>0</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=c1># 상위 K개 상품 추천</span>
+</span></span><span class=line><span class=cl>            <span class=n>top_products</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>argsort</span><span class=p>(</span><span class=n>scores</span><span class=p>)[::</span><span class=o>-</span><span class=mi>1</span><span class=p>][:</span><span class=n>top_k</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>            <span class=n>recommendations</span><span class=p>[</span><span class=n>user_id</span><span class=p>]</span> <span class=o>=</span> <span class=n>user_item_matrix</span><span class=o>.</span><span class=n>columns</span><span class=p>[</span><span class=n>top_products</span><span class=p>]</span><span class=o>.</span><span class=n>tolist</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>recommendations</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>load_recommendations</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>recommendations</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>        추천 결과 저장 (ETL의 Load 단계)
+</span></span></span><span class=line><span class=cl><span class=s2>        
+</span></span></span><span class=line><span class=cl><span class=s2>        Args:
+</span></span></span><span class=line><span class=cl><span class=s2>            recommendations: 추천 결과
+</span></span></span><span class=line><span class=cl><span class=s2>        &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>logger</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=s2>&#34;추천 결과 저장 시작&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 실제 구현에서는 데이터베이스나 캐시에 저장</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 여기서는 로깅으로 대체</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>user_id</span><span class=p>,</span> <span class=n>products</span> <span class=ow>in</span> <span class=n>recommendations</span><span class=o>.</span><span class=n>items</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>logger</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;사용자 </span><span class=si>{</span><span class=n>user_id</span><span class=si>}</span><span class=s2>: </span><span class=si>{</span><span class=n>products</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>run_batch_job</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>        배치 작업 실행 메인 함수
+</span></span></span><span class=line><span class=cl><span class=s2>        &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=n>start_time</span> <span class=o>=</span> <span class=n>time</span><span class=o>.</span><span class=n>time</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>logger</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=s2>&#34;배치 작업 시작&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 1. 데이터 추출</span>
+</span></span><span class=line><span class=cl>            <span class=n>yesterday</span> <span class=o>=</span> <span class=n>datetime</span><span class=o>.</span><span class=n>now</span><span class=p>()</span> <span class=o>-</span> <span class=n>timedelta</span><span class=p>(</span><span class=n>days</span><span class=o>=</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=n>today</span> <span class=o>=</span> <span class=n>datetime</span><span class=o>.</span><span class=n>now</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=n>raw_data</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>extract_user_behavior_data</span><span class=p>(</span><span class=n>yesterday</span><span class=p>,</span> <span class=n>today</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=c1># 2. 데이터 변환</span>
+</span></span><span class=line><span class=cl>            <span class=n>user_item_matrix</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>transform_data</span><span class=p>(</span><span class=n>raw_data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=c1># 3. 추천 생성 (청크 단위 처리)</span>
+</span></span><span class=line><span class=cl>            <span class=n>recommendations</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>generate_recommendations</span><span class=p>(</span><span class=n>user_item_matrix</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=c1># 4. 결과 저장</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>load_recommendations</span><span class=p>(</span><span class=n>recommendations</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=c1># 5. 작업 완료 로깅</span>
+</span></span><span class=line><span class=cl>            <span class=n>end_time</span> <span class=o>=</span> <span class=n>time</span><span class=o>.</span><span class=n>time</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>            <span class=n>processing_time</span> <span class=o>=</span> <span class=n>end_time</span> <span class=o>-</span> <span class=n>start_time</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>logger</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;배치 작업 완료 (처리 시간: </span><span class=si>{</span><span class=n>processing_time</span><span class=si>:</span><span class=s2>.2f</span><span class=si>}</span><span class=s2>초)&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>        <span class=k>except</span> <span class=ne>Exception</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>logger</span><span class=o>.</span><span class=n>error</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;배치 작업 실패: </span><span class=si>{</span><span class=nb>str</span><span class=p>(</span><span class=n>e</span><span class=p>)</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>raise</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 스케줄러와 함께 사용하는 예시</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>daily_recommendation_job</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>    일일 추천 배치 작업
+</span></span></span><span class=line><span class=cl><span class=s2>    &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>processor</span> <span class=o>=</span> <span class=n>RecommendationBatchProcessor</span><span class=p>(</span><span class=n>chunk_size</span><span class=o>=</span><span class=mi>5000</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>processor</span><span class=o>.</span><span class=n>run_batch_job</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 실행 예시</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=vm>__name__</span> <span class=o>==</span> <span class=s2>&#34;__main__&#34;</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>daily_recommendation_job</span><span class=p>()</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=python--pyspark-eod-집계-배치>Python + PySpark: EOD 집계 배치<a hidden class=anchor aria-hidden=true href=#python--pyspark-eod-집계-배치>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-7-1><a class=lnlinks href=#hl-7-1> 1</a>
+</span><span class=lnt id=hl-7-2><a class=lnlinks href=#hl-7-2> 2</a>
+</span><span class=lnt id=hl-7-3><a class=lnlinks href=#hl-7-3> 3</a>
+</span><span class=lnt id=hl-7-4><a class=lnlinks href=#hl-7-4> 4</a>
+</span><span class=lnt id=hl-7-5><a class=lnlinks href=#hl-7-5> 5</a>
+</span><span class=lnt id=hl-7-6><a class=lnlinks href=#hl-7-6> 6</a>
+</span><span class=lnt id=hl-7-7><a class=lnlinks href=#hl-7-7> 7</a>
+</span><span class=lnt id=hl-7-8><a class=lnlinks href=#hl-7-8> 8</a>
+</span><span class=lnt id=hl-7-9><a class=lnlinks href=#hl-7-9> 9</a>
+</span><span class=lnt id=hl-7-10><a class=lnlinks href=#hl-7-10>10</a>
+</span><span class=lnt id=hl-7-11><a class=lnlinks href=#hl-7-11>11</a>
+</span><span class=lnt id=hl-7-12><a class=lnlinks href=#hl-7-12>12</a>
+</span><span class=lnt id=hl-7-13><a class=lnlinks href=#hl-7-13>13</a>
+</span><span class=lnt id=hl-7-14><a class=lnlinks href=#hl-7-14>14</a>
+</span><span class=lnt id=hl-7-15><a class=lnlinks href=#hl-7-15>15</a>
+</span><span class=lnt id=hl-7-16><a class=lnlinks href=#hl-7-16>16</a>
+</span><span class=lnt id=hl-7-17><a class=lnlinks href=#hl-7-17>17</a>
+</span><span class=lnt id=hl-7-18><a class=lnlinks href=#hl-7-18>18</a>
+</span><span class=lnt id=hl-7-19><a class=lnlinks href=#hl-7-19>19</a>
+</span><span class=lnt id=hl-7-20><a class=lnlinks href=#hl-7-20>20</a>
+</span><span class=lnt id=hl-7-21><a class=lnlinks href=#hl-7-21>21</a>
+</span><span class=lnt id=hl-7-22><a class=lnlinks href=#hl-7-22>22</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># EOD 집계 배치 예시 (PySpark)</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>pyspark.sql</span> <span class=kn>import</span> <span class=n>SparkSession</span>
+</span></span><span class=line><span class=cl><span class=n>spark</span> <span class=o>=</span> <span class=n>SparkSession</span><span class=o>.</span><span class=n>builder</span><span class=o>.</span><span class=n>appName</span><span class=p>(</span><span class=s2>&#34;EOD_Reconciliation&#34;</span><span class=p>)</span><span class=o>.</span><span class=n>getOrCreate</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 1. 데이터 추출</span>
+</span></span><span class=line><span class=cl><span class=n>df</span> <span class=o>=</span> <span class=n>spark</span><span class=o>.</span><span class=n>read</span><span class=o>.</span><span class=n>jdbc</span><span class=p>(</span><span class=n>url</span><span class=o>=</span><span class=n>DB_URL</span><span class=p>,</span> <span class=n>table</span><span class=o>=</span><span class=s2>&#34;transactions&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                     <span class=n>properties</span><span class=o>=</span><span class=n>DB_PROPS</span><span class=p>)</span><span class=o>.</span><span class=n>filter</span><span class=p>(</span><span class=s2>&#34;date = current_date()&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 2. 집계 변환</span>
+</span></span><span class=line><span class=cl><span class=n>agg</span> <span class=o>=</span> <span class=n>df</span><span class=o>.</span><span class=n>groupBy</span><span class=p>(</span><span class=s2>&#34;account_id&#34;</span><span class=p>)</span><span class=o>.</span><span class=n>sum</span><span class=p>(</span><span class=s2>&#34;amount&#34;</span><span class=p>)</span><span class=o>.</span><span class=n>withColumnRenamed</span><span class=p>(</span><span class=s2>&#34;sum(amount)&#34;</span><span class=p>,</span> <span class=s2>&#34;daily_total&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 3. 로드</span>
+</span></span><span class=line><span class=cl><span class=n>agg</span><span class=o>.</span><span class=n>write</span><span class=o>.</span><span class=n>mode</span><span class=p>(</span><span class=s2>&#34;overwrite&#34;</span><span class=p>)</span><span class=o>.</span><span class=n>jdbc</span><span class=p>(</span><span class=n>url</span><span class=o>=</span><span class=n>DW_URL</span><span class=p>,</span> <span class=n>table</span><span class=o>=</span><span class=s2>&#34;eod_totals&#34;</span><span class=p>,</span> <span class=n>properties</span><span class=o>=</span><span class=n>DW_PROPS</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 4. 오류 대응 + 로깅</span>
+</span></span><span class=line><span class=cl><span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 실행 완료</span>
+</span></span><span class=line><span class=cl>    <span class=k>pass</span>
+</span></span><span class=line><span class=cl><span class=k>except</span> <span class=ne>Exception</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 알림, 재시도 로직 등</span>
+</span></span><span class=line><span class=cl>    <span class=k>raise</span>
+</span></span><span class=line><span class=cl><span class=n>spark</span><span class=o>.</span><span class=n>stop</span><span class=p>()</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=python-파일-읽기>Python: 파일 읽기<a hidden class=anchor aria-hidden=true href=#python-파일-읽기>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-8-1><a class=lnlinks href=#hl-8-1> 1</a>
+</span><span class=lnt id=hl-8-2><a class=lnlinks href=#hl-8-2> 2</a>
+</span><span class=lnt id=hl-8-3><a class=lnlinks href=#hl-8-3> 3</a>
+</span><span class=lnt id=hl-8-4><a class=lnlinks href=#hl-8-4> 4</a>
+</span><span class=lnt id=hl-8-5><a class=lnlinks href=#hl-8-5> 5</a>
+</span><span class=lnt id=hl-8-6><a class=lnlinks href=#hl-8-6> 6</a>
+</span><span class=lnt id=hl-8-7><a class=lnlinks href=#hl-8-7> 7</a>
+</span><span class=lnt id=hl-8-8><a class=lnlinks href=#hl-8-8> 8</a>
+</span><span class=lnt id=hl-8-9><a class=lnlinks href=#hl-8-9> 9</a>
+</span><span class=lnt id=hl-8-10><a class=lnlinks href=#hl-8-10>10</a>
+</span><span class=lnt id=hl-8-11><a class=lnlinks href=#hl-8-11>11</a>
+</span><span class=lnt id=hl-8-12><a class=lnlinks href=#hl-8-12>12</a>
+</span><span class=lnt id=hl-8-13><a class=lnlinks href=#hl-8-13>13</a>
+</span><span class=lnt id=hl-8-14><a class=lnlinks href=#hl-8-14>14</a>
+</span><span class=lnt id=hl-8-15><a class=lnlinks href=#hl-8-15>15</a>
+</span><span class=lnt id=hl-8-16><a class=lnlinks href=#hl-8-16>16</a>
+</span><span class=lnt id=hl-8-17><a class=lnlinks href=#hl-8-17>17</a>
+</span><span class=lnt id=hl-8-18><a class=lnlinks href=#hl-8-18>18</a>
+</span><span class=lnt id=hl-8-19><a class=lnlinks href=#hl-8-19>19</a>
+</span><span class=lnt id=hl-8-20><a class=lnlinks href=#hl-8-20>20</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 예시: Python을 활용한 간단한 배치 처리 스크립트</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>csv</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>time</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>batch_process</span><span class=p>(</span><span class=n>input_file</span><span class=p>,</span> <span class=n>output_file</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>    대량의 데이터를 일괄적으로 처리하여 변환 결과를 저장하는 예시 함수
+</span></span></span><span class=line><span class=cl><span class=s2>    &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>with</span> <span class=nb>open</span><span class=p>(</span><span class=n>input_file</span><span class=p>,</span> <span class=s1>&#39;r&#39;</span><span class=p>)</span> <span class=k>as</span> <span class=n>infile</span><span class=p>,</span> <span class=nb>open</span><span class=p>(</span><span class=n>output_file</span><span class=p>,</span> <span class=s1>&#39;w&#39;</span><span class=p>,</span> <span class=n>newline</span><span class=o>=</span><span class=s1>&#39;&#39;</span><span class=p>)</span> <span class=k>as</span> <span class=n>outfile</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>reader</span> <span class=o>=</span> <span class=n>csv</span><span class=o>.</span><span class=n>DictReader</span><span class=p>(</span><span class=n>infile</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>fieldnames</span> <span class=o>=</span> <span class=n>reader</span><span class=o>.</span><span class=n>fieldnames</span> <span class=o>+</span> <span class=p>[</span><span class=s1>&#39;processed_at&#39;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=n>writer</span> <span class=o>=</span> <span class=n>csv</span><span class=o>.</span><span class=n>DictWriter</span><span class=p>(</span><span class=n>outfile</span><span class=p>,</span> <span class=n>fieldnames</span><span class=o>=</span><span class=n>fieldnames</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>writer</span><span class=o>.</span><span class=n>writeheader</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>row</span> <span class=ow>in</span> <span class=n>reader</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 데이터 변환 로직(예: 타임스탬프 추가)</span>
+</span></span><span class=line><span class=cl>            <span class=n>row</span><span class=p>[</span><span class=s1>&#39;processed_at&#39;</span><span class=p>]</span> <span class=o>=</span> <span class=n>time</span><span class=o>.</span><span class=n>strftime</span><span class=p>(</span><span class=s1>&#39;%Y-%m-</span><span class=si>%d</span><span class=s1> %H:%M:%S&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=n>writer</span><span class=o>.</span><span class=n>writerow</span><span class=p>(</span><span class=n>row</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 스케줄러(Cron 등)에서 정기적으로 호출</span>
+</span></span><span class=line><span class=cl><span class=n>batch_process</span><span class=p>(</span><span class=s1>&#39;input.csv&#39;</span><span class=p>,</span> <span class=s1>&#39;output.csv&#39;</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li><strong>설명</strong>: 입력 CSV 파일을 읽어 각 행에 처리 시각을 추가하여 출력 파일로 저장하는 단순 배치 처리 예시</li></ul><h3 id=실무에서-효과적으로-적용하기-위한-고려사항-및-주의할-점>실무에서 효과적으로 적용하기 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#실무에서-효과적으로-적용하기-위한-고려사항-및-주의할-점>#</a></h3><table><thead><tr><th><strong>카테고리</strong></th><th><strong>고려 항목</strong></th><th><strong>설명</strong></th><th><strong>권장 사항</strong></th><th><strong>대표 도구/기술</strong></th></tr></thead><tbody><tr><td><strong>스케줄 관리</strong></td><td>스케줄링 충돌 방지</td><td>동일 자원 접근 배치 간 충돌 방지</td><td>실행 시간 분산, 큐잉 처리</td><td>Apache Airflow, AWS Step Functions</td></tr><tr><td></td><td>워크플로우 및 의존성 관리</td><td>작업 간 선후 관계 명확히 정의 필요</td><td>DAG 기반 설계, 조건 분기 관리</td><td>Prefect, Azure Data Factory</td></tr><tr><td></td><td>스케줄러 통합</td><td>작업 스케줄의 중앙 집중적 통제</td><td>통합 스케줄러 도입</td><td>Airflow, Control-M</td></tr><tr><td><strong>장애 대응 및 복구</strong></td><td>체크포인트/재시도 설계</td><td>실패 시 중단 지점부터 재실행</td><td>정기적 상태 저장, 청크 재처리 적용</td><td>Spark Checkpoint, Retry Policies</td></tr><tr><td></td><td>트랜잭션 및 롤백 관리</td><td>데이터 상태 변경 시 원자성 보장 필요</td><td>DB 트랜잭션 또는 청크 단위 트랜잭션 로그 적용</td><td>Spring Batch, Kafka Transactions</td></tr><tr><td></td><td>실행 로그 기반 복구</td><td>장애 발생 시 원인 추적 및 대상 청크 복구</td><td>세밀한 로그 기록, 재처리 가능 로그 저장</td><td>ELK Stack, Cloud Logging</td></tr><tr><td><strong>데이터 무결성 보장</strong></td><td>데이터 품질/일관성 검증</td><td>입력/출력 간 정확성 확보, 수량·형식 오류 방지</td><td>체크섬, 데이터 프로파일링, Validation Rule 정의</td><td>Great Expectations, Deequ</td></tr><tr><td></td><td>입력 데이터 사전 검증</td><td>ETL 시작 전 품질 문제 탐지</td><td>Schema Validation, Null/Outlier 체크</td><td>JSON Schema, Marshmallow</td></tr><tr><td></td><td>출력 데이터 검증</td><td>출력 결과값 신뢰성 보장</td><td>샘플링 비교, 요약값 해시, 히스토그램 검증</td><td>Custom QA Pipeline</td></tr><tr><td><strong>성능 및 자원 최적화</strong></td><td>청크 크기 조절</td><td>처리 효율성과 메모리 사용량 균형</td><td>사전 벤치마킹 통한 최적 크기 산정</td><td>Spring Batch, Spark Partitioning</td></tr><tr><td></td><td>리소스 할당 최적화</td><td>메모리, CPU, 네트워크 등 과부하 방지</td><td>사전 예측 기반 Auto-scaling 설계</td><td>K8s HPA, AWS Batch</td></tr><tr><td></td><td>비용 효율화</td><td>비효율적 리소스 사용에 따른 과금 방지</td><td>Spot 인스턴스, 실행 시간 모니터링, Job 종료 조건 설정</td><td>AWS Fargate, Google Cloud Composer</td></tr><tr><td><strong>보안 및 컴플라이언스</strong></td><td>접근 제어 및 암호화 적용</td><td>민감 정보 처리 시 권한 분리 및 암호화</td><td>Role-Based Access Control (RBAC), KMS 연동</td><td>IAM, KMS, Vault</td></tr><tr><td></td><td>규정 대응 (GDPR 등)</td><td>데이터 보호법 등 외부 감사 대응</td><td>마스킹, 감사 로그, 민감 필드 비식별화</td><td>Data Catalog, Data Loss Prevention</td></tr><tr><td></td><td>감사 로그 기록</td><td>작업/접근 내역 추적 가능하도록 로그화</td><td>사용자/작업별 세부 이벤트 기록</td><td>Cloud Audit Logs, Splunk</td></tr><tr><td><strong>운영 및 모니터링</strong></td><td>실행 상태 및 성능 모니터링</td><td>배치 진행률, 처리량, 실패율 추적</td><td>대시보드 구축, 알림 연동, 지표 기반 Alert 설정</td><td>Prometheus + Grafana, CloudWatch</td></tr><tr><td></td><td>알림 및 자동 대응</td><td>이상 발생 시 실시간 알림 및 대응</td><td>Slack/SNS 연동, 알림 기반 자동 롤백/재시작</td><td>PagerDuty, Opsgenie</td></tr></tbody></table><h3 id=최적화하기-위한-고려사항-및-주의할-점>최적화하기 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#최적화하기-위한-고려사항-및-주의할-점>#</a></h3><table><thead><tr><th>카테고리</th><th>고려 요소</th><th>설명</th><th>권장 사항 및 최적화 전략</th></tr></thead><tbody><tr><td><strong>1. 리소스 최적화</strong></td><td>메모리 활용</td><td>대용량 데이터 처리 시 힙 메모리 초과 방지 및 GC 부하 최소화</td><td>Executor 메모리 설정 조정, 인메모리 캐시, 지연 로딩</td></tr><tr><td></td><td>병렬 처리 수준 조절</td><td>과도한 병렬화는 오히려 자원 경합 초래</td><td>스레드/워크 수 조정, 백프레셔 (backpressure) 적용</td></tr><tr><td></td><td>리소스 스케줄링</td><td>피크 시간 자원 충돌 방지</td><td>비업무 시간대 작업 예약, 우선순위 기반 실행</td></tr><tr><td></td><td>캐시 및 임시 저장소 활용</td><td>반복 연산이나 조회 성능 최적화를 위한 임시 데이터 저장</td><td>Redis, in-memory cache, 임시 파일 활용</td></tr><tr><td><strong>2. 처리 성능</strong></td><td>병렬/분산 처리</td><td>독립적인 작업들을 병렬 또는 분산 처리하여 처리량 극대화</td><td>Spark, Hadoop, 병렬 스레드 처리</td></tr><tr><td></td><td>I/O 최적화</td><td>디스크 또는 네트워크 병목 해소</td><td>컬럼형 포맷 (Parquet), 인덱스 최적화, 파티셔닝, 압축</td></tr><tr><td></td><td>데이터 전송 최적화</td><td>네트워크 대역폭 사용량 감소</td><td>데이터 배치 전송, 압축 전송 적용</td></tr><tr><td><strong>3. 데이터 처리 전략</strong></td><td>파티셔닝 전략</td><td>데이터 분할을 통해 병렬 처리 및 where 절 필터링 성능 개선</td><td>날짜, 범위 기반 파티셔닝, 파티션 푸시다운 적용</td></tr><tr><td></td><td>데이터 스킵</td><td>불필요한 데이터 조회 제거로 I/O 비용 절감</td><td>파티션 기반 필터링, 메타데이터 활용</td></tr><tr><td></td><td>청크 크기 설정</td><td>과소/과대 설정 시 성능 저하 또는 장애 발생 가능</td><td>10K~100K rows 수준에서 실험 후 설정</td></tr><tr><td></td><td>데이터 양 추적</td><td>갑작스런 입력 증가 시 병목 또는 장애 발생</td><td>사전 검증, 입력 샘플링, 데이터 프로파일링 도구 사용</td></tr><tr><td><strong>4. 시스템 안정성</strong></td><td>중복 실행 방지</td><td>중복된 배치 실행으로 인한 데이터 오염 방지</td><td>실행 이력 저장, idempotent 처리, 로그 기반 실행 기록 검증</td></tr><tr><td></td><td>작업 실패 복구 전략</td><td>장애 발생 시 전체 작업 실패 방지</td><td>체크포인트 기반 재시도, 단계별 커밋, 청크 단위 격리</td></tr><tr><td></td><td>실행 오류 및 병목 탐지</td><td>오류 지점 파악과 지속적인 성능 개선</td><td>모니터링 도구 (Prometheus, Datadog), 로그 시각화</td></tr><tr><td><strong>5. 실행 계획 및 운영</strong></td><td>작업 분산 스케줄링</td><td>시스템 전체 부하 균형 조절</td><td>크론/스케줄러 기반 시간 분산, 우선순위 기반 운영</td></tr><tr><td></td><td>전략적 실행 간격 설정</td><td>업무 영향과 처리 속도를 균형 있게 조정</td><td>Full vs Incremental 배치 구성, 주간/야간 전략</td></tr><tr><td></td><td>디버깅 및 테스트 전략</td><td>문제 발생 시 원인 식별 및 반복 테스트 효율화</td><td>로그 샘플링, A/B 테스트 기반 검증, 시뮬레이션 환경 운영</td></tr></tbody></table><h3 id=주제와-관련하여-주목할-내용>주제와 관련하여 주목할 내용<a hidden class=anchor aria-hidden=true href=#주제와-관련하여-주목할-내용>#</a></h3><table><thead><tr><th><strong>카테고리</strong></th><th><strong>핵심 주제</strong></th><th><strong>핵심 항목</strong></th><th><strong>설명 및 의미</strong></th></tr></thead><tbody><tr><td>실행 아키텍처</td><td>순차 vs 병렬 처리</td><td>순차 처리, 병렬 처리</td><td>순차는 단순하지만 느림, 병렬은 빠르지만 동기화와 리소스 조절 필요</td></tr><tr><td>클라우드 환경</td><td>서버리스 배치 처리</td><td>AWS Lambda, Google Cloud Functions</td><td>인프라 관리 없이 이벤트 기반 실행 가능, 작은 단위 배치에 적합</td></tr><tr><td>클라우드 환경</td><td>관리형 배치 서비스</td><td>AWS Batch, Azure Batch</td><td>컴퓨팅 자원 자동 할당/해제, 대규모 배치 처리에 적합</td></tr><tr><td>오케스트레이션</td><td>워크플로우 제어</td><td>Apache Airflow, Prefect, AWS Step Functions</td><td>작업 의존성, 실패 대응, 재시도 정책 등을 코드로 선언하고 자동 제어 가능</td></tr><tr><td>실행 제어 및 자동화</td><td>스케줄링 정책</td><td>정기 스케줄, 이벤트 트리거 기반</td><td>시간 기반 실행 (cron) 또는 이벤트 기반 트리거 가능</td></tr><tr><td>데이터 처리 방식</td><td>파이프라인 처리</td><td>ETL/ELT, 데이터 흐름 기반 처리</td><td>단계별 처리 (추출 - 변환 - 적재) 로 구성, 병렬 처리 및 장애 대응 구조와 결합 가능</td></tr><tr><td>성능 최적화</td><td>처리 효율성 향상</td><td>파티셔닝, 병렬화, 인크리멘탈 로딩</td><td>I/O 병목 완화, 중복 제거, 처리 시간 및 리소스 절감</td></tr><tr><td>신뢰성 및 복구</td><td>장애 복구 메커니즘</td><td>체크포인트, 트랜잭션 복원, 재시도 정책</td><td>실패 시 중단점부터 이어서 실행 가능, 멱등성 처리 등으로 안정성 확보</td></tr><tr><td>모니터링 및 가시성</td><td>옵저버빌리티 확보</td><td>Prometheus, Grafana, 로깅 시스템</td><td>작업 진행률, 성능 지표 시각화 및 알림 연동을 통한 실시간 대응</td></tr><tr><td>데이터 품질 관리</td><td>데이터 검증 및 정합성</td><td>스키마 검증, 데이터 프로파일링, 품질 규칙</td><td>입력/출력의 정확성 및 완전성 확보, 오류 탐지 및 자동 리포팅 지원</td></tr></tbody></table><h3 id=반드시-학습해야할-내용>반드시 학습해야할 내용<a hidden class=anchor aria-hidden=true href=#반드시-학습해야할-내용>#</a></h3><table><thead><tr><th>카테고리</th><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td><strong>1. 아키텍처 패턴</strong></td><td>배치 처리 패턴</td><td>ETL / ELT</td><td>추출 → 변환 → 적재 방식 또는 순서를 바꾼 현대적 처리 패턴</td></tr><tr><td></td><td>스트리밍 병합 패턴</td><td>Lambda / Kappa Architecture</td><td>실시간 처리와 배치 처리를 통합하여 실시간성과 일괄성의 균형 확보</td></tr><tr><td></td><td>분산 처리 구조 설계</td><td>수평 확장, 파티셔닝</td><td>고가용성 및 확장 가능한 데이터 파이프라인 설계를 위한 핵심 기법</td></tr><tr><td><strong>2. 데이터 처리</strong></td><td>배치 처리 기본 개념</td><td>일괄 처리 개념 이해</td><td>트리거 기반이 아닌 주기적/대량 데이터 중심의 처리 전략</td></tr><tr><td></td><td>병렬/분산 처리 프레임워크</td><td>Spark, Hadoop, Spring Batch</td><td>대규모 데이터를 효율적으로 처리할 수 있는 엔진과 실행 방식 이해</td></tr><tr><td><strong>3. 시스템 구성 요소</strong></td><td>워크플로 오케스트레이션</td><td>Apache Airflow, Step Functions</td><td>배치 작업 간 의존성, 순서, 재시도 등의 흐름 제어 및 자동화</td></tr><tr><td></td><td>작업 스케줄링</td><td>Cron, Trigger 기반 실행</td><td>시간 또는 이벤트 기반으로 워크플로 실행 제어</td></tr><tr><td></td><td>관리형 배치 플랫폼</td><td>AWS Batch, Azure Data Factory</td><td>클라우드 기반의 확장 가능하고 유지보수가 쉬운 배치 플랫폼 활용</td></tr><tr><td><strong>4. 성능 최적화 및 복구</strong></td><td>메모리 관리 / 튜닝</td><td>GC, Memory Config</td><td>Out-of-Memory 방지 및 안정성 확보를 위한 세부 설정</td></tr><tr><td></td><td>체크포인트 및 재시도 전략</td><td>실패 지점 복구, 상태 저장</td><td>중간 상태 저장을 통해 장애 발생 시 재시도 및 롤백 구현</td></tr><tr><td></td><td>스케일링 전략</td><td>Auto Scaling, 분산 처리</td><td>처리량 증가 시 자동 확장 또는 부하 분산 처리 구조 설계</td></tr><tr><td><strong>5. 클라우드 기반 배치</strong></td><td>클라우드 환경 구성 및 사용</td><td>GCP Dataflow, AWS Glue</td><td>클라우드 네이티브 환경에서 배치 파이프라인을 구성하고 운영하는 역량</td></tr><tr><td></td><td>서버리스 오케스트레이션</td><td>Step Functions, Cloud Composer</td><td>유지보수 없는 상태에서 복잡한 배치 워크플로를 구성 가능</td></tr><tr><td><strong>6. 데이터 품질 및 신뢰성</strong></td><td>데이터 검증 및 품질 보장</td><td>무결성, 정합성, 오류 감지</td><td>배치 처리 결과의 품질과 신뢰성 확보를 위한 사전/사후 검증 기법</td></tr><tr><td></td><td>데이터 중복 처리 방지</td><td>Idempotency, 실행 기록 관리</td><td>배치 중복 실행으로 인한 데이터 오염 방지</td></tr></tbody></table><hr><h2 id=용어-정리>용어 정리<a hidden class=anchor aria-hidden=true href=#용어-정리>#</a></h2><table><thead><tr><th>카테고리</th><th>용어</th><th>설명</th></tr></thead><tbody><tr><td><strong>1. 기본 개념 및 처리 방식</strong></td><td><strong>배치 처리 (Batch Processing)</strong></td><td>대용량 데이터를 일정 주기나 조건에 따라 일괄적으로 처리하는 방식</td></tr><tr><td></td><td><strong>청크 (Chunk)</strong></td><td>대용량 데이터를 작은 단위로 나누어 처리하여 메모리 효율성과 장애 복원력 확보</td></tr><tr><td></td><td><strong>배치 윈도우 (Batch Window)</strong></td><td>배치 작업이 실행되는 특정 시간대 (오프피크 시간 활용)</td></tr><tr><td></td><td><strong>ETL (Extract, Transform, Load)</strong></td><td>데이터를 추출 → 변환 → 적재하는 전통적 배치 처리 패턴</td></tr><tr><td></td><td><strong>ELT (Extract, Load, Transform)</strong></td><td>데이터를 적재한 후 변환하는 현대적 배치/분산 처리 패턴</td></tr><tr><td></td><td><strong>병렬 처리 (Parallel Processing)</strong></td><td>여러 스레드 또는 노드에서 동시에 처리하여 성능을 향상시키는 방식</td></tr><tr><td><strong>2. 아키텍처 및 설계 패턴</strong></td><td><strong>Pipe-and-Filter</strong></td><td>각 단계 (필터) 를 파이프로 연결하여 데이터를 순차적으로 처리하는 구조화된 아키텍처</td></tr><tr><td></td><td><strong>Lambda Architecture</strong></td><td>배치 처리 + 실시간 스트리밍 처리를 통합한 아키텍처 모델</td></tr><tr><td></td><td><strong>Kappa Architecture</strong></td><td>배치 없이 스트리밍 기반으로 모든 처리를 수행하는 실시간 지향 아키텍처</td></tr><tr><td></td><td><strong>DAG (Directed Acyclic Graph)</strong></td><td>워크플로우의 실행 순서를 나타내는 방향성 비순환 그래프 (의존성 표현용)</td></tr><tr><td><strong>3. 실행 및 스케줄링</strong></td><td><strong>Scheduler</strong></td><td>배치 작업의 실행 시점과 주기를 제어하는 도구 (예: Cron, Airflow 등)</td></tr><tr><td></td><td><strong>Cron</strong></td><td>UNIX/Linux 기반의 대표적인 시간 기반 스케줄링 도구</td></tr><tr><td></td><td><strong>Batch Window</strong></td><td>배치 작업을 집중적으로 수행하는 시간대로, 시스템 부하를 분산하는 데 사용됨</td></tr><tr><td><strong>4. 장애 복구 및 안정성</strong></td><td><strong>Checkpoint</strong></td><td>작업 도중 상태를 저장하여 실패 발생 시 복구가 가능한 지점 확보</td></tr><tr><td></td><td><strong>Backpressure</strong></td><td>소비자의 처리 속도보다 공급 속도가 빠를 때 속도를 제어하는 메커니즘</td></tr><tr><td></td><td><strong>Watermark</strong></td><td>스트리밍에서 이벤트 시간 기준 진행 상태를 추적하는 메타데이터</td></tr><tr><td><strong>5. 실행 환경 및 플랫폼</strong></td><td><strong>YARN</strong></td><td>Hadoop 에코시스템의 클러스터 자원 관리 플랫폼</td></tr><tr><td></td><td><strong>RDD (Resilient Distributed Dataset)</strong></td><td>Spark 에서 불변성을 가진 분산 데이터 컬렉션 구조</td></tr><tr><td></td><td><strong>Spot 인스턴스</strong></td><td>AWS 에서 저비용으로 제공하는 선점형 컴퓨팅 인스턴스</td></tr><tr><td><strong>6. 데이터 분산 및 처리 최적화</strong></td><td><strong>Partitioning (파티셔닝)</strong></td><td>데이터를 논리적으로 분할하여 병렬 처리와 I/O 최적화를 가능하게 함</td></tr><tr><td></td><td><strong>Sharding (샤딩)</strong></td><td>데이터를 여러 DB 서버에 물리적으로 분산 저장하여 확장성과 성능 확보</td></tr></tbody></table><hr><h2 id=참고-및-출처>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처>#</a></h2><ul><li><a href=https://spark.apache.org/docs/>Apache Spark 공식 문서</a></li><li><a href=https://docs.spring.io/spring-batch/docs/current/reference/html/>Spring Batch 레퍼런스 가이드</a></li><li><a href=https://airflow.apache.org/docs/>Apache Airflow 공식 문서</a></li><li><a href=https://cloud.google.com/dataflow/docs>Google Cloud Dataflow 개발자 가이드</a></li><li><a href=https://docs.aws.amazon.com/batch/>AWS Batch 사용자 가이드</a></li><li><a href=https://kubernetes.io/docs/concepts/workloads/controllers/job/>Kubernetes Jobs 가이드</a></li><li><a href=https://hadoop.apache.org/docs/current/hadoop-mapreduce-client/hadoop-mapreduce-client-core/MapReduceTutorial.html>Hadoop MapReduce 튜토리얼</a></li><li><a href=https://www.tutorialspoint.com/software_architecture_design/data_flow_architecture.htm>Data Flow Architecture - TutorialsPoint</a></li><li><a href=https://docs.aws.amazon.com/wellarchitected/latest/high-performance-computing-lens/batch-based-architecture.html>Batch-Based Architecture - AWS HPC Lens</a></li><li><a href=https://www.appsdeveloperblog.com/spring-batch-tutorial/>Spring Batch Tutorial - Apps Developer Blog</a></li><li><a href=https://www.confluent.io/blog/apache-kafka-lambda-architecture-stream-processing/>Lambda vs Kappa Architecture – Confluent</a></li><li><a href=https://airbyte.com/data-engineering-resources/data-flow-architecture>What Is Data Flow Architecture - Airbyte</a></li><li><a href=https://www.confluent.io/learn/batch-processing/>Batch Processing: How It Works – Confluent</a></li><li><a href=https://www.upsolver.com/blog/batch-stream-a-cheat-sheet>Batch vs Stream vs Microbatch – Upsolver</a></li><li><a href=https://estuary.dev/blog/batch-data-processing/>Batch Processing vs. Stream Processing – Estuary</a></li><li><a href=https://www.confluent.io/blog/batch-vs-real-time-data-processing/>Batch vs Real-Time Data Processing – Confluent</a></li><li><a href=https://martinfowler.com/articles/patterns-of-distributed-systems/>Martin Fowler의 Batch Processing 패턴</a></li><li><a href=https://www.acceldata.io/blog/batch-processing-demystified-tools-challenges-and-solutions>Batch Processing Explained – Acceldata</a></li><li><a href=https://www.montecarlodata.com/blog-design-data-ingestion-architecture/>How to Design a Modern Data Ingestion Architecture – Monte Carlo</a></li><li><a href=https://aws.amazon.com/what-is/batch-processing/>What is Batch Processing? - AWS</a></li><li><a href="https://www.ibm.com/docs/en/zos/2.3.0?topic=processing-batch">Batch Processing 개요 – IBM Z/OS</a></li><li><a href=https://www.couchbase.com/resources/concepts/batch-processing/>Batch Processing – Couchbase</a></li><li><a href=https://coalesce.io/data-insights/data-pipelines-101-architecture-and-implementation/>ETL Architecture and Implementation – Coalesce</a></li><li><a href=https://docs.oracle.com/en-us/iaas/Content/data-integration/overview.htm>Data Warehousing & ETL Processing – Oracle</a></li></ul><hr></div></main><script type=module>
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true });
+  </script><footer class=footer><span>&copy; 2025 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>
