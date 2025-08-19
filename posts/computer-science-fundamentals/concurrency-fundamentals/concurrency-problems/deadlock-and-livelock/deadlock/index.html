@@ -1,0 +1,891 @@
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Deadlock | hyunyoun's Blog</title><meta name=keywords content="Computer-Science-Fundamentals,Concurrency-and-Parallelism,Concurrency-Problems,Deadlock,Concurrency-Control,Resource-Management"><meta name=description content="Deadlock(교착상태) 은 둘 이상의 프로세스나 스레드가 서로가 보유한 자원을 기다리며 무한정 대기하는 현상으로, 시스템 전체 성능과 안정성에 큰 영향을 미치는 주요 동시성 문제다. 상호 배제, 점유와 대기, 비선점, 순환 대기라는 네 가지 필요조건이 동시에 성립할 때 발생하며, 시스템 성능 저하와 응답 불가 상태를 초래한다."><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/computer-science-fundamentals/concurrency-fundamentals/concurrency-problems/deadlock-and-livelock/deadlock/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.a9863521b3bd3c240bc506f46b95e3c06ccef2ae37f529d5f99bdaef442bccce.css integrity="sha256-qYY1IbO9PCQLxQb0a5XjwGzO8q439SnV+Zva70QrzM4=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate type=application/rss+xml href=https://buenhyden.github.io/posts/computer-science-fundamentals/concurrency-fundamentals/concurrency-problems/deadlock-and-livelock/deadlock/index.xml><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/computer-science-fundamentals/concurrency-fundamentals/concurrency-problems/deadlock-and-livelock/deadlock/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/computer-science-fundamentals/concurrency-fundamentals/concurrency-problems/deadlock-and-livelock/deadlock/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="Deadlock"><meta property="og:description" content="Deadlock(교착상태) 은 둘 이상의 프로세스나 스레드가 서로가 보유한 자원을 기다리며 무한정 대기하는 현상으로, 시스템 전체 성능과 안정성에 큰 영향을 미치는 주요 동시성 문제다. 상호 배제, 점유와 대기, 비선점, 순환 대기라는 네 가지 필요조건이 동시에 성립할 때 발생하며, 시스템 성능 저하와 응답 불가 상태를 초래한다."><meta property="og:locale" content="en"><meta property="og:type" content="website"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="Deadlock"><meta name=twitter:description content="Deadlock(교착상태) 은 둘 이상의 프로세스나 스레드가 서로가 보유한 자원을 기다리며 무한정 대기하는 현상으로, 시스템 전체 성능과 안정성에 큰 영향을 미치는 주요 동시성 문제다. 상호 배제, 점유와 대기, 비선점, 순환 대기라는 네 가지 필요조건이 동시에 성립할 때 발생하며, 시스템 성능 저하와 응답 불가 상태를 초래한다."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"HY's Blog","item":"https://buenhyden.github.io/posts/"},{"@type":"ListItem","position":2,"name":"Computer Science Fundamentals","item":""},{"@type":"ListItem","position":4,"name":"Concurrency Problems","item":"https://buenhyden.github.io/posts/computer-science-fundamentals/concurrency-fundamentals/concurrency-problems/"},{"@type":"ListItem","position":5,"name":"Deadlock","item":"https://buenhyden.github.io/posts/computer-science-fundamentals/concurrency-fundamentals/concurrency-problems/deadlock-and-livelock/deadlock/"}]}</script></head><body class=list id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><header class=page-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/>HY's Blog</a>&nbsp;»&nbsp;<a href>Computer Science Fundamentals</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/computer-science-fundamentals/concurrency-fundamentals/concurrency-problems/>Concurrency Problems</a></div><h1>Deadlock</h1><div class=post-description>Deadlock(교착상태) 은 둘 이상의 프로세스나 스레드가 서로가 보유한 자원을 기다리며 무한정 대기하는 현상으로, 시스템 전체 성능과 안정성에 큰 영향을 미치는 주요 동시성 문제다. 상호 배제, 점유와 대기, 비선점, 순환 대기라는 네 가지 필요조건이 동시에 성립할 때 발생하며, 시스템 성능 저하와 응답 불가 상태를 초래한다.</div></header><div class=post-content><h2 id=deadlock>Deadlock<a hidden class=anchor aria-hidden=true href=#deadlock>#</a></h2><p>Deadlock(교착 상태) 은 둘 이상의 프로세스나 스레드가 자원을 점유한 채 상대방 자원을 기다리며 무한 대기하는 상태로, 동시성 환경에서 발생하는 치명적인 문제다.</p><p>Coffman 의 네 가지 조건 (상호 배제, 점유 대기, 비선점, 환형 대기) 이 모두 만족될 때 발생하며, 운영체제, 데이터베이스, 분산 시스템, 마이크로서비스 환경 등에서 자주 나타난다.<br>해결을 위해 예방, 회피, 탐지 및 복구 전략이 사용되며, 자원 할당 그래프나 Wait-for Graph 등으로 상태를 모델링한다.</p><p>실무에서는 락, 세마포어, 트랜잭션 제어 외에도 타임아웃, 분산 트레이싱, 관측성 도구 등을 통해 사전 진단과 대응이 중요하다.</p><h3 id=핵심-개념>핵심 개념<a hidden class=anchor aria-hidden=true href=#핵심-개념>#</a></h3><ul><li><p><strong>Deadlock(교착 상태)</strong>: 두 개 이상의 프로세스 또는 스레드가 서로가 점유한 자원의 해제를 무한히 기다리며 진행이 멈추는 상태.</p></li><li><p><strong>Coffman 조건 (4 가지)</strong>:</p><ol><li><strong>상호 배제</strong>: 자원은 하나의 프로세스만 점유 가능</li><li><strong>점유와 대기</strong>: 점유한 상태에서 추가 자원을 요청</li><li><strong>비선점</strong>: 점유된 자원을 강제로 회수 불가</li><li><strong>순환 대기</strong>: 프로세스들이 원형으로 자원을 기다림</li></ol></li><li><p><strong>모델링 기법</strong>:</p><ul><li><strong>자원 할당 그래프 (RAG)</strong>: 프로세스/자원 간의 요청 및 할당 관계 시각화</li><li><strong>Wait-for 그래프</strong>: 단일 자원 인스턴스 상황에서 프로세스 간 대기 관계 추적</li></ul></li><li><p><strong>해결 전략</strong>:</p><ul><li><strong>예방</strong>: Coffman 조건 중 하나를 사전에 차단</li><li><strong>회피</strong>: 안전 상태 내에서만 자원 할당 (예: Banker&rsquo;s Algorithm)</li><li><strong>탐지</strong>: 사이클 존재 여부 탐지 (그래프 분석)</li><li><strong>복구</strong>: 프로세스 종료 또는 자원 선점 등으로 상태 해소</li></ul></li></ul><h4 id=실무-구현과의-연관성-정리>실무 구현과의 연관성 정리<a hidden class=anchor aria-hidden=true href=#실무-구현과의-연관성-정리>#</a></h4><table><thead><tr><th>실무 환경</th><th>Deadlock 관련 요소</th><th>고려할 전략 / 도구</th></tr></thead><tbody><tr><td><strong>DBMS</strong></td><td>트랜잭션 간 테이블/레코드 락 충돌</td><td>Lock Timeout, 자동 Rollback, Lock Graph 시각화</td></tr><tr><td><strong>멀티스레드</strong></td><td>Lock 획득 순서 충돌, 재귀적 락 획득</td><td>Lock Ordering, Timed Lock, Deadlock-Aware Lock</td></tr><tr><td><strong>분산 시스템</strong></td><td>Zookeeper/etcd 기반 분산 락 시스템, API 간 순환 호출</td><td>분산 트레이싱 (Zipkin, Jaeger), Circuit Breaker</td></tr><tr><td><strong>컨테이너/K8s</strong></td><td>PVC/PV, Host Port, Node 리소스 간 경쟁</td><td>Pod 간 자원 격리, 리소스 요청/제한 설정</td></tr><tr><td><strong>프로그래밍 언어</strong></td><td>Python (threading.Lock), Java (<code>synchronized</code>, <code>ReentrantLock</code>), Go (channel 기반), Rust (tokio Mutex 등)</td><td>언어별 지원 기능 이해 필요</td></tr><tr><td><strong>모니터링 도구</strong></td><td>락 대기 시간, 자원 점유 시간 추적</td><td>Prometheus, Grafana, Thread Dump, faulthandler 등</td></tr></tbody></table><h4 id=deadlock-발생-예시-python-코드>Deadlock 발생 예시 (Python 코드)<a hidden class=anchor aria-hidden=true href=#deadlock-발생-예시-python-코드>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-0-1><a class=lnlinks href=#hl-0-1> 1</a>
+</span><span class=lnt id=hl-0-2><a class=lnlinks href=#hl-0-2> 2</a>
+</span><span class=lnt id=hl-0-3><a class=lnlinks href=#hl-0-3> 3</a>
+</span><span class=lnt id=hl-0-4><a class=lnlinks href=#hl-0-4> 4</a>
+</span><span class=lnt id=hl-0-5><a class=lnlinks href=#hl-0-5> 5</a>
+</span><span class=lnt id=hl-0-6><a class=lnlinks href=#hl-0-6> 6</a>
+</span><span class=lnt id=hl-0-7><a class=lnlinks href=#hl-0-7> 7</a>
+</span><span class=lnt id=hl-0-8><a class=lnlinks href=#hl-0-8> 8</a>
+</span><span class=lnt id=hl-0-9><a class=lnlinks href=#hl-0-9> 9</a>
+</span><span class=lnt id=hl-0-10><a class=lnlinks href=#hl-0-10>10</a>
+</span><span class=lnt id=hl-0-11><a class=lnlinks href=#hl-0-11>11</a>
+</span><span class=lnt id=hl-0-12><a class=lnlinks href=#hl-0-12>12</a>
+</span><span class=lnt id=hl-0-13><a class=lnlinks href=#hl-0-13>13</a>
+</span><span class=lnt id=hl-0-14><a class=lnlinks href=#hl-0-14>14</a>
+</span><span class=lnt id=hl-0-15><a class=lnlinks href=#hl-0-15>15</a>
+</span><span class=lnt id=hl-0-16><a class=lnlinks href=#hl-0-16>16</a>
+</span><span class=lnt id=hl-0-17><a class=lnlinks href=#hl-0-17>17</a>
+</span><span class=lnt id=hl-0-18><a class=lnlinks href=#hl-0-18>18</a>
+</span><span class=lnt id=hl-0-19><a class=lnlinks href=#hl-0-19>19</a>
+</span><span class=lnt id=hl-0-20><a class=lnlinks href=#hl-0-20>20</a>
+</span><span class=lnt id=hl-0-21><a class=lnlinks href=#hl-0-21>21</a>
+</span><span class=lnt id=hl-0-22><a class=lnlinks href=#hl-0-22>22</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>threading</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>lock_a</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Lock</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=n>lock_b</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Lock</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>thread1</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=k>with</span> <span class=n>lock_a</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Thread1 acquired lock A&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>with</span> <span class=n>lock_b</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Thread1 acquired lock B&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>thread2</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=k>with</span> <span class=n>lock_b</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Thread2 acquired lock B&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>with</span> <span class=n>lock_a</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Thread2 acquired lock A&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>t1</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Thread</span><span class=p>(</span><span class=n>target</span><span class=o>=</span><span class=n>thread1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>t2</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Thread</span><span class=p>(</span><span class=n>target</span><span class=o>=</span><span class=n>thread2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>t1</span><span class=o>.</span><span class=n>start</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=n>t2</span><span class=o>.</span><span class=n>start</span><span class=p>()</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li>위 코드에서는 <strong>thread1 이 lock A → lock B 순서로, thread2 는 lock B → lock A 순서로</strong> 자원을 요청함으로써 Deadlock 이 발생할 수 있음.</li></ul><h3 id=기초-이해-foundation-understanding>기초 이해 (Foundation Understanding)<a hidden class=anchor aria-hidden=true href=#기초-이해-foundation-understanding>#</a></h3><h4 id=개념-및-배경-이해>개념 및 배경 이해<a hidden class=anchor aria-hidden=true href=#개념-및-배경-이해>#</a></h4><p>Deadlock(교착 상태) 은 둘 이상의 프로세스나 스레드가 서로가 점유한 자원의 해제를 기다리며 <strong>무한 대기 상태</strong>에 빠지는 현상으로, 자원의 동시 접근과 경쟁이 존재하는 모든 시스템에서 발생할 수 있는 대표적인 <strong>동시성 문제</strong>다.</p><p>이 개념은 1965 년 Edsger Dijkstra 가 세마포어와 상호 배제를 통한 자원 동기화 개념을 제시하면서 실질적으로 처음 등장했고, 1971 년 Edward G. Coffman 이 Deadlock 발생의 4 가지 필요조건 (상호 배제, 점유 대기, 비선점, 환형 대기) 을 정리하면서 이론적으로 체계화되었다.</p><h4 id=발전-과정>발전 과정<a hidden class=anchor aria-hidden=true href=#발전-과정>#</a></h4><table><thead><tr><th>시기</th><th>발전 내용</th></tr></thead><tbody><tr><td><strong>1960~1970 년대</strong></td><td>초기 멀티프로그래밍 환경에서 자원 경쟁 문제 인식, Coffman 조건 정립, Banker&rsquo;s Algorithm 개발</td></tr><tr><td><strong>1980~1990 년대</strong></td><td>분산 시스템과 DBMS 확산으로 분산 Deadlock 탐지 및 회복 기법 연구 활발</td></tr><tr><td><strong>2000 년대 이후</strong></td><td>멀티코어 시스템, 병렬 처리 환경 확대 → 락프리 (lock-free), 대기프리 (wait-free) 알고리즘 등장</td></tr><tr><td><strong>최근</strong></td><td>클라우드 네이티브, 컨테이너 환경 (Kubernetes), MSA 구조에서의 동적 자원 충돌 및 API Deadlock 문제 등장 → <strong>관측성 (Observability), 분산 트레이싱, 자원 격리 정책</strong>의 중요성 증대</td></tr></tbody></table><h4 id=발생-원인-및-문제-상황>발생 원인 및 문제 상황<a hidden class=anchor aria-hidden=true href=#발생-원인-및-문제-상황>#</a></h4><p>Deadlock 은 시스템 내 <strong>한정된 자원에 대한 동시 접근</strong>, <strong>비일관적인 자원 할당 전략</strong>, <strong>복잡한 의존 구조</strong> 등으로 인해 발생한다.</p><p>그 핵심적인 발생 원인은 다음과 같이 정리할 수 있다:</p><table><thead><tr><th>원인 구분</th><th>내용</th></tr></thead><tbody><tr><td><strong>1. 자원 경쟁 (Resource Contention)</strong></td><td>여러 프로세스/스레드가 동일한 자원을 동시에 요구하며, 시스템의 자원은 유한함</td></tr><tr><td><strong>2. 자원 획득 전략 실패</strong></td><td>- 잘못된 락 순서<br>- 중첩 락 (Nested Lock)<br>- 타임아웃 없는 자원 요청<br>- 락 해제 누락</td></tr><tr><td><strong>3. 동기화 부족</strong></td><td>락/세마포어/뮤텍스 등 적절한 동기화 없이 공유 자원 접근</td></tr><tr><td><strong>4. 복잡한 호출 및 의존 구조</strong></td><td>- 마이크로서비스 간 순환 호출<br>- 분산 락 체계에서의 상호 의존</td></tr><tr><td><strong>5. 성능 최적화에 따른 부작용</strong></td><td>자원 활용률 극대화를 시도하다가 과도한 동시 요청/락 충돌 발생</td></tr></tbody></table><h4 id=실무적-문제-상황>실무적 문제 상황<a hidden class=anchor aria-hidden=true href=#실무적-문제-상황>#</a></h4><table><thead><tr><th>유형</th><th>예시</th><th>결과</th></tr></thead><tbody><tr><td>트랜잭션 충돌</td><td>두 트랜잭션이 서로가 점유한 레코드를 기다림</td><td>쿼리 대기 무한 반복, 시스템 정체</td></tr><tr><td>API 순환 호출</td><td>A → B → C → A 구조</td><td>서비스 전체 응답 중단</td></tr><tr><td>분산 락 중복</td><td>분산 DB 락 + 캐시 락 병행</td><td>시간 초과, 자원 블로킹</td></tr><tr><td>락 해제 누락</td><td>예외 처리 실패 시 unlock 누락</td><td>시스템 스레드 정지, 데드락</td></tr></tbody></table><h4 id=핵심-개념-및-용어>핵심 개념 및 용어<a hidden class=anchor aria-hidden=true href=#핵심-개념-및-용어>#</a></h4><p>Deadlock(교착 상태) 은 둘 이상의 프로세스 또는 스레드가 서로가 점유한 자원을 기다리며 무한 대기하는 상태로, 동시성 제어 환경에서 자주 발생하는 심각한 문제다. 이 현상을 설명하고 제어하기 위해 다음과 같은 핵심 용어들이 사용된다.</p><table><thead><tr><th>분류</th><th>용어</th><th>정의 및 설명</th></tr></thead><tbody><tr><td>개념</td><td><strong>Deadlock (교착 상태)</strong></td><td>프로세스들이 자원을 점유한 채 서로 상대의 자원을 기다리며 무한 대기하는 상태</td></tr><tr><td>조건</td><td><strong>Mutual Exclusion (상호 배제)</strong></td><td>하나의 자원은 동시에 하나의 프로세스만 점유 가능</td></tr><tr><td>조건</td><td><strong>Hold and Wait (점유 및 대기)</strong></td><td>자원을 점유한 상태에서 다른 자원을 계속 요청</td></tr><tr><td>조건</td><td><strong>No Preemption (비선점)</strong></td><td>자원을 강제로 회수할 수 없음</td></tr><tr><td>조건</td><td><strong>Circular Wait (순환 대기)</strong></td><td>프로세스들이 원형으로 자원을 기다림</td></tr><tr><td>모델링</td><td><strong>Wait-for Graph (대기 그래프)</strong></td><td>프로세스 간 대기 관계를 노드와 간선으로 표현하여 사이클 여부로 Deadlock 탐지</td></tr><tr><td>모델링</td><td><strong>Resource Allocation Graph (RAG)</strong></td><td>자원과 프로세스를 모두 표현한 그래프로 Deadlock 상태를 시각적으로 모델링</td></tr><tr><td>탐지</td><td><strong>Banker&rsquo;s Algorithm</strong></td><td>안전 상태를 기준으로 자원 요청을 허용/거절하는 데드락 회피 알고리즘</td></tr><tr><td>유사 개념</td><td><strong>Starvation (기아 상태)</strong></td><td>특정 프로세스가 계속 자원을 할당받지 못하는 상태 (우선순위 낮음 등으로 발생)</td></tr><tr><td>유사 개념</td><td><strong>Livelock (활성 교착)</strong></td><td>상태가 계속 변화하지만 실제 작업은 진행되지 않는 상황</td></tr><tr><td>도구</td><td><strong>Mutex (뮤텍스)</strong></td><td>상호 배제를 구현하는 대표적인 동기화 수단. Deadlock 발생의 주요 원인 중 하나</td></tr><tr><td>도구</td><td><strong>Semaphore (세마포어)</strong></td><td>공유 자원 접근을 제한하는 동기화 도구. 카운팅 기능 포함</td></tr><tr><td>도구</td><td><strong>Distributed Lock</strong></td><td>분산 시스템 환경에서 여러 노드 간 자원 접근 제어를 위한 락 (e.g., ZooKeeper, etcd)</td></tr><tr><td>전략</td><td><strong>Timeout Lock</strong></td><td>일정 시간 안에 락을 획득하지 못하면 대기 중단하는 기법으로 Deadlock 예방 가능</td></tr><tr><td>전략</td><td><strong>Lock-free / Wait-free Algorithm</strong></td><td>자원 점유 없이 동시성 문제를 해결하는 구조로 Deadlock 자체를 회피</td></tr></tbody></table><h3 id=핵심-이론>핵심 이론<a hidden class=anchor aria-hidden=true href=#핵심-이론>#</a></h3><h4 id=핵심-설계-원칙>핵심 설계 원칙<a hidden class=anchor aria-hidden=true href=#핵심-설계-원칙>#</a></h4><p>Deadlock 은 설계 단계에서부터 예방 전략을 수립해야 하며, 다음 원칙들이 핵심 기준으로 활용된다:</p><table><thead><tr><th>원칙</th><th>설명</th></tr></thead><tbody><tr><td><strong>예방 우선 (Prevention First)</strong></td><td>Coffman 조건 중 하나 이상을 설계적으로 제거하여 발생 가능성 자체를 차단</td></tr><tr><td><strong>자원 계층화 (Resource Hierarchy)</strong></td><td>자원을 정해진 순서로 요청하도록 규칙을 강제 → 순환 대기 차단</td></tr><tr><td><strong>조기 탐지 (Early Detection)</strong></td><td>Runtime 시점에 Wait-for Graph 기반 상태 감지</td></tr><tr><td><strong>최소 비용 복구 (Minimal Recovery)</strong></td><td>일부 프로세스 강제 종료, 자원 회수 등 최소한의 조치로 복구</td></tr><tr><td><strong>안정성 우선 (Stability First)</strong></td><td>성능보다 시스템 일관성과 회복 가능성을 우선 고려</td></tr></tbody></table><h4 id=deadlock-동작-메커니즘>Deadlock 동작 메커니즘<a hidden class=anchor aria-hidden=true href=#deadlock-동작-메커니즘>#</a></h4><p>Deadlock 은 다음과 같은 단계적 흐름으로 형성된다:</p><ol><li><strong>자원 요청 (Request)</strong>: 프로세스가 필요한 자원을 요청</li><li><strong>자원 할당 (Allocation)</strong>: 운영체제가 자원을 할당</li><li><strong>대기 상태 (Wait)</strong>: 일부 자원이 이미 다른 프로세스에 의해 점유된 경우 대기</li><li><strong>순환 대기 (Circular Wait)</strong>: 프로세스들이 서로 점유된 자원을 대기하며 원형 의존 형성</li><li><strong>교착 상태 발생 (Deadlock)</strong>: 4 가지 Coffman 조건이 모두 만족될 때 발생</li></ol><h4 id=deadlock-구조>Deadlock 구조<a hidden class=anchor aria-hidden=true href=#deadlock-구조>#</a></h4><pre class=mermaid>graph TD
+  P1[프로세스 1] -- 요청 --&gt; R2[자원 2]
+  P2[프로세스 2] -- 요청 --&gt; R1[자원 1]
+  R1 -- 점유됨 --&gt; P1
+  R2 -- 점유됨 --&gt; P2
+
+  style P1 fill:#ffcccc
+  style P2 fill:#ffcccc
+  style R1 fill:#ccffcc
+  style R2 fill:#ccffcc
+</pre><blockquote><p>💡 위 구조는 <strong>순환 대기 형성 → 교착 상태 진입</strong>을 시각적으로 보여준다.</p></blockquote><h4 id=회피예방-전략-기술-메커니즘>회피/예방 전략 기술 메커니즘<a hidden class=anchor aria-hidden=true href=#회피예방-전략-기술-메커니즘>#</a></h4><table><thead><tr><th>전략</th><th>설명</th></tr></thead><tbody><tr><td><strong>Banker&rsquo;s Algorithm</strong></td><td>각 프로세스의 최대 자원 요구량과 현재 시스템 상태를 기반으로 안전 상태 여부를 판단한 후 자원 할당 여부 결정</td></tr><tr><td><strong>Timeout 기반 제어</strong></td><td>일정 시간 이상 자원을 획득하지 못하면 대기 중단 또는 롤백</td></tr><tr><td><strong>Lock-free / Wait-free 알고리즘</strong></td><td>자원 점유를 최소화하고 비교/교환 (CAS) 기반의 논블로킹 처리로 Deadlock 자체 회피</td></tr><tr><td><strong>Try-Lock 기반 로직</strong></td><td>락을 비차단 (non-blocking) 방식으로 획득 시도, 실패하면 다른 로직으로 전환</td></tr></tbody></table><h4 id=현대-시스템-적용-사례>현대 시스템 적용 사례<a hidden class=anchor aria-hidden=true href=#현대-시스템-적용-사례>#</a></h4><table><thead><tr><th>환경</th><th>적용 사례</th></tr></thead><tbody><tr><td><strong>DBMS</strong></td><td>트랜잭션 간 Row-Level Lock 충돌 → Wait Queue 분석, 타임아웃 복구</td></tr><tr><td><strong>Kubernetes</strong></td><td>Persistent Volume Claim 충돌 시 Deadlock 발생 가능성 → Init Container 로 자원 선점</td></tr><tr><td><strong>Microservice</strong></td><td>순환 호출 (API A → B → C → A) 발생 → Circuit Breaker 및 Timeout 필요</td></tr><tr><td><strong>멀티스레드 앱</strong></td><td>Nested Lock, 잘못된 Lock 순서 → Lock Ordering 및 Try-Lock 적용 필요</td></tr></tbody></table><h3 id=deadlock-관리-시스템-아키텍처>Deadlock 관리 시스템 아키텍처<a hidden class=anchor aria-hidden=true href=#deadlock-관리-시스템-아키텍처>#</a></h3><p>Deadlock 대응 시스템은 프로세스 간 자원 충돌을 실시간으로 관리하고, 교착 상태의 탐지/회피/복구를 통합적으로 처리하는 구조로 구성된다.</p><p>아래는 이 시스템의 핵심 구성 요소와 그 역할이다.</p><table><thead><tr><th>구분</th><th>구성 요소</th><th>필수 여부</th><th>설명</th></tr></thead><tbody><tr><td>제어</td><td><strong>자원 관리자 (Resource Manager)</strong></td><td>✅ 필수</td><td>자원의 할당/해제 및 상태 관리</td></tr><tr><td>감시</td><td><strong>데드락 탐지기 (Deadlock Detector)</strong></td><td>✅ 필수</td><td>대기 그래프 기반 데드락 존재 여부 탐지</td></tr><tr><td>회피</td><td><strong>회피 알고리즘 (Avoidance Algorithm)</strong></td><td>⭕ 선택</td><td>자원 요청을 안전 상태에서만 허용 (예: Banker&rsquo;s)</td></tr><tr><td>복구</td><td><strong>복구 관리자 (Recovery Manager)</strong></td><td>⭕ 선택</td><td>데드락 상태 발생 시 프로세스 종료 또는 자원 회수 등 조치 수행</td></tr><tr><td>실행</td><td><strong>프로세스 스케줄러 (Process Scheduler)</strong></td><td>✅ 필수</td><td>자원 점유 순서에 따라 프로세스 실행 순서 결정</td></tr><tr><td>시각화</td><td><strong>대기 그래프 모듈 (Wait-for Graph Module)</strong></td><td>⭕ 선택</td><td>대기 관계 시각화, 탐지기와 연계</td></tr><tr><td>확장</td><td><strong>관측성 모듈 (Observability Module)</strong></td><td>⭕ 선택</td><td>락 대기 시간, 자원 점유 상태, Deadlock 발생 메트릭 수집</td></tr><tr><td>분산</td><td><strong>분산 락 관리자 (Distributed Lock Manager)</strong></td><td>⭕ 선택</td><td>분산 시스템 환경에서의 자원 충돌 제어 (e.g., Zookeeper, etcd)</td></tr></tbody></table><h4 id=작동-원리-및-흐름>작동 원리 및 흐름<a hidden class=anchor aria-hidden=true href=#작동-원리-및-흐름>#</a></h4><pre class=mermaid>graph TD
+    subgraph Deadlock Control Architecture
+        P[프로세스 집합] --&gt;|자원 요청| R[자원 관리자]
+        R --&gt;|자원 할당| P
+        R --&gt; D[데드락 탐지기]
+        D --&gt;|탐지 결과| A[회피 알고리즘]
+        A --&gt;|안전 상태| R
+        D --&gt;|비안전 상태| M[복구 관리자]
+        M --&gt;|프로세스 중단/롤백| P
+        S[프로세스 스케줄러] --&gt;|실행 순서 제어| P
+        O[관측성 모듈] --&gt; R
+        O --&gt; D
+    end
+
+    style P fill:#fef3c7
+    style R fill:#d1fae5
+    style D fill:#e0e7ff
+    style A fill:#fde68a
+    style M fill:#fecaca
+    style S fill:#ddd6fe
+    style O fill:#fef9c3
+</pre><ol><li><strong>프로세스 집합 (P)</strong> 이 자원을 요청하면 <strong>자원 관리자 (R)</strong> 가 할당을 수행</li><li><strong>데드락 탐지기 (D)</strong> 는 자원의 대기 상태를 지속적으로 감시</li><li>탐지된 결과가 <strong>안전 상태</strong>면 <strong>회피 알고리즘 (A)</strong> 을 통해 자원을 유지</li><li><strong>비안전 상태</strong>인 경우 <strong>복구 관리자 (M)</strong> 가 조치를 수행 (프로세스 강제 종료 등)</li><li><strong>스케줄러 (S)</strong> 는 락 순서 및 우선순위에 따라 실행 흐름 제어</li><li><strong>관측성 모듈 (O)</strong> 은 전체 시스템 상태를 실시간 수집·시각화해 운영자에게 알림</li></ol><h4 id=확장-고려>확장 고려<a hidden class=anchor aria-hidden=true href=#확장-고려>#</a></h4><ul><li>실무 환경에 따라 <strong>관측성 (Observability)</strong>, <strong>분산 자원 관리</strong>, <strong>락 모니터링 도구 연동</strong>이 필수적으로 설계되어야 함</li><li>Kubernetes/클라우드 기반 시스템에서는 컨트롤러와 함께 자원 충돌 조정 기능도 아키텍처에 통합됨</li></ul><h3 id=특성-분석>특성 분석<a hidden class=anchor aria-hidden=true href=#특성-분석>#</a></h3><h4 id=예방-및-해결-방안-정리표>예방 및 해결 방안 정리표<a hidden class=anchor aria-hidden=true href=#예방-및-해결-방안-정리표>#</a></h4><table><thead><tr><th>카테고리</th><th>전략명</th><th>설명</th><th>대응 대상 조건 / 기술 근거</th></tr></thead><tbody><tr><td><strong>예방</strong></td><td>자원 요청 순서 고정 (Lock Ordering)</td><td>모든 프로세스가 동일한 순서로 자원을 요청하여 순환 대기 방지</td><td>Circular Wait 제거</td></tr><tr><td></td><td>원자적 자원 할당 (All-or-Nothing)</td><td>필요한 자원을 한 번에 모두 요청하고, 모두 확보되었을 때만 진행</td><td>Hold-and-Wait 조건 제거</td></tr><tr><td></td><td>대기 시간 제한 (Timeout)</td><td>일정 시간 동안 자원을 획득하지 못하면 대기 중단 및 롤백</td><td>무한 대기 차단, Timeout 기반 제어</td></tr><tr><td><strong>회피</strong></td><td>Banker&rsquo;s Algorithm</td><td>시스템 상태가 안전할 때만 자원 할당을 허용</td><td>Safe State 기반 회피 전략</td></tr><tr><td></td><td>Lock-free / Wait-free 구조</td><td>락 없이 Compare-and-Swap, 큐 기반 처리로 동시성 보장</td><td>자원 점유 자체를 제거 → Deadlock 원천 회피</td></tr><tr><td><strong>탐지</strong></td><td>Wait-for Graph</td><td>프로세스 간의 자원 대기 관계를 그래프로 표현, 사이클 탐지</td><td>순환 대기 구조 탐지</td></tr><tr><td></td><td>정기적 검사 및 스케줄링</td><td>탐지 주기 및 메시지 비용 균형을 고려한 Deadlock 탐지 루틴 실행</td><td>탐지 주기 최적화, 이벤트 기반 트리거 가능</td></tr><tr><td></td><td>관측성 기반 탐지 (Observability)</td><td>락 대기 시간, 자원 점유 상태를 실시간 메트릭으로 수집·시각화</td><td>Prometheus, Grafana 등 활용</td></tr><tr><td><strong>복구</strong></td><td>프로세스 중단</td><td>데드락 상태에 있는 프로세스를 강제 종료하여 자원 회수</td><td>복구 비용 최소화, 우선순위 기반 선택 가능</td></tr><tr><td></td><td>자원 선점</td><td>이미 점유된 자원을 강제로 회수하여 다른 프로세스에 재할당</td><td>No Preemption 조건 제거 가능</td></tr></tbody></table><p>Deadlock 예방 및 해결 전략은 <strong>발생 조건을 제거하거나, 발생 후 탐지/복구하는 흐름</strong>으로 구분된다.</p><ul><li><strong>예방 전략</strong>은 <strong>설계 시점</strong>에 적용되며, 자원 요청 순서 고정이나 원자적 요청 방식으로 교착 상태를 미연에 방지한다.</li><li><strong>회피 전략</strong>은 시스템 상태를 실시간 분석하여 안전 상태에서만 자원을 할당하는 <strong>동적 제어 방식</strong>이다.</li><li><strong>탐지 전략</strong>은 대기 관계 그래프 또는 모니터링 도구를 활용한 <strong>사후 감지 방식</strong>으로, 실시간성과 시스템 부하 간의 절충이 필요하다.</li><li><strong>복구 전략</strong>은 Deadlock 이 발생한 후 강제 종료 또는 자원 선점을 통해 문제를 해결하며, <strong>비용과 영향도가 크기 때문에 최후의 수단</strong>으로 사용된다.</li></ul><p>분산 시스템, 클라우드 환경에서는 <strong>옵저버빌리티 도구와의 통합</strong>, <strong>락 없는 구조 설계</strong>, <strong>Circuit Breaker, Timeout 기반 제어</strong>가 핵심적인 대응 전략으로 자리잡고 있다. 시스템의 복잡도, 실시간성, 안정성 요구 수준에 따라 전략을 <strong>조합적으로 설계</strong>하는 것이 실용적이다.</p><h4 id=deadlock-문제점-및-영향>Deadlock 문제점 및 영향<a hidden class=anchor aria-hidden=true href=#deadlock-문제점-및-영향>#</a></h4><p>Deadlock 은 동시성 시스템에서 필연적으로 고려해야 할 리스크로, 시스템 자원 관리 및 동기화 전략의 미숙함에서 발생한다.<br>주요 피해는 시스템 전체 마비와 자원 고갈이며, 탐지 지연과 탐지 오버헤드는 성능 저하를 초래한다.<br>예방은 자원 계층화, 타임아웃 설정, 락 프리 구조 설계 등으로 가능하고, 해결은 단순 종료보단 복구 가능한 방식 (롤백, 재시도, 하이브리드 락) 을 통해 수행하는 것이 바람직하다.<br>특히, 현대 분산 시스템에선 중앙 집중 탐지 방식에서 벗어나 Zookeeper 나 etcd 기반의 분산 탐지·예방 전략이 필수적이다.</p><h5 id=deadlock-문제점-및-원인>Deadlock 문제점 및 원인<a hidden class=anchor aria-hidden=true href=#deadlock-문제점-및-원인>#</a></h5><table><thead><tr><th>구분</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>구조적 문제</td><td>교착상태 조건 충족</td><td>상호 배제, 점유와 대기, 비선점, 순환 대기</td></tr><tr><td>탐지 한계</td><td>탐지 주기 설정 부적절</td><td>너무 느리면 지속, 너무 자주면 오버헤드</td></tr><tr><td>자원 전략 부족</td><td>락 전략 부재</td><td>순서화 또는 우선순위 지정 미흡</td></tr></tbody></table><h5 id=영향-및-피해>영향 및 피해<a hidden class=anchor aria-hidden=true href=#영향-및-피해>#</a></h5><table><thead><tr><th>구분</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>성능 저하</td><td>응답 시간 지연</td><td>트랜잭션 또는 API 레벨 지연 발생</td></tr><tr><td>자원 낭비</td><td>자원 회수 불가</td><td>점유된 자원이 반환되지 않아 리소스 부족</td></tr><tr><td>시스템 마비</td><td>서비스 불가</td><td>연쇄 교착으로 전체 시스템 다운 가능성</td></tr></tbody></table><h4 id=트레이드오프-분석>트레이드오프 분석<a hidden class=anchor aria-hidden=true href=#트레이드오프-분석>#</a></h4><table><thead><tr><th>카테고리</th><th>트레이드오프 항목</th><th>설명</th><th>관련 기술/예시</th></tr></thead><tbody><tr><td>성능 vs 안전성</td><td>시스템 성능 ↔ 데드락 안전성</td><td>락을 통한 보호는 안전하지만 성능 저하</td><td>Thread-safe 구조, Heavy Lock</td></tr><tr><td>자원 효율 vs 안정성</td><td>자원 활용도 ↔ 엄격한 동기화</td><td>높은 활용률을 위해선 동기화 강도 조절 필요</td><td>비동기 큐, 세마포어</td></tr><tr><td>응답 속도 vs 신뢰성</td><td>응답 최적화 ↔ 예외 복원</td><td>빠른 처리는 장애 대응의 기회를 줄일 수 있음</td><td>Timeout, Fallback 처리</td></tr><tr><td>정책 전략</td><td>낙관적 ↔ 비관적 접근</td><td>충돌 회피 여부에 따른 접근 방식 차이</td><td>OCC vs Pessimistic Lock</td></tr><tr><td>자원 관리</td><td>정적 할당 ↔ 동적 조정</td><td>자원 고정은 단순하지만 유연성 부족</td><td>Thread Pool size 조정</td></tr><tr><td>장애 처리 철학</td><td>Fail-fast ↔ Fail-safe</td><td>문제 감지 시 빠른 종료 vs 복구 중심 설계</td><td>Circuit Breaker, Retry 정책</td></tr></tbody></table><p>Deadlock 회피 및 동시성 제어에서 핵심적인 트레이드오프는 <strong>성능과 안정성 간 균형</strong>이다.</p><ul><li>성능을 극대화하려는 전략은 대개 낙관적 접근을 기반으로 하지만, 이는 교착상태나 데이터 손실 가능성을 동반할 수 있다.</li><li>반면, 안정성을 중시하는 전략은 락 기반의 보수적 동기화 또는 Fail-safe 설계를 통해 안전은 확보하지만, 시스템 자원 효율성과 응답 속도는 저하될 수 있다.</li></ul><p>실무에서는 <strong>애플리케이션 특성</strong>(실시간성, 트랜잭션 정합성, 사용자 수요) 에 따라 각 요소를 정밀하게 튜닝해야 하며, 탐지 오버헤드와 자원 재할당 전략도 함께 고려되어야 한다.</p><pre class=mermaid>graph TD
+    A[시스템 성능] ---|상충| B[데드락 안전성]
+    C[자원 활용도] ---|상충| D[동시성 제어]
+    E[응답 속도] ---|상충| F[안정성 보장]
+    
+    B --&gt; G[보수적 자원 할당]
+    D --&gt; H[엄격한 동기화]
+    F --&gt; I[추가 오버헤드]
+</pre><h3 id=구현-및-분류>구현 및 분류<a hidden class=anchor aria-hidden=true href=#구현-및-분류>#</a></h3><p>실무에서는 일반적으로 <strong>예방 + 탐지 + 회복 전략을 복합적으로 구성</strong>하며, 특히 <strong>분산 환경에서는 Timeout 과 분산 그래프 탐지의 조합</strong>이 핵심이다.</p><h4 id=탐지-및-진단-기법>탐지 및 진단 기법<a hidden class=anchor aria-hidden=true href=#탐지-및-진단-기법>#</a></h4><p><strong>탐지 및 진단 기법</strong>은 시스템 구조에 따라 <strong>중앙 기반 (그래프, 로그)</strong> 또는 <strong>분산 기반 (Edge Chasing)</strong> 으로 구분된다. 정확도와 실시간성, 확장성 간의 <strong>트레이드오프</strong>를 고려해야 한다.<br><strong>정적 분석 및 모델 기반 접근</strong>은 고신뢰성이 요구되는 설계 (항공, 금융 등) 에 적합하며, <strong>실시간 대응이 어려운 대신 예방에 매우 효과적</strong>이다.</p><table><thead><tr><th>분류</th><th>기법</th><th>설명</th><th>적용 환경</th><th>장단점</th></tr></thead><tbody><tr><td>그래프 기반</td><td>Wait-for Graph, RAG</td><td>자원/프로세스 간 대기 관계 시각화 후 순환 탐지</td><td>운영체제, DBMS</td><td>정확하나 확장성 부족</td></tr><tr><td>시간 기반</td><td>타임아웃 탐지, TTL 설정</td><td>일정 시간 이상 대기 시 Deadlock 의심</td><td>분산 시스템, API Gateway</td><td>구현 단순하나 오탐 가능</td></tr><tr><td>로그 기반</td><td>트랜잭션 로그 분석</td><td>이벤트 흐름 추적을 통한 상태 분석</td><td>클라우드 DB, APM</td><td>후처리에 강하나 실시간성 부족</td></tr><tr><td>예측 기반</td><td>SPDOnline, SPDOffline</td><td>상태 전이 시퀀스 기반 Deadlock 사전 예측</td><td>병렬 컴퓨팅, 대규모 분산 시스템</td><td>선제 대응 가능하나 구현 복잡</td></tr><tr><td>정적 분석</td><td>Banker&rsquo;s Algorithm, Formal Method</td><td>자원 요구 기반 상태 공간 정적 검증</td><td>RT 시스템, 임베디드</td><td>정확하나 실시간성 떨어짐</td></tr><tr><td>모델 기반</td><td>TLA+, Promela, Petri Net</td><td>상태 전이 모델 기반 사전 시뮬레이션</td><td>항공/금융 등 고신뢰 설계 분야</td><td>강력한 이론 기반이나 초기 설계 비용 큼</td></tr><tr><td>분산 기반</td><td>Edge Chasing, Probe Algorithm</td><td>각 노드 간 메시지를 통한 분산 Deadlock 탐지</td><td>다중 노드 분산 환경 (e.g., DDBMS)</td><td>실시간 분산 대응 가능하나 네트워크 오버헤드 존재</td></tr></tbody></table><h4 id=예방-기법>예방 기법<a hidden class=anchor aria-hidden=true href=#예방-기법>#</a></h4><p><strong>예방 기법</strong>은 대부분 설계 단계에서 적용되며, 자원 요청 순서 통일, 원자적 요청, 타임아웃 설정 등을 통해 <strong>Deadlock 조건 자체를 사전에 제거</strong>한다.</p><table><thead><tr><th>기법</th><th>설명</th><th>적용 예시</th><th>특징</th></tr></thead><tbody><tr><td>자원 요청 순서 고정</td><td>자원 계층화 및 고정 순서로 요청하여 순환 대기 방지</td><td>DB Lock 계층화, 자바 락 순서화</td><td>설계 단순, 유연성 낮음</td></tr><tr><td>타임아웃 락</td><td>일정 시간 대기 후 자동 해제</td><td>Redis TTL Lock, DB Timeout</td><td>무한 대기 방지, 오탐 가능</td></tr><tr><td>원자적 자원 요청</td><td>필요한 자원을 한 번에 모두 요청하여 점유 대기 조건 제거</td><td>POSIX Semaphores 등</td><td>동시 자원 확보 어려움</td></tr><tr><td>Lock-Free/Wait-Free</td><td>락 없이 자원 접근 가능한 동시성 자료구조 활용</td><td>Java Concurrency API 등</td><td>Deadlock 자체 회피</td></tr><tr><td>Transactional Memory</td><td>메모리 자원 접근 시 트랜잭션처럼 처리, 충돌 시 롤백</td><td>Intel TSX, STM</td><td>병렬성 높지만 범용성 낮음</td></tr></tbody></table><h4 id=해결-기법>해결 기법<a hidden class=anchor aria-hidden=true href=#해결-기법>#</a></h4><ul><li><strong>해결 기법</strong>은 발생 후 복구 중심이며, <strong>롤백, 재시도, 재시작, 하이브리드 락</strong> 등을 활용해 시스템을 다시 정상 상태로 돌리는 것을 목표로 한다.</li></ul><table><thead><tr><th>기법</th><th>설명</th><th>적용 예시</th><th>특징</th></tr></thead><tbody><tr><td>Checkpoint & Rollback</td><td>안전 지점 저장 후 Deadlock 시 이전 상태 복원</td><td>트랜잭션 처리, DBMS</td><td>정확하지만 비용 높음</td></tr><tr><td>Retry with Backoff</td><td>실패 시 일정 시간 후 재시도</td><td>REST API, Kafka Transaction 등</td><td>간단하나 재시도 조절 필요</td></tr><tr><td>Hybrid Locking</td><td>락 획득 시 우선 Spin, 일정 시간 후 블록 전환</td><td>고성능 멀티스레드 환경</td><td>응답성 향상, 복잡도 증가</td></tr><tr><td>Kill & Restart</td><td>교착 프로세스 강제 종료 후 재실행</td><td>OS Deadlock 복구</td><td>과감한 방식이나 데이터 손실 위험 있음</td></tr></tbody></table><h4 id=deadlock-대응-전략-프레임워크>Deadlock 대응 전략 프레임워크<a hidden class=anchor aria-hidden=true href=#deadlock-대응-전략-프레임워크>#</a></h4><pre class=mermaid>flowchart TD
+
+    A[🔧 설계 단계] --&gt; B1[🛡️ 예방 전략]
+    A --&gt; B2[📐 회피 전략]
+    A --&gt; B3[🧮 정적 분석]
+
+    B1 --&gt; C1[자원 요청 순서 고정]
+    B1 --&gt; C2[원자적 자원 할당]
+    B1 --&gt; C3[Lock-Free 구조 설계]
+
+    B2 --&gt; C4[Banker&#39;s Algorithm]
+    B2 --&gt; C5[안전 상태 기반 할당 정책]
+
+    B3 --&gt; C6[&#34;Formal Method (TLA+, Promela)&#34;]
+    B3 --&gt; C7[상태 공간 정리 및 검증]
+
+    D[⚙️ 실행 단계] --&gt; E1[🔍 동적 탐지 전략]
+    D --&gt; E2[⏱️ 타임아웃/모니터링]
+    D --&gt; E3[📊 로그 기반 분석]
+    D --&gt; E4[🔬 예측 기반 분석]
+
+    E1 --&gt; F1[Wait-for Graph / RAG]
+    E1 --&gt; F2[분산 Edge Chasing 알고리즘]
+
+    E2 --&gt; F3[TTL 설정 / Heartbeat 감지]
+    E3 --&gt; F4[APM 로그 / 트랜잭션 추적]
+    E4 --&gt; F5[SPDOnline / Offline]
+
+    G[🛠️ 운영 단계] --&gt; H1[♻️ 복구 전략]
+    G --&gt; H2[🌀 재시도 및 백오프]
+    G --&gt; H3[💣 프로세스 종료 / 리스타트]
+
+    H1 --&gt; I1[Checkpoint &amp; Rollback]
+    H2 --&gt; I2[Exponential Backoff]
+    H3 --&gt; I3[Kill &amp; Restart]
+
+    style A fill:#ffe0cc,stroke:#e67300
+    style D fill:#e0f7fa,stroke:#00838f
+    style G fill:#f0f4c3,stroke:#827717
+
+    style B1 fill:#ffd180
+    style B2 fill:#ffd180
+    style B3 fill:#ffd180
+
+    style E1 fill:#80d8ff
+    style E2 fill:#80d8ff
+    style E3 fill:#80d8ff
+    style E4 fill:#80d8ff
+
+    style H1 fill:#dcedc8
+    style H2 fill:#dcedc8
+    style H3 fill:#dcedc8
+</pre><ul><li><strong>설계 단계</strong>: Deadlock 자체가 발생하지 않도록 조건을 사전에 차단 → 자원 순서화, Lock-Free, 뱅커 알고리즘 등</li><li><strong>실행 단계</strong>: 시스템이 돌아가는 동안 Deadlock 가능성 탐지 및 사전 예측 → 그래프 분석, 로그 기반 추적, 예측 기반 모델링 등</li><li><strong>운영 단계</strong>: 이미 발생한 Deadlock 에 대해 시스템을 정상 상태로 복구 → Checkpoint-Rollback, 백오프 재시도, 프로세스 재시작 등</li></ul><h4 id=deadlock-유형-분류>Deadlock 유형 분류<a hidden class=anchor aria-hidden=true href=#deadlock-유형-분류>#</a></h4><p>Deadlock 은 자원의 형태, 시스템 구조, 발생 시점, 해결 전략 등 다양한 기준에 따라 유형을 나눌 수 있다.<br>특정 시스템의 Deadlock 은 보통 단일 기준이 아닌 **다중 속성 (예: 분산 + 소비 + 동적 + 탐지형)**을 가질 수 있기 때문에, 분류 기준을 명확히 이해하는 것이 효과적인 대응 전략 설계의 핵심이다.</p><table><thead><tr><th><strong>카테고리</strong></th><th><strong>유형</strong></th><th><strong>특징</strong></th><th><strong>적용 사례</strong></th></tr></thead><tbody><tr><td><strong>1. 자원 구조</strong></td><td>단일 인스턴스 Deadlock</td><td>각 자원이 하나뿐인 환경에서 발생</td><td>단일 프린터, 단일 DB 락</td></tr><tr><td></td><td>다중 인스턴스 Deadlock</td><td>자원이 여러 개 있지만 동시에 여러 프로세스가 점유하며 발생</td><td>DB 의 다중 커넥션 풀, 메모리 블록</td></tr><tr><td><strong>2. 시스템 범위</strong></td><td>로컬 Deadlock</td><td>단일 운영체제/호스트 내에서 발생</td><td>OS, Standalone DB, 멀티스레드 앱</td></tr><tr><td></td><td>분산 Deadlock</td><td>여러 노드, 시스템, 네트워크를 통해 발생</td><td>분산 트랜잭션, MSA 간 순환 API 호출 구조</td></tr><tr><td><strong>3. 발생 시점</strong></td><td>정적 Deadlock</td><td>코드 작성/컴파일 시 구조적으로 예측 가능</td><td>정적 분석기 도구, 락 순서 정적 검사</td></tr><tr><td></td><td>동적 Deadlock</td><td>런타임 중 자원 충돌이나 경쟁으로 발생</td><td>자원 획득 시점의 상태에 따라 발생</td></tr><tr><td><strong>4. 자원 유형</strong></td><td>재사용 자원 Deadlock</td><td>사용 후 반환이 가능한 자원에서 발생</td><td>메모리, 락, 소켓, 파일</td></tr><tr><td></td><td>소비 자원 Deadlock</td><td>사용 시 사라지거나 소모되는 자원으로 인해 발생</td><td>메시지 큐, 이벤트 스트림, 토큰 버킷</td></tr><tr><td><strong>5. 해결 전략</strong></td><td>예방형 Deadlock</td><td>Deadlock 조건 자체를 설계에서 제거</td><td>자원 순서화, 원자적 자원 요청</td></tr><tr><td></td><td>회피형 Deadlock</td><td>현재 시스템 상태를 기준으로 위험 회피</td><td>Banker&rsquo;s Algorithm, 안전 상태 검사</td></tr><tr><td></td><td>탐지형 Deadlock</td><td>탐지 후 복구 절차 실행</td><td>Wait-for Graph 탐지기, Timeout 모니터링</td></tr></tbody></table><p>Deadlock 유형은 크게 다섯 가지 기준 (자원 구조, 시스템 범위, 발생 시점, 자원 성격, 해결 전략) 에 따라 구분된다.</p><ul><li><strong>자원 구조 기준</strong>에서는 인스턴스 수에 따라 단일/다중 인스턴스 Deadlock 으로 나뉘며, 이는 자원 모델 설계에 직접 영향을 준다.</li><li><strong>시스템 범위 기준</strong>에서는 단일 노드 환경 (로컬 Deadlock) 과 여러 노드가 상호작용하는 환경 (분산 Deadlock) 으로 나뉘며, 후자는 탐지 및 복구가 훨씬 복잡하다.</li><li><strong>발생 시점 기준</strong>은 정적 분석 기반 설계 오류와 런타임 중 발생하는 동적 오류를 구분하는 데 도움이 된다.</li><li><strong>자원 유형 기준</strong>은 자원의 사용 방식에 따라 대응 전략을 구체화하는 데 활용되며, 특히 소비 자원은 처리 모델 자체를 Deadlock 안전하게 구성해야 한다.</li><li>마지막으로 <strong>해결 전략 기준</strong>은 실질적인 대응 방안을 분류하며, 시스템 요구사항 (실시간성, 신뢰성, 리스크 수용도 등) 에 따라 적절한 접근 방식을 결정할 수 있게 한다.</li></ul><p>이처럼 다차원적으로 Deadlock 을 분류하면, 특정 상황에서 어떤 전략이 최선인지 판단하고 시스템 안정성을 높이는 데 매우 유용하다.</p><h3 id=실무-적용>실무 적용<a hidden class=anchor aria-hidden=true href=#실무-적용>#</a></h3><h4 id=deadlock-탐지-및-예방-전략-설계-가이드>Deadlock 탐지 및 예방 전략 설계 가이드<a hidden class=anchor aria-hidden=true href=#deadlock-탐지-및-예방-전략-설계-가이드>#</a></h4><h5 id=공통-전략-개요>공통 전략 개요<a hidden class=anchor aria-hidden=true href=#공통-전략-개요>#</a></h5><table><thead><tr><th>구분</th><th>전략명</th><th>설명</th></tr></thead><tbody><tr><td><strong>탐지</strong></td><td>Wait-for Graph</td><td>프로세스 간 자원 대기 관계를 그래프로 표현하여 순환 여부를 분석</td></tr><tr><td></td><td>Resource Allocation Graph</td><td>자원과 프로세스를 모두 포함한 그래프 기반 모델</td></tr><tr><td></td><td>모니터링 및 트레이싱</td><td>런타임에 자원 대기 시간, 호출 체인 분석으로 deadlock 의심 상황 추적</td></tr><tr><td><strong>예방</strong></td><td>Lock Ordering</td><td>자원 획득 순서를 강제해 순환 대기 방지</td></tr><tr><td></td><td>타임아웃 전략</td><td>일정 시간 내 자원 획득 실패 시 요청 취소</td></tr><tr><td></td><td>Try-Lock / Back-off</td><td>락 획득 실패 시 재시도 또는 백오프 전략 적용</td></tr><tr><td></td><td>자원 요청 일괄 처리</td><td>자원을 한 번에 모두 요청하여 점유 대기 차단</td></tr><tr><td></td><td>상태 기반 제어</td><td>Safe / Unsafe 상태 판단 후 자원 할당 결정 (예: Banker&rsquo;s Algorithm)</td></tr></tbody></table><h5 id=환경별-가이드>환경별 가이드<a hidden class=anchor aria-hidden=true href=#환경별-가이드>#</a></h5><h6 id=운영체제-및-멀티스레드-프로그래밍>운영체제 및 멀티스레드 프로그래밍<a hidden class=anchor aria-hidden=true href=#운영체제-및-멀티스레드-프로그래밍>#</a></h6><table><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody><tr><td>🔍 탐지 방법</td><td>- Thread Dump 분석 (Java)<br>- <code>faulthandler</code> (Python)<br>- Deadlock Detection 알고리즘 적용</td></tr><tr><td>🛡️ 예방 전략</td><td>- 락 획득 순서 강제 (Lock Hierarchy)<br>- 타임아웃 기반 락 사용 (<code>tryLock(timeout)</code> in Java)<br>- 재진입 가능한 락 (ReentrantLock) 사용</td></tr><tr><td>🧠 도구 예시</td><td>Java: VisualVM, JConsole / Python: <code>threading</code>, <code>concurrent</code> 모듈 로그 분석</td></tr></tbody></table><h6 id=데이터베이스-rdbms>데이터베이스 (RDBMS)<a hidden class=anchor aria-hidden=true href=#데이터베이스-rdbms>#</a></h6><table><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody><tr><td>🔍 탐지 방법</td><td>- Lock Wait Graph 확인 (MySQL <code>INNODB STATUS</code>, PostgreSQL <code>pg_locks</code>)<br>- Deadlock Log 자동 기록</td></tr><tr><td>🛡️ 예방 전략</td><td>- 트랜잭션 자원 접근 순서 통일<br>- 짧은 트랜잭션 유지<br>- 필요한 자원 선요청 방식 (No Hold-and-Wait)</td></tr><tr><td>🧠 도구 예시</td><td>MySQL: Performance Schema, PostgreSQL: <code>pg_stat_activity</code>, Oracle: Deadlock Analyzer</td></tr></tbody></table><h6 id=분산-시스템--마이크로서비스>분산 시스템 / 마이크로서비스<a hidden class=anchor aria-hidden=true href=#분산-시스템--마이크로서비스>#</a></h6><table><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody><tr><td>🔍 탐지 방법</td><td>- 분산 트레이싱 기반 (Zipkin, Jaeger 등) 호출 체인 추적<br>- 로그 기반 순환 호출 탐지</td></tr><tr><td>🛡️ 예방 전략</td><td>- API 호출 방향 일관성 (e.g., M1 → M2 → M3)<br>- Circuit Breaker, Timeout 적용<br>- Distributed Lock 은 최소 범위에서만 사용</td></tr><tr><td>🧠 도구 예시</td><td>Jaeger, Zipkin, OpenTelemetry, Elastic APM 등</td></tr></tbody></table><h6 id=컨테이너-환경-kubernetes>컨테이너 환경 (Kubernetes)<a hidden class=anchor aria-hidden=true href=#컨테이너-환경-kubernetes>#</a></h6><table><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody><tr><td>🔍 탐지 방법</td><td>- <code>kubectl describe pod</code> 로 PVC, Node, Port 충돌 탐지<br>- 컨테이너 상태가 Pending 또는 CrashLoopBackOff 인 경우 자원 점유 문제 가능</td></tr><tr><td>🛡️ 예방 전략</td><td>- 자원 Request / Limit 명시<br>- ReadWriteOnce Volume 공유 방지<br>- Init Container 로 자원 선점 시점 제어</td></tr><tr><td>🧠 도구 예시</td><td>Prometheus + Grafana, Kube-state-metrics, Datadog</td></tr></tbody></table><h5 id=전략-통합-적용-우선순위-가이드라인>전략 통합: 적용 우선순위 가이드라인<a hidden class=anchor aria-hidden=true href=#전략-통합-적용-우선순위-가이드라인>#</a></h5><table><thead><tr><th>우선순위</th><th>전략</th><th>적용 시점</th></tr></thead><tbody><tr><td>1 순위</td><td>Lock Ordering, Resource Access Policy</td><td>설계 초기 단계</td></tr><tr><td>2 순위</td><td>Timeout, Try-Lock, 타임아웃 기반 재시도</td><td>구현 단계</td></tr><tr><td>3 순위</td><td>그래프 기반 탐지 / 분산 트레이싱 도입</td><td>테스트 및 운영 환경</td></tr><tr><td>보조 전략</td><td>모니터링 통합 (Prometheus, Tracing 등)</td><td>운영 최적화 단계</td></tr></tbody></table><h5 id=시나리오-기반-deadlock-예방-예시>시나리오 기반 Deadlock 예방 예시<a hidden class=anchor aria-hidden=true href=#시나리오-기반-deadlock-예방-예시>#</a></h5><h6 id=microservice-a--b--c-호출-구조>Microservice A → B → C 호출 구조<a hidden class=anchor aria-hidden=true href=#microservice-a--b--c-호출-구조>#</a></h6><p><strong>문제</strong>:</p><ul><li>B 가 C 를 호출하고, 동시에 C 도 A 로 다시 호출 시 순환 대기 발생 위험</li></ul><p><strong>해결</strong>:</p><ul><li>호출 구조를 단방향으로 강제 (A → B → C → D)</li><li>각 마이크로서비스에 타임아웃 + Circuit Breaker 설정</li><li>Zipkin 을 통해 호출 체인 시각화 및 순환 발생 시 경고 트리거</li></ul><h5 id=마무리-전략>마무리 전략<a hidden class=anchor aria-hidden=true href=#마무리-전략>#</a></h5><ul><li>Deadlock 은 &ldquo;<strong>사후 탐지보다 사전 예방이 핵심</strong>&rdquo;</li><li>시스템 레벨부터 애플리케이션 설계, 배포 운영에 이르기까지 계층별 전략 수립 필요</li><li>실무에서는 단일 전략보다 <strong>Lock 정책 + 타임아웃 + 관측성</strong>을 병행하는 다층적 접근이 가장 효과적</li></ul><h4 id=실제-도입-사례>실제 도입 사례<a hidden class=anchor aria-hidden=true href=#실제-도입-사례>#</a></h4><table><thead><tr><th>분류</th><th>시스템/환경</th><th>적용 기법</th><th>효과 분석</th><th>비고</th></tr></thead><tbody><tr><td>DBMS</td><td>MySQL InnoDB</td><td>행 수준 락 + Deadlock 탐지 + 트랜잭션 롤백</td><td>처리량 20% ↑, 데드락 80% ↓</td><td>자동 탐지 내장</td></tr><tr><td>웹 서버</td><td>Java 기반 WAS</td><td>Concurrent API + 락 타임아웃 + 락 순서화</td><td>응답시간 변동성 50% ↓, 가용성 99.9%</td><td>명시적 동기화 전략</td></tr><tr><td>분산 시스템</td><td>Apache Zookeeper</td><td>ephemeral node + session-based 락</td><td>장애 복구 시간 단축, 교착 회피</td><td>락 자동 소멸</td></tr><tr><td>운영체제</td><td>Linux Kernel</td><td>RT-Mutex + Priority Inheritance</td><td>우선순위 역전 방지 + Deadlock 회피</td><td>실시간 스케줄링 필수</td></tr><tr><td>메시지 시스템</td><td>Kafka Controller</td><td>단일 리더 락 + 타임아웃 제어</td><td>Failover 신속화, 리더 전환 안전성 확보</td><td>컨트롤러 election</td></tr></tbody></table><h4 id=실습-예제-및-코드-구현>실습 예제 및 코드 구현<a hidden class=anchor aria-hidden=true href=#실습-예제-및-코드-구현>#</a></h4><h5 id=사례-두-스레드가-각자-서로의-락을-기다리는-형태>사례: 두 스레드가 각자 서로의 락을 기다리는 형태<a hidden class=anchor aria-hidden=true href=#사례-두-스레드가-각자-서로의-락을-기다리는-형태>#</a></h5><p><strong>시나리오</strong>: 두 스레드가 각자 서로의 락을 기다리는 형태</p><p><strong>시스템 구성</strong>:</p><ul><li>Thread 1, Thread 2</li><li>Lock 1, Lock 2</li></ul><pre class=mermaid>graph TB
+    T1[스레드1] --&gt; L1[Lock1]
+    L1 --&gt; T1
+    T2[스레드2] --&gt; L2[Lock2]
+    L2 --&gt; T2
+    T1 --Lock2획득대기--&gt; L2
+    T2 --Lock1획득대기--&gt; L1
+</pre><p><strong>Workflow</strong></p><ol><li>Thread1: Lock1 → Lock2 획득 대기</li><li>Thread2: Lock2 → Lock1 획득 대기</li><li>둘 다 대기 → 교착상태 발생</li></ol><p><strong>유무에 따른 차이점</strong></p><ul><li>도입 전: 자원 사용 동기화 안됨, 데이터 손상 위험</li><li>도입 후: 교착 발생 가능 → 시스템 멈춤, 성능 저하</li></ul><p><strong>Python 구현 예시</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-6-1><a class=lnlinks href=#hl-6-1> 1</a>
+</span><span class=lnt id=hl-6-2><a class=lnlinks href=#hl-6-2> 2</a>
+</span><span class=lnt id=hl-6-3><a class=lnlinks href=#hl-6-3> 3</a>
+</span><span class=lnt id=hl-6-4><a class=lnlinks href=#hl-6-4> 4</a>
+</span><span class=lnt id=hl-6-5><a class=lnlinks href=#hl-6-5> 5</a>
+</span><span class=lnt id=hl-6-6><a class=lnlinks href=#hl-6-6> 6</a>
+</span><span class=lnt id=hl-6-7><a class=lnlinks href=#hl-6-7> 7</a>
+</span><span class=lnt id=hl-6-8><a class=lnlinks href=#hl-6-8> 8</a>
+</span><span class=lnt id=hl-6-9><a class=lnlinks href=#hl-6-9> 9</a>
+</span><span class=lnt id=hl-6-10><a class=lnlinks href=#hl-6-10>10</a>
+</span><span class=lnt id=hl-6-11><a class=lnlinks href=#hl-6-11>11</a>
+</span><span class=lnt id=hl-6-12><a class=lnlinks href=#hl-6-12>12</a>
+</span><span class=lnt id=hl-6-13><a class=lnlinks href=#hl-6-13>13</a>
+</span><span class=lnt id=hl-6-14><a class=lnlinks href=#hl-6-14>14</a>
+</span><span class=lnt id=hl-6-15><a class=lnlinks href=#hl-6-15>15</a>
+</span><span class=lnt id=hl-6-16><a class=lnlinks href=#hl-6-16>16</a>
+</span><span class=lnt id=hl-6-17><a class=lnlinks href=#hl-6-17>17</a>
+</span><span class=lnt id=hl-6-18><a class=lnlinks href=#hl-6-18>18</a>
+</span><span class=lnt id=hl-6-19><a class=lnlinks href=#hl-6-19>19</a>
+</span><span class=lnt id=hl-6-20><a class=lnlinks href=#hl-6-20>20</a>
+</span><span class=lnt id=hl-6-21><a class=lnlinks href=#hl-6-21>21</a>
+</span><span class=lnt id=hl-6-22><a class=lnlinks href=#hl-6-22>22</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>threading</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>time</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>lock_a</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Lock</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=n>lock_b</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Lock</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>thread1</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=k>with</span> <span class=n>lock_a</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>time</span><span class=o>.</span><span class=n>sleep</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>with</span> <span class=n>lock_b</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Thread1 완료&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>thread2</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=k>with</span> <span class=n>lock_b</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>time</span><span class=o>.</span><span class=n>sleep</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>with</span> <span class=n>lock_a</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Thread2 완료&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>t1</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Thread</span><span class=p>(</span><span class=n>target</span><span class=o>=</span><span class=n>thread1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>t2</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Thread</span><span class=p>(</span><span class=n>target</span><span class=o>=</span><span class=n>thread2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>t1</span><span class=o>.</span><span class=n>start</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=n>t2</span><span class=o>.</span><span class=n>start</span><span class=p>()</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li>thread1/2 가 각기 lock_a, lock_b 를 획득 후 다른 락을 요청 → Deadlock 발생</li></ul><h5 id=사례-은행-시스템에서-두-계좌-간-동시-송금-처리>사례: 은행 시스템에서 두 계좌 간 동시 송금 처리<a hidden class=anchor aria-hidden=true href=#사례-은행-시스템에서-두-계좌-간-동시-송금-처리>#</a></h5><p><strong>시나리오</strong>: 은행 시스템에서 두 계좌 간 동시 송금 처리</p><p><strong>시스템 구성</strong>:</p><ul><li>계좌 객체 (Account Object)</li><li>트랜잭션 관리자 (Transaction Manager)</li><li>데드락 탐지기 (Deadlock Detector)</li></ul><pre class=mermaid>graph TB
+    A[클라이언트 A&lt;br/&gt;계좌1→계좌2 송금] --&gt; C[트랜잭션 관리자]
+    B[클라이언트 B&lt;br/&gt;계좌2→계좌1 송금] --&gt; C
+    
+    C --&gt; D[계좌1 객체]
+    C --&gt; E[계좌2 객체]
+    
+    F[데드락 탐지기] --&gt; C
+    
+    style D fill:#ff9999
+    style E fill:#ff9999
+</pre><p><strong>Workflow</strong>:</p><ol><li>두 클라이언트가 동시에 서로 다른 방향으로 송금 요청</li><li>각 트랜잭션이 첫 번째 계좌 잠금 획득</li><li>두 번째 계좌 잠금 시도 시 데드락 발생</li><li>데드락 탐지기가 순환 대기 상태 감지</li><li>한 트랜잭션 롤백을 통한 데드락 해결</li></ol><p><strong>핵심 역할</strong>: 순서화된 잠금을 통한 데드락 예방</p><p><strong>유무에 따른 차이점</strong>:</p><ul><li><strong>도입 전</strong>: 무작위 순서 잠금으로 데드락 빈발, 시스템 불안정</li><li><strong>도입 후</strong>: 일관된 순서 잠금으로 데드락 예방, 안정적 서비스</li></ul><p><strong>구현 예시</strong> (Python):</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-8-1><a class=lnlinks href=#hl-8-1>  1</a>
+</span><span class=lnt id=hl-8-2><a class=lnlinks href=#hl-8-2>  2</a>
+</span><span class=lnt id=hl-8-3><a class=lnlinks href=#hl-8-3>  3</a>
+</span><span class=lnt id=hl-8-4><a class=lnlinks href=#hl-8-4>  4</a>
+</span><span class=lnt id=hl-8-5><a class=lnlinks href=#hl-8-5>  5</a>
+</span><span class=lnt id=hl-8-6><a class=lnlinks href=#hl-8-6>  6</a>
+</span><span class=lnt id=hl-8-7><a class=lnlinks href=#hl-8-7>  7</a>
+</span><span class=lnt id=hl-8-8><a class=lnlinks href=#hl-8-8>  8</a>
+</span><span class=lnt id=hl-8-9><a class=lnlinks href=#hl-8-9>  9</a>
+</span><span class=lnt id=hl-8-10><a class=lnlinks href=#hl-8-10> 10</a>
+</span><span class=lnt id=hl-8-11><a class=lnlinks href=#hl-8-11> 11</a>
+</span><span class=lnt id=hl-8-12><a class=lnlinks href=#hl-8-12> 12</a>
+</span><span class=lnt id=hl-8-13><a class=lnlinks href=#hl-8-13> 13</a>
+</span><span class=lnt id=hl-8-14><a class=lnlinks href=#hl-8-14> 14</a>
+</span><span class=lnt id=hl-8-15><a class=lnlinks href=#hl-8-15> 15</a>
+</span><span class=lnt id=hl-8-16><a class=lnlinks href=#hl-8-16> 16</a>
+</span><span class=lnt id=hl-8-17><a class=lnlinks href=#hl-8-17> 17</a>
+</span><span class=lnt id=hl-8-18><a class=lnlinks href=#hl-8-18> 18</a>
+</span><span class=lnt id=hl-8-19><a class=lnlinks href=#hl-8-19> 19</a>
+</span><span class=lnt id=hl-8-20><a class=lnlinks href=#hl-8-20> 20</a>
+</span><span class=lnt id=hl-8-21><a class=lnlinks href=#hl-8-21> 21</a>
+</span><span class=lnt id=hl-8-22><a class=lnlinks href=#hl-8-22> 22</a>
+</span><span class=lnt id=hl-8-23><a class=lnlinks href=#hl-8-23> 23</a>
+</span><span class=lnt id=hl-8-24><a class=lnlinks href=#hl-8-24> 24</a>
+</span><span class=lnt id=hl-8-25><a class=lnlinks href=#hl-8-25> 25</a>
+</span><span class=lnt id=hl-8-26><a class=lnlinks href=#hl-8-26> 26</a>
+</span><span class=lnt id=hl-8-27><a class=lnlinks href=#hl-8-27> 27</a>
+</span><span class=lnt id=hl-8-28><a class=lnlinks href=#hl-8-28> 28</a>
+</span><span class=lnt id=hl-8-29><a class=lnlinks href=#hl-8-29> 29</a>
+</span><span class=lnt id=hl-8-30><a class=lnlinks href=#hl-8-30> 30</a>
+</span><span class=lnt id=hl-8-31><a class=lnlinks href=#hl-8-31> 31</a>
+</span><span class=lnt id=hl-8-32><a class=lnlinks href=#hl-8-32> 32</a>
+</span><span class=lnt id=hl-8-33><a class=lnlinks href=#hl-8-33> 33</a>
+</span><span class=lnt id=hl-8-34><a class=lnlinks href=#hl-8-34> 34</a>
+</span><span class=lnt id=hl-8-35><a class=lnlinks href=#hl-8-35> 35</a>
+</span><span class=lnt id=hl-8-36><a class=lnlinks href=#hl-8-36> 36</a>
+</span><span class=lnt id=hl-8-37><a class=lnlinks href=#hl-8-37> 37</a>
+</span><span class=lnt id=hl-8-38><a class=lnlinks href=#hl-8-38> 38</a>
+</span><span class=lnt id=hl-8-39><a class=lnlinks href=#hl-8-39> 39</a>
+</span><span class=lnt id=hl-8-40><a class=lnlinks href=#hl-8-40> 40</a>
+</span><span class=lnt id=hl-8-41><a class=lnlinks href=#hl-8-41> 41</a>
+</span><span class=lnt id=hl-8-42><a class=lnlinks href=#hl-8-42> 42</a>
+</span><span class=lnt id=hl-8-43><a class=lnlinks href=#hl-8-43> 43</a>
+</span><span class=lnt id=hl-8-44><a class=lnlinks href=#hl-8-44> 44</a>
+</span><span class=lnt id=hl-8-45><a class=lnlinks href=#hl-8-45> 45</a>
+</span><span class=lnt id=hl-8-46><a class=lnlinks href=#hl-8-46> 46</a>
+</span><span class=lnt id=hl-8-47><a class=lnlinks href=#hl-8-47> 47</a>
+</span><span class=lnt id=hl-8-48><a class=lnlinks href=#hl-8-48> 48</a>
+</span><span class=lnt id=hl-8-49><a class=lnlinks href=#hl-8-49> 49</a>
+</span><span class=lnt id=hl-8-50><a class=lnlinks href=#hl-8-50> 50</a>
+</span><span class=lnt id=hl-8-51><a class=lnlinks href=#hl-8-51> 51</a>
+</span><span class=lnt id=hl-8-52><a class=lnlinks href=#hl-8-52> 52</a>
+</span><span class=lnt id=hl-8-53><a class=lnlinks href=#hl-8-53> 53</a>
+</span><span class=lnt id=hl-8-54><a class=lnlinks href=#hl-8-54> 54</a>
+</span><span class=lnt id=hl-8-55><a class=lnlinks href=#hl-8-55> 55</a>
+</span><span class=lnt id=hl-8-56><a class=lnlinks href=#hl-8-56> 56</a>
+</span><span class=lnt id=hl-8-57><a class=lnlinks href=#hl-8-57> 57</a>
+</span><span class=lnt id=hl-8-58><a class=lnlinks href=#hl-8-58> 58</a>
+</span><span class=lnt id=hl-8-59><a class=lnlinks href=#hl-8-59> 59</a>
+</span><span class=lnt id=hl-8-60><a class=lnlinks href=#hl-8-60> 60</a>
+</span><span class=lnt id=hl-8-61><a class=lnlinks href=#hl-8-61> 61</a>
+</span><span class=lnt id=hl-8-62><a class=lnlinks href=#hl-8-62> 62</a>
+</span><span class=lnt id=hl-8-63><a class=lnlinks href=#hl-8-63> 63</a>
+</span><span class=lnt id=hl-8-64><a class=lnlinks href=#hl-8-64> 64</a>
+</span><span class=lnt id=hl-8-65><a class=lnlinks href=#hl-8-65> 65</a>
+</span><span class=lnt id=hl-8-66><a class=lnlinks href=#hl-8-66> 66</a>
+</span><span class=lnt id=hl-8-67><a class=lnlinks href=#hl-8-67> 67</a>
+</span><span class=lnt id=hl-8-68><a class=lnlinks href=#hl-8-68> 68</a>
+</span><span class=lnt id=hl-8-69><a class=lnlinks href=#hl-8-69> 69</a>
+</span><span class=lnt id=hl-8-70><a class=lnlinks href=#hl-8-70> 70</a>
+</span><span class=lnt id=hl-8-71><a class=lnlinks href=#hl-8-71> 71</a>
+</span><span class=lnt id=hl-8-72><a class=lnlinks href=#hl-8-72> 72</a>
+</span><span class=lnt id=hl-8-73><a class=lnlinks href=#hl-8-73> 73</a>
+</span><span class=lnt id=hl-8-74><a class=lnlinks href=#hl-8-74> 74</a>
+</span><span class=lnt id=hl-8-75><a class=lnlinks href=#hl-8-75> 75</a>
+</span><span class=lnt id=hl-8-76><a class=lnlinks href=#hl-8-76> 76</a>
+</span><span class=lnt id=hl-8-77><a class=lnlinks href=#hl-8-77> 77</a>
+</span><span class=lnt id=hl-8-78><a class=lnlinks href=#hl-8-78> 78</a>
+</span><span class=lnt id=hl-8-79><a class=lnlinks href=#hl-8-79> 79</a>
+</span><span class=lnt id=hl-8-80><a class=lnlinks href=#hl-8-80> 80</a>
+</span><span class=lnt id=hl-8-81><a class=lnlinks href=#hl-8-81> 81</a>
+</span><span class=lnt id=hl-8-82><a class=lnlinks href=#hl-8-82> 82</a>
+</span><span class=lnt id=hl-8-83><a class=lnlinks href=#hl-8-83> 83</a>
+</span><span class=lnt id=hl-8-84><a class=lnlinks href=#hl-8-84> 84</a>
+</span><span class=lnt id=hl-8-85><a class=lnlinks href=#hl-8-85> 85</a>
+</span><span class=lnt id=hl-8-86><a class=lnlinks href=#hl-8-86> 86</a>
+</span><span class=lnt id=hl-8-87><a class=lnlinks href=#hl-8-87> 87</a>
+</span><span class=lnt id=hl-8-88><a class=lnlinks href=#hl-8-88> 88</a>
+</span><span class=lnt id=hl-8-89><a class=lnlinks href=#hl-8-89> 89</a>
+</span><span class=lnt id=hl-8-90><a class=lnlinks href=#hl-8-90> 90</a>
+</span><span class=lnt id=hl-8-91><a class=lnlinks href=#hl-8-91> 91</a>
+</span><span class=lnt id=hl-8-92><a class=lnlinks href=#hl-8-92> 92</a>
+</span><span class=lnt id=hl-8-93><a class=lnlinks href=#hl-8-93> 93</a>
+</span><span class=lnt id=hl-8-94><a class=lnlinks href=#hl-8-94> 94</a>
+</span><span class=lnt id=hl-8-95><a class=lnlinks href=#hl-8-95> 95</a>
+</span><span class=lnt id=hl-8-96><a class=lnlinks href=#hl-8-96> 96</a>
+</span><span class=lnt id=hl-8-97><a class=lnlinks href=#hl-8-97> 97</a>
+</span><span class=lnt id=hl-8-98><a class=lnlinks href=#hl-8-98> 98</a>
+</span><span class=lnt id=hl-8-99><a class=lnlinks href=#hl-8-99> 99</a>
+</span><span class=lnt id=hl-8-100><a class=lnlinks href=#hl-8-100>100</a>
+</span><span class=lnt id=hl-8-101><a class=lnlinks href=#hl-8-101>101</a>
+</span><span class=lnt id=hl-8-102><a class=lnlinks href=#hl-8-102>102</a>
+</span><span class=lnt id=hl-8-103><a class=lnlinks href=#hl-8-103>103</a>
+</span><span class=lnt id=hl-8-104><a class=lnlinks href=#hl-8-104>104</a>
+</span><span class=lnt id=hl-8-105><a class=lnlinks href=#hl-8-105>105</a>
+</span><span class=lnt id=hl-8-106><a class=lnlinks href=#hl-8-106>106</a>
+</span><span class=lnt id=hl-8-107><a class=lnlinks href=#hl-8-107>107</a>
+</span><span class=lnt id=hl-8-108><a class=lnlinks href=#hl-8-108>108</a>
+</span><span class=lnt id=hl-8-109><a class=lnlinks href=#hl-8-109>109</a>
+</span><span class=lnt id=hl-8-110><a class=lnlinks href=#hl-8-110>110</a>
+</span><span class=lnt id=hl-8-111><a class=lnlinks href=#hl-8-111>111</a>
+</span><span class=lnt id=hl-8-112><a class=lnlinks href=#hl-8-112>112</a>
+</span><span class=lnt id=hl-8-113><a class=lnlinks href=#hl-8-113>113</a>
+</span><span class=lnt id=hl-8-114><a class=lnlinks href=#hl-8-114>114</a>
+</span><span class=lnt id=hl-8-115><a class=lnlinks href=#hl-8-115>115</a>
+</span><span class=lnt id=hl-8-116><a class=lnlinks href=#hl-8-116>116</a>
+</span><span class=lnt id=hl-8-117><a class=lnlinks href=#hl-8-117>117</a>
+</span><span class=lnt id=hl-8-118><a class=lnlinks href=#hl-8-118>118</a>
+</span><span class=lnt id=hl-8-119><a class=lnlinks href=#hl-8-119>119</a>
+</span><span class=lnt id=hl-8-120><a class=lnlinks href=#hl-8-120>120</a>
+</span><span class=lnt id=hl-8-121><a class=lnlinks href=#hl-8-121>121</a>
+</span><span class=lnt id=hl-8-122><a class=lnlinks href=#hl-8-122>122</a>
+</span><span class=lnt id=hl-8-123><a class=lnlinks href=#hl-8-123>123</a>
+</span><span class=lnt id=hl-8-124><a class=lnlinks href=#hl-8-124>124</a>
+</span><span class=lnt id=hl-8-125><a class=lnlinks href=#hl-8-125>125</a>
+</span><span class=lnt id=hl-8-126><a class=lnlinks href=#hl-8-126>126</a>
+</span><span class=lnt id=hl-8-127><a class=lnlinks href=#hl-8-127>127</a>
+</span><span class=lnt id=hl-8-128><a class=lnlinks href=#hl-8-128>128</a>
+</span><span class=lnt id=hl-8-129><a class=lnlinks href=#hl-8-129>129</a>
+</span><span class=lnt id=hl-8-130><a class=lnlinks href=#hl-8-130>130</a>
+</span><span class=lnt id=hl-8-131><a class=lnlinks href=#hl-8-131>131</a>
+</span><span class=lnt id=hl-8-132><a class=lnlinks href=#hl-8-132>132</a>
+</span><span class=lnt id=hl-8-133><a class=lnlinks href=#hl-8-133>133</a>
+</span><span class=lnt id=hl-8-134><a class=lnlinks href=#hl-8-134>134</a>
+</span><span class=lnt id=hl-8-135><a class=lnlinks href=#hl-8-135>135</a>
+</span><span class=lnt id=hl-8-136><a class=lnlinks href=#hl-8-136>136</a>
+</span><span class=lnt id=hl-8-137><a class=lnlinks href=#hl-8-137>137</a>
+</span><span class=lnt id=hl-8-138><a class=lnlinks href=#hl-8-138>138</a>
+</span><span class=lnt id=hl-8-139><a class=lnlinks href=#hl-8-139>139</a>
+</span><span class=lnt id=hl-8-140><a class=lnlinks href=#hl-8-140>140</a>
+</span><span class=lnt id=hl-8-141><a class=lnlinks href=#hl-8-141>141</a>
+</span><span class=lnt id=hl-8-142><a class=lnlinks href=#hl-8-142>142</a>
+</span><span class=lnt id=hl-8-143><a class=lnlinks href=#hl-8-143>143</a>
+</span><span class=lnt id=hl-8-144><a class=lnlinks href=#hl-8-144>144</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>threading</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>time</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>typing</span> <span class=kn>import</span> <span class=n>Dict</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>Account</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;은행 계좌 클래스 - 동시성 제어를 위한 락 포함&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>account_id</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>balance</span><span class=p>:</span> <span class=nb>float</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>id</span> <span class=o>=</span> <span class=n>account_id</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>balance</span> <span class=o>=</span> <span class=n>balance</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>lock</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Lock</span><span class=p>()</span>  <span class=c1># 계좌별 뮤텍스 락</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>withdraw</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>amount</span><span class=p>:</span> <span class=nb>float</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bool</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;계좌에서 출금 - 잔액 검증 포함&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>balance</span> <span class=o>&gt;=</span> <span class=n>amount</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>balance</span> <span class=o>-=</span> <span class=n>amount</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>True</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>False</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>deposit</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>amount</span><span class=p>:</span> <span class=nb>float</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;계좌에 입금&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>balance</span> <span class=o>+=</span> <span class=n>amount</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>BankTransactionManager</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;은행 트랜잭션 관리자 - 데드락 예방 기능 포함&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>accounts</span><span class=p>:</span> <span class=n>Dict</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=n>Account</span><span class=p>]</span> <span class=o>=</span> <span class=p>{}</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>transaction_count</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>deadlock_prevented</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>add_account</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>account</span><span class=p>:</span> <span class=n>Account</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;계좌 등록&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>accounts</span><span class=p>[</span><span class=n>account</span><span class=o>.</span><span class=n>id</span><span class=p>]</span> <span class=o>=</span> <span class=n>account</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>transfer_safe</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>from_id</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>to_id</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>amount</span><span class=p>:</span> <span class=nb>float</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bool</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>        안전한 송금 처리 - 순서화된 잠금으로 데드락 예방
+</span></span></span><span class=line><span class=cl><span class=s2>        작은 ID를 가진 계좌를 먼저 잠금
+</span></span></span><span class=line><span class=cl><span class=s2>        &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=n>from_account</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>accounts</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=n>from_id</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>to_account</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>accounts</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=n>to_id</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=ow>not</span> <span class=n>from_account</span> <span class=ow>or</span> <span class=ow>not</span> <span class=n>to_account</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>False</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 데드락 예방: 계좌 ID 순서대로 잠금 획득</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>from_id</span> <span class=o>&lt;</span> <span class=n>to_id</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>first_lock</span><span class=p>,</span> <span class=n>second_lock</span> <span class=o>=</span> <span class=n>from_account</span><span class=o>.</span><span class=n>lock</span><span class=p>,</span> <span class=n>to_account</span><span class=o>.</span><span class=n>lock</span>
+</span></span><span class=line><span class=cl>            <span class=n>first_account</span><span class=p>,</span> <span class=n>second_account</span> <span class=o>=</span> <span class=n>from_account</span><span class=p>,</span> <span class=n>to_account</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>first_lock</span><span class=p>,</span> <span class=n>second_lock</span> <span class=o>=</span> <span class=n>to_account</span><span class=o>.</span><span class=n>lock</span><span class=p>,</span> <span class=n>from_account</span><span class=o>.</span><span class=n>lock</span>
+</span></span><span class=line><span class=cl>            <span class=n>first_account</span><span class=p>,</span> <span class=n>second_account</span> <span class=o>=</span> <span class=n>to_account</span><span class=p>,</span> <span class=n>from_account</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 순서화된 잠금 획득</span>
+</span></span><span class=line><span class=cl>            <span class=k>with</span> <span class=n>first_lock</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=k>with</span> <span class=n>second_lock</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;트랜잭션 시작: </span><span class=si>{</span><span class=n>from_id</span><span class=si>}</span><span class=s2> -&gt; </span><span class=si>{</span><span class=n>to_id</span><span class=si>}</span><span class=s2>, 금액: </span><span class=si>{</span><span class=n>amount</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                    
+</span></span><span class=line><span class=cl>                    <span class=c1># 실제 송금 처리</span>
+</span></span><span class=line><span class=cl>                    <span class=k>if</span> <span class=n>from_account</span><span class=o>.</span><span class=n>withdraw</span><span class=p>(</span><span class=n>amount</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>                        <span class=n>to_account</span><span class=o>.</span><span class=n>deposit</span><span class=p>(</span><span class=n>amount</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=bp>self</span><span class=o>.</span><span class=n>transaction_count</span> <span class=o>+=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>                        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;송금 완료: </span><span class=si>{</span><span class=n>from_account</span><span class=o>.</span><span class=n>balance</span><span class=si>}</span><span class=s2>, </span><span class=si>{</span><span class=n>to_account</span><span class=o>.</span><span class=n>balance</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        
+</span></span><span class=line><span class=cl>                        <span class=c1># 트랜잭션 처리 시뮬레이션</span>
+</span></span><span class=line><span class=cl>                        <span class=n>time</span><span class=o>.</span><span class=n>sleep</span><span class=p>(</span><span class=mf>0.1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=k>return</span> <span class=kc>True</span>
+</span></span><span class=line><span class=cl>                    <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;잔액 부족: </span><span class=si>{</span><span class=n>from_id</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=k>return</span> <span class=kc>False</span>
+</span></span><span class=line><span class=cl>                        
+</span></span><span class=line><span class=cl>        <span class=k>except</span> <span class=ne>Exception</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;트랜잭션 실패: </span><span class=si>{</span><span class=n>e</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>False</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>transfer_unsafe</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>from_id</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>to_id</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>amount</span><span class=p>:</span> <span class=nb>float</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bool</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>        위험한 송금 처리 - 데드락 발생 가능
+</span></span></span><span class=line><span class=cl><span class=s2>        무작위 순서로 잠금 시도
+</span></span></span><span class=line><span class=cl><span class=s2>        &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=n>from_account</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>accounts</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=n>from_id</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>to_account</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>accounts</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=n>to_id</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=ow>not</span> <span class=n>from_account</span> <span class=ow>or</span> <span class=ow>not</span> <span class=n>to_account</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>False</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 데드락 위험: 순서 없이 잠금 획득</span>
+</span></span><span class=line><span class=cl>            <span class=k>with</span> <span class=n>from_account</span><span class=o>.</span><span class=n>lock</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;첫 번째 잠금 획득: </span><span class=si>{</span><span class=n>from_id</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=n>time</span><span class=o>.</span><span class=n>sleep</span><span class=p>(</span><span class=mf>0.05</span><span class=p>)</span>  <span class=c1># 데드락 발생 확률 증가</span>
+</span></span><span class=line><span class=cl>                
+</span></span><span class=line><span class=cl>                <span class=k>with</span> <span class=n>to_account</span><span class=o>.</span><span class=n>lock</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;두 번째 잠금 획득: </span><span class=si>{</span><span class=n>to_id</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                    
+</span></span><span class=line><span class=cl>                    <span class=k>if</span> <span class=n>from_account</span><span class=o>.</span><span class=n>withdraw</span><span class=p>(</span><span class=n>amount</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>                        <span class=n>to_account</span><span class=o>.</span><span class=n>deposit</span><span class=p>(</span><span class=n>amount</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=bp>self</span><span class=o>.</span><span class=n>transaction_count</span> <span class=o>+=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>                        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;송금 완료: </span><span class=si>{</span><span class=n>from_account</span><span class=o>.</span><span class=n>balance</span><span class=si>}</span><span class=s2>, </span><span class=si>{</span><span class=n>to_account</span><span class=o>.</span><span class=n>balance</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=k>return</span> <span class=kc>True</span>
+</span></span><span class=line><span class=cl>                    <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;잔액 부족: </span><span class=si>{</span><span class=n>from_id</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=k>return</span> <span class=kc>False</span>
+</span></span><span class=line><span class=cl>                        
+</span></span><span class=line><span class=cl>        <span class=k>except</span> <span class=ne>Exception</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;트랜잭션 실패: </span><span class=si>{</span><span class=n>e</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>False</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 사용 예제</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>simulate_concurrent_transfers</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;동시 송금 시뮬레이션&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 계좌 및 관리자 초기화</span>
+</span></span><span class=line><span class=cl>    <span class=n>manager</span> <span class=o>=</span> <span class=n>BankTransactionManager</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>account1</span> <span class=o>=</span> <span class=n>Account</span><span class=p>(</span><span class=s2>&#34;ACC001&#34;</span><span class=p>,</span> <span class=mf>1000.0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>account2</span> <span class=o>=</span> <span class=n>Account</span><span class=p>(</span><span class=s2>&#34;ACC002&#34;</span><span class=p>,</span> <span class=mf>1500.0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=n>manager</span><span class=o>.</span><span class=n>add_account</span><span class=p>(</span><span class=n>account1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>manager</span><span class=o>.</span><span class=n>add_account</span><span class=p>(</span><span class=n>account2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;=== 안전한 송금 테스트 (데드락 예방) ===&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 동시 송금 스레드 생성</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>transfer1</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>        <span class=n>manager</span><span class=o>.</span><span class=n>transfer_safe</span><span class=p>(</span><span class=s2>&#34;ACC001&#34;</span><span class=p>,</span> <span class=s2>&#34;ACC002&#34;</span><span class=p>,</span> <span class=mf>500.0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>transfer2</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>        <span class=n>manager</span><span class=o>.</span><span class=n>transfer_safe</span><span class=p>(</span><span class=s2>&#34;ACC002&#34;</span><span class=p>,</span> <span class=s2>&#34;ACC001&#34;</span><span class=p>,</span> <span class=mf>300.0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 스레드 실행</span>
+</span></span><span class=line><span class=cl>    <span class=n>t1</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Thread</span><span class=p>(</span><span class=n>target</span><span class=o>=</span><span class=n>transfer1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>t2</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Thread</span><span class=p>(</span><span class=n>target</span><span class=o>=</span><span class=n>transfer2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=n>t1</span><span class=o>.</span><span class=n>start</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>t2</span><span class=o>.</span><span class=n>start</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=n>t1</span><span class=o>.</span><span class=n>join</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>t2</span><span class=o>.</span><span class=n>join</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;총 트랜잭션 수: </span><span class=si>{</span><span class=n>manager</span><span class=o>.</span><span class=n>transaction_count</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;최종 잔액 - ACC001: </span><span class=si>{</span><span class=n>account1</span><span class=o>.</span><span class=n>balance</span><span class=si>}</span><span class=s2>, ACC002: </span><span class=si>{</span><span class=n>account2</span><span class=o>.</span><span class=n>balance</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=vm>__name__</span> <span class=o>==</span> <span class=s2>&#34;__main__&#34;</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>simulate_concurrent_transfers</span><span class=p>()</span>
+</span></span></code></pre></td></tr></table></div></div><p><strong>JavaScript 예시</strong> (Node.js 환경):</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-9-1><a class=lnlinks href=#hl-9-1>  1</a>
+</span><span class=lnt id=hl-9-2><a class=lnlinks href=#hl-9-2>  2</a>
+</span><span class=lnt id=hl-9-3><a class=lnlinks href=#hl-9-3>  3</a>
+</span><span class=lnt id=hl-9-4><a class=lnlinks href=#hl-9-4>  4</a>
+</span><span class=lnt id=hl-9-5><a class=lnlinks href=#hl-9-5>  5</a>
+</span><span class=lnt id=hl-9-6><a class=lnlinks href=#hl-9-6>  6</a>
+</span><span class=lnt id=hl-9-7><a class=lnlinks href=#hl-9-7>  7</a>
+</span><span class=lnt id=hl-9-8><a class=lnlinks href=#hl-9-8>  8</a>
+</span><span class=lnt id=hl-9-9><a class=lnlinks href=#hl-9-9>  9</a>
+</span><span class=lnt id=hl-9-10><a class=lnlinks href=#hl-9-10> 10</a>
+</span><span class=lnt id=hl-9-11><a class=lnlinks href=#hl-9-11> 11</a>
+</span><span class=lnt id=hl-9-12><a class=lnlinks href=#hl-9-12> 12</a>
+</span><span class=lnt id=hl-9-13><a class=lnlinks href=#hl-9-13> 13</a>
+</span><span class=lnt id=hl-9-14><a class=lnlinks href=#hl-9-14> 14</a>
+</span><span class=lnt id=hl-9-15><a class=lnlinks href=#hl-9-15> 15</a>
+</span><span class=lnt id=hl-9-16><a class=lnlinks href=#hl-9-16> 16</a>
+</span><span class=lnt id=hl-9-17><a class=lnlinks href=#hl-9-17> 17</a>
+</span><span class=lnt id=hl-9-18><a class=lnlinks href=#hl-9-18> 18</a>
+</span><span class=lnt id=hl-9-19><a class=lnlinks href=#hl-9-19> 19</a>
+</span><span class=lnt id=hl-9-20><a class=lnlinks href=#hl-9-20> 20</a>
+</span><span class=lnt id=hl-9-21><a class=lnlinks href=#hl-9-21> 21</a>
+</span><span class=lnt id=hl-9-22><a class=lnlinks href=#hl-9-22> 22</a>
+</span><span class=lnt id=hl-9-23><a class=lnlinks href=#hl-9-23> 23</a>
+</span><span class=lnt id=hl-9-24><a class=lnlinks href=#hl-9-24> 24</a>
+</span><span class=lnt id=hl-9-25><a class=lnlinks href=#hl-9-25> 25</a>
+</span><span class=lnt id=hl-9-26><a class=lnlinks href=#hl-9-26> 26</a>
+</span><span class=lnt id=hl-9-27><a class=lnlinks href=#hl-9-27> 27</a>
+</span><span class=lnt id=hl-9-28><a class=lnlinks href=#hl-9-28> 28</a>
+</span><span class=lnt id=hl-9-29><a class=lnlinks href=#hl-9-29> 29</a>
+</span><span class=lnt id=hl-9-30><a class=lnlinks href=#hl-9-30> 30</a>
+</span><span class=lnt id=hl-9-31><a class=lnlinks href=#hl-9-31> 31</a>
+</span><span class=lnt id=hl-9-32><a class=lnlinks href=#hl-9-32> 32</a>
+</span><span class=lnt id=hl-9-33><a class=lnlinks href=#hl-9-33> 33</a>
+</span><span class=lnt id=hl-9-34><a class=lnlinks href=#hl-9-34> 34</a>
+</span><span class=lnt id=hl-9-35><a class=lnlinks href=#hl-9-35> 35</a>
+</span><span class=lnt id=hl-9-36><a class=lnlinks href=#hl-9-36> 36</a>
+</span><span class=lnt id=hl-9-37><a class=lnlinks href=#hl-9-37> 37</a>
+</span><span class=lnt id=hl-9-38><a class=lnlinks href=#hl-9-38> 38</a>
+</span><span class=lnt id=hl-9-39><a class=lnlinks href=#hl-9-39> 39</a>
+</span><span class=lnt id=hl-9-40><a class=lnlinks href=#hl-9-40> 40</a>
+</span><span class=lnt id=hl-9-41><a class=lnlinks href=#hl-9-41> 41</a>
+</span><span class=lnt id=hl-9-42><a class=lnlinks href=#hl-9-42> 42</a>
+</span><span class=lnt id=hl-9-43><a class=lnlinks href=#hl-9-43> 43</a>
+</span><span class=lnt id=hl-9-44><a class=lnlinks href=#hl-9-44> 44</a>
+</span><span class=lnt id=hl-9-45><a class=lnlinks href=#hl-9-45> 45</a>
+</span><span class=lnt id=hl-9-46><a class=lnlinks href=#hl-9-46> 46</a>
+</span><span class=lnt id=hl-9-47><a class=lnlinks href=#hl-9-47> 47</a>
+</span><span class=lnt id=hl-9-48><a class=lnlinks href=#hl-9-48> 48</a>
+</span><span class=lnt id=hl-9-49><a class=lnlinks href=#hl-9-49> 49</a>
+</span><span class=lnt id=hl-9-50><a class=lnlinks href=#hl-9-50> 50</a>
+</span><span class=lnt id=hl-9-51><a class=lnlinks href=#hl-9-51> 51</a>
+</span><span class=lnt id=hl-9-52><a class=lnlinks href=#hl-9-52> 52</a>
+</span><span class=lnt id=hl-9-53><a class=lnlinks href=#hl-9-53> 53</a>
+</span><span class=lnt id=hl-9-54><a class=lnlinks href=#hl-9-54> 54</a>
+</span><span class=lnt id=hl-9-55><a class=lnlinks href=#hl-9-55> 55</a>
+</span><span class=lnt id=hl-9-56><a class=lnlinks href=#hl-9-56> 56</a>
+</span><span class=lnt id=hl-9-57><a class=lnlinks href=#hl-9-57> 57</a>
+</span><span class=lnt id=hl-9-58><a class=lnlinks href=#hl-9-58> 58</a>
+</span><span class=lnt id=hl-9-59><a class=lnlinks href=#hl-9-59> 59</a>
+</span><span class=lnt id=hl-9-60><a class=lnlinks href=#hl-9-60> 60</a>
+</span><span class=lnt id=hl-9-61><a class=lnlinks href=#hl-9-61> 61</a>
+</span><span class=lnt id=hl-9-62><a class=lnlinks href=#hl-9-62> 62</a>
+</span><span class=lnt id=hl-9-63><a class=lnlinks href=#hl-9-63> 63</a>
+</span><span class=lnt id=hl-9-64><a class=lnlinks href=#hl-9-64> 64</a>
+</span><span class=lnt id=hl-9-65><a class=lnlinks href=#hl-9-65> 65</a>
+</span><span class=lnt id=hl-9-66><a class=lnlinks href=#hl-9-66> 66</a>
+</span><span class=lnt id=hl-9-67><a class=lnlinks href=#hl-9-67> 67</a>
+</span><span class=lnt id=hl-9-68><a class=lnlinks href=#hl-9-68> 68</a>
+</span><span class=lnt id=hl-9-69><a class=lnlinks href=#hl-9-69> 69</a>
+</span><span class=lnt id=hl-9-70><a class=lnlinks href=#hl-9-70> 70</a>
+</span><span class=lnt id=hl-9-71><a class=lnlinks href=#hl-9-71> 71</a>
+</span><span class=lnt id=hl-9-72><a class=lnlinks href=#hl-9-72> 72</a>
+</span><span class=lnt id=hl-9-73><a class=lnlinks href=#hl-9-73> 73</a>
+</span><span class=lnt id=hl-9-74><a class=lnlinks href=#hl-9-74> 74</a>
+</span><span class=lnt id=hl-9-75><a class=lnlinks href=#hl-9-75> 75</a>
+</span><span class=lnt id=hl-9-76><a class=lnlinks href=#hl-9-76> 76</a>
+</span><span class=lnt id=hl-9-77><a class=lnlinks href=#hl-9-77> 77</a>
+</span><span class=lnt id=hl-9-78><a class=lnlinks href=#hl-9-78> 78</a>
+</span><span class=lnt id=hl-9-79><a class=lnlinks href=#hl-9-79> 79</a>
+</span><span class=lnt id=hl-9-80><a class=lnlinks href=#hl-9-80> 80</a>
+</span><span class=lnt id=hl-9-81><a class=lnlinks href=#hl-9-81> 81</a>
+</span><span class=lnt id=hl-9-82><a class=lnlinks href=#hl-9-82> 82</a>
+</span><span class=lnt id=hl-9-83><a class=lnlinks href=#hl-9-83> 83</a>
+</span><span class=lnt id=hl-9-84><a class=lnlinks href=#hl-9-84> 84</a>
+</span><span class=lnt id=hl-9-85><a class=lnlinks href=#hl-9-85> 85</a>
+</span><span class=lnt id=hl-9-86><a class=lnlinks href=#hl-9-86> 86</a>
+</span><span class=lnt id=hl-9-87><a class=lnlinks href=#hl-9-87> 87</a>
+</span><span class=lnt id=hl-9-88><a class=lnlinks href=#hl-9-88> 88</a>
+</span><span class=lnt id=hl-9-89><a class=lnlinks href=#hl-9-89> 89</a>
+</span><span class=lnt id=hl-9-90><a class=lnlinks href=#hl-9-90> 90</a>
+</span><span class=lnt id=hl-9-91><a class=lnlinks href=#hl-9-91> 91</a>
+</span><span class=lnt id=hl-9-92><a class=lnlinks href=#hl-9-92> 92</a>
+</span><span class=lnt id=hl-9-93><a class=lnlinks href=#hl-9-93> 93</a>
+</span><span class=lnt id=hl-9-94><a class=lnlinks href=#hl-9-94> 94</a>
+</span><span class=lnt id=hl-9-95><a class=lnlinks href=#hl-9-95> 95</a>
+</span><span class=lnt id=hl-9-96><a class=lnlinks href=#hl-9-96> 96</a>
+</span><span class=lnt id=hl-9-97><a class=lnlinks href=#hl-9-97> 97</a>
+</span><span class=lnt id=hl-9-98><a class=lnlinks href=#hl-9-98> 98</a>
+</span><span class=lnt id=hl-9-99><a class=lnlinks href=#hl-9-99> 99</a>
+</span><span class=lnt id=hl-9-100><a class=lnlinks href=#hl-9-100>100</a>
+</span><span class=lnt id=hl-9-101><a class=lnlinks href=#hl-9-101>101</a>
+</span><span class=lnt id=hl-9-102><a class=lnlinks href=#hl-9-102>102</a>
+</span><span class=lnt id=hl-9-103><a class=lnlinks href=#hl-9-103>103</a>
+</span><span class=lnt id=hl-9-104><a class=lnlinks href=#hl-9-104>104</a>
+</span><span class=lnt id=hl-9-105><a class=lnlinks href=#hl-9-105>105</a>
+</span><span class=lnt id=hl-9-106><a class=lnlinks href=#hl-9-106>106</a>
+</span><span class=lnt id=hl-9-107><a class=lnlinks href=#hl-9-107>107</a>
+</span><span class=lnt id=hl-9-108><a class=lnlinks href=#hl-9-108>108</a>
+</span><span class=lnt id=hl-9-109><a class=lnlinks href=#hl-9-109>109</a>
+</span><span class=lnt id=hl-9-110><a class=lnlinks href=#hl-9-110>110</a>
+</span><span class=lnt id=hl-9-111><a class=lnlinks href=#hl-9-111>111</a>
+</span><span class=lnt id=hl-9-112><a class=lnlinks href=#hl-9-112>112</a>
+</span><span class=lnt id=hl-9-113><a class=lnlinks href=#hl-9-113>113</a>
+</span><span class=lnt id=hl-9-114><a class=lnlinks href=#hl-9-114>114</a>
+</span><span class=lnt id=hl-9-115><a class=lnlinks href=#hl-9-115>115</a>
+</span><span class=lnt id=hl-9-116><a class=lnlinks href=#hl-9-116>116</a>
+</span><span class=lnt id=hl-9-117><a class=lnlinks href=#hl-9-117>117</a>
+</span><span class=lnt id=hl-9-118><a class=lnlinks href=#hl-9-118>118</a>
+</span><span class=lnt id=hl-9-119><a class=lnlinks href=#hl-9-119>119</a>
+</span><span class=lnt id=hl-9-120><a class=lnlinks href=#hl-9-120>120</a>
+</span><span class=lnt id=hl-9-121><a class=lnlinks href=#hl-9-121>121</a>
+</span><span class=lnt id=hl-9-122><a class=lnlinks href=#hl-9-122>122</a>
+</span><span class=lnt id=hl-9-123><a class=lnlinks href=#hl-9-123>123</a>
+</span><span class=lnt id=hl-9-124><a class=lnlinks href=#hl-9-124>124</a>
+</span><span class=lnt id=hl-9-125><a class=lnlinks href=#hl-9-125>125</a>
+</span><span class=lnt id=hl-9-126><a class=lnlinks href=#hl-9-126>126</a>
+</span><span class=lnt id=hl-9-127><a class=lnlinks href=#hl-9-127>127</a>
+</span><span class=lnt id=hl-9-128><a class=lnlinks href=#hl-9-128>128</a>
+</span><span class=lnt id=hl-9-129><a class=lnlinks href=#hl-9-129>129</a>
+</span><span class=lnt id=hl-9-130><a class=lnlinks href=#hl-9-130>130</a>
+</span><span class=lnt id=hl-9-131><a class=lnlinks href=#hl-9-131>131</a>
+</span><span class=lnt id=hl-9-132><a class=lnlinks href=#hl-9-132>132</a>
+</span><span class=lnt id=hl-9-133><a class=lnlinks href=#hl-9-133>133</a>
+</span><span class=lnt id=hl-9-134><a class=lnlinks href=#hl-9-134>134</a>
+</span><span class=lnt id=hl-9-135><a class=lnlinks href=#hl-9-135>135</a>
+</span><span class=lnt id=hl-9-136><a class=lnlinks href=#hl-9-136>136</a>
+</span><span class=lnt id=hl-9-137><a class=lnlinks href=#hl-9-137>137</a>
+</span><span class=lnt id=hl-9-138><a class=lnlinks href=#hl-9-138>138</a>
+</span><span class=lnt id=hl-9-139><a class=lnlinks href=#hl-9-139>139</a>
+</span><span class=lnt id=hl-9-140><a class=lnlinks href=#hl-9-140>140</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=kr>class</span> <span class=nx>AsyncLock</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>     * 비동기 환경에서의 뮤텍스 락 구현
+</span></span></span><span class=line><span class=cl><span class=cm>     * Promise 기반의 잠금 메커니즘 제공
+</span></span></span><span class=line><span class=cl><span class=cm>     */</span>
+</span></span><span class=line><span class=cl>    <span class=nx>constructor</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=p>.</span><span class=nx>locked</span> <span class=o>=</span> <span class=kc>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=p>.</span><span class=nx>waitQueue</span> <span class=o>=</span> <span class=p>[];</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=kr>async</span> <span class=nx>acquire</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=k>new</span> <span class=nb>Promise</span><span class=p>((</span><span class=nx>resolve</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=k>this</span><span class=p>.</span><span class=nx>locked</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=k>this</span><span class=p>.</span><span class=nx>locked</span> <span class=o>=</span> <span class=kc>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>                <span class=nx>resolve</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span> <span class=k>else</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=k>this</span><span class=p>.</span><span class=nx>waitQueue</span><span class=p>.</span><span class=nx>push</span><span class=p>(</span><span class=nx>resolve</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=p>});</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=nx>release</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span><span class=k>this</span><span class=p>.</span><span class=nx>waitQueue</span><span class=p>.</span><span class=nx>length</span> <span class=o>&gt;</span> <span class=mi>0</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=kr>const</span> <span class=nx>nextResolve</span> <span class=o>=</span> <span class=k>this</span><span class=p>.</span><span class=nx>waitQueue</span><span class=p>.</span><span class=nx>shift</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>            <span class=nx>nextResolve</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span> <span class=k>else</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>this</span><span class=p>.</span><span class=nx>locked</span> <span class=o>=</span> <span class=kc>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kr>class</span> <span class=nx>Account</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>     * 비동기 계좌 클래스
+</span></span></span><span class=line><span class=cl><span class=cm>     */</span>
+</span></span><span class=line><span class=cl>    <span class=nx>constructor</span><span class=p>(</span><span class=nx>id</span><span class=p>,</span> <span class=nx>balance</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=p>.</span><span class=nx>id</span> <span class=o>=</span> <span class=nx>id</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=p>.</span><span class=nx>balance</span> <span class=o>=</span> <span class=nx>balance</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=p>.</span><span class=nx>lock</span> <span class=o>=</span> <span class=k>new</span> <span class=nx>AsyncLock</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=kr>async</span> <span class=nx>withdraw</span><span class=p>(</span><span class=nx>amount</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span><span class=k>this</span><span class=p>.</span><span class=nx>balance</span> <span class=o>&gt;=</span> <span class=nx>amount</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>this</span><span class=p>.</span><span class=nx>balance</span> <span class=o>-=</span> <span class=nx>amount</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=kr>async</span> <span class=nx>deposit</span><span class=p>(</span><span class=nx>amount</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=p>.</span><span class=nx>balance</span> <span class=o>+=</span> <span class=nx>amount</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kr>class</span> <span class=nx>AsyncTransactionManager</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>     * 비동기 트랜잭션 관리자 - 데드락 예방 포함
+</span></span></span><span class=line><span class=cl><span class=cm>     */</span>
+</span></span><span class=line><span class=cl>    <span class=nx>constructor</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=p>.</span><span class=nx>accounts</span> <span class=o>=</span> <span class=k>new</span> <span class=nx>Map</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=p>.</span><span class=nx>transactionCount</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=nx>addAccount</span><span class=p>(</span><span class=nx>account</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=p>.</span><span class=nx>accounts</span><span class=p>.</span><span class=nx>set</span><span class=p>(</span><span class=nx>account</span><span class=p>.</span><span class=nx>id</span><span class=p>,</span> <span class=nx>account</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=kr>async</span> <span class=nx>transferSafe</span><span class=p>(</span><span class=nx>fromId</span><span class=p>,</span> <span class=nx>toId</span><span class=p>,</span> <span class=nx>amount</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>         * 안전한 비동기 송금 - 순서화된 잠금
+</span></span></span><span class=line><span class=cl><span class=cm>         */</span>
+</span></span><span class=line><span class=cl>        <span class=kr>const</span> <span class=nx>fromAccount</span> <span class=o>=</span> <span class=k>this</span><span class=p>.</span><span class=nx>accounts</span><span class=p>.</span><span class=nx>get</span><span class=p>(</span><span class=nx>fromId</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=kr>const</span> <span class=nx>toAccount</span> <span class=o>=</span> <span class=k>this</span><span class=p>.</span><span class=nx>accounts</span><span class=p>.</span><span class=nx>get</span><span class=p>(</span><span class=nx>toId</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=nx>fromAccount</span> <span class=o>||</span> <span class=o>!</span><span class=nx>toAccount</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1>// 데드락 예방: ID 기준 순서화
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=kr>const</span> <span class=nx>locks</span> <span class=o>=</span> <span class=nx>fromId</span> <span class=o>&lt;</span> <span class=nx>toId</span> 
+</span></span><span class=line><span class=cl>            <span class=o>?</span> <span class=p>[</span><span class=nx>fromAccount</span><span class=p>.</span><span class=nx>lock</span><span class=p>,</span> <span class=nx>toAccount</span><span class=p>.</span><span class=nx>lock</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>            <span class=o>:</span> <span class=p>[</span><span class=nx>toAccount</span><span class=p>.</span><span class=nx>lock</span><span class=p>,</span> <span class=nx>fromAccount</span><span class=p>.</span><span class=nx>lock</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>try</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=c1>// 순서대로 잠금 획득
+</span></span></span><span class=line><span class=cl><span class=c1></span>            <span class=kr>await</span> <span class=nx>locks</span><span class=p>[</span><span class=mi>0</span><span class=p>].</span><span class=nx>acquire</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>            <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=sb>`첫 번째 잠금 획득: </span><span class=si>${</span><span class=nx>fromId</span> <span class=o>&lt;</span> <span class=nx>toId</span> <span class=o>?</span> <span class=nx>fromId</span> <span class=o>:</span> <span class=nx>toId</span><span class=si>}</span><span class=sb>`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=kr>await</span> <span class=nx>locks</span><span class=p>[</span><span class=mi>1</span><span class=p>].</span><span class=nx>acquire</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>            <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=sb>`두 번째 잠금 획득: </span><span class=si>${</span><span class=nx>fromId</span> <span class=o>&lt;</span> <span class=nx>toId</span> <span class=o>?</span> <span class=nx>toId</span> <span class=o>:</span> <span class=nx>fromId</span><span class=si>}</span><span class=sb>`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=c1>// 송금 처리
+</span></span></span><span class=line><span class=cl><span class=c1></span>            <span class=k>if</span> <span class=p>(</span><span class=kr>await</span> <span class=nx>fromAccount</span><span class=p>.</span><span class=nx>withdraw</span><span class=p>(</span><span class=nx>amount</span><span class=p>))</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=kr>await</span> <span class=nx>toAccount</span><span class=p>.</span><span class=nx>deposit</span><span class=p>(</span><span class=nx>amount</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>                <span class=k>this</span><span class=p>.</span><span class=nx>transactionCount</span><span class=o>++</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>                <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=sb>`송금 완료: </span><span class=si>${</span><span class=nx>fromId</span><span class=si>}</span><span class=sb> -&gt; </span><span class=si>${</span><span class=nx>toId</span><span class=si>}</span><span class=sb>, 금액: </span><span class=si>${</span><span class=nx>amount</span><span class=si>}</span><span class=sb>`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>                <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=sb>`잔액 - </span><span class=si>${</span><span class=nx>fromId</span><span class=si>}</span><span class=sb>: </span><span class=si>${</span><span class=nx>fromAccount</span><span class=p>.</span><span class=nx>balance</span><span class=si>}</span><span class=sb>, </span><span class=si>${</span><span class=nx>toId</span><span class=si>}</span><span class=sb>: </span><span class=si>${</span><span class=nx>toAccount</span><span class=p>.</span><span class=nx>balance</span><span class=si>}</span><span class=sb>`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>                
+</span></span><span class=line><span class=cl>                <span class=c1>// 처리 시간 시뮬레이션
+</span></span></span><span class=line><span class=cl><span class=c1></span>                <span class=kr>await</span> <span class=k>new</span> <span class=nb>Promise</span><span class=p>(</span><span class=nx>resolve</span> <span class=p>=&gt;</span> <span class=nx>setTimeout</span><span class=p>(</span><span class=nx>resolve</span><span class=p>,</span> <span class=mi>100</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>                
+</span></span><span class=line><span class=cl>                <span class=k>return</span> <span class=kc>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span> <span class=k>else</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=sb>`잔액 부족: </span><span class=si>${</span><span class=nx>fromId</span><span class=si>}</span><span class=sb>`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>                <span class=k>return</span> <span class=kc>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>        <span class=p>}</span> <span class=k>finally</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=c1>// 역순으로 잠금 해제
+</span></span></span><span class=line><span class=cl><span class=c1></span>            <span class=nx>locks</span><span class=p>[</span><span class=mi>1</span><span class=p>].</span><span class=nx>release</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>            <span class=nx>locks</span><span class=p>[</span><span class=mi>0</span><span class=p>].</span><span class=nx>release</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 사용 예제
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kr>async</span> <span class=kd>function</span> <span class=nx>simulateAsyncTransfers</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kr>const</span> <span class=nx>manager</span> <span class=o>=</span> <span class=k>new</span> <span class=nx>AsyncTransactionManager</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=kr>const</span> <span class=nx>account1</span> <span class=o>=</span> <span class=k>new</span> <span class=nx>Account</span><span class=p>(</span><span class=s2>&#34;ACC001&#34;</span><span class=p>,</span> <span class=mi>1000</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=kr>const</span> <span class=nx>account2</span> <span class=o>=</span> <span class=k>new</span> <span class=nx>Account</span><span class=p>(</span><span class=s2>&#34;ACC002&#34;</span><span class=p>,</span> <span class=mi>1500</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=nx>manager</span><span class=p>.</span><span class=nx>addAccount</span><span class=p>(</span><span class=nx>account1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nx>manager</span><span class=p>.</span><span class=nx>addAccount</span><span class=p>(</span><span class=nx>account2</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s2>&#34;=== 비동기 안전한 송금 테스트 ===&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 동시 송금 실행
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kr>const</span> <span class=nx>transfers</span> <span class=o>=</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>        <span class=nx>manager</span><span class=p>.</span><span class=nx>transferSafe</span><span class=p>(</span><span class=s2>&#34;ACC001&#34;</span><span class=p>,</span> <span class=s2>&#34;ACC002&#34;</span><span class=p>,</span> <span class=mi>500</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>        <span class=nx>manager</span><span class=p>.</span><span class=nx>transferSafe</span><span class=p>(</span><span class=s2>&#34;ACC002&#34;</span><span class=p>,</span> <span class=s2>&#34;ACC001&#34;</span><span class=p>,</span> <span class=mi>300</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>];</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=kr>await</span> <span class=nb>Promise</span><span class=p>.</span><span class=nx>all</span><span class=p>(</span><span class=nx>transfers</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=sb>`총 트랜잭션 수: </span><span class=si>${</span><span class=nx>manager</span><span class=p>.</span><span class=nx>transactionCount</span><span class=si>}</span><span class=sb>`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=sb>`최종 잔액 - ACC001: </span><span class=si>${</span><span class=nx>account1</span><span class=p>.</span><span class=nx>balance</span><span class=si>}</span><span class=sb>, ACC002: </span><span class=si>${</span><span class=nx>account2</span><span class=p>.</span><span class=nx>balance</span><span class=si>}</span><span class=sb>`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 실행
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>simulateAsyncTransfers</span><span class=p>().</span><span class=k>catch</span><span class=p>(</span><span class=nx>console</span><span class=p>.</span><span class=nx>error</span><span class=p>);</span>
+</span></span></code></pre></td></tr></table></div></div><h5 id=사례-데이터베이스-트랜잭션-deadlock>사례: 데이터베이스 트랜잭션 Deadlock<a hidden class=anchor aria-hidden=true href=#사례-데이터베이스-트랜잭션-deadlock>#</a></h5><p><strong>시나리오</strong>: MySQL InnoDB 트랜잭션에서 두 스레드가 서로 잠금을 얻고 커밋을 기다리며 교착 발생</p><p><strong>시스템 구성</strong>:</p><ul><li>두 클라이언트 스레드, 각 트랜잭션이 테이블의 다른 행 (row) 에 잠금 요청</li><li>InnoDB lock manager</li></ul><pre class=mermaid>graph LR
+A[Thread1 Tx1] -- lock row1 --&gt; R1[Row1]
+A -- waits for lock row2 --&gt; R2[Row2]
+B[Thread2 Tx2] -- lock row2 --&gt; R2
+B -- waits for lock row1 --&gt; R1
+</pre><p><strong>Workflow</strong>:</p><ol><li>Tx1 가 Row1 lock 획득 후 Row2 lock 대기</li><li>Tx2 가 Row2 lock 획득 후 Row1 lock 대기</li><li>데드락 탐지 모듈 실행</li><li>InnoDB 는 wait-for 그래프에서 cycle 발견 → 낮은 우선순위 트랜잭션 롤백</li></ol><p><strong>역할</strong>:</p><ul><li>Lock manager: 자원 요청 기록 및 WFG 구성</li><li>Deadlock detector: 정기적 WFG 순환 탐색</li><li>Deadlock resolver: 프로세스 종료 또는 트랜잭션 롤백</li></ul><p><strong>유무에 따른 차이점</strong>:</p><ul><li>Deadlock 없음 → 양쪽 트랜잭션 정상 커밋</li><li>Deadlock 있음 → 낮은 우선 순위 트랜잭션 롤백 → 자원 해제, 나머지 트랜잭션 진행</li></ul><p><strong>구현 예시 (Python Pseudocode)</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-11-1><a class=lnlinks href=#hl-11-1> 1</a>
+</span><span class=lnt id=hl-11-2><a class=lnlinks href=#hl-11-2> 2</a>
+</span><span class=lnt id=hl-11-3><a class=lnlinks href=#hl-11-3> 3</a>
+</span><span class=lnt id=hl-11-4><a class=lnlinks href=#hl-11-4> 4</a>
+</span><span class=lnt id=hl-11-5><a class=lnlinks href=#hl-11-5> 5</a>
+</span><span class=lnt id=hl-11-6><a class=lnlinks href=#hl-11-6> 6</a>
+</span><span class=lnt id=hl-11-7><a class=lnlinks href=#hl-11-7> 7</a>
+</span><span class=lnt id=hl-11-8><a class=lnlinks href=#hl-11-8> 8</a>
+</span><span class=lnt id=hl-11-9><a class=lnlinks href=#hl-11-9> 9</a>
+</span><span class=lnt id=hl-11-10><a class=lnlinks href=#hl-11-10>10</a>
+</span><span class=lnt id=hl-11-11><a class=lnlinks href=#hl-11-11>11</a>
+</span><span class=lnt id=hl-11-12><a class=lnlinks href=#hl-11-12>12</a>
+</span><span class=lnt id=hl-11-13><a class=lnlinks href=#hl-11-13>13</a>
+</span><span class=lnt id=hl-11-14><a class=lnlinks href=#hl-11-14>14</a>
+</span><span class=lnt id=hl-11-15><a class=lnlinks href=#hl-11-15>15</a>
+</span><span class=lnt id=hl-11-16><a class=lnlinks href=#hl-11-16>16</a>
+</span><span class=lnt id=hl-11-17><a class=lnlinks href=#hl-11-17>17</a>
+</span><span class=lnt id=hl-11-18><a class=lnlinks href=#hl-11-18>18</a>
+</span><span class=lnt id=hl-11-19><a class=lnlinks href=#hl-11-19>19</a>
+</span><span class=lnt id=hl-11-20><a class=lnlinks href=#hl-11-20>20</a>
+</span><span class=lnt id=hl-11-21><a class=lnlinks href=#hl-11-21>21</a>
+</span><span class=lnt id=hl-11-22><a class=lnlinks href=#hl-11-22>22</a>
+</span><span class=lnt id=hl-11-23><a class=lnlinks href=#hl-11-23>23</a>
+</span><span class=lnt id=hl-11-24><a class=lnlinks href=#hl-11-24>24</a>
+</span><span class=lnt id=hl-11-25><a class=lnlinks href=#hl-11-25>25</a>
+</span><span class=lnt id=hl-11-26><a class=lnlinks href=#hl-11-26>26</a>
+</span><span class=lnt id=hl-11-27><a class=lnlinks href=#hl-11-27>27</a>
+</span><span class=lnt id=hl-11-28><a class=lnlinks href=#hl-11-28>28</a>
+</span><span class=lnt id=hl-11-29><a class=lnlinks href=#hl-11-29>29</a>
+</span><span class=lnt id=hl-11-30><a class=lnlinks href=#hl-11-30>30</a>
+</span><span class=lnt id=hl-11-31><a class=lnlinks href=#hl-11-31>31</a>
+</span><span class=lnt id=hl-11-32><a class=lnlinks href=#hl-11-32>32</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># LockManager: wait-for graph 간이 구현</span>
+</span></span><span class=line><span class=cl><span class=n>lock_table</span> <span class=o>=</span> <span class=p>{}</span>  <span class=c1># resource -&gt; owner txid</span>
+</span></span><span class=line><span class=cl><span class=n>waiting</span> <span class=o>=</span> <span class=p>{}</span>     <span class=c1># txid -&gt; list of resources</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>request_lock</span><span class=p>(</span><span class=n>txid</span><span class=p>,</span> <span class=n>resource</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>resource</span> <span class=ow>not</span> <span class=ow>in</span> <span class=n>lock_table</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>lock_table</span><span class=p>[</span><span class=n>resource</span><span class=p>]</span> <span class=o>=</span> <span class=n>txid</span>
+</span></span><span class=line><span class=cl>    <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>waiting</span><span class=o>.</span><span class=n>setdefault</span><span class=p>(</span><span class=n>txid</span><span class=p>,</span> <span class=p>[])</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>resource</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># deadlock detection</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>detect_deadlock</span><span class=p>(</span><span class=n>txid</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=n>resolve_deadlock</span><span class=p>(</span><span class=n>txid</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>detect_deadlock</span><span class=p>(</span><span class=n>start_tx</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>visited</span> <span class=o>=</span> <span class=nb>set</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>dfs</span><span class=p>(</span><span class=n>tx</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>res</span> <span class=ow>in</span> <span class=n>waiting</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=n>tx</span><span class=p>,</span> <span class=p>[]):</span>
+</span></span><span class=line><span class=cl>            <span class=n>owner</span> <span class=o>=</span> <span class=n>lock_table</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=n>res</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=n>owner</span> <span class=ow>and</span> <span class=n>owner</span> <span class=ow>not</span> <span class=ow>in</span> <span class=n>visited</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=n>visited</span><span class=o>.</span><span class=n>add</span><span class=p>(</span><span class=n>owner</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=n>owner</span> <span class=o>==</span> <span class=n>start_tx</span> <span class=ow>or</span> <span class=n>dfs</span><span class=p>(</span><span class=n>owner</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>                    <span class=k>return</span> <span class=kc>True</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>False</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>dfs</span><span class=p>(</span><span class=n>start_tx</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>resolve_deadlock</span><span class=p>(</span><span class=n>victim_tx</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># rollback victim_tx</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Rolled back tx </span><span class=si>{</span><span class=n>victim_tx</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=c1># release its locks</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>res</span><span class=p>,</span> <span class=n>owner</span> <span class=ow>in</span> <span class=nb>list</span><span class=p>(</span><span class=n>lock_table</span><span class=o>.</span><span class=n>items</span><span class=p>()):</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>owner</span> <span class=o>==</span> <span class=n>victim_tx</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>del</span> <span class=n>lock_table</span><span class=p>[</span><span class=n>res</span><span class=p>]</span>
+</span></span></code></pre></td></tr></table></div></div><h5 id=사례-분산-트랜잭션에서-두-서비스-간-교차-자원-접근-시-교착-상태-발생>사례: 분산 트랜잭션에서 두 서비스 간 교차 자원 접근 시 교착 상태 발생<a hidden class=anchor aria-hidden=true href=#사례-분산-트랜잭션에서-두-서비스-간-교차-자원-접근-시-교착-상태-발생>#</a></h5><p><strong>시나리오</strong>: 분산 트랜잭션에서 두 서비스 간 교차 자원 접근 시 교착 상태 발생</p><p><strong>시스템 구성</strong>:</p><ul><li>서비스 A, 서비스 B</li><li>분산 락 (Zookeeper/etcd)</li><li>타임아웃 기반 재시도 로직</li></ul><pre class=mermaid>graph TB
+ A(Service A) --&gt;|Lock R1| L1(ZK)
+ B(Service B) --&gt;|Lock R2| L2(ZK)
+ A --&gt;|공유 DB T1| DB
+ B --&gt;|공유 DB T2| DB
+</pre><p><strong>Workflow</strong>:</p><ol><li>A 가 자원 R1 락 요청 및 획득</li><li>B 가 자원 R2 락 획득</li><li>A 가 R2 요청 중 대기</li><li>B 가 R1 요청 중 대기 → 교착 발생</li></ol><p><strong>유무 차이점</strong>:</p><ul><li>도입 전: 무한 대기, 시스템 응답 중지</li><li>도입 후: 타임아웃 발생 → 트랜잭션 롤백 및 재시도 → 시스템 회복</li></ul><p><strong>구현 예시 (Python pseudocode)</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-13-1><a class=lnlinks href=#hl-13-1> 1</a>
+</span><span class=lnt id=hl-13-2><a class=lnlinks href=#hl-13-2> 2</a>
+</span><span class=lnt id=hl-13-3><a class=lnlinks href=#hl-13-3> 3</a>
+</span><span class=lnt id=hl-13-4><a class=lnlinks href=#hl-13-4> 4</a>
+</span><span class=lnt id=hl-13-5><a class=lnlinks href=#hl-13-5> 5</a>
+</span><span class=lnt id=hl-13-6><a class=lnlinks href=#hl-13-6> 6</a>
+</span><span class=lnt id=hl-13-7><a class=lnlinks href=#hl-13-7> 7</a>
+</span><span class=lnt id=hl-13-8><a class=lnlinks href=#hl-13-8> 8</a>
+</span><span class=lnt id=hl-13-9><a class=lnlinks href=#hl-13-9> 9</a>
+</span><span class=lnt id=hl-13-10><a class=lnlinks href=#hl-13-10>10</a>
+</span><span class=lnt id=hl-13-11><a class=lnlinks href=#hl-13-11>11</a>
+</span><span class=lnt id=hl-13-12><a class=lnlinks href=#hl-13-12>12</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>acquire_lock</span><span class=p>(</span><span class=n>resource</span><span class=p>,</span> <span class=n>timeout</span><span class=o>=</span><span class=mi>5</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;Zookeeper에서 락 획득, Timeout 설정&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>zk_lock</span><span class=o>.</span><span class=n>acquire</span><span class=p>(</span><span class=n>timeout</span><span class=o>=</span><span class=n>timeout</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=n>acquire_lock</span><span class=p>(</span><span class=s2>&#34;R1&#34;</span><span class=p>)</span> <span class=ow>and</span> <span class=n>acquire_lock</span><span class=p>(</span><span class=s2>&#34;R2&#34;</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=c1># critical section</span>
+</span></span><span class=line><span class=cl>        <span class=n>do_transaction</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=k>finally</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>release_locks</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>rollback_and_retry</span><span class=p>()</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=운영-최적화>운영 최적화<a hidden class=anchor aria-hidden=true href=#운영-최적화>#</a></h3><h4 id=보안-및-거버넌스>보안 및 거버넌스<a hidden class=anchor aria-hidden=true href=#보안-및-거버넌스>#</a></h4><table><thead><tr><th>항목</th><th>목적</th><th>구현 방법</th><th>연계되는 컴플라이언스</th></tr></thead><tbody><tr><td><strong>접근 제어</strong></td><td>권한 오용으로 인한 자원 고립 방지</td><td>Role-Based Access Control (RBAC), 최소 권한 정책 (Least Privilege)</td><td>SOX, ISO 27001</td></tr><tr><td><strong>감사 및 추적 로깅</strong></td><td>자원 점유/요청 내역 기록으로 사후 진단 및 대응</td><td>Lock 요청/반환 이력, 트랜잭션 수행 로그, 시계열 기반 감사 로그 저장</td><td>GDPR, HIPAA</td></tr><tr><td><strong>정책 기반 자원 관리</strong></td><td>자원 요청 및 할당 시 거버넌스 정책 적용</td><td>요청 시 자원 할당 정책 강제화, 락 타임아웃 기반 정책 적용</td><td>PCI DSS</td></tr><tr><td><strong>이상 행위 탐지</strong></td><td>데드락을 유발할 수 있는 비정상 시나리오 사전 탐지</td><td>ML 기반 이상 탐지 모델, 예외 트리거 기반 알림 시스템 구성</td><td>ISO/IEC 27001</td></tr><tr><td><strong>복구 계획 및 자동화</strong></td><td>데드락 발생 시 빠른 대응과 서비스 안정성 유지</td><td>Checkpoint & Rollback 자동화, 타임아웃 기반 Kill-Restart</td><td>NIST SP 800-53</td></tr></tbody></table><ul><li><strong>Deadlock 은 단순한 기술 이슈가 아닌 거버넌스·보안 이슈</strong>로 취급되어야 한다.</li><li>자원 요청의 권한 제어, 감사 로그 추적, 자동화된 대응 정책, 이상 행위 탐지 체계를 통합함으로써 운영 신뢰성과 규정 준수 요구를 동시에 충족해야 한다.</li><li>클라우드/분산 환경에서는 각 노드 간 자원 요청 흐름에 대한 <strong>통합된 추적 시스템과 중앙 정책 관제</strong>가 필요하다.</li></ul><h4 id=모니터링-및-관측성>모니터링 및 관측성<a hidden class=anchor aria-hidden=true href=#모니터링-및-관측성>#</a></h4><h5 id=관측성-observability-기반-운영-최적화>관측성 (Observability) 기반 운영 최적화<a hidden class=anchor aria-hidden=true href=#관측성-observability-기반-운영-최적화>#</a></h5><table><thead><tr><th>항목</th><th>설명</th><th>도구/기술 예시</th></tr></thead><tbody><tr><td>자원 대기 모니터링</td><td>락 대기 시간, 대기 큐 길이, 평균 블로킹 시간 수집</td><td>Prometheus, JMX, Micrometer</td></tr><tr><td>데드락 이벤트 지표화</td><td>발생 횟수, 회복 시도 수, 예방 성공률 수집</td><td>커스텀 메트릭, Exporter 연동</td></tr><tr><td>분산 트랜잭션 추적</td><td>데드락 발생 흐름 추적용 트레이싱</td><td>OpenTelemetry, Jaeger, Zipkin</td></tr><tr><td>로그 기반 분석</td><td>Deadlock 시점 로그 + 상황 문맥 수집</td><td>ELK Stack, Fluentd, Loki</td></tr><tr><td>대시보드 구성</td><td>실시간 지표 및 이상 감지 시각화</td><td>Grafana, Kibana</td></tr></tbody></table><h5 id=운영-자동화-및-회복-정책>운영 자동화 및 회복 정책<a hidden class=anchor aria-hidden=true href=#운영-자동화-및-회복-정책>#</a></h5><table><thead><tr><th>항목</th><th>설명</th><th>도입 예시</th></tr></thead><tbody><tr><td>이벤트 기반 알림</td><td>Deadlock 탐지 시 Slack, Webhook 알림</td><td>Slack + Alertmanager</td></tr><tr><td>자동 복구 트리거</td><td>특정 조건 발생 시 자동 롤백 또는 프로세스 재시작</td><td>Ansible, Kubernetes Operator</td></tr><tr><td>SLO 기반 운영</td><td>&ldquo;Deadlock ≤ 1 건/일 " 등 기준 설정</td><td>SLO with Error Budget</td></tr></tbody></table><h5 id=보안-및-거버넌스-연계>보안 및 거버넌스 연계<a hidden class=anchor aria-hidden=true href=#보안-및-거버넌스-연계>#</a></h5><table><thead><tr><th>항목</th><th>설명</th><th>도입 방안</th></tr></thead><tbody><tr><td>메트릭/로그 접근 제어</td><td>민감한 Deadlock 원인 로그에 대한 권한 제한</td><td>Role-Based Access Control (RBAC)</td></tr><tr><td>모니터링 플랫폼 보안</td><td>Prometheus/Grafana 등 UI 접근 제한</td><td>OAuth, Token 인증</td></tr><tr><td>감사 로그 추적</td><td>관리자나 자동화 시스템의 Deadlock 대응 이력 기록</td><td>구조화된 감사 로그 → SIEM 연동</td></tr><tr><td>정책 기반 대응 기준 수립</td><td>데드락 발생 시 조치 책임자, 승인 여부 문서화</td><td>내부 운영 규칙, SOP 문서화</td></tr></tbody></table><h4 id=실무-적용-고려사항-및-주의점><strong>실무 적용 고려사항 및 주의점</strong><a hidden class=anchor aria-hidden=true href=#실무-적용-고려사항-및-주의점>#</a></h4><table><thead><tr><th>카테고리</th><th>항목</th><th>설명</th><th>권장사항</th></tr></thead><tbody><tr><td>탐지/회피 정책</td><td>탐지 주기 설정</td><td>탐지 비용과 정확도 간의 균형 필요</td><td>이벤트 기반 + 주기 혼합 사용</td></tr><tr><td>탐지/회피 정책</td><td>타임아웃 기준</td><td>짧을수록 빠른 대응 가능하지만 오탐 우려</td><td>SLA 기반 설정, 서비스별 차등화</td></tr><tr><td>자원/락 관리</td><td>락 획득 순서 강제</td><td>코드 내 순서 불일치 시 교착 가능성 존재</td><td>코드 리뷰, Linter 사용</td></tr><tr><td>자원/락 관리</td><td>락 범위 최소화</td><td>락 범위가 클수록 교착 위험 증가</td><td>최소 범위로 스코프 제한</td></tr><tr><td>자원/락 관리</td><td>리소스 격리</td><td>공유 자원에서 충돌 발생</td><td>자원 풀 분리, 세분화 설계</td></tr><tr><td>재시도/복구</td><td>무한 재시도 방지</td><td>시스템 오버로드 위험 존재</td><td>백오프 + 최대 횟수 제한</td></tr><tr><td>재시도/복구</td><td>복구 정책</td><td>롤백 실패 시 대응 필요</td><td>자동 롤백 + 프로세스 종료</td></tr><tr><td>운영/유지보수</td><td>테스트 복잡성</td><td>동시성 문제 재현 어려움</td><td>부하 테스트 + 시뮬레이션</td></tr><tr><td>운영/유지보수</td><td>코드 가독성</td><td>락 복잡성 증가로 디버깅 어려움</td><td>문서화 + 표준 코드 패턴</td></tr><tr><td>관측성</td><td>메트릭 수집</td><td>락 대기/점유 시간 측정</td><td>Prometheus, APM 연동</td></tr><tr><td>관측성</td><td>알림 및 자동화</td><td>실시간 대응 가능성 확보</td><td>Slack, PagerDuty 연계</td></tr><tr><td>보안/거버넌스</td><td>자원 접근 제어</td><td>무분별한 접근 시 데드락 및 보안 리스크</td><td>RBAC 적용, 접근 로그 감사</td></tr><tr><td>보안/거버넌스</td><td>로그/분석 통합</td><td>트랜잭션 추적 어려움</td><td>통합 플랫폼 (ELK, Grafana 등) 연계</td></tr></tbody></table><p>Deadlock 을 실무에 효과적으로 대응하기 위해선 단순히 코드를 고치는 차원이 아니라, 시스템 전반의 <strong>설계/운영/보안</strong> 요소들이 조화를 이루어야 한다.</p><ul><li>탐지 정책은 <strong>정기 + 이벤트 혼합 방식</strong>이 현실적이며, 타임아웃은 SLA 를 기반으로 정교하게 설정해야 한다.</li><li>자원과 락은 가능한 범위를 좁히고, <strong>순서화 규칙</strong>을 강제하며, 충돌 가능성이 높은 자원은 <strong>격리 또는 풀 분리</strong>가 요구된다.</li><li>재시도는 <strong>백오프 로직</strong>과 횟수 제한을 통해 시스템 과부하를 방지해야 하며, 실패 시에는 <strong>롤백과 프로세스 종료</strong>가 병행되어야 한다.</li><li>운영 측면에서는 <strong>관측 지표 수집, 자동 알림, 시각화</strong>가 핵심이고, 보안·거버넌스 관점에서는 <strong>접근 통제 및 로그 감사 체계</strong>를 반드시 수립해야 한다.</li></ul><h4 id=성능-최적화-전략-및-고려사항><strong>성능 최적화 전략 및 고려사항</strong><a hidden class=anchor aria-hidden=true href=#성능-최적화-전략-및-고려사항>#</a></h4><table><thead><tr><th>전략 카테고리</th><th>전략 기법</th><th>설명</th><th>주의사항 / 고려 요소</th></tr></thead><tbody><tr><td><strong>락 최적화</strong></td><td>Fine-grained Locking</td><td>공유 락을 세분화하여 동시성 향상 (예: 행/컬럼 단위)</td><td>과도한 세분화는 락 관리 복잡도 증가로 이어질 수 있음</td></tr><tr><td></td><td>Lock-free / Wait-free 알고리즘</td><td>락 없이 동시성을 구현하여 데드락 자체를 회피</td><td>구현 난이도 높고, 메모리 모델 이해 필요</td></tr><tr><td><strong>시간 기반 전략</strong></td><td>Timeout + Exponential Backoff</td><td>무한 대기 방지, 실패 시 점진적 재시도로 경쟁 완화</td><td>네트워크 지연·부하 상황에 따라 튜닝 필요</td></tr><tr><td><strong>처리 구조 최적화</strong></td><td>비동기 처리 구조</td><td>긴 작업을 비동기화하여 메인 스레드 블로킹 방지</td><td>동시성 제어 복잡도 증가, 예외 처리 구조 필수</td></tr><tr><td><strong>동적 자원 제어</strong></td><td>모니터링 기반 자동 스케일링</td><td>자원 사용량에 따라 자동 확장하여 병목 해소 (ex. K8s HPA)</td><td>과도한 확장은 오히려 자원 낭비로 연결될 수 있음</td></tr><tr><td><strong>우선순위 제어</strong></td><td>Priority-based Scheduling</td><td>중요한 요청에 높은 우선순위 부여로 성능 보장</td><td>낮은 우선순위 작업의 기아 (starvation) 발생 가능성 존재</td></tr></tbody></table><ul><li><p><strong>락 최적화 전략</strong>은 동시성을 높여 전체 처리량을 개선하지만, 락의 수가 많아지면 오히려 데드락 경로가 증가할 수 있어 균형 잡힌 설계가 중요하다.</p></li><li><p><strong>시간 기반 전략</strong>은 데드락 회피와 함께 장애 복원력을 높일 수 있지만, 잘못 설정된 타임아웃은 과도한 오탐/재시도를 유발할 수 있다.</p></li><li><p><strong>비동기 처리</strong>는 시스템 반응성과 유연성을 높이지만, 상태 일관성 유지와 예외 흐름 제어를 충분히 설계해야 한다.</p></li><li><p><strong>자동 스케일링</strong>은 자원 경쟁을 완화시키지만, 스케일링 임계값 및 쿨다운 설정에 따라 오히려 리소스 낭비가 발생할 수 있다.</p></li><li><p><strong>우선순위 기반 스케줄링</strong>은 핵심 요청 처리 성능을 보장하지만, 낮은 우선순위 작업의 지속적 누락을 막는 기아 방지 정책이 함께 필요하다.</p></li></ul><h3 id=고급-주제>고급 주제<a hidden class=anchor aria-hidden=true href=#고급-주제>#</a></h3><h4 id=현재-도전-과제><strong>현재 도전 과제</strong><a hidden class=anchor aria-hidden=true href=#현재-도전-과제>#</a></h4><table><thead><tr><th>카테고리</th><th>과제</th><th>원인 및 특징</th><th>주요 영향</th><th>대응 및 해결 전략</th></tr></thead><tbody><tr><td><strong>분산 환경 문제</strong></td><td>글로벌 Deadlock 탐지의 확장성 문제</td><td>네트워크 지연, 노드 수 증가에 따른 Wait-for Graph 통합 한계</td><td>탐지 정확도 저하, 감지 시간 지연</td><td>분산 합의 알고리즘 (RAFT, Paxos), 부분 그래프 기반 탐지</td></tr><tr><td></td><td>분산 환경에서의 회복 일관성 유지 문제</td><td>자동 롤백 후 자원 상태 불일치 가능성 존재</td><td>시스템 일관성 저하, 롤백 실패 위험</td><td>로그 기반의 상태 복원, 상태 동기화 체크포인트 기법 적용</td></tr><tr><td><strong>클라우드 아키텍처</strong></td><td>마이크로서비스 간 자원 의존성 추적 어려움</td><td>동적 서비스 구성 및 컨테이너 오케스트레이션에 따른 상태 추적 복잡화</td><td>탐지 누락 및 대응 지연 가능성</td><td>서비스 메시 (Istio, Linkerd) 통한 흐름 가시화 및 정책 통합</td></tr><tr><td></td><td>데드락 탐지/회피의 서비스 단위 분산 처리 문제</td><td>마이크로서비스마다 자원 정책이 다르고, 일관된 락 정책 관리 어려움</td><td>대응 정책 불일치, 복구 실패 가능성</td><td>공통 락 관리 레이어 (Lock Broker) 구축</td></tr><tr><td><strong>성능 및 예측성</strong></td><td>실시간 시스템에서의 예방/탐지 오버헤드</td><td>저지연 요구 환경에서 락 검사·회피 기법이 성능 저하 유발</td><td>처리 지연, SLA 위반</td><td>하이브리드 접근 (락 최소화 + 예측 기반), 타임슬롯 기반 검사</td></tr><tr><td></td><td>Deadlock 예측의 정확도 및 신뢰성 문제</td><td>동적 상태 변화 및 비결정적 이벤트 흐름</td><td>오탐/누락으로 인한 잘못된 회복 시도</td><td>시계열 기반 예측 모델 (SPDOnline), AI 기반 패턴 학습 도입</td></tr></tbody></table><ul><li><strong>분산 환경</strong>에서는 탐지 정확성과 자원 동기화가 핵심 과제로, 단일 시스템보다 훨씬 복잡한 상태 추론이 필요하다.</li><li><strong>클라우드 기반 마이크로서비스</strong>는 자원의 흐름이 서비스 단위로 분산되기 때문에 의존성 추적과 정책 일관성이 가장 큰 과제 중 하나다.</li><li><strong>실시간 시스템</strong>이나 고신뢰성 요구 환경에서는 데드락 예방/탐지 자체가 시스템의 성능을 해칠 수 있으며, 정적 정책만으로는 예측이 어렵다.</li><li>따라서 현재의 도전 과제는 단순 기술적인 해결이 아닌 <strong>시스템 설계 레벨에서의 전략적 고려</strong>가 필요한 단계에 와 있다고 볼 수 있어.</li></ul><h4 id=연관-기술-및-생태계>연관 기술 및 생태계<a hidden class=anchor aria-hidden=true href=#연관-기술-및-생태계>#</a></h4><table><thead><tr><th>카테고리</th><th>기술/시스템</th><th>설명</th><th>Deadlock 연관성</th></tr></thead><tbody><tr><td>분산 락 시스템</td><td>Zookeeper, etcd, Consul</td><td>세션 기반 ephemeral node 를 통한 락 관리</td><td>Deadlock 회피를 위한 핵심 기술</td></tr><tr><td>트랜잭션 프레임워크</td><td>2PC, TCC, Saga, Seata</td><td>분산 트랜잭션에서 락 보장 또는 분산 보상 흐름 제공</td><td>직접적 Deadlock 발생 가능</td></tr><tr><td>탐지 알고리즘</td><td>Banker&rsquo;s Algorithm, Chandy-Misra-Haas</td><td>예방 및 탐지를 위한 OS/분산 환경 알고리즘</td><td>탐지 및 사전 방지 전략</td></tr><tr><td>관측성 플랫폼</td><td>Prometheus, Grafana, OpenTelemetry</td><td>메트릭 수집 및 Deadlock 관련 대시보드 구성 가능</td><td>상태 추적 및 알림 가능</td></tr><tr><td>메시지 브로커</td><td>Kafka, RabbitMQ, SQS</td><td>비동기 처리를 통한 자원 경합 분산</td><td>간접적으로 Deadlock 감소</td></tr><tr><td>분산 캐시/메모리</td><td>Redis, Hazelcast</td><td>락 구현 및 세션 동기화 등에 활용</td><td>분산 락 도구로 Deadlock 우회 가능</td></tr><tr><td>서비스 메쉬</td><td>Istio, Linkerd</td><td>흐름 제어, 장애 전파 제어</td><td>Circuit Breaker 로 Deadlock 확산 억제 가능</td></tr><tr><td>데이터베이스 시스템</td><td>PostgreSQL, MySQL, Cassandra</td><td>트랜잭션 레벨에서의 Deadlock 발생 가능</td><td>내부 탐지 및 롤백 제공</td></tr><tr><td>표준/모델</td><td>ACID, CAP, Isolation Level</td><td>트랜잭션 일관성 및 격리 보장</td><td>Deadlock 은 Isolation Level 과 밀접</td></tr></tbody></table><p>Deadlock 을 실제 시스템 설계 및 운영에 반영하려면, 단일 기술이 아니라 관련 기술 생태계를 통합적으로 이해하고 적용해야 한다.</p><ul><li><strong>Zookeeper, etcd, Consul</strong>과 같은 분산 락 시스템은 교착 회피의 핵심이며, <strong>TCC/Saga/2PC</strong>는 분산 트랜잭션 환경에서 Deadlock 가능성을 설계 단계에서부터 고려해야 한다.</li><li><strong>Prometheus, Grafana, OpenTelemetry</strong> 같은 관측성 도구는 Deadlock 의 흐름을 실시간으로 추적하고 대응하는 데 필요하며, <strong>Redis</strong>나 <strong>Hazelcast</strong>는 단순 캐시를 넘어 락 관리에도 사용된다.</li><li>또한, <strong>ACID 의 Isolation Level</strong>은 DB 트랜잭션 내에서 Deadlock 발생 여부에 직접 영향을 미치므로, 이를 이해하고 설정하는 것이 중요하다.</li><li>마지막으로 <strong>서비스 메쉬나 메시지 브로커</strong>는 직접적인 락을 사용하지 않지만, <strong>비동기 구조를 통한 자원 경합 분산과 장애 대응</strong>을 가능하게 해주는 생태계의 보조 축이다.</li></ul><pre class=mermaid>graph TB
+    subgraph &#34;동시성 제어 생태계&#34;
+        A[메시지 큐&lt;br/&gt;Message Queue]
+        B[분산 락&lt;br/&gt;Distributed Lock]
+        C[트랜잭션 관리&lt;br/&gt;Transaction Manager]
+        D[서비스 메시&lt;br/&gt;Service Mesh]
+    end
+    
+    subgraph &#34;모니터링 도구&#34;
+        E[APM 도구&lt;br/&gt;Application Performance Monitoring]
+        F[로그 분석&lt;br/&gt;Log Analytics]
+        G[메트릭 수집&lt;br/&gt;Metrics Collection]
+    end
+    
+    A --&gt; E
+    B --&gt; F
+    C --&gt; G
+    D --&gt; E
+</pre><h4 id=3-최신-트렌드-및-미래방향>3) 최신 트렌드 및 미래방향<a hidden class=anchor aria-hidden=true href=#3-최신-트렌드-및-미래방향>#</a></h4><ul><li>AI 기반 분석/예측 시스템 도입</li><li>자원 접근 패턴 자동분석, 컨테이너/클라우드 네이티브 환경 확장 적용</li></ul><p><strong>최신 기술 트렌드와 미래 방향</strong></p><ol><li><strong>머신러닝 기반 예측</strong>: 데드락 발생 패턴 학습을 통한 사전 예방</li><li><strong>블록체인 합의 알고리즘</strong>: 분산 환경에서의 새로운 동시성 제어 기법</li><li><strong>양자 컴퓨팅 영향</strong>: 기존 암호화 및 동시성 모델의 재검토 필요</li><li><strong>엣지 컴퓨팅 환경</strong>: 제한된 자원에서의 효율적 데드락 관리</li></ol><h4 id=최신-기술-트렌드>최신 기술 트렌드<a hidden class=anchor aria-hidden=true href=#최신-기술-트렌드>#</a></h4><ul><li><strong>AI 기반 Deadlock 예측 시스템</strong>: 학습된 모델이 실행 흐름을 실시간 분류하여 Deadlock 가능성 예측.</li><li><strong>Formal Verification 통합</strong>: 모델 검증 도구 (TLA+, Alloy 등) 을 락 순서 검증에 활용, 디자인 타임에 Deadlock 방지.</li><li><strong>SSD‑based Lock-Free 자료구조</strong>: 락 없이 atomic 연산만으로 안전하게 자원 공유를 보장하는 구조 도입 확산 중.</li></ul><hr><h2 id=최종-정리-및-학습-가이드>최종 정리 및 학습 가이드<a hidden class=anchor aria-hidden=true href=#최종-정리-및-학습-가이드>#</a></h2><h3 id=내용-정리>내용 정리<a hidden class=anchor aria-hidden=true href=#내용-정리>#</a></h3><p>Deadlock 은 병렬 및 분산 환경에서 자원 경쟁으로 인해 발생하는 시스템 정지 상태이며, 이를 효과적으로 다루기 위해 예방, 탐지, 회피, 회복 전략이 복합적으로 요구된다.<br>전통적인 접근법은 락 순서화, 자원 계층화, 타임아웃 설정 등으로 구성되며, 운영 효율성은 관측성과 자동화된 재시도 전략에 크게 의존한다.<br>특히 분산 시스템, 컨테이너 오케스트레이션, 서버리스 환경에선 Deadlock 이 <strong>더 은닉적이고 진단이 어려운 형태로 진화</strong>하고 있다.<br>이를 해결하기 위한 아키텍처적 고려가 중요하며, Saga 패턴, 상태 기반 FSM, 메시지 기반 설계가 선호된다.</p><h4 id=기술-동향-분석>기술 동향 분석<a hidden class=anchor aria-hidden=true href=#기술-동향-분석>#</a></h4><ul><li><strong>예방 중심 설계</strong>가 여전히 최선의 전략으로 자리 잡고 있으며, 시스템 설계 초기 단계부터 고려되어야 함</li><li><strong>관측성 강화</strong>는 필수 요소로, Prometheus, Grafana, Jaeger 등을 통한 메트릭 기반 진단이 보편화됨</li><li><strong>AI 기반 예측</strong>과 형식 명세 도구 (Formal Verification) 의 실무 적용 가능성 확대 중</li><li><strong>서버리스 환경에서의 교착 상태 방지</strong>를 위한 FSM(State Machine) 기반 오케스트레이션 (AWS Step Function 등) 이 부각됨</li><li><strong>Kubernetes 기반 락 관리 및 트랜잭션 처리</strong> 전략으로 Lease Lock, etcd 기반 coordination 이 등장</li></ul><h3 id=학습-로드맵>학습 로드맵<a hidden class=anchor aria-hidden=true href=#학습-로드맵>#</a></h3><h4 id=1-단계-기초-이론-정립-23-주>1 단계: 기초 이론 정립 (2~3 주)<a hidden class=anchor aria-hidden=true href=#1-단계-기초-이론-정립-23-주>#</a></h4><p><strong>목표</strong>: Deadlock 개념과 구조에 대한 기본 개념 확보</p><ul><li>Coffman 의 4 가지 조건 (Mutual Exclusion, Hold & Wait, No Preemption, Circular Wait) 학습</li><li>Wait-for Graph 와 Resource Allocation Graph 해석 연습</li><li>동시성 개념 및 스레드 간 자원 공유 구조 이해</li><li>자바, 파이썬 등에서의 간단한 멀티스레드 실습</li></ul><h4 id=2-단계-알고리즘-및-제어-기법-34-주>2 단계: 알고리즘 및 제어 기법 (3~4 주)<a hidden class=anchor aria-hidden=true href=#2-단계-알고리즘-및-제어-기법-34-주>#</a></h4><p><strong>목표</strong>: Deadlock 을 회피·탐지하기 위한 주요 알고리즘 습득</p><ul><li>Banker&rsquo;s Algorithm 구현 및 안전 상태 분석</li><li>Wait-for Graph 기반 탐지 로직 코드 구현</li><li>데드락 회피와 예방 전략 비교: 자원 계층화, 타임아웃, 락 순서화 등</li><li>정적 분석 vs 동적 탐지의 차이점 실습</li></ul><h4 id=3-단계-실무-환경-대응력-향상-45-주>3 단계: 실무 환경 대응력 향상 (4~5 주)<a hidden class=anchor aria-hidden=true href=#3-단계-실무-환경-대응력-향상-45-주>#</a></h4><p><strong>목표</strong>: 운영 환경에서 발생 가능한 데드락 대응 전략 실습</p><ul><li>데이터베이스 트랜잭션 충돌과 데드락 예시 분석 (e.g. PostgreSQL, MySQL)</li><li>락 세분화 전략 (Fine-grained Locking) vs 락 프리 알고리즘 이해</li><li>성능 모니터링 도구 (e.g. Prometheus, Grafana) 연동</li><li>타임아웃, 백오프 전략을 통한 회복 로직 설계</li></ul><h4 id=4-단계-분산-시스템-및-클라우드-환경-대응-34-주>4 단계: 분산 시스템 및 클라우드 환경 대응 (3~4 주)<a hidden class=anchor aria-hidden=true href=#4-단계-분산-시스템-및-클라우드-환경-대응-34-주>#</a></h4><p><strong>목표</strong>: 복잡한 분산 환경에서의 Deadlock 대응 능력 확보</p><ul><li>분산 Deadlock 탐지 및 글로벌 wait-for-graph 구조 이해</li><li>마이크로서비스 환경에서 Saga 패턴, Orchestration 전략 학습</li><li>Kubernetes 환경에서의 자원 경합 및 락 관리 전략 실습</li><li>서버리스 환경의 동시성 제한과 타임아웃 기반 보호 기법 적용</li></ul><h4 id=5-단계-전문가-수준-도달-지속적>5 단계: 전문가 수준 도달 (지속적)<a hidden class=anchor aria-hidden=true href=#5-단계-전문가-수준-도달-지속적>#</a></h4><p><strong>목표</strong>: Deadlock 연구 및 고신뢰성 시스템 설계 능력 확보</p><ul><li>AI 기반 Deadlock 예측 기법 (e.g. SPDOnline) 학습</li><li>Formal Method 적용: TLA+, Promela, Alloy 등으로 안전성 검증</li><li>Chaos Engineering 도입: 실패 상황에서의 Deadlock 대응 시뮬레이션</li><li>오픈소스 Deadlock 관리 도구 분석 및 기여 (e.g. Zookeeper, etcd)</li></ul><h3 id=학습-항목-매트릭스>학습 항목 매트릭스<a hidden class=anchor aria-hidden=true href=#학습-항목-매트릭스>#</a></h3><table><thead><tr><th>카테고리</th><th>세부 항목</th><th>중요도</th><th>학습 단계</th><th>설명</th></tr></thead><tbody><tr><td>기초 이론</td><td>Deadlock 정의 및 조건</td><td>필수</td><td>기본</td><td>Coffman 4 조건, 발생 원리 학습</td></tr><tr><td>기초 이론</td><td>자원 그래프/Wait-for Graph</td><td>필수</td><td>기본</td><td>그래프 기반 모델링 및 분석</td></tr><tr><td>핵심 알고리즘</td><td>Banker&rsquo;s Algorithm</td><td>필수</td><td>기본~심화</td><td>안전 상태 판단, 회피 모델 구현</td></tr><tr><td>핵심 알고리즘</td><td>Deadlock 탐지 알고리즘</td><td>권장</td><td>심화</td><td>Wait-for Graph, Cycle Detection</td></tr><tr><td>예방/회피 전략</td><td>락 순서화, 타임아웃, 트레이드오프</td><td>필수</td><td>심화</td><td>실제 시스템 설계에 직결</td></tr><tr><td>예방/회피 전략</td><td>우선순위 기반 락 정책</td><td>권장</td><td>심화</td><td>Priority Inheritance 등</td></tr><tr><td>구현 실습</td><td>멀티스레드 락 구현 실습</td><td>필수</td><td>실무</td><td>Java, Python 등에서 실습</td></tr><tr><td>구현 실습</td><td>타임아웃 및 재시도 로직</td><td>권장</td><td>실무</td><td>데드락 회피용 코드 구현</td></tr><tr><td>운영 관측성</td><td>메트릭, 자동 회복, 알림</td><td>권장</td><td>실무</td><td>DevOps/운영 환경 대응</td></tr><tr><td>운영 보안</td><td>로그 분석, RBAC 연계</td><td>권장</td><td>실무</td><td>로그 기반 진단 + 접근 제어</td></tr><tr><td>고급 기술</td><td>Formal Verification 도구</td><td>선택</td><td>고급</td><td>TLA+, Alloy 등 설계 검증 도구</td></tr><tr><td>고급 기술</td><td>AI 기반 예측 및 chaos testing</td><td>선택</td><td>고급</td><td>ML 기반 예측, 장애 실험 기반 학습</td></tr><tr><td>고급 기술</td><td>분산 환경에서의 Deadlock</td><td>선택</td><td>고급</td><td>마이크로서비스, 클라우드 네이티브 대응</td></tr></tbody></table><hr><h2 id=용어-정리>용어 정리<a hidden class=anchor aria-hidden=true href=#용어-정리>#</a></h2><table><thead><tr><th>카테고리</th><th>용어</th><th>설명</th><th>관련 개념</th></tr></thead><tbody><tr><td><strong>핵심 개념</strong></td><td>Deadlock (교착 상태)</td><td>자원 점유 상태에서 서로가 보유한 자원을 기다리며 무한 대기하는 상태</td><td>동시성, 자원 경합</td></tr><tr><td></td><td>Livelock (라이브락)</td><td>상태는 변화하지만 실질적인 작업이 진행되지 않는 상태</td><td>Starvation</td></tr><tr><td></td><td>Starvation (기아 상태)</td><td>특정 프로세스가 자원을 계속 할당받지 못하는 상태</td><td>우선순위 정책</td></tr><tr><td><strong>조건 및 이론</strong></td><td>Mutual Exclusion</td><td>자원은 한 번에 하나의 프로세스만 접근 가능</td><td>커프만 조건</td></tr><tr><td></td><td>Hold and Wait</td><td>자원을 점유한 채 다른 자원을 요청하는 상태</td><td>교착 필요조건</td></tr><tr><td></td><td>No Preemption</td><td>점유한 자원을 외부에서 강제로 회수할 수 없음</td><td>선점 불가</td></tr><tr><td></td><td>Circular Wait</td><td>프로세스들이 원형으로 자원을 요청하며 대기</td><td>Wait-for Graph</td></tr><tr><td></td><td>Coffman Conditions</td><td>Deadlock 이 발생하는 4 가지 필요조건</td><td>이론 기반 정의</td></tr><tr><td><strong>탐지 및 회피</strong></td><td>Banker&rsquo;s Algorithm</td><td>자원 할당 전 시스템의 안전 여부를 판단하는 회피 기법</td><td>안전 상태, 회피</td></tr><tr><td></td><td>Wait-for Graph</td><td>프로세스 간 자원 대기 관계를 표현한 그래프</td><td>순환 탐지</td></tr><tr><td></td><td>Resource Allocation Graph (RAG)</td><td>프로세스와 자원의 할당/요청 관계 시각화</td><td>탐지, 분석</td></tr><tr><td></td><td>Phantom Deadlock</td><td>분산 시스템에서 지연으로 인한 가짜 데드락</td><td>네트워크 지연</td></tr><tr><td></td><td>Knot (OR-model Deadlock)</td><td>분산 DB 에서 데드락 탐지를 위한 OR- 모델의 패턴 구조</td><td>고급 탐지</td></tr><tr><td><strong>운영/실무</strong></td><td>Timeout</td><td>일정 시간 대기 후 자원 요청 포기</td><td>회복, 재시도</td></tr><tr><td></td><td>Lock Ordering</td><td>자원 요청 순서를 고정하여 Deadlock 예방</td><td>설계 전략</td></tr><tr><td></td><td>Rollback</td><td>데드락 발생 시 이전 상태로 되돌리는 복구 기법</td><td>트랜잭션</td></tr><tr><td></td><td>Checkpoint</td><td>시스템 상태를 저장하고 복원 가능한 지점</td><td>복구 기초</td></tr><tr><td></td><td>2PL (2-Phase Locking)</td><td>확장 - 축소의 두 단계로 락을 관리하여 동시성 보장</td><td>트랜잭션 격리</td></tr><tr><td><strong>분산/클라우드</strong></td><td>Distributed Lock</td><td>다수 노드 간 자원 동시 접근 제어 메커니즘</td><td>Zookeeper, etcd</td></tr><tr><td></td><td>Saga Pattern</td><td>분산 트랜잭션에서 보상 트랜잭션으로 일관성 유지</td><td>마이크로서비스</td></tr><tr><td></td><td>Self-Healing</td><td>시스템이 자체적으로 상태를 감지하고 복구</td><td>자동화 전략</td></tr><tr><td></td><td>Chaos Engineering</td><td>인위적 장애 주입을 통한 복원력 검증</td><td>회복성</td></tr><tr><td><strong>성능 최적화</strong></td><td>Lock-free Programming</td><td>락 없이 원자적 연산으로 병행성 확보</td><td>Wait-free</td></tr><tr><td></td><td>Circuit Breaker</td><td>연쇄 실패 방지를 위한 중단 장치</td><td>장애 전파 차단</td></tr><tr><td></td><td>Bulkhead Pattern</td><td>자원 격리로 장애 확산 방지</td><td>안정성 향상</td></tr><tr><td><strong>보안/거버넌스</strong></td><td>RBAC (Role-Based Access Control)</td><td>역할 기반 자원 접근 제어 체계</td><td>최소 권한</td></tr><tr><td></td><td>Audit Logging</td><td>자원 요청 및 상태 변경 이력 기록</td><td>추적성, 규정 준수</td></tr><tr><td></td><td>Observability</td><td>시스템 내부 상태를 메트릭, 로그, 트레이스로 외부에 노출</td><td>모니터링, 진단</td></tr></tbody></table><hr><h2 id=참고-및-출처>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처>#</a></h2><ul><li><a href=https://en.wikipedia.org/wiki/Deadlock_%28computer_science%29>Deadlock (computer science)</a></li><li><a href=https://en.wikipedia.org/wiki/Banker%27s_algorithm>Banker’s Algorithm</a></li><li><a href=https://www.geeksforgeeks.org/operating-systems/introduction-of-deadlock-in-operating-system/>Introduction of Deadlock in Operating System</a></li><li><a href=https://www.geeksforgeeks.org/operating-systems/deadlock-detection-recovery/>Deadlock Detection And Recovery</a></li><li><a href=https://medium.com/@parvjn616/understanding-deadlocks-in-concurrent-programming-799d78ebe7a8>Understanding Deadlocks in Concurrent Programming</a></li><li><a href=https://csresources.github.io/SystemProgrammingWiki/SystemProgramming/Deadlock%2C-Part-2%3A-Deadlock-Conditions/>Deadlock Conditions (Coffman conditions)</a></li></ul><hr></div></main><script type=module>
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true });
+  </script><footer class=footer><span>&copy; 2025 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>
