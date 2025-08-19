@@ -1,0 +1,623 @@
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>DevOps | hyunyoun's Blog</title><meta name=keywords content="DevOps-and-Platform-Engineering,DevOps-and-Operational-Excellence,DevOps,Automation,Infrastructure-as-Code"><meta name=description content="DevOps 는 개발과 운영을 결합해 팀 간 문화·자동화·협업을 강화하는 접근법으로, CI/CD·인프라 코드화 (IaC)·모니터링을 통해 **개발 속도, 배포 안정성, 품질을 동시에 향상**시키는 방식이다."><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/software-engineering/devops-and-platform-engineering/devops-and-operational-excellence/devops/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.a9863521b3bd3c240bc506f46b95e3c06ccef2ae37f529d5f99bdaef442bccce.css integrity="sha256-qYY1IbO9PCQLxQb0a5XjwGzO8q439SnV+Zva70QrzM4=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate type=application/rss+xml href=https://buenhyden.github.io/posts/software-engineering/devops-and-platform-engineering/devops-and-operational-excellence/devops/index.xml><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/software-engineering/devops-and-platform-engineering/devops-and-operational-excellence/devops/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/software-engineering/devops-and-platform-engineering/devops-and-operational-excellence/devops/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="DevOps"><meta property="og:description" content="DevOps 는 개발과 운영을 결합해 팀 간 문화·자동화·협업을 강화하는 접근법으로, CI/CD·인프라 코드화 (IaC)·모니터링을 통해 **개발 속도, 배포 안정성, 품질을 동시에 향상**시키는 방식이다."><meta property="og:locale" content="en"><meta property="og:type" content="website"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="DevOps"><meta name=twitter:description content="DevOps 는 개발과 운영을 결합해 팀 간 문화·자동화·협업을 강화하는 접근법으로, CI/CD·인프라 코드화 (IaC)·모니터링을 통해 **개발 속도, 배포 안정성, 품질을 동시에 향상**시키는 방식이다."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"DevOps","item":"https://buenhyden.github.io/posts/software-engineering/devops-and-platform-engineering/devops-and-operational-excellence/devops/"}]}</script></head><body class=list id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><header class=page-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a></div><h1>DevOps</h1><div class=post-description>DevOps 는 개발과 운영을 결합해 팀 간 문화·자동화·협업을 강화하는 접근법으로, CI/CD·인프라 코드화 (IaC)·모니터링을 통해 <strong>개발 속도, 배포 안정성, 품질을 동시에 향상</strong>시키는 방식이다.</div></header><div class=post-content><h2 id=devops>DevOps<a hidden class=anchor aria-hidden=true href=#devops>#</a></h2><p>DevOps 는 단순한 도구나 기술 집합이 아닌, 개발 (Development) 과 운영 (Operations) 을 통합하는 문화적, 기술적 접근 방식이다. 이는 소프트웨어 개발 생명주기 전반에 걸쳐 자동화와 협업을 강화하고, 지속적 통합 (CI) 과 지속적 배포 (CD) 를 통해 더 빠르고 안정적인 소프트웨어 제공을 가능하게 한다. DevOps 의 핵심 원칙인 CALMS(Culture, Automation, Lean, Measurement, Sharing) 를 통해 조직은 팀 간 장벽을 허물고, 수작업을 자동화하며, 낭비를 제거하고, 성과를 측정하며, 지식을 공유한다. 2025 년에는 AI/ML 통합, DevSecOps 주류화, 관찰 가능성 향상, 플랫폼 엔지니어링으로의 진화가 DevOps 의 주요 트렌드로 부상할 것으로 예상된다.</p><h3 id=배경>배경<a hidden class=anchor aria-hidden=true href=#배경>#</a></h3><p><strong>DevOps 의 기원</strong></p><ul><li>2007 년 벨기에의 IT 컨설턴트 Patrick Debois 는 개발 (Dev) 과 운영 (Ops) 팀 간 반복·전이 (firefighting) 과정에서 비효율과 충돌을 경험하고 이 문제를 해결하려는 요구를 갖게 되었다.</li><li>2008 년 Agile Conference 에서 &ldquo;Agile Infrastructure&rdquo; BoF 가 열려 운영팀을 애자일화하는 논의가 시작되었으며, Patrick Debois 가 참여하면서 DevOps 운동의 태동이 시작되었다.</li><li>2009 년에는 &ldquo;10+ deploys per day–Dev and Ops Cooperation at Flickr&rdquo; 라는 발표가 DevOps 실천 가능성을 보여주었고, 같은 해 벨기에 Ghent 에서 첫 DevOpsDays 가 열리며 커뮤니티가 형성되었다.</li></ul><p><strong>기존 프로세스의 한계</strong></p><ul><li>전통적 워터폴 조직에서는 개발팀이 기능을 완성해 전달하면 운영팀은 서버에 배포·관리하지만, 이런 분리로 인해 커뮤니케이션 부족, 문서화 미비, 책임 회피, 장애 반복 등의 문제가 발생했다.</li><li>개발팀은 빠른 배포를 원하지만, 운영팀은 안정성과 가용성을 중시하는 서로 상반된 목표로 인해 조직 내 갈등이 끊이지 않았다.</li></ul><h3 id=목적-및-필요성>목적 및 필요성<a hidden class=anchor aria-hidden=true href=#목적-및-필요성>#</a></h3><h4 id=주요-목적>주요 목적<a hidden class=anchor aria-hidden=true href=#주요-목적>#</a></h4><ol><li><strong>개발 - 운영 간 격차 해소</strong>: 사일로화된 팀 구조를 통합하여 협업 강화</li><li><strong>소프트웨어 전달 속도 향상</strong>: 더 빠르고 빈번한 릴리스 실현</li><li><strong>품질 향상</strong>: 자동화된 테스트와 지속적 통합을 통한 코드 품질 개선</li><li><strong>안정성 확보</strong>: 프로덕션 환경의 안정성과 신뢰성 향상</li></ol><h4 id=필요성>필요성<a hidden class=anchor aria-hidden=true href=#필요성>#</a></h4><ul><li><strong>시장 변화 대응</strong>: 빠르게 변화하는 고객 요구사항에 신속한 대응 필요</li><li><strong>디지털 전환</strong>: 클라우드 기반 서비스와 마이크로서비스 아키텍처의 확산</li><li><strong>경쟁 우위 확보</strong>: 혁신적인 기능과 서비스의 빠른 출시를 통한 경쟁력 강화</li></ul><h3 id=핵심-개념>핵심 개념<a hidden class=anchor aria-hidden=true href=#핵심-개념>#</a></h3><p>DevOps 는 Development(개발) 와 Operations(운영) 을 결합한 용어로, 소프트웨어 개발과 IT 운영 간의 협업, 통신, 통합을 촉진하는 IT 방법론이다. 이는 소프트웨어 전달의 품질과 속도를 향상시켜 고객에게 지속적이고 빈번한 업데이트를 통한 가치 제공을 목표로 한다.</p><h4 id=기본-개념>기본 개념<a hidden class=anchor aria-hidden=true href=#기본-개념>#</a></h4><ol><li><p><strong>문화적 변화 (Cultural Transformation)</strong></p><ul><li>개발 - 운영 팀 간 사일로 제거</li><li>공유 책임과 협업 문화 구축</li><li>지속적 학습과 개선 마인드셋</li></ul></li><li><p><strong>지속적 통합/배포 (CI/CD)</strong></p><ul><li>Continuous Integration: 코드 변경사항의 빈번한 통합과 자동 테스트</li><li>Continuous Delivery: 언제든 프로덕션 배포 가능한 상태 유지</li><li>Continuous Deployment: 완전 자동화된 프로덕션 배포</li></ul></li><li><p><strong>Infrastructure as Code (IaC)</strong></p><ul><li>인프라를 코드로 정의하고 버전 관리</li><li>재현 가능하고 일관된 인프라 프로비저닝</li></ul></li></ol><h4 id=심화-개념>심화 개념<a hidden class=anchor aria-hidden=true href=#심화-개념>#</a></h4><ol><li><p><strong>자동화 (Automation)</strong></p><ul><li>빌드, 테스트, 배포 프로세스 자동화</li><li>인프라 프로비저닝 및 구성 관리 자동화</li></ul></li><li><p><strong>모니터링과 관찰가능성 (Monitoring & Observability)</strong></p><ul><li>메트릭 (Metrics): 시스템 성능 지표</li><li>로그 (Logs): 시스템 이벤트 기록</li><li>추적 (Traces): 분산 시스템에서의 요청 흐름</li></ul></li><li><p><strong>마이크로서비스 아키텍처</strong></p><ul><li>독립적으로 배포 가능한 작은 서비스들</li><li>서비스별 독립적인 개발과 운영</li></ul></li></ol><h4 id=실무-연관성>실무 연관성<a hidden class=anchor aria-hidden=true href=#실무-연관성>#</a></h4><ul><li><strong>CI 자동화 툴</strong>: Jenkins, GitHub Actions 등으로 빌드/테스트</li><li><strong>CD 파이프라인 설계</strong>: Canary, Blue-Green 배포 구현</li><li><strong>IaC 활용</strong>: Terraform, CloudFormation 설정 추적 및 배포</li><li><strong>모니터링 시스템 통합</strong>: Prometheus, ELK 기반 실시간 로깅 및 알람</li></ul><pre class=mermaid>graph LR
+  A[개발] --&gt; B[지속적 통합]
+  B --&gt; C[자동화 테스트]
+  C --&gt; D[지속적 배포]
+  D --&gt; E[모니터링]
+  E --&gt; A
+</pre><h3 id=주요-기능-및-역할-functions--roles>주요 기능 및 역할 (Functions & Roles)<a hidden class=anchor aria-hidden=true href=#주요-기능-및-역할-functions--roles>#</a></h3><table><thead><tr><th>기능</th><th>역할 및 설명</th></tr></thead><tbody><tr><td><strong>CI/CD 파이프라인</strong></td><td>코드 커밋 → 자동 빌드 · 테스트 → 배포까지 자동화, 품질 보장 및 빠른 릴리즈 주기 구현</td></tr><tr><td><strong>Infrastructure as Code (IaC)</strong></td><td>Terraform, CloudFormation 등으로 인프라 코드화 → 재현 가능하고 안정적인 환경 구성</td></tr><tr><td><strong>자동화 구성 및 배포</strong></td><td>컨피그 관리 (Ansible), 컨테이너화 (Docker), 오케스트레이션 (Kubernetes) 자동 스케일링 및 설정</td></tr><tr><td><strong>모니터링 및 로그 관리</strong></td><td>Prometheus, Grafana 등으로 실시간 성능·로그 모니터링, 문제 시 신속 대응</td></tr><tr><td><strong>협업 및 공유 책임</strong></td><td>개발/운영/보안 팀 간 협업·책임 공유 → End‑to‑End 오너십 구축</td></tr><tr><td><strong>품질·보안 통합</strong></td><td>Shift-left 전략: early testing, 보안 스캔 (SAST/DAST), DevSecOps 적용</td></tr><tr><td><strong>피드백 루프 및 지속적 개선</strong></td><td>메트릭 수집 및 분석 통한 개선, 실시간 사용자 피드백 기반 조기 대응</td></tr></tbody></table><h3 id=-devops-특징>📌 DevOps 특징<a hidden class=anchor aria-hidden=true href=#-devops-특징>#</a></h3><ul><li><strong>자동화 중심</strong>: 배포, 테스트, 인프라 구성 모두 자동화</li><li><strong>짧은 릴리즈 주기</strong>: 지속적으로 기능 릴리즈</li><li><strong>측정 기반 운영</strong>: 데이터 기반으로 성능 개선</li><li><strong>문화 중심</strong>: 공유, 협력, 투명성을 지향</li></ul><h3 id=특징>특징<a hidden class=anchor aria-hidden=true href=#특징>#</a></h3><p>DevOps 의 주요 특징은 다음과 같다:</p><ol><li><strong>협업 문화</strong>: 개발팀과 운영팀 간의 긴밀한 협업과 의사소통을 중시한다.</li><li><strong>자동화 중심</strong>: 반복적인 작업을 자동화하여 효율성을 높이고 인적 오류를 줄인다.</li><li><strong>지속적 프로세스</strong>: 개발, 테스트, 배포, 모니터링이 지속적으로 이루어지는 순환 프로세스를 채택한다.</li><li><strong>피드백 루프</strong>: 빠른 피드백을 통해 문제를 조기에 발견하고 개선한다.</li><li><strong>증분적 개발</strong>: 대규모 변경보다는 작은 변경을 자주 수행하는 방식을 선호한다.</li><li><strong>장애에 대한 복원력</strong>: 장애를 예상하고, 빠르게 복구할 수 있는 시스템을 구축한다.</li><li><strong>측정 중심</strong>: 데이터와 측정 지표를 활용한 의사결정을 강조한다.</li><li><strong>보안 통합</strong>: 보안을 개발 초기 단계부터 고려하는 " 시프트 레프트 (Shift Left)" 접근법을 사용한다.</li></ol><h3 id=핵심-원칙>핵심 원칙<a hidden class=anchor aria-hidden=true href=#핵심-원칙>#</a></h3><h4 id=calms-프레임워크>CALMS 프레임워크<a hidden class=anchor aria-hidden=true href=#calms-프레임워크>#</a></h4><p>CALMS 는 DevOps 의 핵심 원칙을 나타내는 프레임워크로, Jez Humble 이 제안한 개념이다. 이는 DevOps 구현을 위한 주요 영역을 정의하고, 조직이 DevOps 성숙도를 평가하는 데 도움이 된다.</p><table><thead><tr><th>구성 요소</th><th>설명</th></tr></thead><tbody><tr><td>Culture (문화)</td><td>팀 간 신뢰, 책임 공유</td></tr><tr><td>Automation (자동화)</td><td>수작업 배제, 반복 가능성 확보</td></tr><tr><td>Lean (린 프로세스)</td><td>낭비 제거, 지속적 개선</td></tr><tr><td>Measurement (측정)</td><td>KPI 기반 성능 모니터링</td></tr><tr><td>Sharing (공유)</td><td>문서화, 도구, 코드, 지식 공유</td></tr></tbody></table><p><strong>Culture (문화)</strong>:</p><ul><li>DevOps 는 기술적 변화보다 문화적 변화에 더 중점을 둔다.</li><li>개발과 운영 팀 간의 협업, 공유 책임, 투명성을 강조한다.</li><li>실패를 수용하고 학습하는 문화를 조성한다.</li><li>리더십의 지원과 조직 전체의 참여가 중요하다.</li></ul><p><strong>Automation (자동화)</strong>:</p><ul><li>반복적인 작업을 자동화하여 효율성을 높이고 인적 오류를 줄인다.</li><li>CI/CD 파이프라인, 인프라스트럭처 코드화 (IaC), 구성 관리 등의 자동화 도구를 활용한다.</li><li>테스트, 배포, 모니터링 등 전체 소프트웨어 라이프사이클에 걸쳐 자동화를 적용한다.</li><li>자동화를 통해 일관성 있고 신뢰할 수 있는 프로세스를 구축한다.</li></ul><p><strong>Lean (린)</strong>:</p><ul><li>린 방법론의 원칙을 DevOps 에 적용한다.</li><li>낭비를 제거하고 가치 흐름을 최적화한다.</li><li>작은 배치로 자주 작업하는 방식을 채택한다.</li><li>지속적인 개선과 학습을 중요시한다.</li><li>실패를 빠르게 감지하고 대응한다.</li></ul><p><strong>Measurement (측정)</strong>:</p><ul><li>데이터 기반 의사결정을 위해 주요 지표를 수집하고 분석한다.</li><li>기술적, 비즈니스적 성과 지표를 균형 있게 측정한다.</li><li>지속적인 모니터링을 통해 성능, 품질, 사용자 경험을 평가한다.</li><li>측정 결과를 바탕으로 개선 기회를 식별한다.</li></ul><p><strong>Sharing (공유)</strong>:</p><ul><li>지식, 경험, 도구, 성공 사례를 팀 간에 공유한다.</li><li>투명한 의사소통과 정보 공유를 장려한다.</li><li>협업 도구와 플랫폼을 활용하여 효과적인 정보 공유를 지원한다.</li><li>공유 문화를 통해 학습 속도를 높이고 혁신을 촉진한다.</li></ul><h4 id=추가-핵심-원칙>추가 핵심 원칙<a hidden class=anchor aria-hidden=true href=#추가-핵심-원칙>#</a></h4><ol><li><strong>Infrastructure as Code</strong>: 인프라를 코드로 관리</li><li><strong>Continuous Everything</strong>: 지속적 통합, 배포, 모니터링</li><li><strong>Microservices Architecture</strong>: 작고 독립적인 서비스 단위</li><li><strong>Fail Fast</strong>: 빠른 실패와 학습을 통한 개선</li></ol><h3 id=주요-원리>주요 원리<a hidden class=anchor aria-hidden=true href=#주요-원리>#</a></h3><ul><li><strong>Feedback Loops</strong>: CI/CD 파이프라인, 모니터링, 로그 수집, 알람, 피드백은 변경 사항을 즉시 감지하고 대응하는 순환 구조를 만든다.</li><li><strong>자동화 중심</strong>: 테스트, 배포, 인프라 구성의 자동화는 일관성, 오류 최소화, 속도 향상을 보장한다.</li><li><strong>시스템 사고 (Systems Thinking)</strong>: DevOps 는 전체 가치흐름 (Value Stream) 단위로 사고하며, 국부 최적화가 아닌 전체 시스템 최적화에 집중한다.</li></ul><h4 id=pdca-사이클-plan-do-check-act>PDCA 사이클 (Plan-Do-Check-Act)<a hidden class=anchor aria-hidden=true href=#pdca-사이클-plan-do-check-act>#</a></h4><pre class=mermaid>graph TD
+    A[Plan 계획] --&gt; B[Do 실행]
+    B --&gt; C[Check 점검]
+    C --&gt; D[Act 개선]
+    D --&gt; A
+</pre><ol><li><strong>계획 및 설계 (Plan & Design)</strong>: 비즈니스 요구사항을 파악하고 소프트웨어 기능을 설계합니다.</li><li><strong>코드 개발 (Code & Develop)</strong>: 설계에 따라 애플리케이션 코드를 작성합니다.</li><li><strong>빌드 및 테스트 (Build & Test)</strong>: 코드를 컴파일하고 다양한 수준의 테스트를 수행합니다.</li><li><strong>배포 및 릴리스 (Deploy & Release)</strong>: 테스트된 코드를 프로덕션 환경에 배포합니다.</li><li><strong>운영 및 모니터링 (Operate & Monitor)</strong>: 시스템을 운영하고 성능 및 사용자 경험을 모니터링합니다.</li><li><strong>피드백 및 개선 (Feedback & Improve)</strong>: 모니터링 결과와 사용자 피드백을 분석하여 개선 사항을 식별합니다.</li></ol><h4 id=three-ways-원리>Three Ways 원리<a hidden class=anchor aria-hidden=true href=#three-ways-원리>#</a></h4><ol><li><strong>첫 번째 방향</strong>: 개발에서 운영으로의 워크플로우 최적화</li><li><strong>두 번째 방향</strong>: 운영에서 개발로의 피드백 루프 강화</li><li><strong>세 번째 방향</strong>: 지속적 학습과 실험 문화 조성</li></ol><h3 id=작동-원리>작동 원리<a hidden class=anchor aria-hidden=true href=#작동-원리>#</a></h3><ul><li><strong>개발자가 코드를 저장소에 Push</strong></li><li><strong>CI 서버가 코드를 빌드 및 테스트</strong></li><li><strong>테스트 통과 시 자동 배포</strong></li><li><strong>운영 환경에서 모니터링 및 피드백</strong></li><li><strong>피드백을 바탕으로 지속적 개선</strong></li></ul><pre class=mermaid>flowchart LR
+  A[Plan/코드 계획] --&gt; B[Commit &amp; Push]
+  B --&gt; C[CI: 빌드 &amp; 테스트 자동화]
+  C --&gt; D{테스트 성공?}
+  D --&gt;|아니오| E[피드백 → Fix]
+  D --&gt;|예| F[CD: 스테이징/프로덕션 배포]
+  F --&gt; G[모니터링/로그 수집]
+  G --&gt; H{문제 탐지?}
+  H --&gt;|예| I[알람/자동 롤백]
+  H --&gt;|아니오| J[피드백 &amp; 최적화]
+  J --&gt; A
+</pre><ul><li><strong>Plan → Code</strong>: 요구사항 수집, 계획 → Git 등으로 커밋</li><li><strong>CI</strong>: 자동 빌드 및 유닛·통합 테스트 → 즉시 품질 체크</li><li><strong>CD</strong>: 스테이징/배포 자동화, 카나리 테스트, 블루그린 배포</li><li><strong>Monitor & Feedback</strong>: 실시간 모니터링, 로그·알람 → 문제 감지 후 롤백 또는 개선 루프</li><li><strong>순환 반복</strong>: 지속적 개선을 위한 피드백 기반의 반복</li></ul><h4 id=devops-metrics-dora-metrics>DevOps Metrics (DORA Metrics)<a hidden class=anchor aria-hidden=true href=#devops-metrics-dora-metrics>#</a></h4><p>DevOps 메트릭스는 소프트웨어 개발 및 운영 프로세스의 효율성, 품질, 성능을 측정하는 지표이다. 이러한 지표는 팀이 DevOps 관행의 효과를 평가하고, 개선 영역을 식별하며, 데이터 기반 의사결정을 내리는 데 도움이 된다.</p><table><thead><tr><th>지표</th><th>설명</th></tr></thead><tbody><tr><td>Lead Time for Changes</td><td>코드 커밋 → 배포까지 걸리는 시간</td></tr><tr><td>Deployment Frequency</td><td>얼마나 자주 배포하는지</td></tr><tr><td>Change Failure Rate</td><td>배포 후 문제 발생 비율</td></tr><tr><td>MTTR (Mean Time to Restore)</td><td>장애 시 복구까지 소요 시간</td></tr></tbody></table><p><strong>DORA 메트릭스 (DevOps Research and Assessment)</strong>: DORA 는 Google Cloud 에서 운영하는 연구 팀으로, DevOps 성능을 측정하기 위한 네 가지 핵심 지표를 제안했다:</p><ol><li><strong>배포 빈도 (Deployment Frequency)</strong>:<ul><li>코드가 프로덕션 환경에 얼마나 자주 배포되는지 측정</li><li>높은 성과 팀: 일일 여러 번 또는 주간 여러 번 배포</li><li>낮은 성과 팀: 월간 또는 분기별 배포</li></ul></li><li><strong>변경 리드 타임 (Lead Time for Changes)</strong>:<ul><li>코드 변경이 커밋되어 프로덕션에 성공적으로 배포될 때까지 걸리는 시간</li><li>높은 성과 팀: 하루 미만</li><li>낮은 성과 팀: 한 달 이상</li></ul></li><li><strong>변경 실패율 (Change Failure Rate)</strong>:<ul><li>프로덕션에 배포된 변경 사항 중 수정이 필요한 실패 비율</li><li>높은 성과 팀: 0-15%</li><li>낮은 성과 팀: 46-60%</li></ul></li><li><strong>장애 복구 시간 (Mean Time to Restore, MTTR)</strong>:<ul><li>서비스 중단이나 장애 발생 시 복구하는 데 걸리는 평균 시간</li><li>높은 성과 팀: 1 시간 미만</li><li>낮은 성과 팀: 1 주일 이상</li></ul></li></ol><p>이러한 지표들은 속도 (배포 빈도, 변경 리드 타임) 와 안정성 (변경 실패율, 장애 복구 시간) 간의 균형을 측정하며, 높은 성과의 DevOps 팀은 두 영역 모두에서 우수한 성과를 보인다.</p><p><strong>기타 중요한 DevOps 지표</strong>:</p><ol><li><strong>자동화 비율 (Automation Rate)</strong>:<ul><li>수동 프로세스 대비 자동화된 프로세스의 비율</li><li>CI/CD 파이프라인, 테스트, 배포, 인프라 프로비저닝 등의 자동화 수준</li></ul></li><li><strong>테스트 커버리지 (Test Coverage)</strong>:<ul><li>자동화된 테스트로 커버되는 코드의 비율</li><li>단위 테스트, 통합 테스트, 성능 테스트 등 다양한 테스트 수준의 커버리지</li></ul></li><li><strong>평균 탐지 시간 (Mean Time to Detect, MTTD)</strong>:<ul><li>이슈가 발생한 후 탐지되기까지 걸리는 평균 시간</li><li>모니터링 및 알림 시스템의 효율성 반영</li></ul></li><li><strong>변경 볼륨 (Change Volume)</strong>:<ul><li>일정 기간 동안 적용된 변경 사항의 수와 크기</li><li>작은 변경을 자주 하는 것이 이상적</li></ul></li><li><strong>사용자 만족도 (Customer Satisfaction)</strong>:<ul><li>시스템 성능, 가용성, 기능에 대한 사용자 만족도</li><li>NPS(Net Promoter Score), 사용자 피드백, 지원 티켓 수 등으로 측정</li></ul></li></ol><h3 id=구조-및-아키텍처>구조 및 아키텍처<a hidden class=anchor aria-hidden=true href=#구조-및-아키텍처>#</a></h3><h4 id=devops-아키텍처-개요>DevOps 아키텍처 개요<a hidden class=anchor aria-hidden=true href=#devops-아키텍처-개요>#</a></h4><pre class=mermaid>graph TB
+    subgraph &#34;Development&#34;
+        A[소스 코드]
+        B[버전 관리]
+        C[IDE/개발 도구]
+    end
+    
+    subgraph &#34;CI/CD Pipeline&#34;
+        D[빌드]
+        E[테스트]
+        F[패키징]
+        G[배포]
+    end
+    
+    subgraph &#34;Infrastructure&#34;
+        H[컨테이너]
+        I[오케스트레이션]
+        J[클라우드 서비스]
+    end
+    
+    subgraph &#34;Monitoring&#34;
+        K[로깅]
+        L[메트릭]
+        M[알림]
+    end
+    
+    A --&gt; B
+    B --&gt; D
+    D --&gt; E
+    E --&gt; F
+    F --&gt; G
+    G --&gt; H
+    H --&gt; I
+    I --&gt; J
+    J --&gt; K
+    K --&gt; L
+    L --&gt; M
+    M --&gt; A
+</pre><h4 id=구성요소>구성요소<a hidden class=anchor aria-hidden=true href=#구성요소>#</a></h4><table><thead><tr><th><strong>구성 요소</strong></th><th><strong>기능</strong></th><th><strong>역할</strong></th><th><strong>예시 도구</strong></th></tr></thead><tbody><tr><td><strong>버전 관리 시스템 (VCS)</strong></td><td>코드 변경 이력 추적 및 협업 지원</td><td>소스 코드 관리, 브랜치 전략 구현, 변경 사항 추적</td><td>Git, SVN, Mercurial</td></tr><tr><td><strong>CI/CD 파이프라인</strong></td><td>코드 변경사항 자동 빌드, 테스트, 배포 수행</td><td>자동화된 빌드 및 테스트 실행, 배포 자동화</td><td>Jenkins, GitLab CI/CD, CircleCI, GitHub Actions</td></tr><tr><td><strong>컨테이너 & 오케스트레이션</strong></td><td>애플리케이션의 환경 독립적 패키징 및 자동 배포 관리</td><td>실행 환경 일관성 보장, 스케일링 및 롤링 배포 등 오케스트레이션 수행</td><td>Docker, Kubernetes, Docker Swarm</td></tr><tr><td><strong>인프라스트럭처 코드화 (IaC)</strong></td><td>인프라 자원을 코드로 정의 및 자동화 관리</td><td>자동화된 인프라 구성, 재현 가능한 환경 제공</td><td>Terraform, AWS CloudFormation, Ansible, Chef, Puppet</td></tr><tr><td><strong>모니터링 및 로깅</strong></td><td>시스템 및 애플리케이션 상태 추적 및 이상 탐지</td><td>실시간 모니터링, 로그 수집 및 분석, 경고 알림</td><td>Prometheus, Grafana, ELK Stack, Datadog</td></tr><tr><td><strong>협업 도구</strong></td><td>팀 간 커뮤니케이션 및 문서, 업무 협업 지원</td><td>정보 공유, 문제 추적, 지식 관리 및 문서화</td><td>Jira, Confluence, Slack, Microsoft Teams</td></tr></tbody></table><h3 id=구현-기법>구현 기법<a hidden class=anchor aria-hidden=true href=#구현-기법>#</a></h3><table><thead><tr><th><strong>구현 기법</strong></th><th><strong>정의</strong></th><th><strong>구성 요소</strong></th><th><strong>목적</strong></th><th><strong>실제 예시</strong></th></tr></thead><tbody><tr><td><strong>CI/CD 파이프라인</strong></td><td>코드 변경 시 자동으로 빌드, 테스트, 배포를 수행하는 자동화된 흐름</td><td>Git, Jenkins, GitLab CI, GitHub Actions, 테스트, 배포 단계</td><td>개발 → 배포 속도 향상, 오류 감소</td><td>GitHub Actions 로 커밋 시 자동 테스트 및 배포 실행</td></tr><tr><td><strong>Infrastructure as Code (IaC)</strong></td><td>인프라 리소스를 코드로 선언 및 관리하는 방법</td><td>Terraform, Ansible, CloudFormation, 상태 관리, 버전 관리</td><td>인프라 일관성 확보 및 자동화</td><td><code>terraform apply</code> 로 EC2 인스턴스 및 네트워크 자원 자동 생성</td></tr><tr><td><strong>컨테이너화 & 오케스트레이션</strong></td><td>애플리케이션을 컨테이너로 패키징하고 클러스터에서 자동 배포 및 관리하는 방식</td><td>Docker, Kubernetes, Container Registry, Autoscaling, Service Discovery</td><td>환경 독립성 확보, 확장성 및 복원력 향상</td><td>Docker 이미지 빌드 후 Kubernetes 배포 및 롤링 업데이트</td></tr><tr><td><strong>GitOps</strong></td><td>Git 을 단일 진실 공급원으로 사용하는 선언형 배포 및 운영 방법론</td><td>Git 저장소, Kubernetes, CI/CD, Declarative Manifest</td><td>구성 추적 가능, 자동화된 클러스터 상태 유지</td><td>Git commit → ArgoCD 가 자동 배포</td></tr><tr><td><strong>Blue-Green / Canary 배포</strong></td><td>무중단 배포와 롤백을 위한 트래픽 분산 기반 점진적 릴리스 전략</td><td>Argo Rollouts, Spinnaker, Feature Flag, Load Balancer</td><td>서비스 안정성 유지, 위험 최소화</td><td>신규 버전 Canary 배포 → 문제 없으면 트래픽 전체 전환</td></tr><tr><td><strong>DevSecOps</strong></td><td>개발 초기부터 보안을 통합하여 자동화하는 접근 방식</td><td>SAST, DAST, Container Scanning, Policy as Code (OPA, tfsec 등)</td><td>보안 취약점 사전 탐지 및 예방</td><td>GitHub Actions 내 Snyk, CodeQL 자동 검사 통합</td></tr><tr><td><strong>모니터링 & 로깅</strong></td><td>시스템 상태와 로그를 실시간 수집, 분석, 시각화하여 가시성 확보</td><td>Prometheus, Grafana, ELK Stack, Alertmanager</td><td>문제 감지, 성능 추적, 신속한 장애 대응</td><td>Prometheus + Grafana 대시보드, Kibana 로 로그 분석</td></tr><tr><td><strong>ChatOps</strong></td><td>채팅 도구를 통해 DevOps 워크플로우를 트리거하고 협업하는 방식</td><td>Slack, Microsoft Teams, ChatBot, CI/CD API</td><td>협업 중심 운영 자동화</td><td>" 배포 시작 " 슬랙 메시지 → Jenkins Job 트리거</td></tr><tr><td><strong>Shift-Left Security</strong></td><td>개발 초기 단계에 보안을 통합하여 빠르게 취약점을 탐지</td><td>SAST, IaC Static Analysis, Container Policy Scanning</td><td>보안과 개발 속도의 균형</td><td><code>tfsec</code>, <code>checkov</code> 등으로 IaC 정적 분석 수행</td></tr><tr><td><strong>자동화된 모니터링/알림</strong></td><td>배포 후 시스템 상태를 자동 감시하고 이상 시 경고</td><td>Prometheus Alertmanager, Grafana Alert, Slack Notification</td><td>실시간 감지 및 자동 대응</td><td>CPU 사용률 증가 시 슬랙으로 알림 발송</td></tr><tr><td><strong>자동화 스크립트 및 반복 작업 도구</strong></td><td>수작업으로 반복되는 작업을 스크립트 기반으로 자동화</td><td>Bash, Python, Ansible Script, Makefile</td><td>인프라 구성, 테스트, 배포 효율화</td><td>Ansible Playbook 으로 설정 자동화, <code>make deploy</code> 명령으로 전체 배포 수행</td></tr></tbody></table><h4 id=cicd-파이프라인github-actions>CI/CD 파이프라인–GitHub Actions<a hidden class=anchor aria-hidden=true href=#cicd-파이프라인github-actions>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-4-1><a class=lnlinks href=#hl-4-1> 1</a>
+</span><span class=lnt id=hl-4-2><a class=lnlinks href=#hl-4-2> 2</a>
+</span><span class=lnt id=hl-4-3><a class=lnlinks href=#hl-4-3> 3</a>
+</span><span class=lnt id=hl-4-4><a class=lnlinks href=#hl-4-4> 4</a>
+</span><span class=lnt id=hl-4-5><a class=lnlinks href=#hl-4-5> 5</a>
+</span><span class=lnt id=hl-4-6><a class=lnlinks href=#hl-4-6> 6</a>
+</span><span class=lnt id=hl-4-7><a class=lnlinks href=#hl-4-7> 7</a>
+</span><span class=lnt id=hl-4-8><a class=lnlinks href=#hl-4-8> 8</a>
+</span><span class=lnt id=hl-4-9><a class=lnlinks href=#hl-4-9> 9</a>
+</span><span class=lnt id=hl-4-10><a class=lnlinks href=#hl-4-10>10</a>
+</span><span class=lnt id=hl-4-11><a class=lnlinks href=#hl-4-11>11</a>
+</span><span class=lnt id=hl-4-12><a class=lnlinks href=#hl-4-12>12</a>
+</span><span class=lnt id=hl-4-13><a class=lnlinks href=#hl-4-13>13</a>
+</span><span class=lnt id=hl-4-14><a class=lnlinks href=#hl-4-14>14</a>
+</span><span class=lnt id=hl-4-15><a class=lnlinks href=#hl-4-15>15</a>
+</span><span class=lnt id=hl-4-16><a class=lnlinks href=#hl-4-16>16</a>
+</span><span class=lnt id=hl-4-17><a class=lnlinks href=#hl-4-17>17</a>
+</span><span class=lnt id=hl-4-18><a class=lnlinks href=#hl-4-18>18</a>
+</span><span class=lnt id=hl-4-19><a class=lnlinks href=#hl-4-19>19</a>
+</span><span class=lnt id=hl-4-20><a class=lnlinks href=#hl-4-20>20</a>
+</span><span class=lnt id=hl-4-21><a class=lnlinks href=#hl-4-21>21</a>
+</span><span class=lnt id=hl-4-22><a class=lnlinks href=#hl-4-22>22</a>
+</span><span class=lnt id=hl-4-23><a class=lnlinks href=#hl-4-23>23</a>
+</span><span class=lnt id=hl-4-24><a class=lnlinks href=#hl-4-24>24</a>
+</span><span class=lnt id=hl-4-25><a class=lnlinks href=#hl-4-25>25</a>
+</span><span class=lnt id=hl-4-26><a class=lnlinks href=#hl-4-26>26</a>
+</span><span class=lnt id=hl-4-27><a class=lnlinks href=#hl-4-27>27</a>
+</span><span class=lnt id=hl-4-28><a class=lnlinks href=#hl-4-28>28</a>
+</span><span class=lnt id=hl-4-29><a class=lnlinks href=#hl-4-29>29</a>
+</span><span class=lnt id=hl-4-30><a class=lnlinks href=#hl-4-30>30</a>
+</span><span class=lnt id=hl-4-31><a class=lnlinks href=#hl-4-31>31</a>
+</span><span class=lnt id=hl-4-32><a class=lnlinks href=#hl-4-32>32</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># .github/workflows/ci-cd.yml</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>CI/CD Pipeline</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>on</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>push</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>branches</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=l>main]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>jobs</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>build-and-deploy</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>runs-on</span><span class=p>:</span><span class=w> </span><span class=l>ubuntu-latest</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>steps</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Checkout Repository</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>uses</span><span class=p>:</span><span class=w> </span><span class=l>actions/checkout@v3</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Set up Node.js</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>uses</span><span class=p>:</span><span class=w> </span><span class=l>actions/setup-node@v3</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>with</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>node-version</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;18&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Install Dependencies</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>run</span><span class=p>:</span><span class=w> </span><span class=l>npm ci</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Run Tests</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>run</span><span class=p>:</span><span class=w> </span><span class=l>npm test</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Build App</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>run</span><span class=p>:</span><span class=w> </span><span class=l>npm run build</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Deploy</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>run</span><span class=p>:</span><span class=w> </span><span class=p>|</span><span class=sd>
+</span></span></span><span class=line><span class=cl><span class=sd>        echo &#34;Deploying to production…&#34;
+</span></span></span><span class=line><span class=cl><span class=sd>        npm run deploy</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h4 id=infrastructure-as-code-iacterraform>Infrastructure As Code (IaC)–Terraform<a hidden class=anchor aria-hidden=true href=#infrastructure-as-code-iacterraform>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-5-1><a class=lnlinks href=#hl-5-1> 1</a>
+</span><span class=lnt id=hl-5-2><a class=lnlinks href=#hl-5-2> 2</a>
+</span><span class=lnt id=hl-5-3><a class=lnlinks href=#hl-5-3> 3</a>
+</span><span class=lnt id=hl-5-4><a class=lnlinks href=#hl-5-4> 4</a>
+</span><span class=lnt id=hl-5-5><a class=lnlinks href=#hl-5-5> 5</a>
+</span><span class=lnt id=hl-5-6><a class=lnlinks href=#hl-5-6> 6</a>
+</span><span class=lnt id=hl-5-7><a class=lnlinks href=#hl-5-7> 7</a>
+</span><span class=lnt id=hl-5-8><a class=lnlinks href=#hl-5-8> 8</a>
+</span><span class=lnt id=hl-5-9><a class=lnlinks href=#hl-5-9> 9</a>
+</span><span class=lnt id=hl-5-10><a class=lnlinks href=#hl-5-10>10</a>
+</span><span class=lnt id=hl-5-11><a class=lnlinks href=#hl-5-11>11</a>
+</span><span class=lnt id=hl-5-12><a class=lnlinks href=#hl-5-12>12</a>
+</span><span class=lnt id=hl-5-13><a class=lnlinks href=#hl-5-13>13</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-hcl data-lang=hcl><span class=line><span class=cl><span class=c1># main.tf – AWS EC2 인스턴스 생성 예시
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>provider</span> <span class=s2>&#34;aws&#34;</span> {
+</span></span><span class=line><span class=cl><span class=n>  region</span> <span class=o>=</span> <span class=s2>&#34;ap-northeast-2&#34;</span>
+</span></span><span class=line><span class=cl>}
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>resource</span> <span class=s2>&#34;aws_instance&#34; &#34;web_server&#34;</span> {
+</span></span><span class=line><span class=cl><span class=n>  ami</span>           <span class=o>=</span> <span class=s2>&#34;ami-0c55b159cbfafe1f0&#34;</span>
+</span></span><span class=line><span class=cl><span class=n>  instance_type</span> <span class=o>=</span> <span class=s2>&#34;t3.micro&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>  tags</span> <span class=o>=</span> {
+</span></span><span class=line><span class=cl><span class=n>    Name</span> <span class=o>=</span> <span class=s2>&#34;DevOps-EC2&#34;</span>
+</span></span><span class=line><span class=cl>  }
+</span></span><span class=line><span class=cl>}
+</span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-6-1><a class=lnlinks href=#hl-6-1>1</a>
+</span><span class=lnt id=hl-6-2><a class=lnlinks href=#hl-6-2>2</a>
+</span><span class=lnt id=hl-6-3><a class=lnlinks href=#hl-6-3>3</a>
+</span><span class=lnt id=hl-6-4><a class=lnlinks href=#hl-6-4>4</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 실행 명령어</span>
+</span></span><span class=line><span class=cl>terraform init
+</span></span><span class=line><span class=cl>terraform plan
+</span></span><span class=line><span class=cl>terraform apply
+</span></span></code></pre></td></tr></table></div></div><h4 id=컨테이너화--오케스트레이션docker--kubernetes>컨테이너화 & 오케스트레이션–Docker + Kubernetes<a hidden class=anchor aria-hidden=true href=#컨테이너화--오케스트레이션docker--kubernetes>#</a></h4><p><strong>Dockerfile</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-7-1><a class=lnlinks href=#hl-7-1>1</a>
+</span><span class=lnt id=hl-7-2><a class=lnlinks href=#hl-7-2>2</a>
+</span><span class=lnt id=hl-7-3><a class=lnlinks href=#hl-7-3>3</a>
+</span><span class=lnt id=hl-7-4><a class=lnlinks href=#hl-7-4>4</a>
+</span><span class=lnt id=hl-7-5><a class=lnlinks href=#hl-7-5>5</a>
+</span><span class=lnt id=hl-7-6><a class=lnlinks href=#hl-7-6>6</a>
+</span><span class=lnt id=hl-7-7><a class=lnlinks href=#hl-7-7>7</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-dockerfile data-lang=dockerfile><span class=line><span class=cl><span class=k>FROM</span><span class=s> node:18-alpine</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>WORKDIR</span><span class=s> /app</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>COPY</span> package*.json ./<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>RUN</span> npm install<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>COPY</span> . .<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>EXPOSE</span><span class=s> 3000</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>CMD</span> <span class=p>[</span><span class=s2>&#34;npm&#34;</span><span class=p>,</span> <span class=s2>&#34;start&#34;</span><span class=p>]</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p><strong>Kubernetes Deployment</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-8-1><a class=lnlinks href=#hl-8-1> 1</a>
+</span><span class=lnt id=hl-8-2><a class=lnlinks href=#hl-8-2> 2</a>
+</span><span class=lnt id=hl-8-3><a class=lnlinks href=#hl-8-3> 3</a>
+</span><span class=lnt id=hl-8-4><a class=lnlinks href=#hl-8-4> 4</a>
+</span><span class=lnt id=hl-8-5><a class=lnlinks href=#hl-8-5> 5</a>
+</span><span class=lnt id=hl-8-6><a class=lnlinks href=#hl-8-6> 6</a>
+</span><span class=lnt id=hl-8-7><a class=lnlinks href=#hl-8-7> 7</a>
+</span><span class=lnt id=hl-8-8><a class=lnlinks href=#hl-8-8> 8</a>
+</span><span class=lnt id=hl-8-9><a class=lnlinks href=#hl-8-9> 9</a>
+</span><span class=lnt id=hl-8-10><a class=lnlinks href=#hl-8-10>10</a>
+</span><span class=lnt id=hl-8-11><a class=lnlinks href=#hl-8-11>11</a>
+</span><span class=lnt id=hl-8-12><a class=lnlinks href=#hl-8-12>12</a>
+</span><span class=lnt id=hl-8-13><a class=lnlinks href=#hl-8-13>13</a>
+</span><span class=lnt id=hl-8-14><a class=lnlinks href=#hl-8-14>14</a>
+</span><span class=lnt id=hl-8-15><a class=lnlinks href=#hl-8-15>15</a>
+</span><span class=lnt id=hl-8-16><a class=lnlinks href=#hl-8-16>16</a>
+</span><span class=lnt id=hl-8-17><a class=lnlinks href=#hl-8-17>17</a>
+</span><span class=lnt id=hl-8-18><a class=lnlinks href=#hl-8-18>18</a>
+</span><span class=lnt id=hl-8-19><a class=lnlinks href=#hl-8-19>19</a>
+</span><span class=lnt id=hl-8-20><a class=lnlinks href=#hl-8-20>20</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># k8s/deployment.yaml</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>apps/v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Deployment</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>web-app</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>replicas</span><span class=p>:</span><span class=w> </span><span class=m>2</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>selector</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>matchLabels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>web-app</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>template</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>web-app</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>containers</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>web</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>image</span><span class=p>:</span><span class=w> </span><span class=l>your-docker-id/web-app:latest</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>ports</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=nt>containerPort</span><span class=p>:</span><span class=w> </span><span class=m>3000</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-9-1><a class=lnlinks href=#hl-9-1>1</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>kubectl apply -f k8s/deployment.yaml
+</span></span></code></pre></td></tr></table></div></div><h4 id=gitopsargocd-기반-선언형-배포>GitOps–ArgoCD 기반 선언형 배포<a hidden class=anchor aria-hidden=true href=#gitopsargocd-기반-선언형-배포>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-10-1><a class=lnlinks href=#hl-10-1> 1</a>
+</span><span class=lnt id=hl-10-2><a class=lnlinks href=#hl-10-2> 2</a>
+</span><span class=lnt id=hl-10-3><a class=lnlinks href=#hl-10-3> 3</a>
+</span><span class=lnt id=hl-10-4><a class=lnlinks href=#hl-10-4> 4</a>
+</span><span class=lnt id=hl-10-5><a class=lnlinks href=#hl-10-5> 5</a>
+</span><span class=lnt id=hl-10-6><a class=lnlinks href=#hl-10-6> 6</a>
+</span><span class=lnt id=hl-10-7><a class=lnlinks href=#hl-10-7> 7</a>
+</span><span class=lnt id=hl-10-8><a class=lnlinks href=#hl-10-8> 8</a>
+</span><span class=lnt id=hl-10-9><a class=lnlinks href=#hl-10-9> 9</a>
+</span><span class=lnt id=hl-10-10><a class=lnlinks href=#hl-10-10>10</a>
+</span><span class=lnt id=hl-10-11><a class=lnlinks href=#hl-10-11>11</a>
+</span><span class=lnt id=hl-10-12><a class=lnlinks href=#hl-10-12>12</a>
+</span><span class=lnt id=hl-10-13><a class=lnlinks href=#hl-10-13>13</a>
+</span><span class=lnt id=hl-10-14><a class=lnlinks href=#hl-10-14>14</a>
+</span><span class=lnt id=hl-10-15><a class=lnlinks href=#hl-10-15>15</a>
+</span><span class=lnt id=hl-10-16><a class=lnlinks href=#hl-10-16>16</a>
+</span><span class=lnt id=hl-10-17><a class=lnlinks href=#hl-10-17>17</a>
+</span><span class=lnt id=hl-10-18><a class=lnlinks href=#hl-10-18>18</a>
+</span><span class=lnt id=hl-10-19><a class=lnlinks href=#hl-10-19>19</a>
+</span><span class=lnt id=hl-10-20><a class=lnlinks href=#hl-10-20>20</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># git-repo/k8s/app.yaml</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>apps/v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Deployment</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>frontend</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>replicas</span><span class=p>:</span><span class=w> </span><span class=m>3</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>selector</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>matchLabels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>frontend</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>template</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>frontend</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>containers</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>frontend</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>image</span><span class=p>:</span><span class=w> </span><span class=l>your-docker-id/frontend:latest</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>ports</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=nt>containerPort</span><span class=p>:</span><span class=w> </span><span class=m>8080</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><ul><li>ArgoCD UI 혹은 CLI 를 통해 Git 저장소를 등록하면 위 선언대로 Kubernetes 에 자동 배포됨</li></ul><h4 id=blue-green--canary-배포argo-rollouts>Blue-Green / Canary 배포–Argo Rollouts<a hidden class=anchor aria-hidden=true href=#blue-green--canary-배포argo-rollouts>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-11-1><a class=lnlinks href=#hl-11-1> 1</a>
+</span><span class=lnt id=hl-11-2><a class=lnlinks href=#hl-11-2> 2</a>
+</span><span class=lnt id=hl-11-3><a class=lnlinks href=#hl-11-3> 3</a>
+</span><span class=lnt id=hl-11-4><a class=lnlinks href=#hl-11-4> 4</a>
+</span><span class=lnt id=hl-11-5><a class=lnlinks href=#hl-11-5> 5</a>
+</span><span class=lnt id=hl-11-6><a class=lnlinks href=#hl-11-6> 6</a>
+</span><span class=lnt id=hl-11-7><a class=lnlinks href=#hl-11-7> 7</a>
+</span><span class=lnt id=hl-11-8><a class=lnlinks href=#hl-11-8> 8</a>
+</span><span class=lnt id=hl-11-9><a class=lnlinks href=#hl-11-9> 9</a>
+</span><span class=lnt id=hl-11-10><a class=lnlinks href=#hl-11-10>10</a>
+</span><span class=lnt id=hl-11-11><a class=lnlinks href=#hl-11-11>11</a>
+</span><span class=lnt id=hl-11-12><a class=lnlinks href=#hl-11-12>12</a>
+</span><span class=lnt id=hl-11-13><a class=lnlinks href=#hl-11-13>13</a>
+</span><span class=lnt id=hl-11-14><a class=lnlinks href=#hl-11-14>14</a>
+</span><span class=lnt id=hl-11-15><a class=lnlinks href=#hl-11-15>15</a>
+</span><span class=lnt id=hl-11-16><a class=lnlinks href=#hl-11-16>16</a>
+</span><span class=lnt id=hl-11-17><a class=lnlinks href=#hl-11-17>17</a>
+</span><span class=lnt id=hl-11-18><a class=lnlinks href=#hl-11-18>18</a>
+</span><span class=lnt id=hl-11-19><a class=lnlinks href=#hl-11-19>19</a>
+</span><span class=lnt id=hl-11-20><a class=lnlinks href=#hl-11-20>20</a>
+</span><span class=lnt id=hl-11-21><a class=lnlinks href=#hl-11-21>21</a>
+</span><span class=lnt id=hl-11-22><a class=lnlinks href=#hl-11-22>22</a>
+</span><span class=lnt id=hl-11-23><a class=lnlinks href=#hl-11-23>23</a>
+</span><span class=lnt id=hl-11-24><a class=lnlinks href=#hl-11-24>24</a>
+</span><span class=lnt id=hl-11-25><a class=lnlinks href=#hl-11-25>25</a>
+</span><span class=lnt id=hl-11-26><a class=lnlinks href=#hl-11-26>26</a>
+</span><span class=lnt id=hl-11-27><a class=lnlinks href=#hl-11-27>27</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># canary-deployment.yaml</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>argoproj.io/v1alpha1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Rollout</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>frontend-rollout</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>replicas</span><span class=p>:</span><span class=w> </span><span class=m>3</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>strategy</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>canary</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>steps</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>setWeight</span><span class=p>:</span><span class=w> </span><span class=m>20</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>pause</span><span class=p>:</span><span class=w> </span>{<span class=w> </span><span class=nt>duration</span><span class=p>:</span><span class=w> </span><span class=l>30s }</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>setWeight</span><span class=p>:</span><span class=w> </span><span class=m>50</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>pause</span><span class=p>:</span><span class=w> </span>{<span class=w> </span><span class=nt>duration</span><span class=p>:</span><span class=w> </span><span class=l>60s }</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>selector</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>matchLabels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>frontend</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>template</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>frontend</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>containers</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>frontend</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>image</span><span class=p>:</span><span class=w> </span><span class=l>your-docker-id/frontend:v2</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>ports</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=nt>containerPort</span><span class=p>:</span><span class=w> </span><span class=m>8080</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h4 id=devsecopssast--이미지-스캐닝>DevSecOps–SAST + 이미지 스캐닝<a hidden class=anchor aria-hidden=true href=#devsecopssast--이미지-스캐닝>#</a></h4><h5 id=github-actions--snyk-예시>GitHub Actions + Snyk 예시<a hidden class=anchor aria-hidden=true href=#github-actions--snyk-예시>#</a></h5><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-12-1><a class=lnlinks href=#hl-12-1>1</a>
+</span><span class=lnt id=hl-12-2><a class=lnlinks href=#hl-12-2>2</a>
+</span><span class=lnt id=hl-12-3><a class=lnlinks href=#hl-12-3>3</a>
+</span><span class=lnt id=hl-12-4><a class=lnlinks href=#hl-12-4>4</a>
+</span><span class=lnt id=hl-12-5><a class=lnlinks href=#hl-12-5>5</a>
+</span><span class=lnt id=hl-12-6><a class=lnlinks href=#hl-12-6>6</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Snyk Security Scan</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>uses</span><span class=p>:</span><span class=w> </span><span class=l>snyk/actions/node@v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>with</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>args</span><span class=p>:</span><span class=w> </span><span class=l>test</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>env</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>SNYK_TOKEN</span><span class=p>:</span><span class=w> </span><span class=l>${{ secrets.SNYK_TOKEN }}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h5 id=docker-이미지-취약점-스캔trivy>Docker 이미지 취약점 스캔–Trivy<a hidden class=anchor aria-hidden=true href=#docker-이미지-취약점-스캔trivy>#</a></h5><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-13-1><a class=lnlinks href=#hl-13-1>1</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>trivy image your-docker-id/web-app:latest
+</span></span></code></pre></td></tr></table></div></div><h4 id=모니터링--로깅prometheus--grafana>모니터링 & 로깅–Prometheus + Grafana<a hidden class=anchor aria-hidden=true href=#모니터링--로깅prometheus--grafana>#</a></h4><h5 id=prometheus-설정>Prometheus 설정<a hidden class=anchor aria-hidden=true href=#prometheus-설정>#</a></h5><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-14-1><a class=lnlinks href=#hl-14-1>1</a>
+</span><span class=lnt id=hl-14-2><a class=lnlinks href=#hl-14-2>2</a>
+</span><span class=lnt id=hl-14-3><a class=lnlinks href=#hl-14-3>3</a>
+</span><span class=lnt id=hl-14-4><a class=lnlinks href=#hl-14-4>4</a>
+</span><span class=lnt id=hl-14-5><a class=lnlinks href=#hl-14-5>5</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># prometheus.yml</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>scrape_configs</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>job_name</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;node-app&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>static_configs</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>targets</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=s1>&#39;localhost:3000&#39;</span><span class=p>]</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h5 id=grafana-대시보드-구성>Grafana 대시보드 구성<a hidden class=anchor aria-hidden=true href=#grafana-대시보드-구성>#</a></h5><ul><li><p>Prometheus 를 데이터 소스로 연결</p></li><li><p>CPU, Memory, HTTP 상태코드 등의 메트릭 시각화</p></li></ul><h4 id=chatopsslack--jenkins-연동>ChatOps–Slack + Jenkins 연동<a hidden class=anchor aria-hidden=true href=#chatopsslack--jenkins-연동>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-15-1><a class=lnlinks href=#hl-15-1> 1</a>
+</span><span class=lnt id=hl-15-2><a class=lnlinks href=#hl-15-2> 2</a>
+</span><span class=lnt id=hl-15-3><a class=lnlinks href=#hl-15-3> 3</a>
+</span><span class=lnt id=hl-15-4><a class=lnlinks href=#hl-15-4> 4</a>
+</span><span class=lnt id=hl-15-5><a class=lnlinks href=#hl-15-5> 5</a>
+</span><span class=lnt id=hl-15-6><a class=lnlinks href=#hl-15-6> 6</a>
+</span><span class=lnt id=hl-15-7><a class=lnlinks href=#hl-15-7> 7</a>
+</span><span class=lnt id=hl-15-8><a class=lnlinks href=#hl-15-8> 8</a>
+</span><span class=lnt id=hl-15-9><a class=lnlinks href=#hl-15-9> 9</a>
+</span><span class=lnt id=hl-15-10><a class=lnlinks href=#hl-15-10>10</a>
+</span><span class=lnt id=hl-15-11><a class=lnlinks href=#hl-15-11>11</a>
+</span><span class=lnt id=hl-15-12><a class=lnlinks href=#hl-15-12>12</a>
+</span><span class=lnt id=hl-15-13><a class=lnlinks href=#hl-15-13>13</a>
+</span><span class=lnt id=hl-15-14><a class=lnlinks href=#hl-15-14>14</a>
+</span><span class=lnt id=hl-15-15><a class=lnlinks href=#hl-15-15>15</a>
+</span><span class=lnt id=hl-15-16><a class=lnlinks href=#hl-15-16>16</a>
+</span><span class=lnt id=hl-15-17><a class=lnlinks href=#hl-15-17>17</a>
+</span><span class=lnt id=hl-15-18><a class=lnlinks href=#hl-15-18>18</a>
+</span><span class=lnt id=hl-15-19><a class=lnlinks href=#hl-15-19>19</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Jenkins Slack Notification 플러그인 사용 예시</span>
+</span></span><span class=line><span class=cl>pipeline <span class=o>{</span>
+</span></span><span class=line><span class=cl>  agent any
+</span></span><span class=line><span class=cl>  stages <span class=o>{</span>
+</span></span><span class=line><span class=cl>    stage<span class=o>(</span><span class=s1>&#39;Deploy&#39;</span><span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>      steps <span class=o>{</span>
+</span></span><span class=line><span class=cl>        <span class=nb>echo</span> <span class=s1>&#39;Deploying…&#39;</span>
+</span></span><span class=line><span class=cl>      <span class=o>}</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>  <span class=o>}</span>
+</span></span><span class=line><span class=cl>  post <span class=o>{</span>
+</span></span><span class=line><span class=cl>    success <span class=o>{</span>
+</span></span><span class=line><span class=cl>      slackSend channel: <span class=s1>&#39;#deployments&#39;</span>, message: <span class=s1>&#39;✅ 배포 완료&#39;</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>    failure <span class=o>{</span>
+</span></span><span class=line><span class=cl>      slackSend channel: <span class=s1>&#39;#deployments&#39;</span>, message: <span class=s1>&#39;❌ 배포 실패&#39;</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>  <span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=장점>장점<a hidden class=anchor aria-hidden=true href=#장점>#</a></h3><table><thead><tr><th><strong>항목</strong></th><th><strong>설명</strong></th><th><strong>기여 요인 / 기술 요소</strong></th></tr></thead><tbody><tr><td><strong>빠른 배포</strong></td><td>코드 변경 후 배포까지의 리드 타임 대폭 단축, 주기적 릴리즈 실현</td><td>CI/CD 자동화, 배포 파이프라인, Canary/Blue-Green 배포 전략</td></tr><tr><td><strong>높은 품질</strong></td><td>지속적 테스트와 코드 분석, 모니터링을 통해 결함을 조기에 발견하고 품질을 유지</td><td>자동화 테스트 (SAST/DAST), 테스트 커버리지, 모니터링/로깅</td></tr><tr><td><strong>운영 안정성</strong></td><td>자동 롤백, 헬스 체크, IaC 기반 환경 구성으로 운영 중단 리스크 감소</td><td>IaC, Kubernetes 헬스체크, 자동 복구 전략</td></tr><tr><td><strong>협업 강화</strong></td><td>개발 - 운영 간의 벽 제거, 도구 중심 커뮤니케이션과 공동 책임 문화 정착</td><td>공통 협업 툴 (Slack, Jira), GitOps, DevSecOps 문화</td></tr><tr><td><strong>효율성 향상</strong></td><td>반복적 수작업 자동화로 인한 생산성 증가, 업무 병렬화로 인한 리소스 최적화</td><td>스크립트 자동화, ChatOps, IaC 모듈화</td></tr><tr><td><strong>비용 절감</strong></td><td>수작업 감소, 오류 및 재작업 최소화, 클라우드 리소스 최적화</td><td>자동화 도구, FinOps, 오토스케일링</td></tr><tr><td><strong>확장성 확보</strong></td><td>마이크로서비스 및 클라우드 네이티브 아키텍처를 통한 시스템 확장 용이</td><td>Docker, Kubernetes, Microservices, Cloud Platform</td></tr><tr><td><strong>추적 가능성</strong></td><td>모든 변경 사항을 코드 및 로그로 관리하여 변경 이력 확인 및 문제 분석 가능</td><td>Git, IaC 상태 파일, 로깅 시스템</td></tr><tr><td><strong>재현 가능성</strong></td><td>모든 환경과 인프라를 코드화하여 동일한 환경을 반복 구성 가능</td><td>Terraform, Helm, Kustomize, 환경별 변수 분리</td></tr><tr><td><strong>빠른 복구 (MTTR↓)</strong></td><td>장애 발생 시 자동화된 대응 및 롤백 체계를 통해 평균 복구 시간 단축</td><td>Prometheus + Alertmanager, Rollback 전략, GitOps</td></tr><tr><td><strong>안정성 증대</strong></td><td>구성 드리프트 방지 및 일관된 배포로 환경 오작동 방지</td><td>IaC, GitOps, 정책 코드화 (Policy as Code)</td></tr></tbody></table><h3 id=단점과-문제점-그리고-해결방안>단점과 문제점 그리고 해결방안<a hidden class=anchor aria-hidden=true href=#단점과-문제점-그리고-해결방안>#</a></h3><h4 id=단점>단점<a hidden class=anchor aria-hidden=true href=#단점>#</a></h4><table><thead><tr><th><strong>카테고리</strong></th><th><strong>항목</strong></th><th><strong>설명</strong></th><th><strong>해결책</strong></th></tr></thead><tbody><tr><td><strong>도입 비용/리소스</strong></td><td>초기 투자 비용</td><td>도구 도입, 인프라 확장, 교육 등에 대한 초기 자본 및 인력 투자 필요</td><td>점진적 도입, ROI 기반 PoC 설계, 클라우드 서비스 활용</td></tr><tr><td><strong>복잡성</strong></td><td>기술적 복잡성</td><td>다양한 도구 스택과 연계로 인한 설정, 유지보수, 학습 난이도 증가</td><td>표준화된 도구 체인 구성, 내부 가이드 문서화, 플랫폼 엔지니어링 도입</td></tr><tr><td><strong>문화적 장벽</strong></td><td>조직 저항</td><td>기존 워터폴 문화와 DevOps 문화 간 충돌, 역할 불명확으로 인한 저항</td><td>점진적 변화 전략, 교육 및 성공 사례 공유, 리더십 지지 확보</td></tr><tr><td><strong>인력 역량</strong></td><td>스킬셋 부족</td><td>DevOps 전담 인력 혹은 교차 스킬 (T 형 인재) 의 부족으로 인한 도입 난항</td><td>내부 양성 프로그램, 멘토링, 외부 전문가 채용</td></tr><tr><td><strong>보안 위험</strong></td><td>자동화 내 보안 누락</td><td>빠른 배포와 자동화 속에서 보안 테스트가 생략될 가능성</td><td>DevSecOps 도입, SAST/DAST 자동화, Vault 등 비밀 관리 도구 적용</td></tr><tr><td><strong>운영 리스크</strong></td><td>자동화 오류</td><td>자동화된 스크립트/플로우 내 오류 발생 시 시스템 전반에 영향을 줄 수 있음</td><td>테스트 기반 자동화, 코드 리뷰 및 승인 절차 강화</td></tr></tbody></table><h4 id=문제점>문제점<a hidden class=anchor aria-hidden=true href=#문제점>#</a></h4><table><thead><tr><th><strong>카테고리</strong></th><th><strong>항목</strong></th><th><strong>원인</strong></th><th><strong>영향</strong></th><th><strong>대표적 해결방안</strong></th></tr></thead><tbody><tr><td><strong>배포/파이프라인</strong></td><td>배포 장애</td><td>테스트 누락, 환경 불일치, 의존성 문제</td><td>서비스 중단, 사용자 신뢰 하락</td><td>블루/그린 배포, 롤백 전략, 자동화된 테스트 및 환경 동기화</td></tr><tr><td><strong>환경 구성</strong></td><td>환경 불일치</td><td>수동 설정, IaC 미적용, 버전 관리 부재</td><td>예측 불가능한 동작, 테스트 불일치</td><td>IaC 기반 환경 자동화, 컨테이너화, 멀티환경 검증</td></tr><tr><td><strong>보안</strong></td><td>보안 취약점</td><td>이미지 스캔 미흡, 암호 노출, 리뷰 생략</td><td>데이터 유출, 시스템 침해</td><td>DevSecOps 통합, 보안 자동화, 비밀값 암호화 및 Vault/SOPS 사용</td></tr><tr><td><strong>도구 통합/운영</strong></td><td>도구 간 호환성 부족</td><td>이질적 도구 조합, API/포맷 불일치</td><td>자동화 실패, 유지보수 증가</td><td>API 기반 중간 계층 구축, 도구 표준화 및 통합 플랫폼 (IDP) 활용</td></tr><tr><td></td><td>도구 과잉/오버로드</td><td>팀마다 다른 툴 사용, 툴체인 중복</td><td>관리 피로도, 협업 비효율</td><td>내부 표준화, 도구 사용 정책 수립, 플랫폼 엔지니어링</td></tr><tr><td><strong>협업 및 커뮤니케이션</strong></td><td>협업 불균형</td><td>역할 분리, Dev vs Ops 간 목표 불일치</td><td>책임 회피, 커뮤니케이션 단절</td><td>Cross-functional 팀 구성, 책임 공유 모델 (RACI), ChatOps 도입</td></tr><tr><td><strong>사이클/속도 이슈</strong></td><td>배포 사이클 지연</td><td>병목 구간 존재, 테스트 시간 과도</td><td>릴리즈 주기 증가</td><td>병렬 테스트, 캐싱 전략, CI/CD 파이프라인 분리 및 최적화</td></tr><tr><td><strong>레거시 호환성</strong></td><td>레거시 시스템과의 통합 어려움</td><td>API 미비, 독립 실행 불가 구조</td><td>전체 워크플로우 일관성 저하</td><td>API 래핑, 점진적 현대화 전략, 컨테이너화</td></tr><tr><td><strong>모니터링 문제</strong></td><td>모니터링 오버헤드</td><td>과도한 데이터 수집, 노이즈 경보</td><td>리소스 낭비, Alert Fatigue</td><td>지능형 경보 구성, 필터링 및 집계 지표 설계</td></tr></tbody></table><h3 id=도전-과제>도전 과제<a hidden class=anchor aria-hidden=true href=#도전-과제>#</a></h3><table><thead><tr><th><strong>카테고리</strong></th><th><strong>도전 과제</strong></th><th><strong>원인</strong></th><th><strong>영향</strong></th><th><strong>탐지 및 진단</strong></th><th><strong>예방/해결 방법</strong></th></tr></thead><tbody><tr><td><strong>조직/문화</strong></td><td>조직 문화 전환</td><td>전통적 사일로 문화, 역할 분리</td><td>DevOps 도입 저해, 협업 부진</td><td>커뮤니케이션 병목, 내부 설문조사</td><td>리더십 주도 변화, 워크숍 운영, 파일럿 프로젝트, 조직 전환 전략 도입</td></tr><tr><td></td><td>인력 부족 및 교육 미흡</td><td>DevOps 통합 역량 부족, 기술 변화 속도</td><td>도입 실패, 생산성 저하</td><td>교육 이수율, 내부 역량 진단</td><td>내부 교육 체계 수립, 멘토링, 인증 프로그램, 외부 전문가 활용</td></tr><tr><td><strong>기술 통합</strong></td><td>도구 스택 복잡성</td><td>다양한 툴체인, 상호 호환성 부족</td><td>관리 비용 증가, 장애율 상승</td><td>태스크 흐름 분석, 도구 사용 현황 조사</td><td>플랫폼 엔지니어링, 통합 DevOps 도구 체계 수립, 내부 개발자 플랫폼 (IDP) 도입</td></tr><tr><td></td><td>레거시 시스템 통합 어려움</td><td>문서 기반, 온프레미스 시스템 구조</td><td>자동화 저해, 기술 부채 축적</td><td>CI 실패 로그, 연동 장애 진단</td><td>API 래핑, 점진적 마이그레이션, 모듈 분리, 래퍼 스크립트 적용</td></tr><tr><td></td><td>마이크로서비스 복잡화</td><td>서비스 수 증가, 상호 의존성 증가</td><td>디버깅/운영 복잡도 증가</td><td>SLA 모니터링, 분산 추적 시스템</td><td>서비스 메시, API 게이트웨이, 계약 기반 인터페이스 설계</td></tr><tr><td><strong>운영/관리</strong></td><td>멀티 클라우드/클러스터 운영 복잡성</td><td>클라우드 다양화, 복수 환경 동시 운영</td><td>배포 실패, 환경 불일치</td><td>환경 매니페스트, 클러스터 상태 점검</td><td>GitOps + ApplicationSet, Terraform, 표준화된 배포 구성 사용</td></tr><tr><td></td><td>데이터 및 로그 관리</td><td>대용량 메트릭/로그, 저장소 비용 증가</td><td>모니터링 부하, 분석 정확도 저하</td><td>메트릭 과부하 분석, 저장량 추이 체크</td><td>선택적 수집, 로그 샘플링, 중앙 수집기 (ELK), 데이터 수명 주기 관리</td></tr><tr><td></td><td>비용 최적화</td><td>무분별한 도구/리소스 사용, 오토스케일링 미비</td><td>예산 초과, 자원 낭비</td><td>클라우드 요금 분석 리포트</td><td>자원 태깅 정책, 예산 경고, 서버리스 및 스팟 인스턴스 활용</td></tr><tr><td><strong>보안/컴플라이언스</strong></td><td>자동화 기반 보안 통합 부족</td><td>빠른 배포에 집중, 보안 테스트 생략</td><td>침해 위험 증가, 컴플라이언스 위반</td><td>취약점 스캔 도구 연동, 감사지표 분석</td><td>DevSecOps 적용, SAST/DAST 자동화, 이미지 서명, 접근 제어 정책 강화</td></tr><tr><td></td><td>규제 대응 및 감사 준비 미흡</td><td>법/표준 미비, 감사 로그 불완전</td><td>법적 리스크, 외부 인증 실패</td><td>감사 요구사항 분석, 감사 로그 정합성 확인</td><td>OPA/Kyverno 기반 Policy-as-Code, 감사 로그 표준화 도구 적용</td></tr><tr><td><strong>확장성/속도</strong></td><td>파이프라인 성능 저하</td><td>테스트 병목, 불필요한 단계 누적</td><td>배포 속도 저하, 생산성 감소</td><td>실행 시간 메트릭, CI/CD 로그 분석</td><td>병렬화, 캐시 활용, 경량화된 빌드 전략, 다중 파이프라인 분리</td></tr><tr><td></td><td>대규모 조직 확산 한계</td><td>팀/부서 간 전략 미흡, 기술 격차 존재</td><td>편차 있는 DevOps 성숙도</td><td>부서별 DevOps 지표 분석</td><td>CoE 운영, 공통 플랫폼 제공, 사내 DevOps 앰배서더 제도 운영</td></tr><tr><td></td><td>AI/ML 운영 통합 어려움</td><td>MLOps 미성숙, 모델 추적/버전 관리 부재</td><td>성능 저하, 반복 학습 실패</td><td>모델 성능 모니터링, 버전 변화 감지</td><td>MLOps 도구 적용 (Mlflow 등), 지속적 학습/재배포 파이프라인 구축</td></tr></tbody></table><h3 id=분류에-따른-종류-및-유형>분류에 따른 종류 및 유형<a hidden class=anchor aria-hidden=true href=#분류에-따른-종류-및-유형>#</a></h3><table><thead><tr><th>분류 기준</th><th>유형</th><th>설명</th><th>사례/특징</th></tr></thead><tbody><tr><td>접근 방식</td><td>애자일 DevOps</td><td>애자일 방법론과 결합한 DevOps 접근법</td><td>스크럼, 칸반과 통합, 짧은 스프린트, 지속적 개선</td></tr><tr><td></td><td>린 DevOps</td><td>린 방법론의 원칙을 적용한 DevOps</td><td>낭비 제거, 가치 흐름 매핑, 지속적 개선</td></tr><tr><td></td><td>엔터프라이즈 DevOps</td><td>대규모 조직에 맞춘 DevOps</td><td>거버넌스 강화, 표준화된 프로세스, 엔터프라이즈 도구</td></tr><tr><td>중점 영역</td><td>DevSecOps</td><td>보안에 중점을 둔 DevOps</td><td>개발 초기부터 보안 통합, 자동화된 보안 테스트</td></tr><tr><td></td><td>DataOps</td><td>데이터 관리에 중점을 둔 DevOps</td><td>데이터 파이프라인 자동화, 데이터 품질 관리</td></tr><tr><td></td><td>GitOps</td><td>Git 을 중심으로 한 DevOps</td><td>Git 리포지토리를 단일 진실 원천으로 활용</td></tr><tr><td></td><td>AIOps</td><td>AI/ML 을 활용한 DevOps</td><td>AI 기반 모니터링 및 이상 감지, 자동화된 의사결정</td></tr><tr><td>산업 특화</td><td>FinOps</td><td>클라우드 비용 최적화에 중점을 둔 DevOps</td><td>클라우드 리소스 비용 관리, 최적화</td></tr><tr><td></td><td>CloudOps</td><td>클라우드 환경에 특화된 DevOps</td><td>클라우드 리소스 관리, 멀티/하이브리드 클라우드 전략</td></tr><tr><td></td><td>NetOps</td><td>네트워크 인프라에 중점을 둔 DevOps</td><td>네트워크 자동화, SDN 통합</td></tr><tr><td>조직 구조</td><td>집중형 DevOps</td><td>전담 DevOps 팀이 조직 전체 지원</td><td>전문성 집중, 표준화된 프로세스</td></tr><tr><td></td><td>분산형 DevOps</td><td>각 팀에 DevOps 역량 분산</td><td>자율성 강화, 특정 요구에 맞춤화</td></tr><tr><td></td><td>혼합형 DevOps</td><td>중앙 DevOps 팀과 임베디드 팀 혼합</td><td>표준화와 유연성 균형, CoE(Center of Excellence) 모델</td></tr><tr><td>배포 전략</td><td>블루/그린 배포</td><td>두 환경 간 전환을 통한 배포</td><td>제로 다운타임, 신속한 롤백 가능</td></tr><tr><td></td><td>카나리 배포</td><td>일부 사용자에게 점진적으로 노출</td><td>리스크 감소, 점진적 검증</td></tr><tr><td></td><td>롤링 업데이트</td><td>인스턴스를 점진적으로 업데이트</td><td>자원 효율적, 배포 과정의 부하 분산</td></tr></tbody></table><h3 id=devops-vs-traditional>DevOps vs. Traditional<a hidden class=anchor aria-hidden=true href=#devops-vs-traditional>#</a></h3><p>현대 디지털 비즈니스 환경에서 DevOps 와 전통적 IT 운영 방식의 차이는 조직의 경쟁력을 좌우하는 핵심 요소이다.</p><p>DevOps 는 개발 (Development) 과 운영 (Operations) 을 통합하여 소프트웨어 개발부터 배포, 운영까지 자동화와 협업을 강조하는 문화·방법론이며 전통적 방식은 개발과 운영이 분리되어 각각의 전문 영역에서 독립적으로 작업하며, 수동적이고 느린 배포와 소통 단절이 발생한다.<br>DevOps 는 협업 문화, 자동화, 지속적 개선을 통해 빠른 소프트웨어 배포와 높은 품질을 동시에 달성하는 반면, 전통적 IT 는 안정성과 예측 가능성을 중시하는 구조화된 접근법을 취한다.</p><h4 id=621-각-카테고리별-개요-및-비교-표>6.2.1. 각 카테고리별 개요 및 비교 표<a hidden class=anchor aria-hidden=true href=#621-각-카테고리별-개요-및-비교-표>#</a></h4><table><thead><tr><th>구분</th><th>DevOps</th><th>전통적 방식 (Traditional)</th></tr></thead><tbody><tr><td><strong>핵심 개념</strong></td><td>개발과 운영 통합, 자동화, 협업, CI/CD</td><td>개발과 운영 분리, 수동 작업, 단계별 승인</td></tr><tr><td><strong>배경</strong></td><td>빠른 시장 변화, 고객 요구 대응, 소프트웨어 품질 향상 필요</td><td>안정성, 전문성 강조, 전통적 IT 조직 구조</td></tr><tr><td><strong>목적 및 필요성</strong></td><td>빠른 배포, 지속적 개선, 고품질 소프트웨어</td><td>안정적 운영, 명확한 책임 분담</td></tr><tr><td><strong>주요 기능 및 역할</strong></td><td>자동화, 협업, 모니터링, 피드백</td><td>분업, 수동 작업, 단계별 승인</td></tr><tr><td><strong>특징</strong></td><td>빠른 피드백, 자동화, 협업 문화, 지속적 개선</td><td>느린 피드백, 수동 작업, 소통 단절</td></tr><tr><td><strong>핵심 원칙</strong></td><td>자동화, 협업, 지속적 개선, 모니터링 및 피드백</td><td>분업, 수동 작업, 단계별 승인</td></tr><tr><td><strong>주요 원리</strong></td><td>개발과 운영의 경계 허물기, 자동화 도구 활용, 협업 문화</td><td>개발과 운영 분리, 명확한 역할 구분</td></tr><tr><td><strong>작동 원리 및 방식</strong></td><td>CI/CD 파이프라인, 자동화 테스트, 지속적 배포</td><td>수동 테스트, 수동 배포, 단계별 승인</td></tr><tr><td><strong>구조 및 아키텍처</strong></td><td>마이크로서비스, 컨테이너, 오케스트레이션, 자동화 도구</td><td>모놀리식, 수동 배포, 전통적 인프라</td></tr><tr><td><strong>구성 요소</strong></td><td>개발팀, 운영팀, 자동화 도구, CI/CD 파이프라인, 모니터링 도구</td><td>개발팀, 운영팀, 수동 배포 프로세스, 단계별 승인</td></tr><tr><td><strong>구현 기법</strong></td><td>CI/CD, IaC, 컨테이너, 오케스트레이션, 모니터링</td><td>수동 배포, 수동 테스트, 단계별 승인</td></tr><tr><td><strong>장점</strong></td><td>빠른 배포, 지속적 개선, 협업, 자동화</td><td>안정성, 명확한 책임 분담, 전문성 강화</td></tr><tr><td><strong>단점</strong></td><td>도입 비용, 문화 변화 필요, 복잡성</td><td>느린 배포, 소통 단절, 수동 작업</td></tr><tr><td><strong>문제점</strong></td><td>도입 초기 저항, 복잡성 증가, 자동화 실패</td><td>배포 지연, 문제 해결 지연, 책임 소재 불분명</td></tr><tr><td><strong>도전 과제</strong></td><td>문화 변화, 자동화 도구 도입, 협업 강화</td><td>소통 개선, 자동화 도입, 피드백 루프 단축</td></tr><tr><td><strong>분류 기준에 따른 종류 및 유형</strong></td><td>CI/CD, IaC, 컨테이너, 오케스트레이션, 모니터링</td><td>수동 배포, 단계별 승인, 전통적 인프라</td></tr><tr><td><strong>실무 사용 예시</strong></td><td>클라우드 기반 서비스, 마이크로서비스, 자동화 배포</td><td>온프레미스 서비스, 모놀리식 아키텍처, 수동 배포</td></tr><tr><td><strong>활용 사례</strong></td><td>클라우드 기반 서비스, 마이크로서비스, 자동화 배포</td><td>온프레미스 서비스, 모놀리식 아키텍처, 수동 배포</td></tr><tr><td><strong>실무에서 효과적으로 적용하기 위한 고려사항 및 주의할 점</strong></td><td>문화 변화, 자동화 도구 도입, 협업 강화</td><td>소통 개선, 자동화 도입, 피드백 루프 단축</td></tr><tr><td><strong>최적화하기 위한 고려사항 및 주의할 점</strong></td><td>자동화 도구 최적화, 모니터링 강화, 협업 문화 정착</td><td>자동화 도입, 소통 개선, 피드백 루프 단축</td></tr></tbody></table><h4 id=구현-예시>구현 예시<a hidden class=anchor aria-hidden=true href=#구현-예시>#</a></h4><h5 id=python-예시---cicd-파이프라인-vs-수동-배포>Python 예시 - CI/CD 파이프라인 vs. 수동 배포<a hidden class=anchor aria-hidden=true href=#python-예시---cicd-파이프라인-vs-수동-배포>#</a></h5><p><strong>DevOps 방식 (CI/CD 파이프라인 예시)</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-16-1><a class=lnlinks href=#hl-16-1> 1</a>
+</span><span class=lnt id=hl-16-2><a class=lnlinks href=#hl-16-2> 2</a>
+</span><span class=lnt id=hl-16-3><a class=lnlinks href=#hl-16-3> 3</a>
+</span><span class=lnt id=hl-16-4><a class=lnlinks href=#hl-16-4> 4</a>
+</span><span class=lnt id=hl-16-5><a class=lnlinks href=#hl-16-5> 5</a>
+</span><span class=lnt id=hl-16-6><a class=lnlinks href=#hl-16-6> 6</a>
+</span><span class=lnt id=hl-16-7><a class=lnlinks href=#hl-16-7> 7</a>
+</span><span class=lnt id=hl-16-8><a class=lnlinks href=#hl-16-8> 8</a>
+</span><span class=lnt id=hl-16-9><a class=lnlinks href=#hl-16-9> 9</a>
+</span><span class=lnt id=hl-16-10><a class=lnlinks href=#hl-16-10>10</a>
+</span><span class=lnt id=hl-16-11><a class=lnlinks href=#hl-16-11>11</a>
+</span><span class=lnt id=hl-16-12><a class=lnlinks href=#hl-16-12>12</a>
+</span><span class=lnt id=hl-16-13><a class=lnlinks href=#hl-16-13>13</a>
+</span><span class=lnt id=hl-16-14><a class=lnlinks href=#hl-16-14>14</a>
+</span><span class=lnt id=hl-16-15><a class=lnlinks href=#hl-16-15>15</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 예시: GitHub Actions에서 자동 테스트 및 배포</span>
+</span></span><span class=line><span class=cl><span class=c1># .github/workflows/main.yml</span>
+</span></span><span class=line><span class=cl><span class=n>name</span><span class=p>:</span> <span class=n>CI</span><span class=o>/</span><span class=n>CD</span> <span class=n>Pipeline</span>
+</span></span><span class=line><span class=cl><span class=n>on</span><span class=p>:</span> <span class=p>[</span><span class=n>push</span><span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=n>jobs</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>  <span class=n>build</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>runs</span><span class=o>-</span><span class=n>on</span><span class=p>:</span> <span class=n>ubuntu</span><span class=o>-</span><span class=n>latest</span>
+</span></span><span class=line><span class=cl>    <span class=n>steps</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=o>-</span> <span class=n>uses</span><span class=p>:</span> <span class=n>actions</span><span class=o>/</span><span class=n>checkout</span><span class=nd>@v2</span>
+</span></span><span class=line><span class=cl>    <span class=o>-</span> <span class=n>name</span><span class=p>:</span> <span class=n>Install</span> <span class=n>dependencies</span>
+</span></span><span class=line><span class=cl>      <span class=n>run</span><span class=p>:</span> <span class=n>pip</span> <span class=n>install</span> <span class=o>-</span><span class=n>r</span> <span class=n>requirements</span><span class=o>.</span><span class=n>txt</span>
+</span></span><span class=line><span class=cl>    <span class=o>-</span> <span class=n>name</span><span class=p>:</span> <span class=n>Run</span> <span class=n>tests</span>
+</span></span><span class=line><span class=cl>      <span class=n>run</span><span class=p>:</span> <span class=n>pytest</span>
+</span></span><span class=line><span class=cl>    <span class=o>-</span> <span class=n>name</span><span class=p>:</span> <span class=n>Deploy</span>
+</span></span><span class=line><span class=cl>      <span class=n>run</span><span class=p>:</span> <span class=o>./</span><span class=n>deploy</span><span class=o>.</span><span class=n>sh</span>
+</span></span></code></pre></td></tr></table></div></div><p><strong>전통적 방식 (수동 배포 예시)</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-17-1><a class=lnlinks href=#hl-17-1>1</a>
+</span><span class=lnt id=hl-17-2><a class=lnlinks href=#hl-17-2>2</a>
+</span><span class=lnt id=hl-17-3><a class=lnlinks href=#hl-17-3>3</a>
+</span><span class=lnt id=hl-17-4><a class=lnlinks href=#hl-17-4>4</a>
+</span><span class=lnt id=hl-17-5><a class=lnlinks href=#hl-17-5>5</a>
+</span><span class=lnt id=hl-17-6><a class=lnlinks href=#hl-17-6>6</a>
+</span><span class=lnt id=hl-17-7><a class=lnlinks href=#hl-17-7>7</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 예시: 수동 빌드 및 배포</span>
+</span></span><span class=line><span class=cl><span class=c1># deploy.sh (수동 실행)</span>
+</span></span><span class=line><span class=cl><span class=c1>#!/bin/bash</span>
+</span></span><span class=line><span class=cl><span class=n>pip</span> <span class=n>install</span> <span class=o>-</span><span class=n>r</span> <span class=n>requirements</span><span class=o>.</span><span class=n>txt</span>
+</span></span><span class=line><span class=cl><span class=n>pytest</span>
+</span></span><span class=line><span class=cl><span class=n>scp</span> <span class=o>-</span><span class=n>r</span> <span class=o>.</span> <span class=n>user</span><span class=nd>@server</span><span class=p>:</span><span class=o>/</span><span class=n>path</span><span class=o>/</span><span class=n>to</span><span class=o>/</span><span class=n>app</span>
+</span></span><span class=line><span class=cl><span class=n>ssh</span> <span class=n>user</span><span class=nd>@server</span> <span class=s2>&#34;systemctl restart app&#34;</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=활용-사례>활용 사례<a hidden class=anchor aria-hidden=true href=#활용-사례>#</a></h3><h4 id=사례-1-netflix-의-devops-활용-사례>사례 1: Netflix 의 DevOps 활용 사례<a hidden class=anchor aria-hidden=true href=#사례-1-netflix-의-devops-활용-사례>#</a></h4><p><strong>배경</strong>: Netflix 는 글로벌 스트리밍 서비스로서 24/7 고가용성과 빠른 기능 개발이 필수.</p><p><strong>시스템 구성</strong>:</p><ul><li><strong>마이크로서비스 아키텍처</strong>: 수백 개의 독립적인 서비스</li><li><strong>AWS 클라우드 인프라</strong>: 다중 리전 배포</li><li><strong>자체 개발 도구</strong>: Spinnaker (배포), Chaos Monkey (장애 테스트)</li></ul><p><strong>시스템 구성 다이어그램</strong>:</p><pre class=mermaid>graph TB
+    subgraph &#34;Frontend&#34;
+        A[Web Interface]
+        B[Mobile Apps]
+        C[Smart TV Apps]
+    end
+    
+    subgraph &#34;API Gateway&#34;
+        D[Zuul Gateway]
+    end
+    
+    subgraph &#34;Microservices&#34;
+        E[User Service]
+        F[Recommendation Service]
+        G[Content Service]
+        H[Billing Service]
+    end
+    
+    subgraph &#34;Infrastructure&#34;
+        I[AWS ELB]
+        J[Auto Scaling Groups]
+        K[RDS/DynamoDB]
+    end
+    
+    subgraph &#34;DevOps Tools&#34;
+        L[Jenkins CI/CD]
+        M[Spinnaker Deployment]
+        N[Chaos Engineering]
+    end
+    
+    A --&gt; D
+    B --&gt; D
+    C --&gt; D
+    D --&gt; E
+    D --&gt; F
+    D --&gt; G
+    D --&gt; H
+    E --&gt; K
+    F --&gt; K
+    G --&gt; K
+    H --&gt; K
+    L --&gt; M
+    M --&gt; J
+    N --&gt; J
+</pre><p><strong>Workflow</strong>:</p><ol><li>개발자가 코드를 커밋</li><li>Jenkins 에서 자동 빌드 및 테스트</li><li>Spinnaker 를 통한 카나리 배포</li><li>Chaos Monkey 로 장애 테스트</li><li>프로덕션 배포 및 모니터링</li></ol><p><strong>DevOps 의 역할</strong>:</p><ul><li><strong>지속적 배포</strong>: 하루 수천 번의 배포 가능</li><li><strong>장애 복구</strong>: 자동화된 복구 메커니즘</li><li><strong>확장성</strong>: 트래픽 급증 시 자동 스케일링</li></ul><h4 id=사례-2-클라우드-기반-웹-서비스의-cicd-파이프라인-구축>사례 2: 클라우드 기반 웹 서비스의 CI/CD 파이프라인 구축<a hidden class=anchor aria-hidden=true href=#사례-2-클라우드-기반-웹-서비스의-cicd-파이프라인-구축>#</a></h4><p><strong>시스템 구성:</strong></p><ul><li>소스 코드 관리 → CI 서버 → 테스트 자동화 → 배포 자동화 → 모니터링</li></ul><p><strong>Workflow:</strong></p><ol><li>코드 커밋</li><li>자동 빌드 및 테스트</li><li>자동 배포</li><li>모니터링 및 피드백</li></ol><pre class=mermaid>flowchart TD
+    A[코드 커밋] --&gt; B[자동 빌드/테스트]
+    B --&gt; C[자동 배포]
+    C --&gt; D[모니터링/피드백]
+    D --&gt; E[지속적 개선]
+    E --&gt; A
+</pre><p><strong>DevOps 역할:</strong></p><ul><li>배포 자동화 및 신속한 피드백 제공</li></ul><p><strong>차이점:</strong></p><ul><li>DevOps 미적용 시 수동 배포, 오류 증가, 배포 지연 발생</li></ul><h4 id=사례-3-전자상거래-플랫폼-a-사>사례 3: 전자상거래 플랫폼 A 사<a hidden class=anchor aria-hidden=true href=#사례-3-전자상거래-플랫폼-a-사>#</a></h4><p><strong>목적</strong>: 프로덕션 배포 시간 단축 및 장애 대응 자동화</p><p><strong>구성</strong>:</p><pre class=mermaid>graph LR
+  GitRepo --&gt; CI(Jenkins)
+  CI --&gt; Build[Docker Build]
+  Build --&gt; Registry
+  Registry --&gt; K8s[Helm + Kubernetes]
+  K8s --&gt; App
+  App --&gt; Monitoring(Prometheus, Grafana)
+  Monitoring --&gt; Alert[PagerDuty]
+  Alert --&gt; DevOps-Team
+</pre><p><strong>Workflow</strong>:</p><ol><li>개발 → Git push</li><li>Jenkins 자동 CI 진행 (빌드 → 테스트 → 이미지 생성)</li><li>이미지 Registry 업로드</li><li>Helm 차트를 사용해 K8s 에 자동 배포</li><li>Prometheus 로 모니터링 → 이상 탐지 시 PagerDuty 자동 알림</li><li>DevOps 팀 대응 + 롤백 처리</li></ol><h4 id=사례-4-devops-파이프라인-샘플-코드-github-actions-기반>사례 4: DevOps 파이프라인 샘플 코드 (GitHub Actions 기반)<a hidden class=anchor aria-hidden=true href=#사례-4-devops-파이프라인-샘플-코드-github-actions-기반>#</a></h4><p>Node.js 애플리케이션을 빌드, 테스트, Dockerize 하고 Kubernetes 에 배포</p><p><strong>파일 구조</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-21-1><a class=lnlinks href=#hl-21-1>1</a>
+</span><span class=lnt id=hl-21-2><a class=lnlinks href=#hl-21-2>2</a>
+</span><span class=lnt id=hl-21-3><a class=lnlinks href=#hl-21-3>3</a>
+</span><span class=lnt id=hl-21-4><a class=lnlinks href=#hl-21-4>4</a>
+</span><span class=lnt id=hl-21-5><a class=lnlinks href=#hl-21-5>5</a>
+</span><span class=lnt id=hl-21-6><a class=lnlinks href=#hl-21-6>6</a>
+</span><span class=lnt id=hl-21-7><a class=lnlinks href=#hl-21-7>7</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>.
+</span></span><span class=line><span class=cl>├── .github/workflows/devops-pipeline.yaml
+</span></span><span class=line><span class=cl>├── app/
+</span></span><span class=line><span class=cl>│   └── server.js
+</span></span><span class=line><span class=cl>├── Dockerfile
+</span></span><span class=line><span class=cl>└── k8s/
+</span></span><span class=line><span class=cl>    └── deployment.yaml
+</span></span></code></pre></td></tr></table></div></div><p><strong><code>.github/workflows/devops-pipeline.yaml</code></strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-22-1><a class=lnlinks href=#hl-22-1> 1</a>
+</span><span class=lnt id=hl-22-2><a class=lnlinks href=#hl-22-2> 2</a>
+</span><span class=lnt id=hl-22-3><a class=lnlinks href=#hl-22-3> 3</a>
+</span><span class=lnt id=hl-22-4><a class=lnlinks href=#hl-22-4> 4</a>
+</span><span class=lnt id=hl-22-5><a class=lnlinks href=#hl-22-5> 5</a>
+</span><span class=lnt id=hl-22-6><a class=lnlinks href=#hl-22-6> 6</a>
+</span><span class=lnt id=hl-22-7><a class=lnlinks href=#hl-22-7> 7</a>
+</span><span class=lnt id=hl-22-8><a class=lnlinks href=#hl-22-8> 8</a>
+</span><span class=lnt id=hl-22-9><a class=lnlinks href=#hl-22-9> 9</a>
+</span><span class=lnt id=hl-22-10><a class=lnlinks href=#hl-22-10>10</a>
+</span><span class=lnt id=hl-22-11><a class=lnlinks href=#hl-22-11>11</a>
+</span><span class=lnt id=hl-22-12><a class=lnlinks href=#hl-22-12>12</a>
+</span><span class=lnt id=hl-22-13><a class=lnlinks href=#hl-22-13>13</a>
+</span><span class=lnt id=hl-22-14><a class=lnlinks href=#hl-22-14>14</a>
+</span><span class=lnt id=hl-22-15><a class=lnlinks href=#hl-22-15>15</a>
+</span><span class=lnt id=hl-22-16><a class=lnlinks href=#hl-22-16>16</a>
+</span><span class=lnt id=hl-22-17><a class=lnlinks href=#hl-22-17>17</a>
+</span><span class=lnt id=hl-22-18><a class=lnlinks href=#hl-22-18>18</a>
+</span><span class=lnt id=hl-22-19><a class=lnlinks href=#hl-22-19>19</a>
+</span><span class=lnt id=hl-22-20><a class=lnlinks href=#hl-22-20>20</a>
+</span><span class=lnt id=hl-22-21><a class=lnlinks href=#hl-22-21>21</a>
+</span><span class=lnt id=hl-22-22><a class=lnlinks href=#hl-22-22>22</a>
+</span><span class=lnt id=hl-22-23><a class=lnlinks href=#hl-22-23>23</a>
+</span><span class=lnt id=hl-22-24><a class=lnlinks href=#hl-22-24>24</a>
+</span><span class=lnt id=hl-22-25><a class=lnlinks href=#hl-22-25>25</a>
+</span><span class=lnt id=hl-22-26><a class=lnlinks href=#hl-22-26>26</a>
+</span><span class=lnt id=hl-22-27><a class=lnlinks href=#hl-22-27>27</a>
+</span><span class=lnt id=hl-22-28><a class=lnlinks href=#hl-22-28>28</a>
+</span><span class=lnt id=hl-22-29><a class=lnlinks href=#hl-22-29>29</a>
+</span><span class=lnt id=hl-22-30><a class=lnlinks href=#hl-22-30>30</a>
+</span><span class=lnt id=hl-22-31><a class=lnlinks href=#hl-22-31>31</a>
+</span><span class=lnt id=hl-22-32><a class=lnlinks href=#hl-22-32>32</a>
+</span><span class=lnt id=hl-22-33><a class=lnlinks href=#hl-22-33>33</a>
+</span><span class=lnt id=hl-22-34><a class=lnlinks href=#hl-22-34>34</a>
+</span><span class=lnt id=hl-22-35><a class=lnlinks href=#hl-22-35>35</a>
+</span><span class=lnt id=hl-22-36><a class=lnlinks href=#hl-22-36>36</a>
+</span><span class=lnt id=hl-22-37><a class=lnlinks href=#hl-22-37>37</a>
+</span><span class=lnt id=hl-22-38><a class=lnlinks href=#hl-22-38>38</a>
+</span><span class=lnt id=hl-22-39><a class=lnlinks href=#hl-22-39>39</a>
+</span><span class=lnt id=hl-22-40><a class=lnlinks href=#hl-22-40>40</a>
+</span><span class=lnt id=hl-22-41><a class=lnlinks href=#hl-22-41>41</a>
+</span><span class=lnt id=hl-22-42><a class=lnlinks href=#hl-22-42>42</a>
+</span><span class=lnt id=hl-22-43><a class=lnlinks href=#hl-22-43>43</a>
+</span><span class=lnt id=hl-22-44><a class=lnlinks href=#hl-22-44>44</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>DevOps CI/CD Pipeline</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>on</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>push</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>branches</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=w> </span><span class=l>main ]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>jobs</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>build-test</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>runs-on</span><span class=p>:</span><span class=w> </span><span class=l>ubuntu-latest</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>steps</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Checkout Code</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>uses</span><span class=p>:</span><span class=w> </span><span class=l>actions/checkout@v3</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Setup Node.js</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>uses</span><span class=p>:</span><span class=w> </span><span class=l>actions/setup-node@v3</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>with</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>node-version</span><span class=p>:</span><span class=w> </span><span class=m>18</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Install Dependencies</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>run</span><span class=p>:</span><span class=w> </span><span class=l>npm install</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Run Tests</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>run</span><span class=p>:</span><span class=w> </span><span class=l>npm test</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>docker-deploy</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>needs</span><span class=p>:</span><span class=w> </span><span class=l>build-test</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>runs-on</span><span class=p>:</span><span class=w> </span><span class=l>ubuntu-latest</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>steps</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>uses</span><span class=p>:</span><span class=w> </span><span class=l>actions/checkout@v3</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Log in to DockerHub</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>run</span><span class=p>:</span><span class=w> </span><span class=l>echo &#34;${{ secrets.DOCKER_PASSWORD }}&#34; | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Build and Push Image</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>run</span><span class=p>:</span><span class=w> </span><span class=p>|</span><span class=sd>
+</span></span></span><span class=line><span class=cl><span class=sd>        docker build -t your-org/app:${{ github.sha }} .
+</span></span></span><span class=line><span class=cl><span class=sd>        docker push your-org/app:${{ github.sha }}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Set up kubectl</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>uses</span><span class=p>:</span><span class=w> </span><span class=l>azure/setup-kubectl@v3</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Deploy to Kubernetes</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>run</span><span class=p>:</span><span class=w> </span><span class=p>|</span><span class=sd>
+</span></span></span><span class=line><span class=cl><span class=sd>        sed &#34;s|IMAGE_TAG|${{ github.sha }}|g&#34; k8s/deployment.yaml | kubectl apply -f -</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p><strong><code>k8s/deployment.yaml</code></strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-23-1><a class=lnlinks href=#hl-23-1> 1</a>
+</span><span class=lnt id=hl-23-2><a class=lnlinks href=#hl-23-2> 2</a>
+</span><span class=lnt id=hl-23-3><a class=lnlinks href=#hl-23-3> 3</a>
+</span><span class=lnt id=hl-23-4><a class=lnlinks href=#hl-23-4> 4</a>
+</span><span class=lnt id=hl-23-5><a class=lnlinks href=#hl-23-5> 5</a>
+</span><span class=lnt id=hl-23-6><a class=lnlinks href=#hl-23-6> 6</a>
+</span><span class=lnt id=hl-23-7><a class=lnlinks href=#hl-23-7> 7</a>
+</span><span class=lnt id=hl-23-8><a class=lnlinks href=#hl-23-8> 8</a>
+</span><span class=lnt id=hl-23-9><a class=lnlinks href=#hl-23-9> 9</a>
+</span><span class=lnt id=hl-23-10><a class=lnlinks href=#hl-23-10>10</a>
+</span><span class=lnt id=hl-23-11><a class=lnlinks href=#hl-23-11>11</a>
+</span><span class=lnt id=hl-23-12><a class=lnlinks href=#hl-23-12>12</a>
+</span><span class=lnt id=hl-23-13><a class=lnlinks href=#hl-23-13>13</a>
+</span><span class=lnt id=hl-23-14><a class=lnlinks href=#hl-23-14>14</a>
+</span><span class=lnt id=hl-23-15><a class=lnlinks href=#hl-23-15>15</a>
+</span><span class=lnt id=hl-23-16><a class=lnlinks href=#hl-23-16>16</a>
+</span><span class=lnt id=hl-23-17><a class=lnlinks href=#hl-23-17>17</a>
+</span><span class=lnt id=hl-23-18><a class=lnlinks href=#hl-23-18>18</a>
+</span><span class=lnt id=hl-23-19><a class=lnlinks href=#hl-23-19>19</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>apps/v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Deployment</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>devops-app</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>replicas</span><span class=p>:</span><span class=w> </span><span class=m>2</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>selector</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>matchLabels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>devops-app</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>template</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>devops-app</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>containers</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>app</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>image</span><span class=p>:</span><span class=w> </span><span class=l>your-org/app:IMAGE_TAG</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>ports</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=nt>containerPort</span><span class=p>:</span><span class=w> </span><span class=m>3000</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><blockquote><p>✅ GitHub Secrets: <code>DOCKER_USERNAME</code>, <code>DOCKER_PASSWORD</code>, <code>KUBECONFIG</code> 필요</p></blockquote><h3 id=실무에서-효과적으로-적용하기-위한-고려사항-및-주의할-점>실무에서 효과적으로 적용하기 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#실무에서-효과적으로-적용하기-위한-고려사항-및-주의할-점>#</a></h3><table><thead><tr><th><strong>카테고리</strong></th><th><strong>고려사항</strong></th><th><strong>설명</strong></th><th><strong>주의할 점</strong></th><th><strong>권장사항</strong></th></tr></thead><tbody><tr><td><strong>조직 문화/리더십</strong></td><td>문화적 준비도</td><td>DevOps 는 기술이 아닌 문화 중심 변화로, 조직 내 수용 태세가 중요</td><td>급격한 도입은 저항 유발 가능</td><td>점진적 변화 관리, 교육 프로그램 운영, 성공 사례 공유</td></tr><tr><td></td><td>리더십/지원 확보</td><td>조직의 리더십이 DevOps 전환에 명확한 지지 필요</td><td>비즈니스 가치 없이 기술만 강조 시 실패 확률 증가</td><td>ROI 및 기대 효과 시각화, 고위층 참여 유도</td></tr><tr><td></td><td>책임 공유</td><td>개발/운영/QA 간 소통 및 책임 분산</td><td>역할 불명확 시 병목 및 갈등 발생 가능</td><td>명확한 역할 정의 (RACI), 크로스 기능 팀 구성</td></tr><tr><td></td><td>지속적 학습 문화 조성</td><td>DevOps 는 반복적 개선과 학습이 핵심</td><td>변화 회피 문화가 정착 시 혁신 정체</td><td>심리적 안전 기반 실험 문화 조성, 교육과 멘토링 활성화</td></tr><tr><td><strong>프로세스 설계</strong></td><td>단계적 도입 전략</td><td>모든 것을 한 번에 바꾸려 하지 않고 점진적으로 접근</td><td>무리한 전환은 기존 프로세스와 충돌 발생 가능</td><td>CI → CD 순 도입, 작은 팀부터 시작</td></tr><tr><td></td><td>프로세스 표준화와 유연성 균형</td><td>일관된 운영 체계 확보와 현장의 유연성 사이의 균형 필요</td><td>과도한 표준화는 속도 저하와 유연성 저해</td><td>핵심 프로세스 표준화, 비핵심은 유연하게</td></tr><tr><td></td><td>지속적 개선 메커니즘</td><td>문제 발생 후 개선이 아닌, 주기적인 개선 체계 필요</td><td>회고 부재 시 반복되는 실수 지속</td><td>정기 회고, 피드백 루프, 개선안 도출 워크숍 진행</td></tr><tr><td><strong>기술/도구 전략</strong></td><td>도구 선정 및 표준화</td><td>DevOps 에 필요한 도구를 조직에 맞게 신중히 선정</td><td>도구 과잉 또는 난립 시 유지보수 복잡성 증가</td><td>사전 PoC 수행, 벤더 중립성 고려, 통합성 평가</td></tr><tr><td></td><td>기존 시스템 통합</td><td>DevOps 는 레거시 시스템과의 통합 고려가 필수</td><td>레거시 미지원 도구 도입 시 운영 불일치 발생</td><td>단계적 마이그레이션 전략 수립, API 기반 통합 설계</td></tr><tr><td></td><td>자동화 도구 활용</td><td>반복 가능한 작업 자동화를 통해 품질 및 속도 향상</td><td>자동화 도구 불일치 또는 비표준 구성 시 운영 리스크</td><td>IaC, CI/CD, 보안 자동화 도구 도입 및 템플릿 표준화</td></tr><tr><td></td><td>보안 통합 (DevSecOps)</td><td>초기 단계에서 보안 자동화를 포함한 설계 필요</td><td>보안을 나중에 추가하면 트레이드오프 발생</td><td>Shift-left 보안, SAST/DAST, 정책 코드화, Vault/SOPS 연동 적용</td></tr><tr><td><strong>운영/자동화</strong></td><td>파이프라인 효율화</td><td>CI/CD 파이프라인의 병목 제거 및 속도 향상 필요</td><td>중복 작업, 병렬화 미흡, 캐시 누락 등으로 빌드 지연</td><td>캐싱 전략, 병렬 실행, Selective Testing 적용</td></tr><tr><td></td><td>환경 일관성 유지</td><td>dev/stage/prod 간 차이로 인한 장애 발생 방지 필요</td><td>구성 편차로 인한 환경 간 충돌 가능</td><td>IaC 기반 구성, 컨테이너 기반 실행 환경 통일</td></tr><tr><td></td><td>권한 및 보안 설정</td><td>CI/CD 도구 및 클라우드 리소스의 권한 과다 부여 방지</td><td>과도한 권한은 보안 리스크 유발</td><td>Least Privilege, RBAC 적용</td></tr><tr><td></td><td>Secret 관리</td><td>API 키, 인증 정보 등의 비밀 값 안전한 관리 필요</td><td>하드코딩 또는 노출 시 보안 사고 발생 가능</td><td>Vault, SOPS, 환경 변수 기반 관리 + 자동 스캔 도입</td></tr><tr><td></td><td>테스트 커버리지 및 품질 확보</td><td>충분한 테스트 자동화를 통해 배포 전 품질 확보 필요</td><td>테스트 부족 시 오류 미탐지, 과도 시 비용 증가</td><td>유닛/통합 테스트 병행, 테스트 피라미드 전략 수립</td></tr><tr><td></td><td>모니터링 및 알림 체계</td><td>운영 상태 실시간 파악 및 장애 대응 가능해야 함</td><td>과도한 알림 또는 누락 발생 가능</td><td>의미 있는 메트릭 설계, 임계값 조정, 예외 필터링 적용</td></tr><tr><td></td><td>문서화 및 교육</td><td>비공식적 지식에 의존하면 운영 지속성 저하</td><td>구체적 사용법·구조 누락 시 온보딩 어려움</td><td>파이프라인 문서화, 시스템 구성 문서 정비, 실습 중심 내부 교육 프로그램 운영</td></tr><tr><td><strong>성과 및 평가</strong></td><td>측정 지표 정의</td><td>DevOps 성과를 명확히 측정해야 개선 방향 수립 가능</td><td>기술 중심 지표만 사용 시 비즈니스 효과 평가 불가</td><td>DORA 지표 (Frequency, Lead Time, MTTR, Change Failure Rate) 기반 측정</td></tr><tr><td></td><td>데이터 기반 의사결정</td><td>정량적 근거 없이 추측 기반 의사결정은 리스크 증가</td><td>데이터 부재 시 개선 우선순위 판단 불명확</td><td>모니터링/로그 기반 측정 시스템 구축, 대시보드 시각화</td></tr><tr><td></td><td>성공 기준 정립</td><td>조직에 맞는 DevOps 도입 성공 정의 필요</td><td>단순 도구 도입을 성공으로 착각할 수 있음</td><td>조직 목표 기반 KPI 수립, 정기적 성과 리뷰 및 피드백</td></tr><tr><td><strong>인력 및 역량 개발</strong></td><td>기술 스킬 격차 해소</td><td>DevOps 도입 시 필요한 스킬셋 부족 가능성</td><td>전통적 개발·운영 기술만으로는 대응 불가</td><td>교차 스킬 (T 자형 인재) 양성, 온보딩/리트레이닝 프로그램 운영</td></tr><tr><td></td><td>인센티브 및 동기 부여</td><td>협업 및 자동화 개선에 대한 보상 체계 필요</td><td>기여가 인식되지 않으면 참여 저하 가능</td><td>DevOps 문화 기여도 기반 평가, 보상 및 성장 기회 연계</td></tr></tbody></table><h3 id=최적화하기-위한-고려사항-및-주의할-점>최적화하기 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#최적화하기-위한-고려사항-및-주의할-점>#</a></h3><table><thead><tr><th><strong>카테고리</strong></th><th><strong>항목</strong></th><th><strong>설명</strong></th><th><strong>권장 방안</strong></th></tr></thead><tbody><tr><td><strong>성능 최적화</strong></td><td>파이프라인 속도 최적화</td><td>전체 빌드/배포 파이프라인 소요 시간 단축</td><td>병렬 처리, 캐싱 전략, 증분 빌드, Selective testing 적용</td></tr><tr><td></td><td>테스트 최적화</td><td>과도한 테스트로 인한 속도 저하 및 커버리지 관리</td><td>테스트 피라미드 구성 (단위/통합/E2E), 병렬화, 중요도 기반 필터링</td></tr><tr><td></td><td>캐싱 전략</td><td>반복 작업에서 동일 리소스 불필요한 재생성 방지</td><td>Docker Layer, 종속성, 테스트 결과 캐싱</td></tr><tr><td></td><td>트리거 효율화</td><td>모든 커밋/변경에 대한 무의미한 트리거 방지</td><td>변경 감지 기반 트리거, 파일 경로 필터링</td></tr><tr><td><strong>비용 최적화</strong></td><td>리소스 효율성 관리</td><td>과도한 클라우드 리소스 사용 및 스펙 오버 프로비저닝</td><td>오토스케일링, 스팟 인스턴스, FinOps 도구 활용</td></tr><tr><td></td><td>모니터링 비용 제어</td><td>고빈도 메트릭 수집 및 저장 비용 증가 위험</td><td>샘플링, 요약 지표 활용, 장기 보관 로그 압축</td></tr><tr><td></td><td>툴체인 단순화</td><td>유사 목적의 도구 과다 도입으로 인한 관리 복잡성</td><td>IDP 기반 통합, 도구 중복 제거</td></tr><tr><td><strong>보안 최적화</strong></td><td>보안 자동화 통합</td><td>DevSecOps 적용 시 속도 저하 또는 누락 가능성 존재</td><td>파이프라인 내 SAST/DAST, 이미지 스캔, Policy as Code 적용</td></tr><tr><td></td><td>취약점 점검 및 패치</td><td>운영 중 발견된 보안 취약점에 대한 대응 지연 위험</td><td>자동 스캐닝, 정기 점검, 보안 피드백 루프 구축</td></tr><tr><td></td><td>제로 트러스트 설계</td><td>내부 통신도 신뢰하지 않는 원칙 기반 보안 체계 설계 필요</td><td>인증/인가 강화, 지속적 검증 로직 도입</td></tr><tr><td><strong>모니터링 최적화</strong></td><td>가시성 확보</td><td>모니터링 지표/로그/트레이스 데이터 혼란 및 과잉 수집 위험</td><td>Unified Observability 설계, OpenTelemetry 활용</td></tr><tr><td></td><td>알림 전략 최적화</td><td>알림 피로 (Alert Fatigue) 및 노이즈 경보 위험</td><td>중요도 기반 알림 필터링, 조건 기반 트리거 설정</td></tr><tr><td></td><td>로그 관리</td><td>로그의 중복, 저장 용량 증가, 분석 난이도 증가</td><td>중앙 집중식 로깅, 저장 정책 수립, 자동 분석 도구 활용</td></tr><tr><td><strong>배포 전략 최적화</strong></td><td>안전한 배포 방식 선택</td><td>배포 중 장애 발생 시 전체 시스템 영향 위험</td><td>Blue-Green, Canary, 롤링 배포 적용</td></tr><tr><td></td><td>롤백 메커니즘 구축</td><td>배포 실패 시 즉각적인 복구 어려움</td><td>상태 기반 롤백, 자동 트리거 설정</td></tr><tr><td></td><td>배포 분리 및 제어</td><td>모든 사용자에게 기능 일괄 적용 시 위험 증가</td><td>Feature Flag, 점진적 기능 출시</td></tr><tr><td><strong>아키텍처 최적화</strong></td><td>확장성 및 유연성 확보</td><td>고정된 구조로 인해 서비스 확장 한계 존재</td><td>마이크로서비스, 클라우드 네이티브 설계, 컨테이너 기반 운영</td></tr><tr><td></td><td>성능 병목 제거</td><td>특정 컴포넌트의 병목으로 전체 성능 저하 가능</td><td>지속적 성능 테스트, 코드 프로파일링, 부하 분산</td></tr><tr><td><strong>인프라 최적화</strong></td><td>자원 자동화 관리</td><td>수동 인프라 배포/설정으로 인한 시간 낭비 및 오류 발생 위험</td><td>Terraform, Pulumi 등 IaC 도입, Auto-provisioning</td></tr><tr><td></td><td>비용 추적 및 리소스 가시화</td><td>클라우드 리소스 사용량 파악 어려움</td><td>태그 기반 추적, 실시간 대시보드, 경고 설정</td></tr><tr><td><strong>프로세스 최적화</strong></td><td>지속적 개선 문화 조성</td><td>고정된 운영 프로세스로 인한 혁신 정체</td><td>정기 회고, 실험적 도입 문화 장려</td></tr><tr><td></td><td>명확한 역할 및 책임 분리</td><td>의사소통 혼선, 협업 병목 가능성</td><td>RACI 기반 역할 정립, 협업 툴 통한 통합 커뮤니케이션</td></tr><tr><td></td><td>코드/설계 모듈화</td><td>유지보수 복잡성, 중복 코드 증가</td><td>코드/설계 모듈화 및 문서화, 공통 템플릿 구성</td></tr><tr><td><strong>기술 운영 최적화</strong></td><td>빌드 자동화 확장</td><td>빌드 시간 증가, 불필요한 리소스 낭비 가능</td><td>증분 빌드, 캐시 재사용, 멀티 플랫폼 지원</td></tr><tr><td></td><td>테스트 선택적 실행</td><td>전체 테스트 실행 시 리소스 낭비</td><td>변경 코드 기반 테스트 범위 한정 (Selective Test Execution)</td></tr><tr><td></td><td>운영 자동화</td><td>수작업 배포 및 인시던트 대응 지연</td><td>자동 복구 로직, ChatOps, AIOps 통합 운영</td></tr></tbody></table><h3 id=주제와-관련하여-주목할-내용>주제와 관련하여 주목할 내용<a hidden class=anchor aria-hidden=true href=#주제와-관련하여-주목할-내용>#</a></h3><table><thead><tr><th><strong>카테고리</strong></th><th><strong>주제</strong></th><th><strong>항목</strong></th><th><strong>설명</strong></th></tr></thead><tbody><tr><td><strong>협업/문화</strong></td><td>개발/운영 통합</td><td>협업 강화</td><td>개발, 운영, QA 팀 간 소통 및 책임 공유 증진</td></tr><tr><td></td><td>DevOps 문화</td><td>ChatOps, 팀 구조, 변화 관리</td><td>채팅 기반 자동화 및 협업, 조직 구조 최적화, DevOps 문화 전환</td></tr><tr><td></td><td>Platform Engineering</td><td>내부 개발자 포털 (IDP)</td><td>셀프서비스 기반 공통 개발 플랫폼, 서비스 템플릿 제공을 통한 생산성 향상</td></tr><tr><td></td><td>지속적 개선</td><td>피드백 루프</td><td>성능 및 품질 향상을 위한 지속적 피드백 및 개선 프로세스 구축</td></tr><tr><td><strong>자동화 기술</strong></td><td>CI/CD</td><td>GitHub Actions, Tekton 등</td><td>지속적 통합과 배포 파이프라인 구현을 위한 도구</td></tr><tr><td></td><td>배포 자동화</td><td>ArgoCD, Spinnaker</td><td>선언형 배포 전략 기반 자동화 구성</td></tr><tr><td></td><td>IaC</td><td>Terraform, Pulumi, CloudFormation</td><td>코드 기반 인프라 정의 및 상태 관리</td></tr><tr><td></td><td>GitOps</td><td>ArgoCD, FluxCD</td><td>Git 기반의 선언형 배포 및 구성 추적</td></tr><tr><td></td><td>파이프라인 오케스트레이션</td><td>Tekton, JenkinsX 등</td><td>CI/CD 프로세스를 통합 관리하는 파이프라인 관리 도구</td></tr><tr><td></td><td>AIOps</td><td>이상 감지, 자동 대응</td><td>머신러닝 기반 로그 분석 및 자동 복구</td></tr><tr><td><strong>보안 전략</strong></td><td>DevSecOps</td><td>SAST, DAST, 이미지 스캔, OPA</td><td>보안 테스트 자동화 및 정책 기반 사전 검증</td></tr><tr><td></td><td>제로 트러스트</td><td>DevSecOps 2.0</td><td>모든 접근 요청에 대해 검증하는 보안 모델 적용</td></tr><tr><td></td><td>Policy as Code</td><td>OPA, Kyverno 등</td><td>보안/컴플라이언스 정책을 코드로 정의하고 자동화</td></tr><tr><td></td><td>SBOM</td><td>Software Bill of Materials</td><td>구성 요소 추적 및 보안 이슈 식별</td></tr><tr><td><strong>관찰가능성</strong></td><td>모니터링</td><td>Prometheus, Grafana, Loki</td><td>메트릭 수집, 로그 분석, 알람 시스템 통합</td></tr><tr><td></td><td>통합 관찰성</td><td>Unified Observability</td><td>메트릭, 로그, 트레이싱 데이터의 통합 시각화</td></tr><tr><td></td><td>OpenTelemetry</td><td>텔레메트리 표준화 프레임워크</td><td>벤더 중립적인 관찰 가능성 데이터 수집 및 전송</td></tr><tr><td></td><td>SRE</td><td>SLO/SLA, Alerting</td><td>운영 신뢰성을 위한 소프트웨어 기반 접근</td></tr><tr><td><strong>클라우드 전략</strong></td><td>멀티 클라우드</td><td>AWS, Azure, GCP</td><td>다양한 클라우드 환경에서 운영 및 비용 최적화 전략</td></tr><tr><td></td><td>FinOps</td><td>클라우드 비용 최적화</td><td>자원 효율성 및 과금 최적화를 위한 클라우드 재무 운영</td></tr><tr><td><strong>아키텍처</strong></td><td>마이크로서비스 아키텍처</td><td>서비스 메시, API 게이트웨이</td><td>분산형 서비스 구조 설계 및 독립 배포 가능성 확보</td></tr><tr><td></td><td>서버리스 아키텍처</td><td>FaaS (Function as a Service)</td><td>이벤트 기반 컴퓨팅으로 서버 관리 부담 제거</td></tr><tr><td></td><td>이벤트 기반 아키텍처</td><td>Kafka, EventBridge 등</td><td>비동기 이벤트 흐름을 중심으로 한 서비스 통합 설계</td></tr><tr><td><strong>신기술 트렌드</strong></td><td>AI/ML 통합</td><td>AIOps</td><td>인공지능을 통한 IT 운영 자동화</td></tr><tr><td></td><td>엣지 컴퓨팅</td><td>Edge DevOps</td><td>엣지 환경에서의 DevOps 실천 전략</td></tr><tr><td></td><td>WebAssembly</td><td>WASM 컨테이너화</td><td>경량 실행 환경으로 클라우드 및 엣지 배포 최적화</td></tr><tr><td></td><td>지속가능한 DevOps</td><td>그린 DevOps</td><td>에너지 효율성과 탄소 발자국을 고려한 친환경 DevOps 전략</td></tr><tr><td></td><td>양자 컴퓨팅 대응</td><td>Post-Quantum Cryptography</td><td>양자시대 보안을 위한 암호화 대응 전략</td></tr><tr><td><strong>검증 및 테스트</strong></td><td>테스트 자동화</td><td>지속적 테스트, 커버리지 도구</td><td>코드 품질 향상과 배포 신뢰성 확보</td></tr><tr><td><strong>확장 전략</strong></td><td>MLOps</td><td>모델 서빙, 파이프라인 통합</td><td>ML 모델의 운영 자동화 및 버전 관리 연동</td></tr></tbody></table><h3 id=주제와-관련하여-반드시-학습해야-할-내용>주제와 관련하여 반드시 학습해야 할 내용<a hidden class=anchor aria-hidden=true href=#주제와-관련하여-반드시-학습해야-할-내용>#</a></h3><table><thead><tr><th>학습 단계</th><th>카테고리</th><th>주제</th><th>핵심 항목</th><th>설명</th></tr></thead><tbody><tr><td>기초</td><td>버전 관리</td><td>Git 워크플로우</td><td>Git, Git Flow, 브랜치 전략</td><td>소스 및 인프라 변경 이력 관리</td></tr><tr><td>기초</td><td>컨테이너 기술</td><td>Docker & Kubernetes</td><td>컨테이너화, 오케스트레이션</td><td>일관된 환경 구성과 서비스 배포 자동화</td></tr><tr><td>중급</td><td>자동화</td><td>CI/CD 도구</td><td>Jenkins, GitHub Actions, GitLab CI</td><td>지속적 통합 및 배포 자동화를 위한 파이프라인 설계</td></tr><tr><td>중급</td><td>인프라 관리</td><td>Infrastructure as Code</td><td>Terraform, Ansible, CloudFormation</td><td>코드 기반 인프라 정의, 모듈화 및 상태 관리</td></tr><tr><td>고급</td><td>모니터링</td><td>Observability</td><td>Prometheus, Grafana, ELK Stack</td><td>메트릭 수집, 로그 분석, 알람 설정을 통한 운영 가시성 확보</td></tr><tr><td>고급</td><td>보안</td><td>DevSecOps</td><td>SAST, DAST, 컨테이너 이미지 스캐닝</td><td>CI/CD 파이프라인에 보안 검사 통합 및 자동 대응 구축</td></tr><tr><td>고급</td><td>배포 전략</td><td>무중단 배포</td><td>Blue-Green, Canary</td><td>서비스 중단 없는 안전한 배포 전략 구현</td></tr><tr><td>고급</td><td>협업 전략</td><td>GitOps</td><td>ArgoCD, FluxCD</td><td>선언적 인프라 구성 및 Git 기반 배포 관리</td></tr><tr><td>전문</td><td>클라우드</td><td>멀티 클라우드 전략</td><td>AWS, Azure, GCP</td><td>다양한 클라우드 환경에서 인프라 운영 및 최적화 전략</td></tr><tr><td>전문</td><td>클라우드 보안</td><td>FinOps, 보안 관리</td><td>비용 최적화, 보안 정책 적용</td><td>클라우드 사용량 및 보안 위협 대응 전략</td></tr><tr><td>전문</td><td>아키텍처</td><td>마이크로서비스 아키텍처</td><td>서비스 메시, API 게이트웨이</td><td>독립적인 서비스 설계 및 배포 구조 구축</td></tr><tr><td>전문</td><td>아키텍처</td><td>클라우드 네이티브/서버리스</td><td>OpenShift, Lambda 등</td><td>클라우드 최적화된 경량 아키텍처 설계 및 운영</td></tr><tr><td>전문</td><td>아키텍처</td><td>이벤트 기반 아키텍처</td><td>Kafka, EventBus 등</td><td>이벤트 중심의 비동기 시스템 설계</td></tr><tr><td>전문</td><td>데이터 운영</td><td>DataOps</td><td>파이프라인 자동화, 변경 관리</td><td>데이터 흐름 최적화 및 자동화 운영 구축</td></tr><tr><td>전문</td><td>플랫폼 전략</td><td>Platform Engineering</td><td>IDP 설계, 개발자 셀프서비스 플랫폼</td><td>팀 생산성 향상을 위한 DevOps 플랫폼 구성</td></tr><tr><td>전문</td><td>운영 신뢰성</td><td>SRE</td><td>SLO/SLA, Alerting</td><td>운영 안정성 및 시스템 신뢰성 확보를 위한 구조적 접근</td></tr><tr><td>전문</td><td>테스트 자동화</td><td>Test Automation</td><td>지속적 테스트, 커버리지 도구 활용</td><td>품질 향상을 위한 자동화된 테스트 통합</td></tr><tr><td>전문</td><td>실무 문화</td><td>DevOps 문화 및 거버넌스</td><td>팀 구조, 협업 모델, 변화 관리</td><td>DevOps 성공을 위한 조직 문화 및 전략적 리더십 구축</td></tr><tr><td>전문</td><td>프로그래밍</td><td>자동화 스크립팅 및 도구 개발</td><td>Python, Bash, PowerShell, Go, JS</td><td>DevOps 자동화를 위한 실용 프로그래밍 기술 및 도구 개발</td></tr></tbody></table><hr><h2 id=용어-정리>용어 정리<a hidden class=anchor aria-hidden=true href=#용어-정리>#</a></h2><table><thead><tr><th><strong>카테고리</strong></th><th><strong>용어</strong></th><th><strong>설명</strong></th></tr></thead><tbody><tr><td><strong>핵심 개념</strong></td><td>CI/CD</td><td>지속적 통합 (Continuous Integration) 과 지속적 배포 (Continuous Delivery/Deployment) 를 의미하는 DevOps 핵심 자동화 프로세스</td></tr><tr><td></td><td>IaC (Infrastructure as Code)</td><td>인프라를 코드로 정의하고 관리하는 방식으로 자동화와 버전 관리 가능</td></tr><tr><td></td><td>GitOps</td><td>Git 을 단일 진실의 원천 (Single Source of Truth) 으로 삼아 배포 자동화</td></tr><tr><td></td><td>DevSecOps</td><td>보안을 소프트웨어 개발 생명주기 (SDLC) 에 통합한 DevOps 확장 개념</td></tr><tr><td></td><td>SRE (Site Reliability Engineering)</td><td>Google 이 제안한 운영 자동화 및 신뢰성 중심 소프트웨어 엔지니어링 방법론</td></tr><tr><td></td><td>Technical Debt</td><td>개발 속도 향상을 위한 기술적 부채로 미래 유지보수 비용을 증가시킴</td></tr><tr><td><strong>배포 전략</strong></td><td>Blue-Green Deployment</td><td>두 개의 동일한 환경을 번갈아 사용하여 무중단 배포를 실현하는 전략</td></tr><tr><td></td><td>Canary Deployment</td><td>새 버전을 소수 사용자에게 점진적으로 배포해 위험을 낮추는 전략</td></tr><tr><td></td><td>Rolling Deployment</td><td>전체 시스템을 순차적으로 배포하여 다운타임을 줄이는 방식</td></tr><tr><td></td><td>Feature Flag</td><td>기능을 코드에 포함하되 동적으로 활성화하거나 비활성화하는 기법</td></tr><tr><td><strong>보안</strong></td><td>SAST (Static Application Security Testing)</td><td>정적 코드 분석을 통해 보안 결함을 사전에 식별하는 테스트 방식</td></tr><tr><td></td><td>DAST (Dynamic Application Security Testing)</td><td>런타임 중의 애플리케이션을 테스트하여 보안 결함을 발견하는 방식</td></tr><tr><td></td><td>Zero Trust</td><td>네트워크 안팎 구분 없이 모든 접근을 검증하는 보안 모델</td></tr><tr><td><strong>모니터링 및 운영</strong></td><td>Monitoring</td><td>시스템 상태, 성능, 가용성 등을 지속적으로 감시하고 대응하는 활동</td></tr><tr><td></td><td>Observability</td><td>시스템 내부 상태를 외부에서 관측 가능한 형태로 측정하고 분석할 수 있는 능력</td></tr><tr><td></td><td>SLI/SLO</td><td>서비스 수준 지표 (Indicator) 및 목표 (Objective) 를 통해 가용성 기준을 설정</td></tr><tr><td></td><td>MTTR (Mean Time to Recovery)</td><td>시스템 장애 발생 후 정상 상태까지 복구하는 데 걸리는 평균 시간</td></tr><tr><td></td><td>Chaos Engineering</td><td>시스템의 복원력을 테스트하기 위해 고의적으로 장애를 유도하는 방식</td></tr><tr><td><strong>도구</strong></td><td>Jenkins</td><td>오픈소스 CI/CD 서버로 자동 빌드, 테스트, 배포를 지원</td></tr><tr><td></td><td>Terraform</td><td>HashiCorp 에서 개발한 IaC 도구로 인프라 정의 및 배포 자동화</td></tr><tr><td></td><td>Ansible</td><td>에이전트 없는 구성 관리, 앱 배포, IaC 를 위한 자동화 도구</td></tr><tr><td></td><td>Kubernetes</td><td>컨테이너화된 앱의 배포, 확장, 관리를 자동화하는 오픈소스 오케스트레이션 플랫폼</td></tr><tr><td></td><td>Docker</td><td>애플리케이션을 컨테이너로 패키징하고 실행하는 플랫폼</td></tr><tr><td></td><td>Prometheus</td><td>시계열 데이터 기반의 오픈소스 모니터링 및 알림 시스템</td></tr><tr><td></td><td>Grafana</td><td>다양한 데이터 소스를 시각화할 수 있는 대시보드 도구</td></tr><tr><td></td><td>ELK Stack</td><td>Elasticsearch, Logstash, Kibana 를 조합한 로그 수집 및 분석 플랫폼</td></tr><tr><td><strong>클라우드</strong></td><td>AWS (Amazon Web Services)</td><td>아마존이 제공하는 클라우드 컴퓨팅 플랫폼</td></tr><tr><td></td><td>Azure</td><td>마이크로소프트의 클라우드 플랫폼</td></tr><tr><td></td><td>GCP (Google Cloud Platform)</td><td>구글의 클라우드 플랫폼</td></tr><tr><td></td><td>CDN (Content Delivery Network)</td><td>콘텐츠를 전 세계 사용자에게 빠르게 전달하는 네트워크 인프라</td></tr><tr><td><strong>아키텍처 및 플랫폼</strong></td><td>Microservices</td><td>하나의 시스템을 작고 독립적으로 배포 가능한 서비스들로 구성하는 아키텍처 스타일</td></tr><tr><td></td><td>Service Mesh</td><td>마이크로서비스 간 통신을 관리하는 인프라 계층 (예: Istio)</td></tr><tr><td></td><td>Containerization</td><td>애플리케이션과 종속성을 하나의 컨테이너 단위로 패키징하는 방식</td></tr><tr><td></td><td>Orchestration</td><td>여러 컨테이너/서비스의 배포, 확장, 관리를 자동화하는 기술</td></tr><tr><td></td><td>Platform Engineering</td><td>내부 개발자 플랫폼 (IDP) 을 설계하고 운영하여 개발 생산성을 높이는 엔지니어링 분야</td></tr><tr><td><strong>협업 및 운영 방법론</strong></td><td>ChatOps</td><td>채팅 툴을 통해 DevOps 작업과 자동화된 워크플로우를 수행하는 방식</td></tr><tr><td></td><td>Shift Left</td><td>개발 초기에 테스트 및 보안 활동을 이동시켜 품질을 사전에 확보하는 전략</td></tr><tr><td></td><td>Value Stream Mapping</td><td>제품 또는 서비스 전 과정에서 가치 흐름을 분석해 병목을 파악하고 최적화</td></tr><tr><td><strong>신기술/확장 개념</strong></td><td>AIOps</td><td>AI 기반으로 IT 운영을 자동화하고 인사이트를 제공하는 접근법</td></tr><tr><td></td><td>MLOps</td><td>머신러닝 모델의 개발부터 배포, 운영까지 자동화된 관리 기법</td></tr><tr><td></td><td>DataOps</td><td>데이터 파이프라인의 개발과 운영을 통합하여 데이터 품질과 생산성을 향상시키는 방법론</td></tr><tr><td></td><td>FinOps</td><td>클라우드 비용을 최적화하고 예산과 사용량을 정렬하는 운영 및 재무 전략</td></tr></tbody></table><hr><h2 id=참고-및-출처>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처>#</a></h2><h3 id=웹사이트-및-공식-문서>웹사이트 및 공식 문서<a hidden class=anchor aria-hidden=true href=#웹사이트-및-공식-문서>#</a></h3><ul><li><a href=https://www.atlassian.com/devops>Atlassian DevOps 가이드</a></li><li><a href=https://aws.amazon.com/devops/>AWS DevOps 리소스</a></li><li><a href=https://learn.microsoft.com/en-us/azure/devops/>Microsoft Azure DevOps 문서</a></li><li><a href=https://cloud.google.com/solutions/devops>Google Cloud DevOps 솔루션</a></li><li><a href=https://www.cncf.io/>CNCF (Cloud Native Computing Foundation)</a></li></ul><h3 id=연구-및-보고서>연구 및 보고서<a hidden class=anchor aria-hidden=true href=#연구-및-보고서>#</a></h3><ul><li><a href=https://cloud.google.com/devops/state-of-devops>DORA State of DevOps Report</a></li><li><a href=https://puppet.com/resources/state-of-devops-report>Puppet State of DevOps Report</a></li><li><a href=https://about.gitlab.com/developer-survey/>GitLab DevOps Platform Survey</a></li><li><a href=https://survey.stackoverflow.co/>Stack Overflow Developer Survey</a></li></ul><h3 id=기술-문서-및-도구>기술 문서 및 도구<a hidden class=anchor aria-hidden=true href=#기술-문서-및-도구>#</a></h3><ul><li><a href=https://kubernetes.io/docs/>Kubernetes 공식 문서</a></li><li><a href=https://docs.docker.com/>Docker 공식 문서</a></li><li><a href=https://www.terraform.io/docs>Terraform 공식 문서</a></li><li><a href=https://prometheus.io/docs/>Prometheus 문서</a></li><li><a href=https://www.jenkins.io/doc/>Jenkins 사용자 문서</a></li><li><a href=https://docs.ansible.com/>Ansible 문서</a></li></ul><h3 id=업계-표준-및-베스트-프랙티스>업계 표준 및 베스트 프랙티스<a hidden class=anchor aria-hidden=true href=#업계-표준-및-베스트-프랙티스>#</a></h3><ul><li><a href=https://12factor.net/>The Twelve‑Factor App</a></li><li><a href=https://sre.google/sre-book/>Google SRE Handbook</a></li><li><a href=https://www.nist.gov/cyberframework>NIST Cybersecurity Framework</a></li><li><a href=https://opentelemetry.io/>OpenTelemetry 프로젝트</a></li></ul><h3 id=학술-자료>학술 자료<a hidden class=anchor aria-hidden=true href=#학술-자료>#</a></h3><ul><li><a href=https://www.sciencedirect.com/topics/computer-science/devops>DevOps 관련 ScienceDirect 논문</a></li><li><a href=https://www.ieee.org/publications/index.html>IEEE 소프트웨어 엔지니어링 저널</a></li><li><a href=https://dl.acm.org/journal/csur>ACM Computing Surveys</a></li></ul><h3 id=커뮤니티-및-포럼>커뮤니티 및 포럼<a hidden class=anchor aria-hidden=true href=#커뮤니티-및-포럼>#</a></h3><ul><li><a href=https://www.reddit.com/r/devops/>DevOps subreddit</a></li><li><a href=https://stackoverflow.com/questions/tagged/devops>Stack Overflow DevOps 태그</a></li><li><a href=https://medium.com/tag/devops>Medium DevOps 출판물</a></li><li><a href=https://dev.to/t/devops>Dev.to DevOps 커뮤니티</a></li></ul><h3 id=컨퍼런스-및-이벤트>컨퍼런스 및 이벤트<a hidden class=anchor aria-hidden=true href=#컨퍼런스-및-이벤트>#</a></h3><ul><li><a href=https://devopsdays.org/>DevOps Days 글로벌 이벤트</a></li><li><a href=https://events.linuxfoundation.org/kubecon-cloudnativecon-europe/>KubeCon + CloudNativeCon</a></li><li><a href=https://reinvent.awsevents.com/>AWS re:Invent</a></li><li><a href=https://mybuild.microsoft.com/>Microsoft Build</a></li></ul><h3 id=교육-자료>교육 자료<a hidden class=anchor aria-hidden=true href=#교육-자료>#</a></h3><ul><li><a href=https://training.linuxfoundation.org/>Linux Foundation 교육 과정</a></li><li><a href=https://www.cncf.io/certification/>Cloud Native Computing Foundation 교육</a></li><li><a href=https://aws.amazon.com/training/>AWS Training and Certification</a></li><li><a href=https://learn.microsoft.com/en-us/training/paths/>Microsoft Learn DevOps 경로</a></li></ul><hr><h2 id=roadmap>Roadmap<a hidden class=anchor aria-hidden=true href=#roadmap>#</a></h2><p><a href=https://roadmap.sh/devops>Roadmap - DevOps</a></p><hr></div></main><script type=module>
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true });
+  </script><footer class=footer><span>&copy; 2025 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>
