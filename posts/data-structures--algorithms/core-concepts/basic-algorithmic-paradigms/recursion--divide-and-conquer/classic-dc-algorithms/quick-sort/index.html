@@ -1,0 +1,325 @@
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>퀵 정렬 (Quick Sort) | hyunyoun's Blog</title><meta name=keywords content="Data-Structures-and-Algorithms,Algorithms,Sorting,Types,Quick-Sort"><meta name=description content="퀵 정렬(Quick Sort)은 분할 정복(divide and conquer) 전략을 사용하는 고성능 정렬 알고리즘이다."><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/data-structures--algorithms/core-concepts/basic-algorithmic-paradigms/recursion--divide-and-conquer/classic-dc-algorithms/quick-sort/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.a9863521b3bd3c240bc506f46b95e3c06ccef2ae37f529d5f99bdaef442bccce.css integrity="sha256-qYY1IbO9PCQLxQb0a5XjwGzO8q439SnV+Zva70QrzM4=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate type=application/rss+xml href=https://buenhyden.github.io/posts/data-structures--algorithms/core-concepts/basic-algorithmic-paradigms/recursion--divide-and-conquer/classic-dc-algorithms/quick-sort/index.xml><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/data-structures--algorithms/core-concepts/basic-algorithmic-paradigms/recursion--divide-and-conquer/classic-dc-algorithms/quick-sort/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/data-structures--algorithms/core-concepts/basic-algorithmic-paradigms/recursion--divide-and-conquer/classic-dc-algorithms/quick-sort/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="퀵 정렬 (Quick Sort)"><meta property="og:description" content="퀵 정렬(Quick Sort)은 분할 정복(divide and conquer) 전략을 사용하는 고성능 정렬 알고리즘이다."><meta property="og:locale" content="en"><meta property="og:type" content="website"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="퀵 정렬 (Quick Sort)"><meta name=twitter:description content="퀵 정렬(Quick Sort)은 분할 정복(divide and conquer) 전략을 사용하는 고성능 정렬 알고리즘이다."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"HY's Blog","item":"https://buenhyden.github.io/posts/"},{"@type":"ListItem","position":3,"name":"퀵 정렬 (Quick Sort)","item":"https://buenhyden.github.io/posts/data-structures--algorithms/core-concepts/basic-algorithmic-paradigms/recursion--divide-and-conquer/classic-dc-algorithms/quick-sort/"}]}</script></head><body class=list id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><header class=page-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/>HY's Blog</a></div><h1>퀵 정렬 (Quick Sort)</h1><div class=post-description>퀵 정렬(Quick Sort)은 분할 정복(divide and conquer) 전략을 사용하는 고성능 정렬 알고리즘이다.</div></header><div class=post-content><h2 id=퀵-정렬-quick-sort>퀵 정렬 (Quick Sort)<a hidden class=anchor aria-hidden=true href=#퀵-정렬-quick-sort>#</a></h2><p>퀵 정렬은 1960년 Tony Hoare가 개발한 효율적인 분할 정복(Divide and Conquer) 알고리즘으로, 평균적으로 매우 빠른 성능을 보이는 정렬 방식이다. 실제 많은 프로그래밍 언어의 표준 라이브러리에 구현되어 있을 정도로 실용적인 정렬 알고리즘이다.</p><p>퀵 정렬은 간단한 아이디어를 바탕으로 하면서도 매우 효율적인 정렬 알고리즘이다.<br>평균적인 성능이 우수하고 실제 구현에서 다양한 최적화 기법을 적용할 수 있어 많은 환경에서 선호된다.<br>최악의 경우를 대비한 피벗 선택 최적화와 하이브리드 접근 방식을 통해 단점을 보완하여 현대적인 정렬 알고리즘의 기반이 되고 있다.</p><p>퀵 정렬은 분할 정복 패러다임의 대표적인 예시로, 컴퓨터 과학 교육에서도 중요한 알고리즘으로 가르쳐지며, 그 원리와 최적화 방법은 다양한 문제 해결 방법에 응용될 수 있다.</p><p><figure><img alt="Quick Sort" loading=lazy src=/img/Heap-Sort-Recursive-Illustration.webp><figcaption>https://www.geeksforgeeks.org/quick-sort-algorithm/</figcaption></figure></p><h3 id=퀵-정렬의-기본-원리>퀵 정렬의 기본 원리<a hidden class=anchor aria-hidden=true href=#퀵-정렬의-기본-원리>#</a></h3><p>퀵 정렬은 다음과 같은 핵심 단계로 동작한다:</p><ol><li><strong>피벗 선택(Pivot Selection)</strong>: 배열에서 하나의 요소를 피벗으로 선택한다.</li><li><strong>분할(Partitioning)</strong>: 피벗을 기준으로 배열을 두 부분으로 나눈다. 피벗보다 작은 값들은 왼쪽, 큰 값들은 오른쪽으로 이동시킨다.</li><li><strong>재귀(Recursion)</strong>: 분할된 두 부분 배열에 대해 재귀적으로 퀵 정렬을 수행한다.<br>이 과정은 부분 배열의 크기가 1이 되거나 빈 배열이 될 때까지 계속된다.</li></ol><h3 id=퀵-정렬의-시각화-과정>퀵 정렬의 시각화 과정<a hidden class=anchor aria-hidden=true href=#퀵-정렬의-시각화-과정>#</a></h3><p><code>[5, 3, 7, 2, 9, 1, 4]</code> 배열을 퀵 정렬로 정렬하는 과정을 시각화:</p><p><strong>첫 번째 단계</strong>: 피벗 = 5</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-0-1><a class=lnlinks href=#hl-0-1>1</a>
+</span><span class=lnt id=hl-0-2><a class=lnlinks href=#hl-0-2>2</a>
+</span><span class=lnt id=hl-0-3><a class=lnlinks href=#hl-0-3>3</a>
+</span><span class=lnt id=hl-0-4><a class=lnlinks href=#hl-0-4>4</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>초기 배열: [5, 3, 7, 2, 9, 1, 4]
+</span></span><span class=line><span class=cl>피벗보다 작은 요소들: [3, 2, 1, 4]
+</span></span><span class=line><span class=cl>피벗: [5]
+</span></span><span class=line><span class=cl>피벗보다 큰 요소들: [7, 9]
+</span></span></code></pre></td></tr></table></div></div><p><strong>두 번째 단계</strong> (왼쪽 부분 배열): 피벗 = 3</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-1-1><a class=lnlinks href=#hl-1-1>1</a>
+</span><span class=lnt id=hl-1-2><a class=lnlinks href=#hl-1-2>2</a>
+</span><span class=lnt id=hl-1-3><a class=lnlinks href=#hl-1-3>3</a>
+</span><span class=lnt id=hl-1-4><a class=lnlinks href=#hl-1-4>4</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>현재 배열: [3, 2, 1, 4]
+</span></span><span class=line><span class=cl>피벗보다 작은 요소들: [2, 1]
+</span></span><span class=line><span class=cl>피벗: [3]
+</span></span><span class=line><span class=cl>피벗보다 큰 요소들: [4]
+</span></span></code></pre></td></tr></table></div></div><p><strong>세 번째 단계</strong> (왼쪽의 왼쪽 부분 배열): 피벗 = 2</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-2-1><a class=lnlinks href=#hl-2-1>1</a>
+</span><span class=lnt id=hl-2-2><a class=lnlinks href=#hl-2-2>2</a>
+</span><span class=lnt id=hl-2-3><a class=lnlinks href=#hl-2-3>3</a>
+</span><span class=lnt id=hl-2-4><a class=lnlinks href=#hl-2-4>4</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>현재 배열: [2, 1]
+</span></span><span class=line><span class=cl>피벗보다 작은 요소들: [1]
+</span></span><span class=line><span class=cl>피벗: [2]
+</span></span><span class=line><span class=cl>피벗보다 큰 요소들: []
+</span></span></code></pre></td></tr></table></div></div><p><strong>네 번째 단계</strong> (오른쪽 부분 배열): 피벗 = 7</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-3-1><a class=lnlinks href=#hl-3-1>1</a>
+</span><span class=lnt id=hl-3-2><a class=lnlinks href=#hl-3-2>2</a>
+</span><span class=lnt id=hl-3-3><a class=lnlinks href=#hl-3-3>3</a>
+</span><span class=lnt id=hl-3-4><a class=lnlinks href=#hl-3-4>4</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>현재 배열: [7, 9]
+</span></span><span class=line><span class=cl>피벗보다 작은 요소들: []
+</span></span><span class=line><span class=cl>피벗: [7]
+</span></span><span class=line><span class=cl>피벗보다 큰 요소들: [9]
+</span></span></code></pre></td></tr></table></div></div><p><strong>최종 결과</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-4-1><a class=lnlinks href=#hl-4-1>1</a>
+</span><span class=lnt id=hl-4-2><a class=lnlinks href=#hl-4-2>2</a>
+</span><span class=lnt id=hl-4-3><a class=lnlinks href=#hl-4-3>3</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>[1] + [2] + [] = [1, 2]
+</span></span><span class=line><span class=cl>[1, 2] + [3] + [4] = [1, 2, 3, 4]
+</span></span><span class=line><span class=cl>[1, 2, 3, 4] + [5] + [7, 9] = [1, 2, 3, 4, 5, 7, 9]
+</span></span></code></pre></td></tr></table></div></div><h3 id=퀵-정렬의-특징>퀵 정렬의 특징<a hidden class=anchor aria-hidden=true href=#퀵-정렬의-특징>#</a></h3><ol><li><p>시간 복잡도</p><ul><li><strong>최선의 경우</strong>: O(n log n) - 피벗이 항상 배열을 균등하게 분할할 때</li><li><strong>평균적인 경우</strong>: O(n log n)</li><li><strong>최악의 경우</strong>: O(n²) - 피벗이 항상 가장 작거나 가장 큰 요소일 때 (이미 정렬된 배열에서 첫 번째나 마지막 요소를 피벗으로 선택하는 경우)</li></ul></li><li><p>공간 복잡도</p><ul><li><strong>기본 구현</strong>: O(n) - 재귀 호출로 인한 스택 공간</li><li><strong>인플레이스 구현</strong>: O(log n) - 재귀 호출로 인한 스택 공간만 필요</li></ul></li><li><p>안정성</p><ul><li>퀵 정렬은 기본적으로 불안정(unstable) 정렬. 동일한 값을 가진 요소들의 상대적 순서가 정렬 후에 유지되지 않을 수 있다.</li></ul></li></ol><h3 id=퀵-정렬의-장단점>퀵 정렬의 장단점<a hidden class=anchor aria-hidden=true href=#퀵-정렬의-장단점>#</a></h3><h4 id=장점>장점<a hidden class=anchor aria-hidden=true href=#장점>#</a></h4><ul><li>평균적으로 매우 빠른 정렬 속도 (실제로 가장 빠른 정렬 알고리즘 중 하나)</li><li>추가 메모리를 적게 사용하는 인플레이스 구현 가능</li><li>캐시 지역성이 좋아 실제 환경에서 우수한 성능</li></ul><h4 id=단점>단점<a hidden class=anchor aria-hidden=true href=#단점>#</a></h4><ul><li>최악의 경우 O(n²) 시간 복잡도</li><li>불안정 정렬</li><li>이미 정렬된 데이터에 대해 비효율적 (피벗 선택 최적화로 개선 가능)</li></ul><h3 id=퀵-정렬의-구현>퀵 정렬의 구현<a hidden class=anchor aria-hidden=true href=#퀵-정렬의-구현>#</a></h3><p>다음은 Python으로 구현한 기본적인 퀵 정렬 알고리즘:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-5-1><a class=lnlinks href=#hl-5-1> 1</a>
+</span><span class=lnt id=hl-5-2><a class=lnlinks href=#hl-5-2> 2</a>
+</span><span class=lnt id=hl-5-3><a class=lnlinks href=#hl-5-3> 3</a>
+</span><span class=lnt id=hl-5-4><a class=lnlinks href=#hl-5-4> 4</a>
+</span><span class=lnt id=hl-5-5><a class=lnlinks href=#hl-5-5> 5</a>
+</span><span class=lnt id=hl-5-6><a class=lnlinks href=#hl-5-6> 6</a>
+</span><span class=lnt id=hl-5-7><a class=lnlinks href=#hl-5-7> 7</a>
+</span><span class=lnt id=hl-5-8><a class=lnlinks href=#hl-5-8> 8</a>
+</span><span class=lnt id=hl-5-9><a class=lnlinks href=#hl-5-9> 9</a>
+</span><span class=lnt id=hl-5-10><a class=lnlinks href=#hl-5-10>10</a>
+</span><span class=lnt id=hl-5-11><a class=lnlinks href=#hl-5-11>11</a>
+</span><span class=lnt id=hl-5-12><a class=lnlinks href=#hl-5-12>12</a>
+</span><span class=lnt id=hl-5-13><a class=lnlinks href=#hl-5-13>13</a>
+</span><span class=lnt id=hl-5-14><a class=lnlinks href=#hl-5-14>14</a>
+</span><span class=lnt id=hl-5-15><a class=lnlinks href=#hl-5-15>15</a>
+</span><span class=lnt id=hl-5-16><a class=lnlinks href=#hl-5-16>16</a>
+</span><span class=lnt id=hl-5-17><a class=lnlinks href=#hl-5-17>17</a>
+</span><span class=lnt id=hl-5-18><a class=lnlinks href=#hl-5-18>18</a>
+</span><span class=lnt id=hl-5-19><a class=lnlinks href=#hl-5-19>19</a>
+</span><span class=lnt id=hl-5-20><a class=lnlinks href=#hl-5-20>20</a>
+</span><span class=lnt id=hl-5-21><a class=lnlinks href=#hl-5-21>21</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>quick_sort</span><span class=p>(</span><span class=n>arr</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 종료 조건: 배열의 길이가 1 이하면 이미 정렬된 것으로 간주</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=n>arr</span><span class=p>)</span> <span class=o>&lt;=</span> <span class=mi>1</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>arr</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 피벗 선택 (여기서는 첫 번째 요소를 선택)</span>
+</span></span><span class=line><span class=cl>    <span class=n>pivot</span> <span class=o>=</span> <span class=n>arr</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 분할: 피벗보다 작은 요소들</span>
+</span></span><span class=line><span class=cl>    <span class=n>left</span> <span class=o>=</span> <span class=p>[</span><span class=n>x</span> <span class=k>for</span> <span class=n>x</span> <span class=ow>in</span> <span class=n>arr</span><span class=p>[</span><span class=mi>1</span><span class=p>:]</span> <span class=k>if</span> <span class=n>x</span> <span class=o>&lt;=</span> <span class=n>pivot</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 분할: 피벗보다 큰 요소들</span>
+</span></span><span class=line><span class=cl>    <span class=n>right</span> <span class=o>=</span> <span class=p>[</span><span class=n>x</span> <span class=k>for</span> <span class=n>x</span> <span class=ow>in</span> <span class=n>arr</span><span class=p>[</span><span class=mi>1</span><span class=p>:]</span> <span class=k>if</span> <span class=n>x</span> <span class=o>&gt;</span> <span class=n>pivot</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 재귀적으로 정렬하고 결과 병합</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>quick_sort</span><span class=p>(</span><span class=n>left</span><span class=p>)</span> <span class=o>+</span> <span class=p>[</span><span class=n>pivot</span><span class=p>]</span> <span class=o>+</span> <span class=n>quick_sort</span><span class=p>(</span><span class=n>right</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 사용 예시</span>
+</span></span><span class=line><span class=cl><span class=n>arr</span> <span class=o>=</span> <span class=p>[</span><span class=mi>10</span><span class=p>,</span> <span class=mi>7</span><span class=p>,</span> <span class=mi>8</span><span class=p>,</span> <span class=mi>9</span><span class=p>,</span> <span class=mi>1</span><span class=p>,</span> <span class=mi>5</span><span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=n>sorted_arr</span> <span class=o>=</span> <span class=n>quick_sort</span><span class=p>(</span><span class=n>arr</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>sorted_arr</span><span class=p>)</span>  <span class=c1># [1, 5, 7, 8, 9, 10]</span>
+</span></span></code></pre></td></tr></table></div></div><p>더 효율적인 구현을 위한 인플레이스(in-place) 방식의 퀵 정렬:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-6-1><a class=lnlinks href=#hl-6-1> 1</a>
+</span><span class=lnt id=hl-6-2><a class=lnlinks href=#hl-6-2> 2</a>
+</span><span class=lnt id=hl-6-3><a class=lnlinks href=#hl-6-3> 3</a>
+</span><span class=lnt id=hl-6-4><a class=lnlinks href=#hl-6-4> 4</a>
+</span><span class=lnt id=hl-6-5><a class=lnlinks href=#hl-6-5> 5</a>
+</span><span class=lnt id=hl-6-6><a class=lnlinks href=#hl-6-6> 6</a>
+</span><span class=lnt id=hl-6-7><a class=lnlinks href=#hl-6-7> 7</a>
+</span><span class=lnt id=hl-6-8><a class=lnlinks href=#hl-6-8> 8</a>
+</span><span class=lnt id=hl-6-9><a class=lnlinks href=#hl-6-9> 9</a>
+</span><span class=lnt id=hl-6-10><a class=lnlinks href=#hl-6-10>10</a>
+</span><span class=lnt id=hl-6-11><a class=lnlinks href=#hl-6-11>11</a>
+</span><span class=lnt id=hl-6-12><a class=lnlinks href=#hl-6-12>12</a>
+</span><span class=lnt id=hl-6-13><a class=lnlinks href=#hl-6-13>13</a>
+</span><span class=lnt id=hl-6-14><a class=lnlinks href=#hl-6-14>14</a>
+</span><span class=lnt id=hl-6-15><a class=lnlinks href=#hl-6-15>15</a>
+</span><span class=lnt id=hl-6-16><a class=lnlinks href=#hl-6-16>16</a>
+</span><span class=lnt id=hl-6-17><a class=lnlinks href=#hl-6-17>17</a>
+</span><span class=lnt id=hl-6-18><a class=lnlinks href=#hl-6-18>18</a>
+</span><span class=lnt id=hl-6-19><a class=lnlinks href=#hl-6-19>19</a>
+</span><span class=lnt id=hl-6-20><a class=lnlinks href=#hl-6-20>20</a>
+</span><span class=lnt id=hl-6-21><a class=lnlinks href=#hl-6-21>21</a>
+</span><span class=lnt id=hl-6-22><a class=lnlinks href=#hl-6-22>22</a>
+</span><span class=lnt id=hl-6-23><a class=lnlinks href=#hl-6-23>23</a>
+</span><span class=lnt id=hl-6-24><a class=lnlinks href=#hl-6-24>24</a>
+</span><span class=lnt id=hl-6-25><a class=lnlinks href=#hl-6-25>25</a>
+</span><span class=lnt id=hl-6-26><a class=lnlinks href=#hl-6-26>26</a>
+</span><span class=lnt id=hl-6-27><a class=lnlinks href=#hl-6-27>27</a>
+</span><span class=lnt id=hl-6-28><a class=lnlinks href=#hl-6-28>28</a>
+</span><span class=lnt id=hl-6-29><a class=lnlinks href=#hl-6-29>29</a>
+</span><span class=lnt id=hl-6-30><a class=lnlinks href=#hl-6-30>30</a>
+</span><span class=lnt id=hl-6-31><a class=lnlinks href=#hl-6-31>31</a>
+</span><span class=lnt id=hl-6-32><a class=lnlinks href=#hl-6-32>32</a>
+</span><span class=lnt id=hl-6-33><a class=lnlinks href=#hl-6-33>33</a>
+</span><span class=lnt id=hl-6-34><a class=lnlinks href=#hl-6-34>34</a>
+</span><span class=lnt id=hl-6-35><a class=lnlinks href=#hl-6-35>35</a>
+</span><span class=lnt id=hl-6-36><a class=lnlinks href=#hl-6-36>36</a>
+</span><span class=lnt id=hl-6-37><a class=lnlinks href=#hl-6-37>37</a>
+</span><span class=lnt id=hl-6-38><a class=lnlinks href=#hl-6-38>38</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>quick_sort_inplace</span><span class=p>(</span><span class=n>arr</span><span class=p>,</span> <span class=n>low</span><span class=p>,</span> <span class=n>high</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>low</span> <span class=o>&lt;</span> <span class=n>high</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 파티션 인덱스 찾기</span>
+</span></span><span class=line><span class=cl>        <span class=n>pi</span> <span class=o>=</span> <span class=n>partition</span><span class=p>(</span><span class=n>arr</span><span class=p>,</span> <span class=n>low</span><span class=p>,</span> <span class=n>high</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 피벗 기준 왼쪽 부분 정렬</span>
+</span></span><span class=line><span class=cl>        <span class=n>quick_sort_inplace</span><span class=p>(</span><span class=n>arr</span><span class=p>,</span> <span class=n>low</span><span class=p>,</span> <span class=n>pi</span> <span class=o>-</span> <span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 피벗 기준 오른쪽 부분 정렬</span>
+</span></span><span class=line><span class=cl>        <span class=n>quick_sort_inplace</span><span class=p>(</span><span class=n>arr</span><span class=p>,</span> <span class=n>pi</span> <span class=o>+</span> <span class=mi>1</span><span class=p>,</span> <span class=n>high</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>arr</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>partition</span><span class=p>(</span><span class=n>arr</span><span class=p>,</span> <span class=n>low</span><span class=p>,</span> <span class=n>high</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 피벗 (여기서는 맨 오른쪽 요소)</span>
+</span></span><span class=line><span class=cl>    <span class=n>pivot</span> <span class=o>=</span> <span class=n>arr</span><span class=p>[</span><span class=n>high</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 작은 요소들이 위치할 인덱스</span>
+</span></span><span class=line><span class=cl>    <span class=n>i</span> <span class=o>=</span> <span class=n>low</span> <span class=o>-</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>j</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=n>low</span><span class=p>,</span> <span class=n>high</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 현재 요소가 피벗보다 작거나 같으면</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>arr</span><span class=p>[</span><span class=n>j</span><span class=p>]</span> <span class=o>&lt;=</span> <span class=n>pivot</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 작은 요소 인덱스 증가</span>
+</span></span><span class=line><span class=cl>            <span class=n>i</span> <span class=o>+=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 요소 교환</span>
+</span></span><span class=line><span class=cl>            <span class=n>arr</span><span class=p>[</span><span class=n>i</span><span class=p>],</span> <span class=n>arr</span><span class=p>[</span><span class=n>j</span><span class=p>]</span> <span class=o>=</span> <span class=n>arr</span><span class=p>[</span><span class=n>j</span><span class=p>],</span> <span class=n>arr</span><span class=p>[</span><span class=n>i</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 피벗을 정확한 위치로 이동</span>
+</span></span><span class=line><span class=cl>    <span class=n>arr</span><span class=p>[</span><span class=n>i</span> <span class=o>+</span> <span class=mi>1</span><span class=p>],</span> <span class=n>arr</span><span class=p>[</span><span class=n>high</span><span class=p>]</span> <span class=o>=</span> <span class=n>arr</span><span class=p>[</span><span class=n>high</span><span class=p>],</span> <span class=n>arr</span><span class=p>[</span><span class=n>i</span> <span class=o>+</span> <span class=mi>1</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 피벗의 위치 반환</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>i</span> <span class=o>+</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 사용 예시</span>
+</span></span><span class=line><span class=cl><span class=n>arr</span> <span class=o>=</span> <span class=p>[</span><span class=mi>10</span><span class=p>,</span> <span class=mi>7</span><span class=p>,</span> <span class=mi>8</span><span class=p>,</span> <span class=mi>9</span><span class=p>,</span> <span class=mi>1</span><span class=p>,</span> <span class=mi>5</span><span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=n>quick_sort_inplace</span><span class=p>(</span><span class=n>arr</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=nb>len</span><span class=p>(</span><span class=n>arr</span><span class=p>)</span> <span class=o>-</span> <span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>arr</span><span class=p>)</span>  <span class=c1># [1, 5, 7, 8, 9, 10]</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=퀵-정렬의-최적화-방법>퀵 정렬의 최적화 방법<a hidden class=anchor aria-hidden=true href=#퀵-정렬의-최적화-방법>#</a></h3><ol><li><p>피벗 선택 최적화<br>피벗 선택은 퀵 정렬의 성능에 큰 영향을 미친다.<br>일반적인 피벗 선택 방법들:</p><ol><li><strong>첫 번째 또는 마지막 요소</strong>: 구현이 간단하지만, 정렬된 배열에서 최악의 성능</li><li><strong>중간 요소</strong>: 첫 번째, 중간, 마지막 요소 중 중앙값(median)을 피벗으로 선택</li><li><strong>무작위 요소</strong>: 랜덤하게 피벗 선택, 최악의 경우를 피할 확률 높음</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-7-1><a class=lnlinks href=#hl-7-1> 1</a>
+</span><span class=lnt id=hl-7-2><a class=lnlinks href=#hl-7-2> 2</a>
+</span><span class=lnt id=hl-7-3><a class=lnlinks href=#hl-7-3> 3</a>
+</span><span class=lnt id=hl-7-4><a class=lnlinks href=#hl-7-4> 4</a>
+</span><span class=lnt id=hl-7-5><a class=lnlinks href=#hl-7-5> 5</a>
+</span><span class=lnt id=hl-7-6><a class=lnlinks href=#hl-7-6> 6</a>
+</span><span class=lnt id=hl-7-7><a class=lnlinks href=#hl-7-7> 7</a>
+</span><span class=lnt id=hl-7-8><a class=lnlinks href=#hl-7-8> 8</a>
+</span><span class=lnt id=hl-7-9><a class=lnlinks href=#hl-7-9> 9</a>
+</span><span class=lnt id=hl-7-10><a class=lnlinks href=#hl-7-10>10</a>
+</span><span class=lnt id=hl-7-11><a class=lnlinks href=#hl-7-11>11</a>
+</span><span class=lnt id=hl-7-12><a class=lnlinks href=#hl-7-12>12</a>
+</span><span class=lnt id=hl-7-13><a class=lnlinks href=#hl-7-13>13</a>
+</span><span class=lnt id=hl-7-14><a class=lnlinks href=#hl-7-14>14</a>
+</span><span class=lnt id=hl-7-15><a class=lnlinks href=#hl-7-15>15</a>
+</span><span class=lnt id=hl-7-16><a class=lnlinks href=#hl-7-16>16</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>quick_sort_median_of_three</span><span class=p>(</span><span class=n>arr</span><span class=p>,</span> <span class=n>low</span><span class=p>,</span> <span class=n>high</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>low</span> <span class=o>&lt;</span> <span class=n>high</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 중앙값 피벗 선택</span>
+</span></span><span class=line><span class=cl>        <span class=n>mid</span> <span class=o>=</span> <span class=p>(</span><span class=n>low</span> <span class=o>+</span> <span class=n>high</span><span class=p>)</span> <span class=o>//</span> <span class=mi>2</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>arr</span><span class=p>[</span><span class=n>low</span><span class=p>]</span> <span class=o>&gt;</span> <span class=n>arr</span><span class=p>[</span><span class=n>mid</span><span class=p>]:</span>
+</span></span><span class=line><span class=cl>            <span class=n>arr</span><span class=p>[</span><span class=n>low</span><span class=p>],</span> <span class=n>arr</span><span class=p>[</span><span class=n>mid</span><span class=p>]</span> <span class=o>=</span> <span class=n>arr</span><span class=p>[</span><span class=n>mid</span><span class=p>],</span> <span class=n>arr</span><span class=p>[</span><span class=n>low</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>arr</span><span class=p>[</span><span class=n>low</span><span class=p>]</span> <span class=o>&gt;</span> <span class=n>arr</span><span class=p>[</span><span class=n>high</span><span class=p>]:</span>
+</span></span><span class=line><span class=cl>            <span class=n>arr</span><span class=p>[</span><span class=n>low</span><span class=p>],</span> <span class=n>arr</span><span class=p>[</span><span class=n>high</span><span class=p>]</span> <span class=o>=</span> <span class=n>arr</span><span class=p>[</span><span class=n>high</span><span class=p>],</span> <span class=n>arr</span><span class=p>[</span><span class=n>low</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>arr</span><span class=p>[</span><span class=n>mid</span><span class=p>]</span> <span class=o>&gt;</span> <span class=n>arr</span><span class=p>[</span><span class=n>high</span><span class=p>]:</span>
+</span></span><span class=line><span class=cl>            <span class=n>arr</span><span class=p>[</span><span class=n>mid</span><span class=p>],</span> <span class=n>arr</span><span class=p>[</span><span class=n>high</span><span class=p>]</span> <span class=o>=</span> <span class=n>arr</span><span class=p>[</span><span class=n>high</span><span class=p>],</span> <span class=n>arr</span><span class=p>[</span><span class=n>mid</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 중간 값을 피벗으로 사용</span>
+</span></span><span class=line><span class=cl>        <span class=n>pivot</span> <span class=o>=</span> <span class=n>arr</span><span class=p>[</span><span class=n>mid</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 나머지 과정은 동일</span>
+</span></span><span class=line><span class=cl>        <span class=c1># …</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>작은 부분 배열에 대한 최적화<br>작은 크기의 부분 배열에 대해서는 삽입 정렬과 같은 더 효율적인 알고리즘을 사용할 수 있다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-8-1><a class=lnlinks href=#hl-8-1>1</a>
+</span><span class=lnt id=hl-8-2><a class=lnlinks href=#hl-8-2>2</a>
+</span><span class=lnt id=hl-8-3><a class=lnlinks href=#hl-8-3>3</a>
+</span><span class=lnt id=hl-8-4><a class=lnlinks href=#hl-8-4>4</a>
+</span><span class=lnt id=hl-8-5><a class=lnlinks href=#hl-8-5>5</a>
+</span><span class=lnt id=hl-8-6><a class=lnlinks href=#hl-8-6>6</a>
+</span><span class=lnt id=hl-8-7><a class=lnlinks href=#hl-8-7>7</a>
+</span><span class=lnt id=hl-8-8><a class=lnlinks href=#hl-8-8>8</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>optimized_quick_sort</span><span class=p>(</span><span class=n>arr</span><span class=p>,</span> <span class=n>low</span><span class=p>,</span> <span class=n>high</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 작은 배열에 대해 삽입 정렬 사용</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>high</span> <span class=o>-</span> <span class=n>low</span> <span class=o>&lt;=</span> <span class=mi>10</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>insertion_sort</span><span class=p>(</span><span class=n>arr</span><span class=p>,</span> <span class=n>low</span><span class=p>,</span> <span class=n>high</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 이하 기존 퀵 정렬과 동일</span>
+</span></span><span class=line><span class=cl>    <span class=c1># …</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>꼬리 재귀 최적화<br>재귀 호출 대신 반복문을 사용하여 스택 오버플로를 방지하고 성능을 개선할 수 있다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-9-1><a class=lnlinks href=#hl-9-1> 1</a>
+</span><span class=lnt id=hl-9-2><a class=lnlinks href=#hl-9-2> 2</a>
+</span><span class=lnt id=hl-9-3><a class=lnlinks href=#hl-9-3> 3</a>
+</span><span class=lnt id=hl-9-4><a class=lnlinks href=#hl-9-4> 4</a>
+</span><span class=lnt id=hl-9-5><a class=lnlinks href=#hl-9-5> 5</a>
+</span><span class=lnt id=hl-9-6><a class=lnlinks href=#hl-9-6> 6</a>
+</span><span class=lnt id=hl-9-7><a class=lnlinks href=#hl-9-7> 7</a>
+</span><span class=lnt id=hl-9-8><a class=lnlinks href=#hl-9-8> 8</a>
+</span><span class=lnt id=hl-9-9><a class=lnlinks href=#hl-9-9> 9</a>
+</span><span class=lnt id=hl-9-10><a class=lnlinks href=#hl-9-10>10</a>
+</span><span class=lnt id=hl-9-11><a class=lnlinks href=#hl-9-11>11</a>
+</span><span class=lnt id=hl-9-12><a class=lnlinks href=#hl-9-12>12</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>quick_sort_tail_recursive</span><span class=p>(</span><span class=n>arr</span><span class=p>,</span> <span class=n>low</span><span class=p>,</span> <span class=n>high</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=n>low</span> <span class=o>&lt;</span> <span class=n>high</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 파티션 수행</span>
+</span></span><span class=line><span class=cl>        <span class=n>pi</span> <span class=o>=</span> <span class=n>partition</span><span class=p>(</span><span class=n>arr</span><span class=p>,</span> <span class=n>low</span><span class=p>,</span> <span class=n>high</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 더 작은 부분을 재귀적으로 처리</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>pi</span> <span class=o>-</span> <span class=n>low</span> <span class=o>&lt;</span> <span class=n>high</span> <span class=o>-</span> <span class=n>pi</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>quick_sort_tail_recursive</span><span class=p>(</span><span class=n>arr</span><span class=p>,</span> <span class=n>low</span><span class=p>,</span> <span class=n>pi</span> <span class=o>-</span> <span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=n>low</span> <span class=o>=</span> <span class=n>pi</span> <span class=o>+</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>quick_sort_tail_recursive</span><span class=p>(</span><span class=n>arr</span><span class=p>,</span> <span class=n>pi</span> <span class=o>+</span> <span class=mi>1</span><span class=p>,</span> <span class=n>high</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=n>high</span> <span class=o>=</span> <span class=n>pi</span> <span class=o>-</span> <span class=mi>1</span>
+</span></span></code></pre></td></tr></table></div></div></li></ol><h3 id=퀵-정렬의-응용>퀵 정렬의 응용<a hidden class=anchor aria-hidden=true href=#퀵-정렬의-응용>#</a></h3><ol><li><p>퀵 선택(Quick Select)<br>퀵 정렬의 원리를 이용하여 배열에서 k번째로 작은 요소를 찾는 알고리즘이다. 평균 시간 복잡도는 O(n)이다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-10-1><a class=lnlinks href=#hl-10-1> 1</a>
+</span><span class=lnt id=hl-10-2><a class=lnlinks href=#hl-10-2> 2</a>
+</span><span class=lnt id=hl-10-3><a class=lnlinks href=#hl-10-3> 3</a>
+</span><span class=lnt id=hl-10-4><a class=lnlinks href=#hl-10-4> 4</a>
+</span><span class=lnt id=hl-10-5><a class=lnlinks href=#hl-10-5> 5</a>
+</span><span class=lnt id=hl-10-6><a class=lnlinks href=#hl-10-6> 6</a>
+</span><span class=lnt id=hl-10-7><a class=lnlinks href=#hl-10-7> 7</a>
+</span><span class=lnt id=hl-10-8><a class=lnlinks href=#hl-10-8> 8</a>
+</span><span class=lnt id=hl-10-9><a class=lnlinks href=#hl-10-9> 9</a>
+</span><span class=lnt id=hl-10-10><a class=lnlinks href=#hl-10-10>10</a>
+</span><span class=lnt id=hl-10-11><a class=lnlinks href=#hl-10-11>11</a>
+</span><span class=lnt id=hl-10-12><a class=lnlinks href=#hl-10-12>12</a>
+</span><span class=lnt id=hl-10-13><a class=lnlinks href=#hl-10-13>13</a>
+</span><span class=lnt id=hl-10-14><a class=lnlinks href=#hl-10-14>14</a>
+</span><span class=lnt id=hl-10-15><a class=lnlinks href=#hl-10-15>15</a>
+</span><span class=lnt id=hl-10-16><a class=lnlinks href=#hl-10-16>16</a>
+</span><span class=lnt id=hl-10-17><a class=lnlinks href=#hl-10-17>17</a>
+</span><span class=lnt id=hl-10-18><a class=lnlinks href=#hl-10-18>18</a>
+</span><span class=lnt id=hl-10-19><a class=lnlinks href=#hl-10-19>19</a>
+</span><span class=lnt id=hl-10-20><a class=lnlinks href=#hl-10-20>20</a>
+</span><span class=lnt id=hl-10-21><a class=lnlinks href=#hl-10-21>21</a>
+</span><span class=lnt id=hl-10-22><a class=lnlinks href=#hl-10-22>22</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>quick_select</span><span class=p>(</span><span class=n>arr</span><span class=p>,</span> <span class=n>k</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;배열에서 k번째로 작은 요소를 찾는 함수&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=ow>not</span> <span class=mi>1</span> <span class=o>&lt;=</span> <span class=n>k</span> <span class=o>&lt;=</span> <span class=nb>len</span><span class=p>(</span><span class=n>arr</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>select</span><span class=p>(</span><span class=n>arr</span><span class=p>,</span> <span class=n>left</span><span class=p>,</span> <span class=n>right</span><span class=p>,</span> <span class=n>k</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>left</span> <span class=o>==</span> <span class=n>right</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=n>arr</span><span class=p>[</span><span class=n>left</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=n>pivot_index</span> <span class=o>=</span> <span class=n>partition</span><span class=p>(</span><span class=n>arr</span><span class=p>,</span> <span class=n>left</span><span class=p>,</span> <span class=n>right</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 피벗의 위치가 찾는 k번째와 일치하면 반환</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>k</span> <span class=o>==</span> <span class=n>pivot_index</span> <span class=o>+</span> <span class=mi>1</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=n>arr</span><span class=p>[</span><span class=n>pivot_index</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=c1># k가 피벗 위치보다 작으면 왼쪽 부분 배열 탐색</span>
+</span></span><span class=line><span class=cl>        <span class=k>elif</span> <span class=n>k</span> <span class=o>&lt;</span> <span class=n>pivot_index</span> <span class=o>+</span> <span class=mi>1</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=n>select</span><span class=p>(</span><span class=n>arr</span><span class=p>,</span> <span class=n>left</span><span class=p>,</span> <span class=n>pivot_index</span> <span class=o>-</span> <span class=mi>1</span><span class=p>,</span> <span class=n>k</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># k가 피벗 위치보다 크면 오른쪽 부분 배열 탐색</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=n>select</span><span class=p>(</span><span class=n>arr</span><span class=p>,</span> <span class=n>pivot_index</span> <span class=o>+</span> <span class=mi>1</span><span class=p>,</span> <span class=n>right</span><span class=p>,</span> <span class=n>k</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>select</span><span class=p>(</span><span class=n>arr</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=nb>len</span><span class=p>(</span><span class=n>arr</span><span class=p>)</span> <span class=o>-</span> <span class=mi>1</span><span class=p>,</span> <span class=n>k</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>3-방향 퀵 정렬(3-Way Quick Sort)<br>중복 요소가 많은 배열에 대해 효율적인 퀵 정렬 변형:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-11-1><a class=lnlinks href=#hl-11-1> 1</a>
+</span><span class=lnt id=hl-11-2><a class=lnlinks href=#hl-11-2> 2</a>
+</span><span class=lnt id=hl-11-3><a class=lnlinks href=#hl-11-3> 3</a>
+</span><span class=lnt id=hl-11-4><a class=lnlinks href=#hl-11-4> 4</a>
+</span><span class=lnt id=hl-11-5><a class=lnlinks href=#hl-11-5> 5</a>
+</span><span class=lnt id=hl-11-6><a class=lnlinks href=#hl-11-6> 6</a>
+</span><span class=lnt id=hl-11-7><a class=lnlinks href=#hl-11-7> 7</a>
+</span><span class=lnt id=hl-11-8><a class=lnlinks href=#hl-11-8> 8</a>
+</span><span class=lnt id=hl-11-9><a class=lnlinks href=#hl-11-9> 9</a>
+</span><span class=lnt id=hl-11-10><a class=lnlinks href=#hl-11-10>10</a>
+</span><span class=lnt id=hl-11-11><a class=lnlinks href=#hl-11-11>11</a>
+</span><span class=lnt id=hl-11-12><a class=lnlinks href=#hl-11-12>12</a>
+</span><span class=lnt id=hl-11-13><a class=lnlinks href=#hl-11-13>13</a>
+</span><span class=lnt id=hl-11-14><a class=lnlinks href=#hl-11-14>14</a>
+</span><span class=lnt id=hl-11-15><a class=lnlinks href=#hl-11-15>15</a>
+</span><span class=lnt id=hl-11-16><a class=lnlinks href=#hl-11-16>16</a>
+</span><span class=lnt id=hl-11-17><a class=lnlinks href=#hl-11-17>17</a>
+</span><span class=lnt id=hl-11-18><a class=lnlinks href=#hl-11-18>18</a>
+</span><span class=lnt id=hl-11-19><a class=lnlinks href=#hl-11-19>19</a>
+</span><span class=lnt id=hl-11-20><a class=lnlinks href=#hl-11-20>20</a>
+</span><span class=lnt id=hl-11-21><a class=lnlinks href=#hl-11-21>21</a>
+</span><span class=lnt id=hl-11-22><a class=lnlinks href=#hl-11-22>22</a>
+</span><span class=lnt id=hl-11-23><a class=lnlinks href=#hl-11-23>23</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>quick_sort_three_way</span><span class=p>(</span><span class=n>arr</span><span class=p>,</span> <span class=n>low</span><span class=p>,</span> <span class=n>high</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>high</span> <span class=o>&lt;=</span> <span class=n>low</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>lt</span> <span class=o>=</span> <span class=n>low</span>       <span class=c1># 피벗보다 작은 값 경계</span>
+</span></span><span class=line><span class=cl>    <span class=n>gt</span> <span class=o>=</span> <span class=n>high</span>      <span class=c1># 피벗보다 큰 값 경계</span>
+</span></span><span class=line><span class=cl>    <span class=n>i</span> <span class=o>=</span> <span class=n>low</span> <span class=o>+</span> <span class=mi>1</span>    <span class=c1># 현재 탐색 위치</span>
+</span></span><span class=line><span class=cl>    <span class=n>pivot</span> <span class=o>=</span> <span class=n>arr</span><span class=p>[</span><span class=n>low</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>gt</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>arr</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>&lt;</span> <span class=n>pivot</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>arr</span><span class=p>[</span><span class=n>lt</span><span class=p>],</span> <span class=n>arr</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=n>arr</span><span class=p>[</span><span class=n>i</span><span class=p>],</span> <span class=n>arr</span><span class=p>[</span><span class=n>lt</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>            <span class=n>lt</span> <span class=o>+=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>            <span class=n>i</span> <span class=o>+=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>        <span class=k>elif</span> <span class=n>arr</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>&gt;</span> <span class=n>pivot</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>arr</span><span class=p>[</span><span class=n>i</span><span class=p>],</span> <span class=n>arr</span><span class=p>[</span><span class=n>gt</span><span class=p>]</span> <span class=o>=</span> <span class=n>arr</span><span class=p>[</span><span class=n>gt</span><span class=p>],</span> <span class=n>arr</span><span class=p>[</span><span class=n>i</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>            <span class=n>gt</span> <span class=o>-=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>i</span> <span class=o>+=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 재귀적으로 정렬</span>
+</span></span><span class=line><span class=cl>    <span class=n>quick_sort_three_way</span><span class=p>(</span><span class=n>arr</span><span class=p>,</span> <span class=n>low</span><span class=p>,</span> <span class=n>lt</span> <span class=o>-</span> <span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>quick_sort_three_way</span><span class=p>(</span><span class=n>arr</span><span class=p>,</span> <span class=n>gt</span> <span class=o>+</span> <span class=mi>1</span><span class=p>,</span> <span class=n>high</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div></li></ol><h3 id=퀵-정렬의-실제-구현-사례>퀵 정렬의 실제 구현 사례<a hidden class=anchor aria-hidden=true href=#퀵-정렬의-실제-구현-사례>#</a></h3><ol><li>C++ STL의 std::sort<br>C++의 표준 라이브러리에서 구현된 std::sort는 퀵 정렬, 삽입 정렬, 힙 정렬의 하이브리드 형태:<ol><li>기본적으로 인트로소트(Introsort, 퀵 정렬 기반)를 사용</li><li>재귀 깊이가 일정 수준 이상 깊어지면 힙 정렬로 전환</li><li>작은 부분 배열에는 삽입 정렬 적용</li></ol></li><li>Java의 Arrays.sort()<br>Java의 기본 정렬 메서드도 유사한 하이브리드 접근 방식을 사용:<ol><li>기본 자료형의 경우 듀얼 피벗 퀵 정렬(Dual-Pivot Quicksort) 사용</li><li>객체의 경우 안정성을 위해 TimSort(병합 정렬과 삽입 정렬의 하이브리드) 사용</li></ol></li></ol><hr><h2 id=참고-및-출처>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처>#</a></h2></div></main><footer class=footer><span>&copy; 2025 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>

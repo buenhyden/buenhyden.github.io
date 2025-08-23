@@ -1,0 +1,163 @@
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Greenlet and Gevent | hyunyoun's Blog</title><meta name=keywords content="Programming-Languages,Python,Library,Concurrency-and-Parallel-Processing,Concurrency,Parallel-Processing,Greenlet,Gevent"><meta name=description content="Greenlet과 Gevent는 Python에서 동시성 프로그래밍을 위한 라이브러리이다."><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/programming-languages/python/ecosystem--practice/libraries/concurrency/greenlet-and-gevent/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.a9863521b3bd3c240bc506f46b95e3c06ccef2ae37f529d5f99bdaef442bccce.css integrity="sha256-qYY1IbO9PCQLxQb0a5XjwGzO8q439SnV+Zva70QrzM4=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate type=application/rss+xml href=https://buenhyden.github.io/posts/programming-languages/python/ecosystem--practice/libraries/concurrency/greenlet-and-gevent/index.xml><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/programming-languages/python/ecosystem--practice/libraries/concurrency/greenlet-and-gevent/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/programming-languages/python/ecosystem--practice/libraries/concurrency/greenlet-and-gevent/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="Greenlet and Gevent"><meta property="og:description" content="Greenlet과 Gevent는 Python에서 동시성 프로그래밍을 위한 라이브러리이다."><meta property="og:locale" content="en"><meta property="og:type" content="website"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="Greenlet and Gevent"><meta name=twitter:description content="Greenlet과 Gevent는 Python에서 동시성 프로그래밍을 위한 라이브러리이다."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"HY's Blog","item":"https://buenhyden.github.io/posts/"},{"@type":"ListItem","position":2,"name":"Programming Languages","item":"https://buenhyden.github.io/posts/programming-languages/"},{"@type":"ListItem","position":3,"name":"Python","item":"https://buenhyden.github.io/posts/programming-languages/python/"},{"@type":"ListItem","position":7,"name":"Greenlet and Gevent","item":"https://buenhyden.github.io/posts/programming-languages/python/ecosystem--practice/libraries/concurrency/greenlet-and-gevent/"}]}</script></head><body class=list id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><header class=page-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/>HY's Blog</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/programming-languages/>Programming Languages</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/programming-languages/python/>Python</a></div><h1>Greenlet and Gevent</h1><div class=post-description>Greenlet과 Gevent는 Python에서 동시성 프로그래밍을 위한 라이브러리이다.</div></header><div class=post-content><h2 id=greenlet-and-gevent>Greenlet and Gevent<a hidden class=anchor aria-hidden=true href=#greenlet-and-gevent>#</a></h2><p>Greenlet과 Gevent는 Python에서 동시성 프로그래밍을 위한 라이브러리이다.</p><h3 id=greenlet>Greenlet<a hidden class=anchor aria-hidden=true href=#greenlet>#</a></h3><p>Greenlet은 Python에서 경량 코루틴을 구현한 라이브러리이다.<br>추가적으로 이야기 하면, Greenlet은 Python의 경량 협력적 멀티태스킹(cooperative multitasking)을 위한 기본 단위이다. 이는 마치 매우 가벼운 스레드처럼 작동하지만, 운영체제 수준의 스레드가 아닌 사용자 공간에서 실행되는 마이크로스레드이다.</p><p>주요 특징:</p><ul><li>경량성: 일반 스레드보다 생성 비용이 매우 적다.</li><li>협력적 멀티태스킹: 명시적으로 제어권을 양보할 때만 컨텍스트 스위칭이 일어난다.</li><li>단일 OS 스레드 내 실행: 모든 greenlet은 동일한 물리적 스레드에서 실행된다.</li></ul><p>사용 예:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-0-1><a class=lnlinks href=#hl-0-1> 1</a>
+</span><span class=lnt id=hl-0-2><a class=lnlinks href=#hl-0-2> 2</a>
+</span><span class=lnt id=hl-0-3><a class=lnlinks href=#hl-0-3> 3</a>
+</span><span class=lnt id=hl-0-4><a class=lnlinks href=#hl-0-4> 4</a>
+</span><span class=lnt id=hl-0-5><a class=lnlinks href=#hl-0-5> 5</a>
+</span><span class=lnt id=hl-0-6><a class=lnlinks href=#hl-0-6> 6</a>
+</span><span class=lnt id=hl-0-7><a class=lnlinks href=#hl-0-7> 7</a>
+</span><span class=lnt id=hl-0-8><a class=lnlinks href=#hl-0-8> 8</a>
+</span><span class=lnt id=hl-0-9><a class=lnlinks href=#hl-0-9> 9</a>
+</span><span class=lnt id=hl-0-10><a class=lnlinks href=#hl-0-10>10</a>
+</span><span class=lnt id=hl-0-11><a class=lnlinks href=#hl-0-11>11</a>
+</span><span class=lnt id=hl-0-12><a class=lnlinks href=#hl-0-12>12</a>
+</span><span class=lnt id=hl-0-13><a class=lnlinks href=#hl-0-13>13</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>greenlet</span> <span class=kn>import</span> <span class=n>greenlet</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>test1</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>y</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>z</span> <span class=o>=</span> <span class=n>gr2</span><span class=o>.</span><span class=n>switch</span><span class=p>(</span><span class=n>x</span><span class=o>+</span><span class=n>y</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=n>z</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>test2</span><span class=p>(</span><span class=n>u</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=n>u</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>gr1</span><span class=o>.</span><span class=n>switch</span><span class=p>(</span><span class=mi>42</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>gr1</span> <span class=o>=</span> <span class=n>greenlet</span><span class=p>(</span><span class=n>test1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>gr2</span> <span class=o>=</span> <span class=n>greenlet</span><span class=p>(</span><span class=n>test2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>gr1</span><span class=o>.</span><span class=n>switch</span><span class=p>(</span><span class=s2>&#34;hello&#34;</span><span class=p>,</span> <span class=s2>&#34;world&#34;</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=작동-원리>작동 원리<a hidden class=anchor aria-hidden=true href=#작동-원리>#</a></h4><p>Greenlet은 협력적 멀티태스킹을 사용한다.<br>이는 각 greenlet이 자발적으로 제어권을 다른 greenlet에게 넘겨주는 방식이다.<br>이를 코드로 살펴보면:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-1-1><a class=lnlinks href=#hl-1-1> 1</a>
+</span><span class=lnt id=hl-1-2><a class=lnlinks href=#hl-1-2> 2</a>
+</span><span class=lnt id=hl-1-3><a class=lnlinks href=#hl-1-3> 3</a>
+</span><span class=lnt id=hl-1-4><a class=lnlinks href=#hl-1-4> 4</a>
+</span><span class=lnt id=hl-1-5><a class=lnlinks href=#hl-1-5> 5</a>
+</span><span class=lnt id=hl-1-6><a class=lnlinks href=#hl-1-6> 6</a>
+</span><span class=lnt id=hl-1-7><a class=lnlinks href=#hl-1-7> 7</a>
+</span><span class=lnt id=hl-1-8><a class=lnlinks href=#hl-1-8> 8</a>
+</span><span class=lnt id=hl-1-9><a class=lnlinks href=#hl-1-9> 9</a>
+</span><span class=lnt id=hl-1-10><a class=lnlinks href=#hl-1-10>10</a>
+</span><span class=lnt id=hl-1-11><a class=lnlinks href=#hl-1-11>11</a>
+</span><span class=lnt id=hl-1-12><a class=lnlinks href=#hl-1-12>12</a>
+</span><span class=lnt id=hl-1-13><a class=lnlinks href=#hl-1-13>13</a>
+</span><span class=lnt id=hl-1-14><a class=lnlinks href=#hl-1-14>14</a>
+</span><span class=lnt id=hl-1-15><a class=lnlinks href=#hl-1-15>15</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>greenlet</span> <span class=kn>import</span> <span class=n>greenlet</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>task1</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Task 1: Start&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>gr2</span><span class=o>.</span><span class=n>switch</span><span class=p>()</span>  <span class=c1># task2로 제어권 전환</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Task 1: End&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>task2</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Task 2: Start&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>gr1</span><span class=o>.</span><span class=n>switch</span><span class=p>()</span>  <span class=c1># task1으로 제어권 전환</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Task 2: End&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>gr1</span> <span class=o>=</span> <span class=n>greenlet</span><span class=p>(</span><span class=n>task1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>gr2</span> <span class=o>=</span> <span class=n>greenlet</span><span class=p>(</span><span class=n>task2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>gr1</span><span class=o>.</span><span class=n>switch</span><span class=p>()</span>  <span class=c1># 실행 시작</span>
+</span></span></code></pre></td></tr></table></div></div><p>이 코드에서 <code>switch()</code>를 호출할 때마다 실행 컨텍스트가 한 greenlet에서 다른 greenlet으로 전환된다.<br>이는 매우 효율적인데, 운영체제의 컨텍스트 스위칭이 필요 없기 때문이다.</p><h4 id=greenlet-vs-시스템-스레드>Greenlet vs. 시스템 스레드<a hidden class=anchor aria-hidden=true href=#greenlet-vs-시스템-스레드>#</a></h4><p>전통적인 스레드와 greenlet의 차이점을 이해하는 것이 중요하다:<br>주요 차이점:</p><ol><li>스레드는 선점형(preemptive) 멀티태스킹을 사용하며, 운영체제가 스케줄링을 관리한다.</li><li>Greenlet은 협력적 멀티태스킹을 사용하며, 애플리케이션이 스케줄링을 제어한다.</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-2-1><a class=lnlinks href=#hl-2-1> 1</a>
+</span><span class=lnt id=hl-2-2><a class=lnlinks href=#hl-2-2> 2</a>
+</span><span class=lnt id=hl-2-3><a class=lnlinks href=#hl-2-3> 3</a>
+</span><span class=lnt id=hl-2-4><a class=lnlinks href=#hl-2-4> 4</a>
+</span><span class=lnt id=hl-2-5><a class=lnlinks href=#hl-2-5> 5</a>
+</span><span class=lnt id=hl-2-6><a class=lnlinks href=#hl-2-6> 6</a>
+</span><span class=lnt id=hl-2-7><a class=lnlinks href=#hl-2-7> 7</a>
+</span><span class=lnt id=hl-2-8><a class=lnlinks href=#hl-2-8> 8</a>
+</span><span class=lnt id=hl-2-9><a class=lnlinks href=#hl-2-9> 9</a>
+</span><span class=lnt id=hl-2-10><a class=lnlinks href=#hl-2-10>10</a>
+</span><span class=lnt id=hl-2-11><a class=lnlinks href=#hl-2-11>11</a>
+</span><span class=lnt id=hl-2-12><a class=lnlinks href=#hl-2-12>12</a>
+</span><span class=lnt id=hl-2-13><a class=lnlinks href=#hl-2-13>13</a>
+</span><span class=lnt id=hl-2-14><a class=lnlinks href=#hl-2-14>14</a>
+</span><span class=lnt id=hl-2-15><a class=lnlinks href=#hl-2-15>15</a>
+</span><span class=lnt id=hl-2-16><a class=lnlinks href=#hl-2-16>16</a>
+</span><span class=lnt id=hl-2-17><a class=lnlinks href=#hl-2-17>17</a>
+</span><span class=lnt id=hl-2-18><a class=lnlinks href=#hl-2-18>18</a>
+</span><span class=lnt id=hl-2-19><a class=lnlinks href=#hl-2-19>19</a>
+</span><span class=lnt id=hl-2-20><a class=lnlinks href=#hl-2-20>20</a>
+</span><span class=lnt id=hl-2-21><a class=lnlinks href=#hl-2-21>21</a>
+</span><span class=lnt id=hl-2-22><a class=lnlinks href=#hl-2-22>22</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 전통적인 스레드 사용</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>threading</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>time</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>io_task</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=kc>True</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>time</span><span class=o>.</span><span class=n>sleep</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>  <span class=c1># 운영체제 수준의 블로킹</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;IO Task&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>thread</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Thread</span><span class=p>(</span><span class=n>target</span><span class=o>=</span><span class=n>io_task</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>thread</span><span class=o>.</span><span class=n>start</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Greenlet을 사용한 비슷한 작업</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>greenlet</span> <span class=kn>import</span> <span class=n>greenlet</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>gevent</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>io_task_greenlet</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=kc>True</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>gevent</span><span class=o>.</span><span class=n>sleep</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>  <span class=c1># 다른 greenlet에게 제어권 양보</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;IO Task&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>g</span> <span class=o>=</span> <span class=n>gevent</span><span class=o>.</span><span class=n>spawn</span><span class=p>(</span><span class=n>io_task_greenlet</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=메모리와-성능-특성>메모리와 성능 특성<a hidden class=anchor aria-hidden=true href=#메모리와-성능-특성>#</a></h4><p>Greenlet의 주요 장점은 그 효율성에 있다:</p><ol><li><p>메모리 사용:</p><ul><li>일반 스레드: 약 8MB/스레드</li><li>Greenlet: 약 3KB/greenlet</li></ul></li><li><p>컨텍스트 스위칭 비용:</p><ul><li>스레드: 운영체제 수준의 컨텍스트 스위치 필요</li><li>Greenlet: 사용자 공간에서의 간단한 점프 명령만 필요</li></ul></li></ol><h4 id=제한사항과-고려사항>제한사항과 고려사항<a hidden class=anchor aria-hidden=true href=#제한사항과-고려사항>#</a></h4><p>Greenlet을 사용할 때 주의해야 할 점들이 있다:</p><ol><li><p>CPU 바운드 작업:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-3-1><a class=lnlinks href=#hl-3-1>1</a>
+</span><span class=lnt id=hl-3-2><a class=lnlinks href=#hl-3-2>2</a>
+</span><span class=lnt id=hl-3-3><a class=lnlinks href=#hl-3-3>3</a>
+</span><span class=lnt id=hl-3-4><a class=lnlinks href=#hl-3-4>4</a>
+</span><span class=lnt id=hl-3-5><a class=lnlinks href=#hl-3-5>5</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>cpu_intensive</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=kc>True</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=c1># CPU를 많이 사용하는 작업</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 다른 greenlet이 실행될 기회가 없음</span>
+</span></span><span class=line><span class=cl>        <span class=n>result</span> <span class=o>=</span> <span class=nb>sum</span><span class=p>(</span><span class=n>i</span> <span class=o>*</span> <span class=n>i</span> <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>1000000</span><span class=p>))</span>
+</span></span></code></pre></td></tr></table></div></div><p>이런 경우 다른 greenlet이 실행될 기회를 주기 위해 명시적으로 제어권을 양보해야 한다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-4-1><a class=lnlinks href=#hl-4-1>1</a>
+</span><span class=lnt id=hl-4-2><a class=lnlinks href=#hl-4-2>2</a>
+</span><span class=lnt id=hl-4-3><a class=lnlinks href=#hl-4-3>3</a>
+</span><span class=lnt id=hl-4-4><a class=lnlinks href=#hl-4-4>4</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>cpu_intensive_with_yield</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=kc>True</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>result</span> <span class=o>=</span> <span class=nb>sum</span><span class=p>(</span><span class=n>i</span> <span class=o>*</span> <span class=n>i</span> <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>1000000</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>        <span class=n>gevent</span><span class=o>.</span><span class=n>sleep</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span>  <span class=c1># 다른 greenlet에게 기회 제공</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>블로킹 작업:<br>일반적인 블로킹 I/O 작업은 다른 greenlet의 실행을 막을 수 있다.<br>이를 해결하기 위해 gevent는 표준 라이브러리의 블로킹 함수들을 비동기 버전으로 패치하는 monkey patching을 제공한다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-5-1><a class=lnlinks href=#hl-5-1>1</a>
+</span><span class=lnt id=hl-5-2><a class=lnlinks href=#hl-5-2>2</a>
+</span><span class=lnt id=hl-5-3><a class=lnlinks href=#hl-5-3>3</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>gevent</span> <span class=kn>import</span> <span class=n>monkey</span>
+</span></span><span class=line><span class=cl><span class=n>monkey</span><span class=o>.</span><span class=n>patch_all</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=c1># 이제 표준 라이브러리의 블로킹 함수들이 greenlet-friendly하게 변경됨</span>
+</span></span></code></pre></td></tr></table></div></div></li></ol><p>Greenlet은 Python에서 효율적인 비동기 프로그래밍을 가능하게 하는 강력한 도구이다.<br>특히 I/O 바운드 작업이 많은 웹 애플리케이션에서 뛰어난 성능을 발휘할 수 있다. 하지만 그 특성과 제한사항을 잘 이해하고 적절한 상황에서 사용하는 것이 중요하다.</p><h3 id=gevent>Gevent<a hidden class=anchor aria-hidden=true href=#gevent>#</a></h3><p>Gevent는 Greenlet을 기반으로 구축된 동시성 라이브러리이다.</p><p>주요 특징:</p><ul><li>비동기 I/O: libev 또는 libuv 이벤트 루프를 사용하여 효율적인 비동기 I/O를 제공한다.</li><li>동기 API: 비동기 코드를 동기 스타일로 작성할 수 있게 해준다.</li><li>Monkey patching: 표준 라이브러리의 블로킹 함수들을 비동기 버전으로 자동 대체한다.</li></ul><p>사용 예:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-6-1><a class=lnlinks href=#hl-6-1> 1</a>
+</span><span class=lnt id=hl-6-2><a class=lnlinks href=#hl-6-2> 2</a>
+</span><span class=lnt id=hl-6-3><a class=lnlinks href=#hl-6-3> 3</a>
+</span><span class=lnt id=hl-6-4><a class=lnlinks href=#hl-6-4> 4</a>
+</span><span class=lnt id=hl-6-5><a class=lnlinks href=#hl-6-5> 5</a>
+</span><span class=lnt id=hl-6-6><a class=lnlinks href=#hl-6-6> 6</a>
+</span><span class=lnt id=hl-6-7><a class=lnlinks href=#hl-6-7> 7</a>
+</span><span class=lnt id=hl-6-8><a class=lnlinks href=#hl-6-8> 8</a>
+</span><span class=lnt id=hl-6-9><a class=lnlinks href=#hl-6-9> 9</a>
+</span><span class=lnt id=hl-6-10><a class=lnlinks href=#hl-6-10>10</a>
+</span><span class=lnt id=hl-6-11><a class=lnlinks href=#hl-6-11>11</a>
+</span><span class=lnt id=hl-6-12><a class=lnlinks href=#hl-6-12>12</a>
+</span><span class=lnt id=hl-6-13><a class=lnlinks href=#hl-6-13>13</a>
+</span><span class=lnt id=hl-6-14><a class=lnlinks href=#hl-6-14>14</a>
+</span><span class=lnt id=hl-6-15><a class=lnlinks href=#hl-6-15>15</a>
+</span><span class=lnt id=hl-6-16><a class=lnlinks href=#hl-6-16>16</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>gevent</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>foo</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s1>&#39;Running in foo&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>gevent</span><span class=o>.</span><span class=n>sleep</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s1>&#39;Explicit context switch to foo again&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>bar</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s1>&#39;Explicit context to bar&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>gevent</span><span class=o>.</span><span class=n>sleep</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s1>&#39;Implicit context switch back to bar&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>gevent</span><span class=o>.</span><span class=n>joinall</span><span class=p>([</span>
+</span></span><span class=line><span class=cl>    <span class=n>gevent</span><span class=o>.</span><span class=n>spawn</span><span class=p>(</span><span class=n>foo</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>    <span class=n>gevent</span><span class=o>.</span><span class=n>spawn</span><span class=p>(</span><span class=n>bar</span><span class=p>),</span>
+</span></span><span class=line><span class=cl><span class=p>])</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=gevent와-greenlet의-관계>Gevent와 Greenlet의 관계<a hidden class=anchor aria-hidden=true href=#gevent와-greenlet의-관계>#</a></h4><p>Gevent는 Greenlet을 기반으로 구축되었으며, Greenlet의 기능을 확장하여 더 편리한 비동기 프로그래밍 환경을 제공한다.<br>Gevent는 Greenlet의 컨텍스트 스위칭을 자동화하고, 네트워크 작업을 비동기적으로 처리할 수 있게 해준다.</p><h3 id=사용-사례>사용 사례<a hidden class=anchor aria-hidden=true href=#사용-사례>#</a></h3><ul><li>웹 서버 및 네트워크 애플리케이션 개발</li><li>동시에 많은 I/O 작업을 처리해야 하는 경우</li><li>기존의 동기식 코드를 최소한의 변경으로 비동기로 전환할 때</li></ul><h3 id=주의사항>주의사항<a hidden class=anchor aria-hidden=true href=#주의사항>#</a></h3><ul><li>Gevent 사용 시 모든 I/O 작업이 비동기로 처리되므로, CPU 바운드 작업에는 적합하지 않을 수 있다.</li><li>Monkey patching은 강력하지만, 일부 라이브러리와 호환성 문제를 일으킬 수 있으므로 주의가 필요하다.</li></ul><hr><h2 id=참고-및-출처>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처>#</a></h2></div></main><footer class=footer><span>&copy; 2025 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>
