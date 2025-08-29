@@ -3024,147 +3024,147 @@
 </span><span class=lnt id=hl-34-138><a class=lnlinks href=#hl-34-138>138</a>
 </span><span class=lnt id=hl-34-139><a class=lnlinks href=#hl-34-139>139</a>
 </span><span class=lnt id=hl-34-140><a class=lnlinks href=#hl-34-140>140</a>
-</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Go + 분산 ORM (Edge Computing 환경)</span>
-</span></span><span class=line><span class=cl><span class=kn>package</span> <span class=nx>main</span>
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=p>(</span>
-</span></span><span class=line><span class=cl>    <span class=s>&#34;context&#34;</span>
-</span></span><span class=line><span class=cl>    <span class=s>&#34;database/sql&#34;</span>
-</span></span><span class=line><span class=cl>    <span class=s>&#34;encoding/json&#34;</span>
-</span></span><span class=line><span class=cl>    <span class=s>&#34;time&#34;</span>
-</span></span><span class=line><span class=cl>    
-</span></span><span class=line><span class=cl>    <span class=s>&#34;gorm.io/gorm&#34;</span>
-</span></span><span class=line><span class=cl>    <span class=s>&#34;github.com/go-redis/redis/v8&#34;</span>
-</span></span><span class=line><span class=cl><span class=p>)</span>
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl><span class=c1>// 엣지 환경을 위한 분산 ORM 관리자</span>
-</span></span><span class=line><span class=cl><span class=kd>type</span> <span class=nx>EdgeORMManager</span> <span class=kd>struct</span> <span class=p>{</span>
-</span></span><span class=line><span class=cl>    <span class=nx>localDB</span>    <span class=o>*</span><span class=nx>gorm</span><span class=p>.</span><span class=nx>DB</span>
-</span></span><span class=line><span class=cl>    <span class=nx>centralDB</span>  <span class=o>*</span><span class=nx>gorm</span><span class=p>.</span><span class=nx>DB</span>
-</span></span><span class=line><span class=cl>    <span class=nx>cache</span>      <span class=o>*</span><span class=nx>redis</span><span class=p>.</span><span class=nx>Client</span>
-</span></span><span class=line><span class=cl>    <span class=nx>syncQueue</span>  <span class=p>[]</span><span class=nx>SyncOperation</span>
-</span></span><span class=line><span class=cl>    <span class=nx>nodeID</span>     <span class=kt>string</span>
-</span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl><span class=kd>type</span> <span class=nx>SyncOperation</span> <span class=kd>struct</span> <span class=p>{</span>
-</span></span><span class=line><span class=cl>    <span class=nx>Operation</span> <span class=kt>string</span>      <span class=s>`json:&#34;operation&#34;`</span>
-</span></span><span class=line><span class=cl>    <span class=nx>Table</span>     <span class=kt>string</span>      <span class=s>`json:&#34;table&#34;`</span>
-</span></span><span class=line><span class=cl>    <span class=nx>Data</span>      <span class=kd>interface</span><span class=p>{}</span> <span class=s>`json:&#34;data&#34;`</span>
-</span></span><span class=line><span class=cl>    <span class=nx>Timestamp</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Time</span>   <span class=s>`json:&#34;timestamp&#34;`</span>
-</span></span><span class=line><span class=cl>    <span class=nx>NodeID</span>    <span class=kt>string</span>      <span class=s>`json:&#34;node_id&#34;`</span>
-</span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl><span class=c1>// 엣지 노드용 사용자 모델</span>
-</span></span><span class=line><span class=cl><span class=kd>type</span> <span class=nx>EdgeUser</span> <span class=kd>struct</span> <span class=p>{</span>
-</span></span><span class=line><span class=cl>    <span class=nx>ID</span>        <span class=kt>uint</span>      <span class=s>`gorm:&#34;primaryKey&#34;`</span>
-</span></span><span class=line><span class=cl>    <span class=nx>Username</span>  <span class=kt>string</span>    <span class=s>`gorm:&#34;uniqueIndex&#34;`</span>
-</span></span><span class=line><span class=cl>    <span class=nx>Email</span>     <span class=kt>string</span>    
-</span></span><span class=line><span class=cl>    <span class=nx>CreatedAt</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Time</span>
-</span></span><span class=line><span class=cl>    <span class=nx>UpdatedAt</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Time</span>
-</span></span><span class=line><span class=cl>    
-</span></span><span class=line><span class=cl>    <span class=c1>// 분산 환경 메타데이터</span>
-</span></span><span class=line><span class=cl>    <span class=nx>OriginNode</span> <span class=kt>string</span> <span class=s>`gorm:&#34;index&#34;`</span>
-</span></span><span class=line><span class=cl>    <span class=nx>SyncStatus</span> <span class=kt>string</span> <span class=s>`gorm:&#34;default:&#39;pending&#39;&#34;`</span> <span class=c1>// pending, synced, conflict</span>
-</span></span><span class=line><span class=cl>    <span class=nx>Version</span>    <span class=kt>int</span>    <span class=s>`gorm:&#34;default:1&#34;`</span>
-</span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl><span class=c1>// 오프라인 우선 CRUD 작업</span>
-</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>e</span> <span class=o>*</span><span class=nx>EdgeORMManager</span><span class=p>)</span> <span class=nf>CreateUser</span><span class=p>(</span><span class=nx>user</span> <span class=o>*</span><span class=nx>EdgeUser</span><span class=p>)</span> <span class=kt>error</span> <span class=p>{</span>
-</span></span><span class=line><span class=cl>    <span class=c1>// 로컬 DB에 즉시 저장</span>
-</span></span><span class=line><span class=cl>    <span class=nx>user</span><span class=p>.</span><span class=nx>OriginNode</span> <span class=p>=</span> <span class=nx>e</span><span class=p>.</span><span class=nx>nodeID</span>
-</span></span><span class=line><span class=cl>    <span class=nx>user</span><span class=p>.</span><span class=nx>SyncStatus</span> <span class=p>=</span> <span class=s>&#34;pending&#34;</span>
-</span></span><span class=line><span class=cl>    
-</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>e</span><span class=p>.</span><span class=nx>localDB</span><span class=p>.</span><span class=nf>Create</span><span class=p>(</span><span class=nx>user</span><span class=p>).</span><span class=nx>Error</span><span class=p>;</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
-</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>err</span>
-</span></span><span class=line><span class=cl>    <span class=p>}</span>
-</span></span><span class=line><span class=cl>    
-</span></span><span class=line><span class=cl>    <span class=c1>// 동기화 큐에 추가</span>
-</span></span><span class=line><span class=cl>    <span class=nx>syncOp</span> <span class=o>:=</span> <span class=nx>SyncOperation</span><span class=p>{</span>
-</span></span><span class=line><span class=cl>        <span class=nx>Operation</span><span class=p>:</span> <span class=s>&#34;CREATE&#34;</span><span class=p>,</span>
-</span></span><span class=line><span class=cl>        <span class=nx>Table</span><span class=p>:</span>     <span class=s>&#34;users&#34;</span><span class=p>,</span>
-</span></span><span class=line><span class=cl>        <span class=nx>Data</span><span class=p>:</span>      <span class=nx>user</span><span class=p>,</span>
-</span></span><span class=line><span class=cl>        <span class=nx>Timestamp</span><span class=p>:</span> <span class=nx>time</span><span class=p>.</span><span class=nf>Now</span><span class=p>(),</span>
-</span></span><span class=line><span class=cl>        <span class=nx>NodeID</span><span class=p>:</span>    <span class=nx>e</span><span class=p>.</span><span class=nx>nodeID</span><span class=p>,</span>
-</span></span><span class=line><span class=cl>    <span class=p>}</span>
-</span></span><span class=line><span class=cl>    
-</span></span><span class=line><span class=cl>    <span class=nx>e</span><span class=p>.</span><span class=nx>syncQueue</span> <span class=p>=</span> <span class=nb>append</span><span class=p>(</span><span class=nx>e</span><span class=p>.</span><span class=nx>syncQueue</span><span class=p>,</span> <span class=nx>syncOp</span><span class=p>)</span>
-</span></span><span class=line><span class=cl>    
-</span></span><span class=line><span class=cl>    <span class=c1>// 중앙 서버와 연결 가능하면 즉시 동기화</span>
-</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>e</span><span class=p>.</span><span class=nf>isConnectedToCentral</span><span class=p>()</span> <span class=p>{</span>
-</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nx>e</span><span class=p>.</span><span class=nf>syncToCentral</span><span class=p>(</span><span class=nx>syncOp</span><span class=p>)</span>
-</span></span><span class=line><span class=cl>    <span class=p>}</span>
-</span></span><span class=line><span class=cl>    
-</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=kc>nil</span>
-</span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl><span class=c1>// 네트워크 연결 복구 시 배치 동기화</span>
-</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>e</span> <span class=o>*</span><span class=nx>EdgeORMManager</span><span class=p>)</span> <span class=nf>SyncPendingOperations</span><span class=p>()</span> <span class=kt>error</span> <span class=p>{</span>
-</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>!</span><span class=nx>e</span><span class=p>.</span><span class=nf>isConnectedToCentral</span><span class=p>()</span> <span class=p>{</span>
-</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>nil</span> <span class=c1>// 연결 불가 시 대기</span>
-</span></span><span class=line><span class=cl>    <span class=p>}</span>
-</span></span><span class=line><span class=cl>    
-</span></span><span class=line><span class=cl>    <span class=c1>// 트랜잭션으로 일관성 보장</span>
-</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>e</span><span class=p>.</span><span class=nx>centralDB</span><span class=p>.</span><span class=nf>Transaction</span><span class=p>(</span><span class=kd>func</span><span class=p>(</span><span class=nx>tx</span> <span class=o>*</span><span class=nx>gorm</span><span class=p>.</span><span class=nx>DB</span><span class=p>)</span> <span class=kt>error</span> <span class=p>{</span>
-</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=nx>_</span><span class=p>,</span> <span class=nx>op</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>e</span><span class=p>.</span><span class=nx>syncQueue</span> <span class=p>{</span>
-</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>e</span><span class=p>.</span><span class=nf>applySyncOperation</span><span class=p>(</span><span class=nx>tx</span><span class=p>,</span> <span class=nx>op</span><span class=p>);</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
-</span></span><span class=line><span class=cl>                <span class=k>return</span> <span class=nx>err</span> <span class=c1>// 롤백 트리거</span>
-</span></span><span class=line><span class=cl>            <span class=p>}</span>
-</span></span><span class=line><span class=cl>        <span class=p>}</span>
-</span></span><span class=line><span class=cl>        
-</span></span><span class=line><span class=cl>        <span class=c1>// 성공 시 로컬 상태 업데이트</span>
-</span></span><span class=line><span class=cl>        <span class=nx>e</span><span class=p>.</span><span class=nf>updateLocalSyncStatus</span><span class=p>(</span><span class=s>&#34;synced&#34;</span><span class=p>)</span>
-</span></span><span class=line><span class=cl>        <span class=nx>e</span><span class=p>.</span><span class=nx>syncQueue</span> <span class=p>=</span> <span class=p>[]</span><span class=nx>SyncOperation</span><span class=p>{}</span> <span class=c1>// 큐 클리어</span>
-</span></span><span class=line><span class=cl>        
-</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>nil</span>
-</span></span><span class=line><span class=cl>    <span class=p>})</span>
-</span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl><span class=c1>// 충돌 해결 전략</span>
-</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>e</span> <span class=o>*</span><span class=nx>EdgeORMManager</span><span class=p>)</span> <span class=nf>resolveConflicts</span><span class=p>()</span> <span class=kt>error</span> <span class=p>{</span>
-</span></span><span class=line><span class=cl>    <span class=kd>var</span> <span class=nx>conflictUsers</span> <span class=p>[]</span><span class=nx>EdgeUser</span>
-</span></span><span class=line><span class=cl>    
-</span></span><span class=line><span class=cl>    <span class=c1>// 충돌 상태인 레코드 조회</span>
-</span></span><span class=line><span class=cl>    <span class=nx>e</span><span class=p>.</span><span class=nx>localDB</span><span class=p>.</span><span class=nf>Where</span><span class=p>(</span><span class=s>&#34;sync_status = ?&#34;</span><span class=p>,</span> <span class=s>&#34;conflict&#34;</span><span class=p>).</span><span class=nf>Find</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>conflictUsers</span><span class=p>)</span>
-</span></span><span class=line><span class=cl>    
-</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=nx>_</span><span class=p>,</span> <span class=nx>localUser</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>conflictUsers</span> <span class=p>{</span>
-</span></span><span class=line><span class=cl>        <span class=kd>var</span> <span class=nx>centralUser</span> <span class=nx>EdgeUser</span>
-</span></span><span class=line><span class=cl>        
-</span></span><span class=line><span class=cl>        <span class=c1>// 중앙 DB에서 동일 레코드 조회</span>
-</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>e</span><span class=p>.</span><span class=nx>centralDB</span><span class=p>.</span><span class=nf>First</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>centralUser</span><span class=p>,</span> <span class=nx>localUser</span><span class=p>.</span><span class=nx>ID</span><span class=p>).</span><span class=nx>Error</span><span class=p>;</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
-</span></span><span class=line><span class=cl>            <span class=k>continue</span>
-</span></span><span class=line><span class=cl>        <span class=p>}</span>
-</span></span><span class=line><span class=cl>        
-</span></span><span class=line><span class=cl>        <span class=c1>// 마지막 수정 시간 기반 충돌 해결</span>
-</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>localUser</span><span class=p>.</span><span class=nx>UpdatedAt</span><span class=p>.</span><span class=nf>After</span><span class=p>(</span><span class=nx>centralUser</span><span class=p>.</span><span class=nx>UpdatedAt</span><span class=p>)</span> <span class=p>{</span>
-</span></span><span class=line><span class=cl>            <span class=c1>// 로컬 버전이 더 최신 - 중앙 DB 업데이트</span>
-</span></span><span class=line><span class=cl>            <span class=nx>e</span><span class=p>.</span><span class=nx>centralDB</span><span class=p>.</span><span class=nf>Save</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>localUser</span><span class=p>)</span>
-</span></span><span class=line><span class=cl>        <span class=p>}</span> <span class=k>else</span> <span class=p>{</span>
-</span></span><span class=line><span class=cl>            <span class=c1>// 중앙 버전이 더 최신 - 로컬 DB 업데이트</span>
-</span></span><span class=line><span class=cl>            <span class=nx>e</span><span class=p>.</span><span class=nx>localDB</span><span class=p>.</span><span class=nf>Save</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>centralUser</span><span class=p>)</span>
-</span></span><span class=line><span class=cl>        <span class=p>}</span>
-</span></span><span class=line><span class=cl>        
-</span></span><span class=line><span class=cl>        <span class=c1>// 충돌 해결 완료</span>
-</span></span><span class=line><span class=cl>        <span class=nx>localUser</span><span class=p>.</span><span class=nx>SyncStatus</span> <span class=p>=</span> <span class=s>&#34;synced&#34;</span>
-</span></span><span class=line><span class=cl>        <span class=nx>e</span><span class=p>.</span><span class=nx>localDB</span><span class=p>.</span><span class=nf>Save</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>localUser</span><span class=p>)</span>
-</span></span><span class=line><span class=cl>    <span class=p>}</span>
-</span></span><span class=line><span class=cl>    
-</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=kc>nil</span>
-</span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl><span class=c1>// 지능형 프리페칭 (AI 기반 예측)</span>
-</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>e</span> <span class=o>*</span><span class=nx>EdgeORMManager</span><span class=p>)</span> <span class=nf>predictiveDataPrefetch</span><span class=p>()</span> <span class=p>{</span>
-</span></span><span class=line><span class=cl>    <span class=c1>// 사용자 행동 패턴 분석</span>
-</span></span><span class=line><span class=cl>    <span class=nx>userBehavior</span> <span class=o>:=</span> <span class=nx>e</span><span class=p>.</span><span class=nf>analyzeUserBehavior</span><span class=p>()</span>
-</span></span><span class=line><span class=cl>    
-</span></span><span class=line><span class=cl>    <span class=c1>// ML 모델을 통한 다음 요청 예측</span>
-</span></span><span class=line><span class=cl>    <span class=nx>predictedQueries</span> <span class=o>:=</span> <span class=nx>e</span><span class=p>.</span><span class=nf>predictNextQueries</span><span class=p>(</span><span class=nx>userBehavior</span><span class=p>)</span>
-</span></span><span class=line><span class=cl>    
-</span></span><span class=line><span class=cl>    <span class=c1>// 예측된 데이터 프리페칭</span>
-</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=nx>_</span><span class=p>,</span> <span class=nx>query</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>predictedQueries</span> <span class=p>{</span>
-</span></span><span class=line><span class=cl>        <span class=k>go</span> <span class=nx>e</span><span class=p>.</span><span class=nf>prefetchData</span><span class=p>(</span><span class=nx>query</span><span class=p>)</span>
-</span></span><span class=line><span class=cl>    <span class=p>}</span>
-</span></span><span class=line><span class=cl><span class=p>}</span>
-</span></span></code></pre></td></tr></table></div></div><h3 id=74-기타-고급-사항>7.4 기타 고급 사항<a hidden class=anchor aria-hidden=true href=#74-기타-고급-사항>#</a></h3><h4 id=1-멀티-테넌시-구현-패턴>1. 멀티 테넌시 구현 패턴<a hidden class=anchor aria-hidden=true href=#1-멀티-테넌시-구현-패턴>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-35-1><a class=lnlinks href=#hl-35-1> 1</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Go + 분산 ORM (Edge Computing 환경)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=kn>package</span><span class=w> </span><span class=nx>main</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=kn>import</span><span class=w> </span><span class=p>(</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=s>&#34;context&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=s>&#34;database/sql&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=s>&#34;encoding/json&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=s>&#34;time&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=s>&#34;gorm.io/gorm&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=s>&#34;github.com/go-redis/redis/v8&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c1>// 엣지 환경을 위한 분산 ORM 관리자</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=kd>type</span><span class=w> </span><span class=nx>EdgeORMManager</span><span class=w> </span><span class=kd>struct</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>localDB</span><span class=w>    </span><span class=o>*</span><span class=nx>gorm</span><span class=p>.</span><span class=nx>DB</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>centralDB</span><span class=w>  </span><span class=o>*</span><span class=nx>gorm</span><span class=p>.</span><span class=nx>DB</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>cache</span><span class=w>      </span><span class=o>*</span><span class=nx>redis</span><span class=p>.</span><span class=nx>Client</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>syncQueue</span><span class=w>  </span><span class=p>[]</span><span class=nx>SyncOperation</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>nodeID</span><span class=w>     </span><span class=kt>string</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=kd>type</span><span class=w> </span><span class=nx>SyncOperation</span><span class=w> </span><span class=kd>struct</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>Operation</span><span class=w> </span><span class=kt>string</span><span class=w>      </span><span class=s>`json:&#34;operation&#34;`</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>Table</span><span class=w>     </span><span class=kt>string</span><span class=w>      </span><span class=s>`json:&#34;table&#34;`</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>Data</span><span class=w>      </span><span class=kd>interface</span><span class=p>{}</span><span class=w> </span><span class=s>`json:&#34;data&#34;`</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>Timestamp</span><span class=w> </span><span class=nx>time</span><span class=p>.</span><span class=nx>Time</span><span class=w>   </span><span class=s>`json:&#34;timestamp&#34;`</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>NodeID</span><span class=w>    </span><span class=kt>string</span><span class=w>      </span><span class=s>`json:&#34;node_id&#34;`</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c1>// 엣지 노드용 사용자 모델</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=kd>type</span><span class=w> </span><span class=nx>EdgeUser</span><span class=w> </span><span class=kd>struct</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>ID</span><span class=w>        </span><span class=kt>uint</span><span class=w>      </span><span class=s>`gorm:&#34;primaryKey&#34;`</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>Username</span><span class=w>  </span><span class=kt>string</span><span class=w>    </span><span class=s>`gorm:&#34;uniqueIndex&#34;`</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>Email</span><span class=w>     </span><span class=kt>string</span><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>CreatedAt</span><span class=w> </span><span class=nx>time</span><span class=p>.</span><span class=nx>Time</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>UpdatedAt</span><span class=w> </span><span class=nx>time</span><span class=p>.</span><span class=nx>Time</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 분산 환경 메타데이터</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>OriginNode</span><span class=w> </span><span class=kt>string</span><span class=w> </span><span class=s>`gorm:&#34;index&#34;`</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>SyncStatus</span><span class=w> </span><span class=kt>string</span><span class=w> </span><span class=s>`gorm:&#34;default:&#39;pending&#39;&#34;`</span><span class=w> </span><span class=c1>// pending, synced, conflict</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>Version</span><span class=w>    </span><span class=kt>int</span><span class=w>    </span><span class=s>`gorm:&#34;default:1&#34;`</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c1>// 오프라인 우선 CRUD 작업</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>e</span><span class=w> </span><span class=o>*</span><span class=nx>EdgeORMManager</span><span class=p>)</span><span class=w> </span><span class=nf>CreateUser</span><span class=p>(</span><span class=nx>user</span><span class=w> </span><span class=o>*</span><span class=nx>EdgeUser</span><span class=p>)</span><span class=w> </span><span class=kt>error</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 로컬 DB에 즉시 저장</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>user</span><span class=p>.</span><span class=nx>OriginNode</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>e</span><span class=p>.</span><span class=nx>nodeID</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>user</span><span class=p>.</span><span class=nx>SyncStatus</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=s>&#34;pending&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>e</span><span class=p>.</span><span class=nx>localDB</span><span class=p>.</span><span class=nf>Create</span><span class=p>(</span><span class=nx>user</span><span class=p>).</span><span class=nx>Error</span><span class=p>;</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>return</span><span class=w> </span><span class=nx>err</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 동기화 큐에 추가</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>syncOp</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>SyncOperation</span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>Operation</span><span class=p>:</span><span class=w> </span><span class=s>&#34;CREATE&#34;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>Table</span><span class=p>:</span><span class=w>     </span><span class=s>&#34;users&#34;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>Data</span><span class=p>:</span><span class=w>      </span><span class=nx>user</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>Timestamp</span><span class=p>:</span><span class=w> </span><span class=nx>time</span><span class=p>.</span><span class=nf>Now</span><span class=p>(),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>NodeID</span><span class=p>:</span><span class=w>    </span><span class=nx>e</span><span class=p>.</span><span class=nx>nodeID</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>e</span><span class=p>.</span><span class=nx>syncQueue</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nb>append</span><span class=p>(</span><span class=nx>e</span><span class=p>.</span><span class=nx>syncQueue</span><span class=p>,</span><span class=w> </span><span class=nx>syncOp</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 중앙 서버와 연결 가능하면 즉시 동기화</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>if</span><span class=w> </span><span class=nx>e</span><span class=p>.</span><span class=nf>isConnectedToCentral</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>return</span><span class=w> </span><span class=nx>e</span><span class=p>.</span><span class=nf>syncToCentral</span><span class=p>(</span><span class=nx>syncOp</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>return</span><span class=w> </span><span class=kc>nil</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c1>// 네트워크 연결 복구 시 배치 동기화</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>e</span><span class=w> </span><span class=o>*</span><span class=nx>EdgeORMManager</span><span class=p>)</span><span class=w> </span><span class=nf>SyncPendingOperations</span><span class=p>()</span><span class=w> </span><span class=kt>error</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>if</span><span class=w> </span><span class=p>!</span><span class=nx>e</span><span class=p>.</span><span class=nf>isConnectedToCentral</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>return</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=c1>// 연결 불가 시 대기</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 트랜잭션으로 일관성 보장</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>return</span><span class=w> </span><span class=nx>e</span><span class=p>.</span><span class=nx>centralDB</span><span class=p>.</span><span class=nf>Transaction</span><span class=p>(</span><span class=kd>func</span><span class=p>(</span><span class=nx>tx</span><span class=w> </span><span class=o>*</span><span class=nx>gorm</span><span class=p>.</span><span class=nx>DB</span><span class=p>)</span><span class=w> </span><span class=kt>error</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>for</span><span class=w> </span><span class=nx>_</span><span class=p>,</span><span class=w> </span><span class=nx>op</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=k>range</span><span class=w> </span><span class=nx>e</span><span class=p>.</span><span class=nx>syncQueue</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>e</span><span class=p>.</span><span class=nf>applySyncOperation</span><span class=p>(</span><span class=nx>tx</span><span class=p>,</span><span class=w> </span><span class=nx>op</span><span class=p>);</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=k>return</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=c1>// 롤백 트리거</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// 성공 시 로컬 상태 업데이트</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>e</span><span class=p>.</span><span class=nf>updateLocalSyncStatus</span><span class=p>(</span><span class=s>&#34;synced&#34;</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>e</span><span class=p>.</span><span class=nx>syncQueue</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=p>[]</span><span class=nx>SyncOperation</span><span class=p>{}</span><span class=w> </span><span class=c1>// 큐 클리어</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>return</span><span class=w> </span><span class=kc>nil</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>})</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c1>// 충돌 해결 전략</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>e</span><span class=w> </span><span class=o>*</span><span class=nx>EdgeORMManager</span><span class=p>)</span><span class=w> </span><span class=nf>resolveConflicts</span><span class=p>()</span><span class=w> </span><span class=kt>error</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>var</span><span class=w> </span><span class=nx>conflictUsers</span><span class=w> </span><span class=p>[]</span><span class=nx>EdgeUser</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 충돌 상태인 레코드 조회</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>e</span><span class=p>.</span><span class=nx>localDB</span><span class=p>.</span><span class=nf>Where</span><span class=p>(</span><span class=s>&#34;sync_status = ?&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;conflict&#34;</span><span class=p>).</span><span class=nf>Find</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>conflictUsers</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>for</span><span class=w> </span><span class=nx>_</span><span class=p>,</span><span class=w> </span><span class=nx>localUser</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=k>range</span><span class=w> </span><span class=nx>conflictUsers</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>var</span><span class=w> </span><span class=nx>centralUser</span><span class=w> </span><span class=nx>EdgeUser</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// 중앙 DB에서 동일 레코드 조회</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>e</span><span class=p>.</span><span class=nx>centralDB</span><span class=p>.</span><span class=nf>First</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>centralUser</span><span class=p>,</span><span class=w> </span><span class=nx>localUser</span><span class=p>.</span><span class=nx>ID</span><span class=p>).</span><span class=nx>Error</span><span class=p>;</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=k>continue</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// 마지막 수정 시간 기반 충돌 해결</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>if</span><span class=w> </span><span class=nx>localUser</span><span class=p>.</span><span class=nx>UpdatedAt</span><span class=p>.</span><span class=nf>After</span><span class=p>(</span><span class=nx>centralUser</span><span class=p>.</span><span class=nx>UpdatedAt</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=c1>// 로컬 버전이 더 최신 - 중앙 DB 업데이트</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=nx>e</span><span class=p>.</span><span class=nx>centralDB</span><span class=p>.</span><span class=nf>Save</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>localUser</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w> </span><span class=k>else</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=c1>// 중앙 버전이 더 최신 - 로컬 DB 업데이트</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=nx>e</span><span class=p>.</span><span class=nx>localDB</span><span class=p>.</span><span class=nf>Save</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>centralUser</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// 충돌 해결 완료</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>localUser</span><span class=p>.</span><span class=nx>SyncStatus</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=s>&#34;synced&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>e</span><span class=p>.</span><span class=nx>localDB</span><span class=p>.</span><span class=nf>Save</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>localUser</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>return</span><span class=w> </span><span class=kc>nil</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c1>// 지능형 프리페칭 (AI 기반 예측)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>e</span><span class=w> </span><span class=o>*</span><span class=nx>EdgeORMManager</span><span class=p>)</span><span class=w> </span><span class=nf>predictiveDataPrefetch</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 사용자 행동 패턴 분석</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>userBehavior</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>e</span><span class=p>.</span><span class=nf>analyzeUserBehavior</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// ML 모델을 통한 다음 요청 예측</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>predictedQueries</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>e</span><span class=p>.</span><span class=nf>predictNextQueries</span><span class=p>(</span><span class=nx>userBehavior</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 예측된 데이터 프리페칭</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>for</span><span class=w> </span><span class=nx>_</span><span class=p>,</span><span class=w> </span><span class=nx>query</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=k>range</span><span class=w> </span><span class=nx>predictedQueries</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>go</span><span class=w> </span><span class=nx>e</span><span class=p>.</span><span class=nf>prefetchData</span><span class=p>(</span><span class=nx>query</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=74-기타-고급-사항>7.4 기타 고급 사항<a hidden class=anchor aria-hidden=true href=#74-기타-고급-사항>#</a></h3><h4 id=1-멀티-테넌시-구현-패턴>1. 멀티 테넌시 구현 패턴<a hidden class=anchor aria-hidden=true href=#1-멀티-테넌시-구현-패턴>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-35-1><a class=lnlinks href=#hl-35-1> 1</a>
 </span><span class=lnt id=hl-35-2><a class=lnlinks href=#hl-35-2> 2</a>
 </span><span class=lnt id=hl-35-3><a class=lnlinks href=#hl-35-3> 3</a>
 </span><span class=lnt id=hl-35-4><a class=lnlinks href=#hl-35-4> 4</a>
