@@ -1,4 +1,4 @@
-<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Traefik | hyunyoun's Blog</title><meta name=keywords content="System-Design,System-Components,Traffic-Control-and-Routing,API-Gateway,Implementations,Traefik"><meta name=description content="Traefik(트래픽이라고 발음)은 2015년 Containous(현재 Traefik Labs)에서 개발한 오픈 소스 API 게이트웨이이자 엣지 라우터이다."><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/system-architecture--design/system-components/traffic-control-and-routing/api-gateway/implementations/traefik/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.8762af4fa9ee176c57f72565b721f234162fc7a9c882a271e0a1f68c4e89fb34.css integrity="sha256-h2KvT6nuF2xX9yVltyHyNBYvx6nIgqJx4KH2jE6J+zQ=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate type=application/rss+xml href=https://buenhyden.github.io/posts/system-architecture--design/system-components/traffic-control-and-routing/api-gateway/implementations/traefik/index.xml><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/system-architecture--design/system-components/traffic-control-and-routing/api-gateway/implementations/traefik/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/system-architecture--design/system-components/traffic-control-and-routing/api-gateway/implementations/traefik/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="Traefik"><meta property="og:description" content="Traefik(트래픽이라고 발음)은 2015년 Containous(현재 Traefik Labs)에서 개발한 오픈 소스 API 게이트웨이이자 엣지 라우터이다."><meta property="og:locale" content="en"><meta property="og:type" content="website"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="Traefik"><meta name=twitter:description content="Traefik(트래픽이라고 발음)은 2015년 Containous(현재 Traefik Labs)에서 개발한 오픈 소스 API 게이트웨이이자 엣지 라우터이다."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"HY's Blog","item":"https://buenhyden.github.io/posts/"},{"@type":"ListItem","position":7,"name":"Traefik","item":"https://buenhyden.github.io/posts/system-architecture--design/system-components/traffic-control-and-routing/api-gateway/implementations/traefik/"}]}</script></head><body class=list id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Traefik | hyunyoun's Blog</title><meta name=keywords content="System-Design,System-Components,Traffic-Control-and-Routing,API-Gateway,Implementations,Traefik"><meta name=description content="Traefik(트래픽이라고 발음)은 2015년 Containous(현재 Traefik Labs)에서 개발한 오픈 소스 API 게이트웨이이자 엣지 라우터이다."><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/system-architecture--design/system-components/traffic-control-and-routing/api-gateway/implementations/traefik/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.8762af4fa9ee176c57f72565b721f234162fc7a9c882a271e0a1f68c4e89fb34.css integrity="sha256-h2KvT6nuF2xX9yVltyHyNBYvx6nIgqJx4KH2jE6J+zQ=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate type=application/rss+xml href=https://buenhyden.github.io/posts/system-architecture--design/system-components/traffic-control-and-routing/api-gateway/implementations/traefik/index.xml><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/system-architecture--design/system-components/traffic-control-and-routing/api-gateway/implementations/traefik/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var doNotTrack=!1,dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes";if(!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/system-architecture--design/system-components/traffic-control-and-routing/api-gateway/implementations/traefik/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="Traefik"><meta property="og:description" content="Traefik(트래픽이라고 발음)은 2015년 Containous(현재 Traefik Labs)에서 개발한 오픈 소스 API 게이트웨이이자 엣지 라우터이다."><meta property="og:locale" content="en"><meta property="og:type" content="website"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="Traefik"><meta name=twitter:description content="Traefik(트래픽이라고 발음)은 2015년 Containous(현재 Traefik Labs)에서 개발한 오픈 소스 API 게이트웨이이자 엣지 라우터이다."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"HY's Blog","item":"https://buenhyden.github.io/posts/"},{"@type":"ListItem","position":7,"name":"Traefik","item":"https://buenhyden.github.io/posts/system-architecture--design/system-components/traffic-control-and-routing/api-gateway/implementations/traefik/"}]}</script></head><body class=list id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
 <svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
 <svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><header class=page-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/>HY's Blog</a></div><h1>Traefik</h1><div class=post-description>Traefik(트래픽이라고 발음)은 2015년 Containous(현재 Traefik Labs)에서 개발한 오픈 소스 API 게이트웨이이자 엣지 라우터이다.</div></header><div class=post-content><h2 id=traefik>Traefik<a hidden class=anchor aria-hidden=true href=#traefik>#</a></h2><h3 id=1-적절한-태그-영어-대시로-구분>1. 적절한 태그 (영어, 대시로 구분)<a hidden class=anchor aria-hidden=true href=#1-적절한-태그-영어-대시로-구분>#</a></h3><p>API-Gateway, Cloud-Native, Traffic-Management, Dynamic-Routing</p><h3 id=2-분류-구조-타당성-분석>2. 분류 구조 타당성 분석<a hidden class=anchor aria-hidden=true href=#2-분류-구조-타당성-분석>#</a></h3><ul><li>Traefik(트래픽)은 트래픽 제어와 라우팅 중심의 API 게이트웨이(API Gateway) 솔루션이자, 다양한 시스템 환경(마이크로서비스, 컨테이너 기반, 클라우드 네이티브)에 활용되는 실질적인 구현체임.</li><li>“System Design > System Components > Traffic Control and Routing > API Gateway > Implementations”는 트래픽의 역할 및 구현체로서의 위치를 정확히 반영하고 있음.</li><li>추가로, Traefik은 외부 및 내부 시스템을 연결하고 유연하게 라우팅 및 로드 밸런싱을 제공하므로, 해당 분류 구조의 세부 계층이 논리적이며 실무와 이론 양 측면에서 적합함.</li></ul><h3 id=3-주제-요약-200자-내외>3. 주제 요약 (200자 내외)<a hidden class=anchor aria-hidden=true href=#3-주제-요약-200자-내외>#</a></h3><p>Traefik은 마이크로서비스와 컨테이너 및 클라우드 환경에 최적화된 오픈 소스 API 게이트웨이 및 리버스 프록시 솔루션이다. 동적 서비스 탐지, 자동 SSL, 다양한 인증 및 로드밸런싱, 트래픽 관리 기능을 갖추고 있어 DevOps, 인프라 자동화에 매우 적합하다.</p><h3 id=4-개요-250자-내외>4. 개요 (250자 내외)<a hidden class=anchor aria-hidden=true href=#4-개요-250자-내외>#</a></h3><p>Traefik은 동적 서비스 디스커버리와 자동 구성을 특징으로 하는 현대적인 오픈 소스 API 게이트웨이이자 리버스 프록시(Reverse Proxy)이다. 컨테이너 오케스트레이션(예: 쿠버네티스, Docker Swarm), VM, 클라우드 서비스 등 다양한 환경에서 무중단으로 트래픽 라우팅, 인증, SSL 자동화, 로깅 및 모니터링까지 제공한다. 인프라 자동화 및 DevOps, 마이크로서비스 환경에서 많이 사용된다.</p><h2 id=5-핵심-개념>5. 핵심 개념<a hidden class=anchor aria-hidden=true href=#5-핵심-개념>#</a></h2><h3 id=이론-및-기본-개념>이론 및 기본 개념<a hidden class=anchor aria-hidden=true href=#이론-및-기본-개념>#</a></h3><ul><li><strong>Traefik(트래픽)</strong>: 오픈 소스 API 게이트웨이이자 리버스 프록시(Reverse Proxy)로, 클라우드 네이티브와 컨테이너 기반 시스템에서 자동화된 트래픽 관리와 로드 밸런싱을 제공.</li><li><strong>동적 서비스 탐지(Dynamic Service Discovery)</strong>: 각종 서비스 인스턴스가 변화할 때 자동으로 라우팅을 재구성한다.</li><li><strong>자동 TLS/SSL 관리</strong>: Let&rsquo;s Encrypt와 통합해 인증서 발급 및 갱신 자동화.</li><li><strong>미들웨어(Middleware) 기반 기능</strong>: 인증, 리다이렉션, Rate Limiting 등 기능을 미들웨어로 손쉽게 조립.</li><li><strong>DevOps 및 인프라 자동화 지향</strong>: API, CLI, 파일 기반 구성, 핫 리로드(Hot Reload) 등 자동화 및 운영 효율 지원.</li></ul><h3 id=실무-연관성>실무 연관성<a hidden class=anchor aria-hidden=true href=#실무-연관성>#</a></h3><ul><li><strong>마이크로서비스 연동</strong>: 서비스 인스턴스의 동적 변동에도 자동 반영해 무중단 운영 가능.</li><li><strong>쿠버네티스(Kubernetes), Docker Swarm</strong>: 메이저 오케스트레이션 플랫폼과 자연스럽게 통합.</li><li><strong>트래픽 정책 관리</strong>: 인증, Rate Limiting, 라우팅 등을 YAML, TOML 등 다양한 방식으로 선언적 관리 가능.</li><li><strong>관측성 및 모니터링</strong>: 대시보드, 통계 API, 외부 모니터링 툴(프로메테우스 등)과 연동 제공.</li></ul><h2 id=6-주제와-관련하여-조사-및-정리>6. 주제와 관련하여 조사 및 정리<a hidden class=anchor aria-hidden=true href=#6-주제와-관련하여-조사-및-정리>#</a></h2><h3 id=1-등장-및-발전-배경>1) 등장 및 발전 배경<a hidden class=anchor aria-hidden=true href=#1-등장-및-발전-배경>#</a></h3><ul><li>컨테이너, 마이크로서비스 도입 확대에 따라 자동화된 트래픽 관리, 서비스 탐지, 간편한 SSL 관리가 필요해짐에 따라 2016년 Traefik이 등장.</li><li>초기에는 Docker 중심이었으나 Kubernetes, Mesos, Consul 등 다양한 환경으로 확장됨.</li></ul><h3 id=2-목적-및-필요성>2) 목적 및 필요성<a hidden class=anchor aria-hidden=true href=#2-목적-및-필요성>#</a></h3><ul><li><strong>목적:</strong> 클라우드 네이티브 환경에서 서비스의 배포 및 확장/축소에 맞춘 자동 트래픽 라우팅 및 보안 관리.</li><li><strong>필요성:</strong> 인프라 변화가 빈번할 때, 자동화된 라우팅과 인증, 트래픽 정책 설정이 운영 복잡성 최소화에 필수.</li></ul><h3 id=3-핵심-개념>3) 핵심 개념<a hidden class=anchor aria-hidden=true href=#3-핵심-개념>#</a></h3><ul><li>동적 서비스 발견</li><li>미들웨어(정책 조립)</li><li>자동 SSL</li><li>다양한 backend provider 연동</li></ul><h3 id=4-주요-기능-및-역할>4) 주요 기능 및 역할<a hidden class=anchor aria-hidden=true href=#4-주요-기능-및-역할>#</a></h3><table><thead><tr><th>구분</th><th>기능</th><th>역할</th></tr></thead><tbody><tr><td>라우팅</td><td>HTTP/S, TCP, UDP 라우팅</td><td>트래픽을 적절한 서비스로 분배</td></tr><tr><td>동적 서비스 탐지</td><td>백엔드 서비스 자동 감지</td><td>무중단 신규 서비스 반영</td></tr><tr><td>자동 SSL</td><td>인증서 발급/갱신 자동화</td><td>안전한 통신 보장</td></tr><tr><td>미들웨어</td><td>인증, Rate Limit, 리다이렉션</td><td>정책 적용 및 보안/트래픽 관리</td></tr><tr><td>관측성</td><td>대시보드, 메트릭스</td><td>운영 및 이상 상태 모니터링</td></tr></tbody></table><h3 id=5-특징>5) 특징<a hidden class=anchor aria-hidden=true href=#5-특징>#</a></h3><ul><li>설정 변경(파일, API, CLI) 시 서비스 재시작 없이 반영(핫 리로드)</li><li>다양한 오케스트레이터 연동 지원 및 자동화 지향 (Docker, Kubernetes, Consul, ECS 등)</li><li>미들웨어 조합으로 다양한 요구사항 대응</li></ul><h3 id=6-핵심-원칙>6) 핵심 원칙<a hidden class=anchor aria-hidden=true href=#6-핵심-원칙>#</a></h3><ul><li>자동화, 선언적 구성(Declarative Configuration), 무중단 운영, 보안 우선</li></ul><h3 id=7-주요-원리-및-작동-원리>7) 주요 원리 및 작동 원리<a hidden class=anchor aria-hidden=true href=#7-주요-원리-및-작동-원리>#</a></h3><ul><li>서비스 등록 변화 감지 → 자동 라우팅 테이블 조정 → 미들웨어 조합 처리 후 트래픽 분배</li></ul><h4 id=다이어그램mermaid>다이어그램(Mermaid)<a hidden class=anchor aria-hidden=true href=#다이어그램mermaid>#</a></h4><pre class=mermaid>sequenceDiagram
     participant Client
@@ -42,10 +42,10 @@
 </span><span class=lnt id=hl-3-16><a class=lnlinks href=#hl-3-16>16</a>
 </span><span class=lnt id=hl-3-17><a class=lnlinks href=#hl-3-17>17</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>traefik.containo.us/v1alpha1</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>IngressRoute</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>IngressRoute</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>metadata</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>tenant1-ingress</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>spec</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>entryPoints</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>websecure</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>routes</span><span class=p>:</span><span class=w>
@@ -129,16 +129,16 @@ eBay Classifieds Group는 Kubernetes 기반 인프라에서 API 및 애플리케
 </span><span class=lnt id=hl-6-40><a class=lnlinks href=#hl-6-40>40</a>
 </span><span class=lnt id=hl-6-41><a class=lnlinks href=#hl-6-41>41</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># Traefik static config (traefik.yml)</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>entryPoints</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>entryPoints</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>web</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>address</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;:80&#34;</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>websecure</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>address</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;:443&#34;</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>providers</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>providers</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>kubernetesCRD</span><span class=p>:</span><span class=w> </span>{}<span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>certificatesResolvers</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>certificatesResolvers</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>letsencrypt</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>acme</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>email</span><span class=p>:</span><span class=w> </span><span class=l>your@example.com</span><span class=w>
@@ -146,19 +146,19 @@ eBay Classifieds Group는 Kubernetes 기반 인프라에서 API 및 애플리케
 </span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>dnsChallenge</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>provider</span><span class=p>:</span><span class=w> </span><span class=l>cloudflare</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># Middleware example</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>middlewares</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c># Middleware example</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>middlewares</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>auth</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>basicAuth</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>users</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=s2>&#34;user:$$apr1$$...&#34;</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># Kubernetes IngressRoute example</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>traefik.containo.us/v1alpha1</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>IngressRoute</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c># Kubernetes IngressRoute example</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>traefik.containo.us/v1alpha1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>IngressRoute</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>metadata</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>svc-route</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>spec</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>entryPoints</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>websecure</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>routes</span><span class=p>:</span><span class=w>
@@ -217,10 +217,10 @@ H/A 구성 시 Consul 혹은 외부 레지스트리 활용 필요. 설정·데�
 </span><span class=lnt id=hl-7-41><a class=lnlinks href=#hl-7-41>41</a>
 </span><span class=lnt id=hl-7-42><a class=lnlinks href=#hl-7-42>42</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>gateway.networking.k8s.io/v1beta1</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Gateway</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Gateway</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>metadata</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>my-gateway</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>spec</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>gatewayClassName</span><span class=p>:</span><span class=w> </span><span class=l>traefik</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>listeners</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>https</span><span class=w>
@@ -235,14 +235,14 @@ H/A 구성 시 Consul 혹은 외부 레지스트리 활용 필요. 설정·데�
 </span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>selector</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>matchLabels</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>            </span><span class=nt>gateway</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;true&#34;</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nn>---</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>gateway.networking.k8s.io/v1beta1</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>HTTPRoute</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nn>---</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>gateway.networking.k8s.io/v1beta1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>HTTPRoute</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>metadata</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>svc-route</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>labels</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>gateway</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;true&#34;</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>spec</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>parentRefs</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>my-gateway</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>rules</span><span class=p>:</span><span class=w>
@@ -276,7 +276,7 @@ H/A 구성 시 Consul 혹은 외부 레지스트리 활용 필요. 설정·데�
 </span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>dnsChallenge</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>provider</span><span class=p>:</span><span class=w> </span><span class=l>cloudflare</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>delayBeforeCheck</span><span class=p>:</span><span class=w> </span><span class=m>20</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>providers</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>providers</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>kubernetesCRD</span><span class=p>:</span><span class=w> </span>{}<span class=w>
 </span></span></span></code></pre></td></tr></table></div></div><ul><li><strong>DNS 챌린지 방식</strong>: Cloudflare API 키를 통해 도메인을 소유했음을 증명하고 인증서 자동 발급.</li><li><code>storage</code>: 인증서 정보를 파일 시스템에 저장하여 지속 가능한 인증서 관리 가능.</li></ul><hr><h2 id=-동적-설정-파일-구조-분리-예시-gitops-기반>🗂️ 동적 설정 파일 구조 분리 예시 (GitOps 기반)<a hidden class=anchor aria-hidden=true href=#-동적-설정-파일-구조-분리-예시-gitops-기반>#</a></h2><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-9-1><a class=lnlinks href=#hl-9-1> 1</a>
 </span><span class=lnt id=hl-9-2><a class=lnlinks href=#hl-9-2> 2</a>
@@ -313,10 +313,10 @@ H/A 구성 시 Consul 혹은 외부 레지스트리 활용 필요. 설정·데�
 </span><span class=lnt id=hl-9-33><a class=lnlinks href=#hl-9-33>33</a>
 </span><span class=lnt id=hl-9-34><a class=lnlinks href=#hl-9-34>34</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># static-config.yml</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>entryPoints</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>entryPoints</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>websecure</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>address</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;:443&#34;</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>certificatesResolvers</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>certificatesResolvers</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>letsencrypt_cloudflare</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>acme</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>email</span><span class=p>:</span><span class=w> </span><span class=l>admin@example.com</span><span class=w>
@@ -324,8 +324,8 @@ H/A 구성 시 Consul 혹은 외부 레지스트리 활용 필요. 설정·데�
 </span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>provider</span><span class=p>:</span><span class=w> </span><span class=l>cloudflare</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>delayBeforeCheck</span><span class=p>:</span><span class=w> </span><span class=m>20</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># dynamic/routes-auth.yml</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>http</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c># dynamic/routes-auth.yml</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>http</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>routers</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>auth-router</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>rule</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;Host(`auth.example.com`)&#34;</span><span class=w>
@@ -333,15 +333,15 @@ H/A 구성 시 Consul 혹은 외부 레지스트리 활용 필요. 설정·데�
 </span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>middlewares</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=l>auth</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># dynamic/routes-api.yml</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>http</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c># dynamic/routes-api.yml</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>http</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>routers</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>api-router</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>rule</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;Host(`api.example.com`) &amp;&amp; PathPrefix(`/`)&#34;</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>service</span><span class=p>:</span><span class=w> </span><span class=l>api-service</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>middlewares</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=l>rate-limit</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>middlewares</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>middlewares</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>rate-limit</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>rateLimit</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>average</span><span class=p>:</span><span class=w> </span><span class=m>100</span><span class=w>
@@ -351,7 +351,7 @@ H/A 구성 시 Consul 혹은 외부 레지스트리 활용 필요. 설정·데�
 </span><span class=lnt id=hl-10-3><a class=lnlinks href=#hl-10-3>3</a>
 </span><span class=lnt id=hl-10-4><a class=lnlinks href=#hl-10-4>4</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># labels on Docker service definition</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>labels</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=s2>&#34;traefik.http.services.my-svc.loadbalancer.healthcheck.path=/health&#34;</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=s2>&#34;traefik.http.services.my-svc.loadbalancer.healthcheck.interval=10s&#34;</span><span class=w>
 </span></span></span></code></pre></td></tr></table></div></div><ul><li>Traefik은 백엔드 서비스 <code>/health</code> 경로에 대해 주기적으로 상태 체크 시행.</li><li>비정상 노드 자동 제외 및 라우팅 재조정으로 장애 복구 자동화 달성.</li></ul><hr><h2 id=-요약>✅ 요약<a hidden class=anchor aria-hidden=true href=#-요약>#</a></h2><ul><li><strong>Gateway API 구성</strong> 예시는 Kubernetes 표준 리소스를 기반으로 라우팅과 TLS 설정을 선언적으로 가능하게 설정함.</li><li><strong>ACME DNS 챌린지</strong> 사용으로 Cloudflare를 비롯한 DNS 기반 인증서 자동 발급 구성 샘플 제공.</li><li><strong>GitOps 기반 모듈화된 구성 파일 구조</strong>는 설정 버전 관리 및 변경 자동 반영 워크플로우 실현.</li><li><strong>Health-check labels</strong>를 통한 자동 복구 구성은 Traefik이 제공하는 서비스 안정성 강화 패턴입니다.</li></ul><hr><p>필요하시면 <strong>mTLS 설정 구성 예시</strong>, <strong>WAF 및 Coraza 통합 미들웨어 설정</strong>, <strong>CI/CD 파이프라인 YAML 예시</strong>, <strong>Grafana 대시보드 구성 예시</strong> 등 특정 항목에 대해서도 추가로 제공해드릴 수 있습니다. 어떤 항목을 더 자세히 보시겠습니까?</p><p>아래는 요청하신대로 <strong>mTLS 구성</strong>, <strong>Coraza WAF 연동</strong>, <strong>CI/CD 워크플로우 예시</strong>, 그리고 <strong>Grafana 대시보드 구성</strong>까지 이어지는 Traefik 구성 예시 중심의 상세 내용을 정리했습니다.</p><hr><h2 id=-mtls-mutual-tls-설정-구성-예시>🔐 mTLS (Mutual TLS) 설정 구성 예시<a hidden class=anchor aria-hidden=true href=#-mtls-mutual-tls-설정-구성-예시>#</a></h2><h3 id=kubernetes-tlsoption-및-ingress-기반-구성>Kubernetes TLSOption 및 Ingress 기반 구성<a hidden class=anchor aria-hidden=true href=#kubernetes-tlsoption-및-ingress-기반-구성>#</a></h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-11-1><a class=lnlinks href=#hl-11-1> 1</a>
@@ -392,26 +392,26 @@ H/A 구성 시 Consul 혹은 외부 레지스트리 활용 필요. 설정·데�
 </span><span class=lnt id=hl-11-36><a class=lnlinks href=#hl-11-36>36</a>
 </span><span class=lnt id=hl-11-37><a class=lnlinks href=#hl-11-37>37</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>traefik.io/v1alpha1</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>TLSOption</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>TLSOption</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>metadata</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>mtlsoption</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>namespace</span><span class=p>:</span><span class=w> </span><span class=l>example</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>spec</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>clientAuth</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>clientAuthType</span><span class=p>:</span><span class=w> </span><span class=l>RequireAndVerifyClientCert</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>secretNames</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=l>ca-mtls</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>minVersion</span><span class=p>:</span><span class=w> </span><span class=l>VersionTLS12</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nn>---</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>networking.k8s.io/v1</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Ingress</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nn>---</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>networking.k8s.io/v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Ingress</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>metadata</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>annotations</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>traefik.ingress.kubernetes.io/router.entrypoints</span><span class=p>:</span><span class=w> </span><span class=l>websecure</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>traefik.ingress.kubernetes.io/router.tls.options</span><span class=p>:</span><span class=w> </span><span class=l>example-mtlsoption@kubernetescrd</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>mtlsingress</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>namespace</span><span class=p>:</span><span class=w> </span><span class=l>example</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>spec</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>ingressClassName</span><span class=p>:</span><span class=w> </span><span class=l>traefik</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>rules</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>host</span><span class=p>:</span><span class=w> </span><span class=l>secure.example.com</span><span class=w>
@@ -450,10 +450,10 @@ H/A 구성 시 Consul 혹은 외부 레지스트리 활용 필요. 설정·데�
 </span><span class=lnt id=hl-13-11><a class=lnlinks href=#hl-13-11>11</a>
 </span><span class=lnt id=hl-13-12><a class=lnlinks href=#hl-13-12>12</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>traefik.io/v1alpha1</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Middleware</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Middleware</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>metadata</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>coraza-waf</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>spec</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>plugin</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>coraza</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>crsEnabled</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>
@@ -484,7 +484,7 @@ H/A 구성 시 Consul 혹은 외부 레지스트리 활용 필요. 설정·데�
 </span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>moduleName</span><span class=p>:</span><span class=w> </span><span class=l>github.com/jcchavezs/coraza-http-wasm-traefik</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>version</span><span class=p>:</span><span class=w> </span><span class=l>v0.3.0</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>http</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>http</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>middlewares</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>waf</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>plugin</span><span class=p>:</span><span class=w>
@@ -762,11 +762,11 @@ Traefik v2 사용 시 대용량 파일 다운로드 시 직접 컨테이너 접�
 </span><span class=lnt id=hl-22-67><a class=lnlinks href=#hl-22-67>67</a>
 </span><span class=lnt id=hl-22-68><a class=lnlinks href=#hl-22-68>68</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># Traefik Deployment</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>apps/v1</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Deployment</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>apps/v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Deployment</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>metadata</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>traefik</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>spec</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>replicas</span><span class=p>:</span><span class=w> </span><span class=m>2</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>selector</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>matchLabels</span><span class=p>:</span><span class=w>
@@ -799,13 +799,13 @@ Traefik v2 사용 시 대용량 파일 다운로드 시 직접 컨테이너 접�
 </span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>data</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>emptyDir</span><span class=p>:</span><span class=w> </span>{}<span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nn>---</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># User Service with Traefik IngressRoute</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>traefik.io/v1alpha1</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>IngressRoute</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nn>---</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c># User Service with Traefik IngressRoute</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>traefik.io/v1alpha1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>IngressRoute</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>metadata</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>user-service-route</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>spec</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>entryPoints</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>websecure</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>routes</span><span class=p>:</span><span class=w>
@@ -819,13 +819,13 @@ Traefik v2 사용 시 대용량 파일 다운로드 시 직접 컨테이너 접�
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>tls</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>certResolver</span><span class=p>:</span><span class=w> </span><span class=l>letsencrypt</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nn>---</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># Authentication Middleware</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>traefik.io/v1alpha1</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Middleware</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nn>---</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c># Authentication Middleware</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>traefik.io/v1alpha1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Middleware</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>metadata</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>auth-middleware</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>spec</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>basicAuth</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>users</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=s2>&#34;admin:$2y$12$...&#34;</span><span class=w>
@@ -927,7 +927,7 @@ Traefik v2 사용 시 대용량 파일 다운로드 시 직접 컨테이너 접�
 </span><span class=lnt id=hl-28-8><a class=lnlinks href=#hl-28-8>8</a>
 </span><span class=lnt id=hl-28-9><a class=lnlinks href=#hl-28-9>9</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>version</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;3&#39;</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>services</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>services</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>my-app</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>image</span><span class=p>:</span><span class=w> </span><span class=l>my-app-image</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>labels</span><span class=p>:</span><span class=w>
@@ -955,13 +955,13 @@ Traefik v2 사용 시 대용량 파일 다운로드 시 직접 컨테이너 접�
 </span><span class=lnt id=hl-29-18><a class=lnlinks href=#hl-29-18>18</a>
 </span><span class=lnt id=hl-29-19><a class=lnlinks href=#hl-29-19>19</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>networking.k8s.io/v1</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Ingress</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Ingress</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>metadata</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>my-app-ingress</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>annotations</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>kubernetes.io/ingress.class</span><span class=p>:</span><span class=w> </span><span class=l>traefik</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>traefik.ingress.kubernetes.io/router.middlewares</span><span class=p>:</span><span class=w> </span><span class=l>default-redirect-https@kubernetescrd</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>spec</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>rules</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>host</span><span class=p>:</span><span class=w> </span><span class=l>app.example.com</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>http</span><span class=p>:</span><span class=w>
@@ -1097,8 +1097,8 @@ Traefik v2 사용 시 대용량 파일 다운로드 시 직접 컨테이너 접�
 </span><span class=lnt id=hl-36-2><a class=lnlinks href=#hl-36-2>2</a>
 </span><span class=lnt id=hl-36-3><a class=lnlinks href=#hl-36-3>3</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>docker run -d -p 80:80 -p 8080:8080 <span class=se>\
-</span></span></span><span class=line><span class=cl><span class=se></span>  -v /var/run/docker.sock:/var/run/docker.sock <span class=se>\
-</span></span></span><span class=line><span class=cl><span class=se></span>  traefik:v2.10 --providers.docker --api.insecure<span class=o>=</span><span class=nb>true</span>
+</span></span></span><span class=line><span class=cl>  -v /var/run/docker.sock:/var/run/docker.sock <span class=se>\
+</span></span></span><span class=line><span class=cl>  traefik:v2.10 --providers.docker --api.insecure<span class=o>=</span><span class=nb>true</span>
 </span></span></code></pre></td></tr></table></div></div><p><strong>Kubernetes Helm 차트를 이용한 설치</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-37-1><a class=lnlinks href=#hl-37-1>1</a>
 </span><span class=lnt id=hl-37-2><a class=lnlinks href=#hl-37-2>2</a>
 </span><span class=lnt id=hl-37-3><a class=lnlinks href=#hl-37-3>3</a>
@@ -1140,17 +1140,17 @@ Traefik v2 사용 시 대용량 파일 다운로드 시 직접 컨테이너 접�
 </span><span class=lnt id=hl-39-21><a class=lnlinks href=#hl-39-21>21</a>
 </span><span class=lnt id=hl-39-22><a class=lnlinks href=#hl-39-22>22</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># traefik.yaml (정적 구성)</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>global</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>global</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>checkNewVersion</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>sendAnonymousUsage</span><span class=p>:</span><span class=w> </span><span class=kc>false</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>entryPoints</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>entryPoints</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>web</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>address</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;:80&#34;</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>websecure</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>address</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;:443&#34;</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>providers</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>providers</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>docker</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>endpoint</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;unix:///var/run/docker.sock&#34;</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>exposedByDefault</span><span class=p>:</span><span class=w> </span><span class=kc>false</span><span class=w>
@@ -1158,7 +1158,7 @@ Traefik v2 사용 시 대용량 파일 다운로드 시 직접 컨테이너 접�
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>directory</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;/config&#34;</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>watch</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>api</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>api</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>dashboard</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>insecure</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>  </span><span class=c># 개발 환경에서만 사용</span><span class=w>
 </span></span></span></code></pre></td></tr></table></div></div></li><li><p><strong>동적 구성(Dynamic Configuration)</strong>: 라우터, 서비스, 미들웨어 등 실시간으로 변경 가능한 설정이다. 프로바이더(Docker, Kubernetes, 파일 등)를 통해 제공된다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-40-1><a class=lnlinks href=#hl-40-1> 1</a>
@@ -1183,7 +1183,7 @@ Traefik v2 사용 시 대용량 파일 다운로드 시 직접 컨테이너 접�
 </span><span class=lnt id=hl-40-20><a class=lnlinks href=#hl-40-20>20</a>
 </span><span class=lnt id=hl-40-21><a class=lnlinks href=#hl-40-21>21</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># /config/dynamic.yaml (동적 구성)</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>http</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>http</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>routers</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>api</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>rule</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;Host(`api.example.com`)&#34;</span><span class=w>
@@ -1224,7 +1224,7 @@ Traefik v2 사용 시 대용량 파일 다운로드 시 직접 컨테이너 접�
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>format</span><span class=p>:</span><span class=w> </span><span class=l>json</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>filePath</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;/path/to/log/traefik.log&#34;</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>accessLog</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>accessLog</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>filePath</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;/path/to/log/access.log&#34;</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>format</span><span class=p>:</span><span class=w> </span><span class=l>json</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>fields</span><span class=p>:</span><span class=w>
@@ -1259,7 +1259,7 @@ Traefik v2 사용 시 대용량 파일 다운로드 시 직접 컨테이너 접�
 </span><span class=lnt id=hl-42-22><a class=lnlinks href=#hl-42-22>22</a>
 </span><span class=lnt id=hl-42-23><a class=lnlinks href=#hl-42-23>23</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># 인증 미들웨어 정의</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>http</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>http</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>middlewares</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>jwt-auth</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>forwardAuth</span><span class=p>:</span><span class=w>
@@ -1397,7 +1397,7 @@ Traefik v2 사용 시 대용량 파일 다운로드 시 직접 컨테이너 접�
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>mysql</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>address</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;:3306&#34;</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>tcp</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>tcp</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>routers</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>mysql-router</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>entryPoints</span><span class=p>:</span><span class=w>
@@ -1431,7 +1431,7 @@ Traefik v2 사용 시 대용량 파일 다운로드 시 직접 컨테이너 접�
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>dns</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>address</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;:53/udp&#34;</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>udp</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>udp</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>routers</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>dns-router</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>entryPoints</span><span class=p>:</span><span class=w>
@@ -1520,9 +1520,9 @@ Traefik v2 사용 시 대용량 파일 다운로드 시 직접 컨테이너 접�
 </span><span class=lnt id=hl-50-29><a class=lnlinks href=#hl-50-29>29</a>
 </span><span class=lnt id=hl-50-30><a class=lnlinks href=#hl-50-30>30</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># docker-compose.yml</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>version</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;3&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>version</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;3&#39;</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>services</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>services</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>traefik-1</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>image</span><span class=p>:</span><span class=w> </span><span class=l>traefik:v2.10</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>command</span><span class=p>:</span><span class=w>
@@ -1546,7 +1546,7 @@ Traefik v2 사용 시 대용량 파일 다운로드 시 직접 컨테이너 접�
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>traefik-2</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c># 유사한 구성...</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>networks</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>networks</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>traefik-net</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>external</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>
 </span></span></span></code></pre></td></tr></table></div></div><p><strong>보안 강화</strong>:</p><ul><li>Admin API 접근 제한</li><li>적절한 HTTPS 및 TLS 구성</li><li>정기적인 업데이트</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-51-1><a class=lnlinks href=#hl-51-1> 1</a>
@@ -1577,15 +1577,15 @@ Traefik v2 사용 시 대용량 파일 다운로드 시 직접 컨테이너 접�
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>middlewares</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>admin-auth</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>entryPoints</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>entryPoints</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>websecure</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>address</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;:443&#34;</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>http</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>tls</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>options</span><span class=p>:</span><span class=w> </span><span class=l>modern</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>        
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># 강력한 TLS 설정</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>tls</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c># 강력한 TLS 설정</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>tls</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>options</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>modern</span><span class=p>:</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>minVersion</span><span class=p>:</span><span class=w> </span><span class=l>VersionTLS12</span><span class=w>
@@ -1596,7 +1596,7 @@ Traefik v2 사용 시 대용량 파일 다운로드 시 직접 컨테이너 접�
 </span></span></span></code></pre></td></tr></table></div></div><p><strong>성능 최적화</strong>:</p><ul><li>적절한 리소스 할당</li><li>헬스 체크 구성</li><li>효율적인 라우팅 규칙 설계</li></ul><hr><h2 id=용어-정리-2>용어 정리<a hidden class=anchor aria-hidden=true href=#용어-정리-2>#</a></h2><table><thead><tr><th>용어</th><th>설명</th></tr></thead><tbody><tr><td></td><td></td></tr></tbody></table><hr><h2 id=참고-및-출처-2>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처-2>#</a></h2></div></main><script type=module>
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ startOnLoad: true });
-  </script><footer class=footer><span>&copy; 2025 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+  </script><footer class=footer><span>&copy; 2026 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
 <span>Powered by
 <a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
 <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg>

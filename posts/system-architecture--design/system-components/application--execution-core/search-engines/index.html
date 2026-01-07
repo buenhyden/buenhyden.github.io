@@ -1,4 +1,4 @@
-<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Search Engines | hyunyoun's Blog</title><meta name=keywords content="System-Design,System-Components,Search-Engines"><meta name=description content="방대한 양의 정보에서 필요한 데이터를 효율적으로 찾아내는 특화된 시스템이다. 단순한 키워드 매칭을 넘어서, 오늘날의 검색 엔진은 복잡한 데이터 분석과 실시간 처리를 위한 고도화된 기술을 구현하고 있다."><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/system-architecture--design/system-components/application--execution-core/search-engines/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.8762af4fa9ee176c57f72565b721f234162fc7a9c882a271e0a1f68c4e89fb34.css integrity="sha256-h2KvT6nuF2xX9yVltyHyNBYvx6nIgqJx4KH2jE6J+zQ=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate type=application/rss+xml href=https://buenhyden.github.io/posts/system-architecture--design/system-components/application--execution-core/search-engines/index.xml><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/system-architecture--design/system-components/application--execution-core/search-engines/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/system-architecture--design/system-components/application--execution-core/search-engines/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="Search Engines"><meta property="og:description" content="방대한 양의 정보에서 필요한 데이터를 효율적으로 찾아내는 특화된 시스템이다. 단순한 키워드 매칭을 넘어서, 오늘날의 검색 엔진은 복잡한 데이터 분석과 실시간 처리를 위한 고도화된 기술을 구현하고 있다."><meta property="og:locale" content="en"><meta property="og:type" content="website"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="Search Engines"><meta name=twitter:description content="방대한 양의 정보에서 필요한 데이터를 효율적으로 찾아내는 특화된 시스템이다. 단순한 키워드 매칭을 넘어서, 오늘날의 검색 엔진은 복잡한 데이터 분석과 실시간 처리를 위한 고도화된 기술을 구현하고 있다."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Search Engines","item":"https://buenhyden.github.io/posts/system-architecture--design/system-components/application--execution-core/search-engines/"}]}</script></head><body class=list id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Search Engines | hyunyoun's Blog</title><meta name=keywords content="System-Design,System-Components,Search-Engines"><meta name=description content="방대한 양의 정보에서 필요한 데이터를 효율적으로 찾아내는 특화된 시스템이다. 단순한 키워드 매칭을 넘어서, 오늘날의 검색 엔진은 복잡한 데이터 분석과 실시간 처리를 위한 고도화된 기술을 구현하고 있다."><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/system-architecture--design/system-components/application--execution-core/search-engines/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.8762af4fa9ee176c57f72565b721f234162fc7a9c882a271e0a1f68c4e89fb34.css integrity="sha256-h2KvT6nuF2xX9yVltyHyNBYvx6nIgqJx4KH2jE6J+zQ=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate type=application/rss+xml href=https://buenhyden.github.io/posts/system-architecture--design/system-components/application--execution-core/search-engines/index.xml><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/system-architecture--design/system-components/application--execution-core/search-engines/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var doNotTrack=!1,dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes";if(!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/system-architecture--design/system-components/application--execution-core/search-engines/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="Search Engines"><meta property="og:description" content="방대한 양의 정보에서 필요한 데이터를 효율적으로 찾아내는 특화된 시스템이다. 단순한 키워드 매칭을 넘어서, 오늘날의 검색 엔진은 복잡한 데이터 분석과 실시간 처리를 위한 고도화된 기술을 구현하고 있다."><meta property="og:locale" content="en"><meta property="og:type" content="website"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="Search Engines"><meta name=twitter:description content="방대한 양의 정보에서 필요한 데이터를 효율적으로 찾아내는 특화된 시스템이다. 단순한 키워드 매칭을 넘어서, 오늘날의 검색 엔진은 복잡한 데이터 분석과 실시간 처리를 위한 고도화된 기술을 구현하고 있다."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Search Engines","item":"https://buenhyden.github.io/posts/system-architecture--design/system-components/application--execution-core/search-engines/"}]}</script></head><body class=list id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
 <svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
 <svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><header class=page-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a></div><h1>Search Engines</h1><div class=post-description>방대한 양의 정보에서 필요한 데이터를 효율적으로 찾아내는 특화된 시스템이다. 단순한 키워드 매칭을 넘어서, 오늘날의 검색 엔진은 복잡한 데이터 분석과 실시간 처리를 위한 고도화된 기술을 구현하고 있다.</div></header><div class=post-content><h2 id=search-engine>Search Engine<a hidden class=anchor aria-hidden=true href=#search-engine>#</a></h2><p>Search engines는 인터넷과 데이터베이스에 저장된 정보를 검색하고 사용자에게 관련 결과를 제공하는 소프트웨어 시스템이다. 이들은 현대 디지털 환경에서 필수적인 도구로, 정보를 효율적으로 찾고, 분석하며, 정리하는 데 도움을 준다. Google, Bing, Yahoo와 같은 대중적인 웹 검색 엔진뿐만 아니라 Elasticsearch와 같은 특화된 검색 엔진도 존재한다.</p><p>검색 엔진은 현대 데이터 관리 생태계의 핵심 구성 요소로서, 방대한 양의 정보에서 필요한 데이터를 효율적으로 찾아내는 특화된 시스템이다. 단순한 키워드 매칭을 넘어서, 오늘날의 검색 엔진은 복잡한 데이터 분석과 실시간 처리를 위한 고도화된 기술을 구현하고 있다.</p><h3 id=검색-엔진의-기본-개념과-발전-역사>검색 엔진의 기본 개념과 발전 역사<a hidden class=anchor aria-hidden=true href=#검색-엔진의-기본-개념과-발전-역사>#</a></h3><p>검색 엔진은 데이터베이스와 유사하지만, 특별히 &lsquo;검색&rsquo;이라는 작업에 최적화된 시스템이다. 전통적인 데이터베이스가 정확한 매칭에 초점을 둔다면, 검색 엔진은 관련성(relevance)과 유사성을 중심으로 작동한다.</p><h4 id=검색-엔진의-역사적-발전>검색 엔진의 역사적 발전<a hidden class=anchor aria-hidden=true href=#검색-엔진의-역사적-발전>#</a></h4><p>초기 검색 엔진은 단순한 문자열 매칭 기능을 제공했지만, 현대 검색 엔진의 기술적 토대는 1990년대 초반 개발된 Apache Lucene과 함께 시작되었다. Lucene은 역색인(inverted index)이라는 핵심 자료구조를 사용해 전문 검색(full-text search)의 성능을 혁신적으로 개선했다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-0-1><a class=lnlinks href=#hl-0-1>1</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>초기 검색 기술 → Apache Lucene → Solr → Elasticsearch → OpenSearch 및 현대 분산형 검색 엔진
@@ -85,7 +85,7 @@
 </span><span class=lnt id=hl-4-35><a class=lnlinks href=#hl-4-35>35</a>
 </span><span class=lnt id=hl-4-36><a class=lnlinks href=#hl-4-36>36</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 복합 쿼리 예시
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>GET</span> <span class=o>/</span><span class=nx>products</span><span class=o>/</span><span class=nx>_search</span>
+</span></span></span><span class=line><span class=cl><span class=nx>GET</span> <span class=o>/</span><span class=nx>products</span><span class=o>/</span><span class=nx>_search</span>
 </span></span><span class=line><span class=cl><span class=p>{</span>
 </span></span><span class=line><span class=cl>  <span class=s2>&#34;query&#34;</span><span class=o>:</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=s2>&#34;bool&#34;</span><span class=o>:</span> <span class=p>{</span>
@@ -154,7 +154,7 @@
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=nx>GET</span> <span class=o>/</span><span class=nx>sales</span><span class=o>/</span><span class=nx>_search</span>
 </span></span><span class=line><span class=cl><span class=p>{</span>
 </span></span><span class=line><span class=cl>  <span class=s2>&#34;size&#34;</span><span class=o>:</span> <span class=mi>0</span><span class=p>,</span>  <span class=c1>// 검색 결과는 필요 없고 집계만 원함
-</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=s2>&#34;aggs&#34;</span><span class=o>:</span> <span class=p>{</span>
+</span></span></span><span class=line><span class=cl>  <span class=s2>&#34;aggs&#34;</span><span class=o>:</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=s2>&#34;sales_by_month&#34;</span><span class=o>:</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>      <span class=s2>&#34;date_histogram&#34;</span><span class=o>:</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>        <span class=s2>&#34;field&#34;</span><span class=o>:</span> <span class=s2>&#34;date&#34;</span><span class=p>,</span>
@@ -461,7 +461,7 @@
 </span><span class=lnt id=hl-12-120><a class=lnlinks href=#hl-12-120>120</a>
 </span><span class=lnt id=hl-12-121><a class=lnlinks href=#hl-12-121>121</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 한국어 검색을 위한 사용자 정의 분석기
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>PUT</span> <span class=o>/</span><span class=nx>korean_index</span>
+</span></span></span><span class=line><span class=cl><span class=nx>PUT</span> <span class=o>/</span><span class=nx>korean_index</span>
 </span></span><span class=line><span class=cl><span class=p>{</span>
 </span></span><span class=line><span class=cl>  <span class=s2>&#34;settings&#34;</span><span class=o>:</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=s2>&#34;analysis&#34;</span><span class=o>:</span> <span class=p>{</span>
@@ -552,7 +552,7 @@
 </span></span></span><span class=line><span class=cl><span class=sb>
 </span></span></span><span class=line><span class=cl><span class=sb>```</span><span class=nx>javascript</span>
 </span></span><span class=line><span class=cl><span class=c1>// 특정 위치 주변 10km 내의 레스토랑 검색
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>GET</span> <span class=o>/</span><span class=nx>restaurants</span><span class=o>/</span><span class=nx>_search</span>
+</span></span></span><span class=line><span class=cl><span class=nx>GET</span> <span class=o>/</span><span class=nx>restaurants</span><span class=o>/</span><span class=nx>_search</span>
 </span></span><span class=line><span class=cl><span class=p>{</span>
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl>  <span class=s2>&#34;query&#34;</span><span class=o>:</span> <span class=p>{</span>
@@ -598,7 +598,7 @@
 </span><span class=lnt id=hl-13-15><a class=lnlinks href=#hl-13-15>15</a>
 </span><span class=lnt id=hl-13-16><a class=lnlinks href=#hl-13-16>16</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 벡터 검색 예제
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>GET</span> <span class=o>/</span><span class=nx>articles</span><span class=o>/</span><span class=nx>_search</span>
+</span></span></span><span class=line><span class=cl><span class=nx>GET</span> <span class=o>/</span><span class=nx>articles</span><span class=o>/</span><span class=nx>_search</span>
 </span></span><span class=line><span class=cl>  <span class=s2>&#34;query&#34;</span><span class=o>:</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl>    <span class=s2>&#34;script_score&#34;</span><span class=o>:</span> <span class=p>{</span>
@@ -607,7 +607,7 @@
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl>        <span class=s2>&#34;params&#34;</span><span class=o>:</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>          <span class=s2>&#34;query_vector&#34;</span><span class=o>:</span> <span class=p>[</span><span class=mf>0.1</span><span class=p>,</span> <span class=mf>0.2</span><span class=p>,</span> <span class=mf>0.3</span><span class=p>,</span> <span class=err>…</span><span class=p>,</span> <span class=mf>0.7</span><span class=p>]</span>  <span class=c1>// 쿼리 임베딩
-</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=p>}</span>
+</span></span></span><span class=line><span class=cl>        <span class=p>}</span>
 </span></span><span class=line><span class=cl>      <span class=p>}</span>
 </span></span><span class=line><span class=cl>    <span class=p>}</span>
 </span></span><span class=line><span class=cl>  <span class=p>}</span>
@@ -729,7 +729,7 @@
 </span><span class=lnt id=hl-14-114><a class=lnlinks href=#hl-14-114>114</a>
 </span><span class=lnt id=hl-14-115><a class=lnlinks href=#hl-14-115>115</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 시스템 로그 분석 집계 예제
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>GET</span> <span class=o>/</span><span class=nx>logs</span><span class=o>-*</span><span class=err>/_search</span>
+</span></span></span><span class=line><span class=cl><span class=nx>GET</span> <span class=o>/</span><span class=nx>logs</span><span class=o>-*</span><span class=err>/_search</span>
 </span></span><span class=line><span class=cl><span class=p>{</span>
 </span></span><span class=line><span class=cl>  <span class=s2>&#34;size&#34;</span><span class=o>:</span> <span class=mi>0</span><span class=p>,</span>
 </span></span><span class=line><span class=cl>  <span class=s2>&#34;aggs&#34;</span><span class=o>:</span> <span class=p>{</span>
@@ -1064,7 +1064,7 @@ ET /hybrid_search/_search</p><p>&ldquo;query&rdquo;: {
 </span><span class=lnt id=hl-18-16><a class=lnlinks href=#hl-18-16>16</a>
 </span><span class=lnt id=hl-18-17><a class=lnlinks href=#hl-18-17>17</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 특정 테넌트의 데이터는 항상 같은 샤드에 저장
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>PUT</span> <span class=o>/</span><span class=nx>logs</span><span class=o>/</span><span class=nx>_doc</span><span class=o>/</span><span class=mi>1</span><span class=o>?</span><span class=nx>routing</span><span class=o>=</span><span class=nx>tenant_abc</span>
+</span></span></span><span class=line><span class=cl><span class=nx>PUT</span> <span class=o>/</span><span class=nx>logs</span><span class=o>/</span><span class=nx>_doc</span><span class=o>/</span><span class=mi>1</span><span class=o>?</span><span class=nx>routing</span><span class=o>=</span><span class=nx>tenant_abc</span>
 </span></span><span class=line><span class=cl><span class=p>{</span>
 </span></span><span class=line><span class=cl>  <span class=s2>&#34;message&#34;</span><span class=o>:</span> <span class=s2>&#34;서버 재시작&#34;</span><span class=p>,</span>
 </span></span><span class=line><span class=cl>  <span class=s2>&#34;tenant_id&#34;</span><span class=o>:</span> <span class=s2>&#34;tenant_abc&#34;</span><span class=p>,</span>
@@ -1072,7 +1072,7 @@ ET /hybrid_search/_search</p><p>&ldquo;query&rdquo;: {
 </span></span><span class=line><span class=cl><span class=p>}</span>
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl><span class=c1>// 검색 시에도 동일한 라우팅 키 사용
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>GET</span> <span class=o>/</span><span class=nx>logs</span><span class=o>/</span><span class=nx>_search</span><span class=o>?</span><span class=nx>routing</span><span class=o>=</span><span class=nx>tenant_abc</span>
+</span></span></span><span class=line><span class=cl><span class=nx>GET</span> <span class=o>/</span><span class=nx>logs</span><span class=o>/</span><span class=nx>_search</span><span class=o>?</span><span class=nx>routing</span><span class=o>=</span><span class=nx>tenant_abc</span>
 </span></span><span class=line><span class=cl><span class=p>{</span>
 </span></span><span class=line><span class=cl>  <span class=s2>&#34;query&#34;</span><span class=o>:</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=s2>&#34;term&#34;</span><span class=o>:</span> <span class=p>{</span>
@@ -1122,7 +1122,7 @@ ET /hybrid_search/_search</p><p>&ldquo;query&rdquo;: {
 </span><span class=lnt id=hl-19-40><a class=lnlinks href=#hl-19-40>40</a>
 </span><span class=lnt id=hl-19-41><a class=lnlinks href=#hl-19-41>41</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 쿼리 템플릿 정의
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>PUT</span> <span class=nx>_scripts</span><span class=o>/</span><span class=nx>find_products</span>
+</span></span></span><span class=line><span class=cl><span class=nx>PUT</span> <span class=nx>_scripts</span><span class=o>/</span><span class=nx>find_products</span>
 </span></span><span class=line><span class=cl><span class=p>{</span>
 </span></span><span class=line><span class=cl>  <span class=s2>&#34;script&#34;</span><span class=o>:</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=s2>&#34;lang&#34;</span><span class=o>:</span> <span class=s2>&#34;mustache&#34;</span><span class=p>,</span>
@@ -1153,7 +1153,7 @@ ET /hybrid_search/_search</p><p>&ldquo;query&rdquo;: {
 </span></span><span class=line><span class=cl><span class=p>}</span>
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl><span class=c1>// 템플릿 사용
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>GET</span> <span class=o>/</span><span class=nx>products</span><span class=o>/</span><span class=nx>_search</span><span class=o>/</span><span class=nx>template</span>
+</span></span></span><span class=line><span class=cl><span class=nx>GET</span> <span class=o>/</span><span class=nx>products</span><span class=o>/</span><span class=nx>_search</span><span class=o>/</span><span class=nx>template</span>
 </span></span><span class=line><span class=cl><span class=p>{</span>
 </span></span><span class=line><span class=cl>  <span class=s2>&#34;id&#34;</span><span class=o>:</span> <span class=s2>&#34;find_products&#34;</span><span class=p>,</span>
 </span></span><span class=line><span class=cl>  <span class=s2>&#34;params&#34;</span><span class=o>:</span> <span class=p>{</span>
@@ -1183,7 +1183,7 @@ ET /hybrid_search/_search</p><p>&ldquo;query&rdquo;: {
 </span><span class=lnt id=hl-20-19><a class=lnlinks href=#hl-20-19>19</a>
 </span><span class=lnt id=hl-20-20><a class=lnlinks href=#hl-20-20>20</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 비동기 검색 요청
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>POST</span> <span class=o>/</span><span class=nx>products</span><span class=o>/</span><span class=nx>_async_search</span><span class=o>?</span><span class=nx>wait_for_completion_timeout</span><span class=o>=</span><span class=mi>1</span><span class=nx>s</span>
+</span></span></span><span class=line><span class=cl><span class=nx>POST</span> <span class=o>/</span><span class=nx>products</span><span class=o>/</span><span class=nx>_async_search</span><span class=o>?</span><span class=nx>wait_for_completion_timeout</span><span class=o>=</span><span class=mi>1</span><span class=nx>s</span>
 </span></span><span class=line><span class=cl><span class=p>{</span>
 </span></span><span class=line><span class=cl>  <span class=s2>&#34;query&#34;</span><span class=o>:</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=s2>&#34;match&#34;</span><span class=o>:</span> <span class=p>{</span>
@@ -1201,7 +1201,7 @@ ET /hybrid_search/_search</p><p>&ldquo;query&rdquo;: {
 </span></span><span class=line><span class=cl><span class=p>}</span>
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl><span class=c1>// 비동기 검색 결과 조회
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>GET</span> <span class=o>/</span><span class=nx>_async_search</span><span class=o>/</span><span class=nx>FmRldE8zREVEUzA2ZVpUeGs2ejJFUFEaMkZ5QTVrSTZSaVN3WlNFVmtlWHJsdzoxMDc</span><span class=o>=</span>
+</span></span></span><span class=line><span class=cl><span class=nx>GET</span> <span class=o>/</span><span class=nx>_async_search</span><span class=o>/</span><span class=nx>FmRldE8zREVEUzA2ZVpUeGs2ejJFUFEaMkZ5QTVrSTZSaVN3WlNFVmtlWHJsdzoxMDc</span><span class=o>=</span>
 </span></span></code></pre></td></tr></table></div></div></li><li><p><strong>집계 최적화</strong>:</p><ul><li>샘플링 집계 활용(<code>sampler</code> 집계)</li><li>근사 집계 활용(<code>cardinality</code> 집계의 <code>precision_threshold</code> 조정)</li><li>적절한 집계 캐싱 전략</li></ul></li></ul><h3 id=시스템-수준-최적화>시스템 수준 최적화<a hidden class=anchor aria-hidden=true href=#시스템-수준-최적화>#</a></h3><p>드웨어 및 시스템 설정 최적화:</p><p>. JVM 및 메모리 최적화</p><ul><li><strong>힙 크기 설정</strong>:<ul><li>총 메모리의 50% 또는 최대 32GB(압축 포인터 한계)</li><li>GC 튜닝(G1GC 권장)</li><li>스왑 비활성화</li></ul></li><li><strong>메모리 압력 관리</strong>:<ul><li>필드 데이터 캐시 제한(<code>indices.fielddata.cache.size</code>)</li><li>적절한 샤드 요청 캐시 설정</li><li>회로 차단기(Circuit Breaker) 설정
 . 네트워크 및 디스크 최적화</li></ul></li><li><strong>네트워크 설정</strong>:<ul><li>HTTP 압축 활성화</li><li>적절한 커넥션 풀 설정</li><li>노드 간 통신 최적화</li></ul></li><li><strong>디스크 I/O 최적화</strong>:<ul><li>SSD 활용</li><li><code>indices.recovery.max_bytes_per_sec</code> 조정</li><li>적절한 병합 정책 설정</li></ul></li></ul><p>시스템 설정 예:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-21-1><a class=lnlinks href=#hl-21-1> 1</a>
 </span><span class=lnt id=hl-21-2><a class=lnlinks href=#hl-21-2> 2</a>
@@ -1218,19 +1218,19 @@ ET /hybrid_search/_search</p><p>&ldquo;query&rdquo;: {
 </span><span class=lnt id=hl-21-13><a class=lnlinks href=#hl-21-13>13</a>
 </span><span class=lnt id=hl-21-14><a class=lnlinks href=#hl-21-14>14</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># elasticsearch.yml</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>bootstrap.memory_lock</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>  </span><span class=c># 스왑 방지</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>indices.fielddata.cache.size</span><span class=p>:</span><span class=w> </span><span class=m>20</span><span class=l>% </span><span class=w> </span><span class=c># 필드데이터 캐시 제한</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>indices.breaker.total.limit</span><span class=p>:</span><span class=w> </span><span class=m>70</span><span class=l>% </span><span class=w> </span><span class=c># 전체 회로 차단기 제한</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>indices.breaker.request.limit</span><span class=p>:</span><span class=w> </span><span class=m>60</span><span class=l>% </span><span class=w> </span><span class=c># 요청 회로 차단기 제한</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>indices.recovery.max_bytes_per_sec</span><span class=p>:</span><span class=w> </span><span class=l>50mb </span><span class=w> </span><span class=c># 복구 속도 제한</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>thread_pool.search.queue_size</span><span class=p>:</span><span class=w> </span><span class=m>1000</span><span class=w>  </span><span class=c># 검색 스레드 풀 큐 크기</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>thread_pool.write.queue_size</span><span class=p>:</span><span class=w> </span><span class=m>1000</span><span class=w>  </span><span class=c># 쓰기 스레드 풀 큐 크기</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>bootstrap.memory_lock</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>  </span><span class=c># 스왑 방지</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>indices.fielddata.cache.size</span><span class=p>:</span><span class=w> </span><span class=m>20</span><span class=l>% </span><span class=w> </span><span class=c># 필드데이터 캐시 제한</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>indices.breaker.total.limit</span><span class=p>:</span><span class=w> </span><span class=m>70</span><span class=l>% </span><span class=w> </span><span class=c># 전체 회로 차단기 제한</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>indices.breaker.request.limit</span><span class=p>:</span><span class=w> </span><span class=m>60</span><span class=l>% </span><span class=w> </span><span class=c># 요청 회로 차단기 제한</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>indices.recovery.max_bytes_per_sec</span><span class=p>:</span><span class=w> </span><span class=l>50mb </span><span class=w> </span><span class=c># 복구 속도 제한</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>thread_pool.search.queue_size</span><span class=p>:</span><span class=w> </span><span class=m>1000</span><span class=w>  </span><span class=c># 검색 스레드 풀 큐 크기</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>thread_pool.write.queue_size</span><span class=p>:</span><span class=w> </span><span class=m>1000</span><span class=w>  </span><span class=c># 쓰기 스레드 풀 큐 크기</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># JVM 옵션 (jvm.options)</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span>-<span class=l>Xms16g</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span>-<span class=l>Xmx16g</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span>-<span class=l>XX:+UseG1GC</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span>-<span class=l>XX:MaxGCPauseMillis=200</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c># JVM 옵션 (jvm.options)</span><span class=w>
+</span></span></span><span class=line><span class=cl>-<span class=l>Xms16g</span><span class=w>
+</span></span></span><span class=line><span class=cl>-<span class=l>Xmx16g</span><span class=w>
+</span></span></span><span class=line><span class=cl>-<span class=l>XX:+UseG1GC</span><span class=w>
+</span></span></span><span class=line><span class=cl>-<span class=l>XX:MaxGCPauseMillis=200</span><span class=w>
 </span></span></span></code></pre></td></tr></table></div></div><h2 id=검색-엔진-구축-및-운영-시-고려사항>검색 엔진 구축 및 운영 시 고려사항<a hidden class=anchor aria-hidden=true href=#검색-엔진-구축-및-운영-시-고려사항>#</a></h2><p>색 엔진을 실제로 구축하고 운영할 때 고려해야 할 중요한 사항들을 알아보자.</p><p>. 성능 최적화 전략<br>검색 엔진의 성능을 극대화하기 위한 전략:</p><ul><li><p><strong>하드웨어 최적화</strong>:
 - 적절한 메모리 할당(JVM 튜닝)</p><ul><li>SSD 스토리지 활용
 - CPU 코어 수에 따른 스레드 최적화</li></ul></li><li><p><strong>인덱스 최적화</strong>:</p><ul><li>샤드 및 레플리카 수 조정</li><li>인덱스 별칭(Aliases) 활용</li><li>인덱스 라이프사이클 관리(ILM)</li><li>주기적인 인덱스 최적화(force merge)</li></ul></li></ul><p><strong>쿼리 최적화</strong>:
@@ -1522,7 +1522,7 @@ POST /_security/user/log_viewer
 </span><span class=lnt id=hl-24-17><a class=lnlinks href=#hl-24-17>17</a>
 </span><span class=lnt id=hl-24-18><a class=lnlinks href=#hl-24-18>18</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 여러 데이터 소스를 통합 검색하는 크로스 인덱스 쿼리
-</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl><span class=nx>GET</span> <span class=o>/</span><span class=nx>documents</span><span class=p>,</span><span class=nx>emails</span><span class=p>,</span><span class=nx>wikis</span><span class=o>/</span><span class=nx>_search</span>
 </span></span><span class=line><span class=cl><span class=p>{</span>
 </span></span><span class=line><span class=cl>  <span class=s2>&#34;query&#34;</span><span class=o>:</span> <span class=p>{</span>
@@ -1571,7 +1571,7 @@ POST /_security/user/log_viewer
 </span><span class=lnt id=hl-25-30><a class=lnlinks href=#hl-25-30>30</a>
 </span><span class=lnt id=hl-25-31><a class=lnlinks href=#hl-25-31>31</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 로그에서 오류 패턴 분석
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>GET</span> <span class=o>/</span><span class=nx>logs</span><span class=o>-*</span><span class=err>/_search</span>
+</span></span></span><span class=line><span class=cl><span class=nx>GET</span> <span class=o>/</span><span class=nx>logs</span><span class=o>-*</span><span class=err>/_search</span>
 </span></span><span class=line><span class=cl><span class=p>{</span>
 </span></span><span class=line><span class=cl>  <span class=s2>&#34;query&#34;</span><span class=o>:</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=s2>&#34;bool&#34;</span><span class=o>:</span> <span class=p>{</span>
@@ -1793,7 +1793,7 @@ POST /_security/user/log_viewer
 </span><span class=lnt id=hl-27-58><a class=lnlinks href=#hl-27-58>58</a>
 </span><span class=lnt id=hl-27-59><a class=lnlinks href=#hl-27-59>59</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 동영상 콘텐츠 검색
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>GET</span> <span class=o>/</span><span class=nx>videos</span><span class=o>/</span><span class=nx>_search</span>
+</span></span></span><span class=line><span class=cl><span class=nx>GET</span> <span class=o>/</span><span class=nx>videos</span><span class=o>/</span><span class=nx>_search</span>
 </span></span><span class=line><span class=cl><span class=p>{</span>
 </span></span><span class=line><span class=cl>  <span class=s2>&#34;query&#34;</span><span class=o>:</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=s2>&#34;bool&#34;</span><span class=o>:</span> <span class=p>{</span>
@@ -1877,7 +1877,7 @@ POST /_security/user/log_viewer
 </span><span class=lnt id=hl-28-24><a class=lnlinks href=#hl-28-24>24</a>
 </span><span class=lnt id=hl-28-25><a class=lnlinks href=#hl-28-25>25</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 딥러닝 기반 랭킹 모델을 활용한 검색
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>GET</span> <span class=o>/</span><span class=nx>articles</span><span class=o>/</span><span class=nx>_search</span>
+</span></span></span><span class=line><span class=cl><span class=nx>GET</span> <span class=o>/</span><span class=nx>articles</span><span class=o>/</span><span class=nx>_search</span>
 </span></span><span class=line><span class=cl><span class=p>{</span>
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl>  <span class=s2>&#34;query&#34;</span><span class=o>:</span> <span class=p>{</span>
@@ -1926,7 +1926,7 @@ POST /_security/user/log_viewer
 </span><span class=lnt id=hl-29-23><a class=lnlinks href=#hl-29-23>23</a>
 </span><span class=lnt id=hl-29-24><a class=lnlinks href=#hl-29-24>24</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 하이브리드 검색 예제
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>GET</span> <span class=o>/</span><span class=nx>products</span><span class=o>/</span><span class=nx>_search</span>
+</span></span></span><span class=line><span class=cl><span class=nx>GET</span> <span class=o>/</span><span class=nx>products</span><span class=o>/</span><span class=nx>_search</span>
 </span></span><span class=line><span class=cl><span class=p>{</span>
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl>
@@ -1939,7 +1939,7 @@ POST /_security/user/log_viewer
 </span></span><span class=line><span class=cl>  <span class=s2>&#34;knn&#34;</span><span class=o>:</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=s2>&#34;field&#34;</span><span class=o>:</span> <span class=s2>&#34;image_embedding&#34;</span><span class=p>,</span>
 </span></span><span class=line><span class=cl>    <span class=s2>&#34;query_vector&#34;</span><span class=o>:</span> <span class=p>[</span><span class=err>…</span><span class=p>],</span>  <span class=c1>// 이미지 임베딩 벡터
-</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=s2>&#34;k&#34;</span><span class=o>:</span> <span class=mi>10</span><span class=p>,</span>
+</span></span></span><span class=line><span class=cl>    <span class=s2>&#34;k&#34;</span><span class=o>:</span> <span class=mi>10</span><span class=p>,</span>
 </span></span><span class=line><span class=cl>    <span class=s2>&#34;num_candidates&#34;</span><span class=o>:</span> <span class=mi>100</span>
 </span></span><span class=line><span class=cl>  <span class=p>},</span>
 </span></span><span class=line><span class=cl>  <span class=s2>&#34;rank&#34;</span><span class=o>:</span> <span class=p>{</span>
@@ -2074,7 +2074,7 @@ POST /_security/user/log_viewer
 </span><span class=lnt id=hl-30-122><a class=lnlinks href=#hl-30-122>122</a>
 </span><span class=lnt id=hl-30-123><a class=lnlinks href=#hl-30-123>123</a>
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 실시간 이상 탐지 쿼리
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>POST</span> <span class=nx>_alerting</span><span class=o>/</span><span class=nx>monitors</span>
+</span></span></span><span class=line><span class=cl><span class=nx>POST</span> <span class=nx>_alerting</span><span class=o>/</span><span class=nx>monitors</span>
 </span></span><span class=line><span class=cl><span class=p>{</span>
 </span></span><span class=line><span class=cl>  <span class=s2>&#34;name&#34;</span><span class=o>:</span> <span class=s2>&#34;cpu_usage_monitor&#34;</span><span class=p>,</span>
 </span></span><span class=line><span class=cl>  <span class=s2>&#34;type&#34;</span><span class=o>:</span> <span class=s2>&#34;monitor&#34;</span><span class=p>,</span>
@@ -2175,7 +2175,7 @@ POST /_security/user/log_viewer
 </span></span></span><span class=line><span class=cl><span class=sb>  
 </span></span></span><span class=line><span class=cl><span class=sb>     ```</span><span class=nx>javascript</span>
 </span></span><span class=line><span class=cl>  <span class=c1>// 1단계: 관련 문서 검색
-</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>GET</span> <span class=o>/</span><span class=nx>knowledge_base</span><span class=o>/</span><span class=nx>_search</span>
+</span></span></span><span class=line><span class=cl>  <span class=nx>GET</span> <span class=o>/</span><span class=nx>knowledge_base</span><span class=o>/</span><span class=nx>_search</span>
 </span></span><span class=line><span class=cl>  <span class=p>{</span>
 </span></span><span class=line><span class=cl>       <span class=s2>&#34;query&#34;</span><span class=o>:</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>      <span class=s2>&#34;multi_match&#34;</span><span class=o>:</span> <span class=p>{</span>
@@ -2188,8 +2188,8 @@ POST /_security/user/log_viewer
 </span></span><span class=line><span class=cl>  <span class=p>}</span>
 </span></span><span class=line><span class=cl>     
 </span></span><span class=line><span class=cl>  <span class=c1>// 2단계: 검색 결과를 LLM 프롬프트에 통합
-</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=c1>// LLM API 호출 (의사 코드)
-</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=nx>response</span> <span class=o>=</span> <span class=nx>llm_generate</span><span class=p>({</span>
+</span></span></span><span class=line><span class=cl>  <span class=c1>// LLM API 호출 (의사 코드)
+</span></span></span><span class=line><span class=cl>  <span class=nx>response</span> <span class=o>=</span> <span class=nx>llm_generate</span><span class=p>({</span>
 </span></span><span class=line><span class=cl>       <span class=s2>&#34;prompt&#34;</span><span class=o>:</span> <span class=s2>&#34;다음 정보를 바탕으로 2023년 인공지능 기술 동향에 대해 요약해주세요:\n\n&#34;</span> <span class=o>+</span>
 </span></span><span class=line><span class=cl>              <span class=s2>&#34;문서1: &#34;</span> <span class=o>+</span> <span class=nx>search_results</span><span class=p>[</span><span class=mi>0</span><span class=p>].</span><span class=nx>content</span> <span class=o>+</span> <span class=s2>&#34;\n\n&#34;</span> <span class=o>+</span>
 </span></span><span class=line><span class=cl>              <span class=s2>&#34;문서2: &#34;</span> <span class=o>+</span> <span class=nx>search_results</span><span class=p>[</span><span class=mi>1</span><span class=p>].</span><span class=nx>content</span> <span class=o>+</span> <span class=s2>&#34;\n\n&#34;</span> <span class=o>+</span>
@@ -2223,7 +2223,7 @@ POST /_security/user/log_viewer
 검색 엔진의 기본 원리 검색 엔진은 기본적으로 세 가지 핵심 과정을 수행한다:
 색인화(Indexing): 원본 데이터를 수집하고 검색에 최적화된 형태로 변환하는 과정 저장(Storage): 변환된 데이터를 효율적으로 저장하는 단계 검색(Searching): 사용자 질의에 따라 관련성 높은 결과를 반환하는 과정
 이러한 과정을 통해 텍스트 기반 검색, 필터링, 집계 분석 등의 기능을 제공한다. Apache Lucene Apache Lucene은 모든 현대적 검색 엔진의 기초가 되는 고성능 전문(full-text) 검색 라이브러리.
-...</p></div><footer class=entry-footer><span title='2024-10-22 06:06:00 +0000 UTC'>October 22, 2024</span>&nbsp;·&nbsp;4 min&nbsp;·&nbsp;Me</footer><a class=entry-link aria-label="post link to Implementations of Search Engine" href=https://buenhyden.github.io/posts/system-architecture--design/system-components/application--execution-core/search-engines/search-implementations/></a></article></main><footer class=footer><span>&copy; 2025 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+...</p></div><footer class=entry-footer><span title='2024-10-22 06:06:00 +0000 UTC'>October 22, 2024</span>&nbsp;·&nbsp;4 min&nbsp;·&nbsp;Me</footer><a class=entry-link aria-label="post link to Implementations of Search Engine" href=https://buenhyden.github.io/posts/system-architecture--design/system-components/application--execution-core/search-engines/search-implementations/></a></article></main><footer class=footer><span>&copy; 2026 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
 <span>Powered by
 <a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
 <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg>
