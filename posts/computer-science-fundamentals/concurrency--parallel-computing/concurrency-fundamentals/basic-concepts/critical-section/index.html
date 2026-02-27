@@ -1,0 +1,767 @@
+<!doctype html><html lang=en dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Critical Section | hyunyoun's Blog</title><meta name=keywords content="Computer-Science-Fundamentals,Concurrency-and-Parallel-Computing,Concurrency-Fundamentals,Basic-Concepts,Critical-Section,Synchronization,Concurrency-Control"><meta name=description content="**Critical Section**은 여러 실행 흐름이 동시에 공유 자원에 접근하는 것을 방지하기 위해 **오직 하나만 진입**할 수 있도록 설계된 코드 영역입니다. **Mutual Exclusion**을 통해 **데이터 일관성**과 **Race Condition 방지**를 보장하며, **mutex, semaphore, monitor, atomic operation** 등의 동기화 기법으로 제어합니다."><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/computer-science-fundamentals/concurrency--parallel-computing/concurrency-fundamentals/basic-concepts/critical-section/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.d522c866f0cc9c20ae4fa73a0a8c07f0af4c36af75bcbcd3e90558446f681077.css integrity="sha256-1SLIZvDMnCCuT6c6CowH8K9MNq91vLzT6QVYRG9oEHc=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate type=application/rss+xml href=https://buenhyden.github.io/posts/computer-science-fundamentals/concurrency--parallel-computing/concurrency-fundamentals/basic-concepts/critical-section/index.xml title=rss><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/computer-science-fundamentals/concurrency--parallel-computing/concurrency-fundamentals/basic-concepts/critical-section/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var doNotTrack=!1,dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes";if(!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/computer-science-fundamentals/concurrency--parallel-computing/concurrency-fundamentals/basic-concepts/critical-section/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="Critical Section"><meta property="og:description" content="**Critical Section**은 여러 실행 흐름이 동시에 공유 자원에 접근하는 것을 방지하기 위해 **오직 하나만 진입**할 수 있도록 설계된 코드 영역입니다. **Mutual Exclusion**을 통해 **데이터 일관성**과 **Race Condition 방지**를 보장하며, **mutex, semaphore, monitor, atomic operation** 등의 동기화 기법으로 제어합니다."><meta property="og:locale" content="en"><meta property="og:type" content="website"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="Critical Section"><meta name=twitter:description content="**Critical Section**은 여러 실행 흐름이 동시에 공유 자원에 접근하는 것을 방지하기 위해 **오직 하나만 진입**할 수 있도록 설계된 코드 영역입니다. **Mutual Exclusion**을 통해 **데이터 일관성**과 **Race Condition 방지**를 보장하며, **mutex, semaphore, monitor, atomic operation** 등의 동기화 기법으로 제어합니다."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"HY's Blog","item":"https://buenhyden.github.io/posts/"},{"@type":"ListItem","position":2,"name":"Computer Science Fundamentals","item":"https://buenhyden.github.io/posts/computer-science-fundamentals/"},{"@type":"ListItem","position":6,"name":"Critical Section","item":"https://buenhyden.github.io/posts/computer-science-fundamentals/concurrency--parallel-computing/concurrency-fundamentals/basic-concepts/critical-section/"}]}</script></head><body class=list id=top><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><header class=page-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/>HY's Blog</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/computer-science-fundamentals/>Computer Science Fundamentals</a></div><h1>Critical Section</h1><div class=post-description><strong>Critical Section</strong>은 여러 실행 흐름이 동시에 공유 자원에 접근하는 것을 방지하기 위해 <strong>오직 하나만 진입</strong>할 수 있도록 설계된 코드 영역입니다. <strong>Mutual Exclusion</strong>을 통해 <strong>데이터 일관성</strong>과 <strong>Race Condition 방지</strong>를 보장하며, <strong>mutex, semaphore, monitor, atomic operation</strong> 등의 동기화 기법으로 제어합니다.</div></header><div class=post-content><h2 id=critical-section>Critical Section<a hidden class=anchor aria-hidden=true href=#critical-section>#</a></h2><p>임계 구역 (Critical Section) 은 여러 실행 흐름이 공유 자원을 안전하게 사용할 수 있도록 동시 접근을 제어하는 코드 블록이다. 상호 배제, 진행성, 유한 대기의 세 원칙을 기반으로 하며, mutex, semaphore, monitor, atomic 연산 등으로 보호된다. Dekker 와 Peterson 알고리즘 같은 고전적 해법부터 현대 언어의 동기화 추상화까지 폭넓게 활용되며, 데드락, 기아, 경쟁 상태를 예방한다.</p><h3 id=등장-배경-및-발전-과정>등장 배경 및 발전 과정<a hidden class=anchor aria-hidden=true href=#등장-배경-및-발전-과정>#</a></h3><p><strong>Critical Section</strong>은 단일 흐름 환경에서는 문제가 되지 않았지만, <strong>멀티프로세스/멀티스레드/멀티코어</strong> 환경이 도입되면서 **경쟁 조건 (Race Condition)**을 해결하기 위한 <strong>동기화 문제의 핵심 개념</strong>으로 발전했다. <strong>Dekker, Peterson</strong> 등의 초기 알고리즘에서 시작해, <strong>세마포어, 모니터, 뮤텍스</strong> 등의 운영체제 기반 기술로 이어졌고, 현재는 <strong>락프리 구조, 메모리 일관성 모델, 고수준 언어 내장 기법</strong> 등으로 진화하고 있다.</p><h4 id=등장-배경-19501960-년대>등장 배경 (1950~1960 년대)<a hidden class=anchor aria-hidden=true href=#등장-배경-19501960-년대>#</a></h4><ul><li>초기에는 단일 실행 흐름 기반 시스템으로 동기화 필요성 낮았음</li><li><strong>Multiprogramming</strong>, <strong>Multithreading</strong> 환경 확산으로 공유 자원 접근 충돌 문제 발생</li><li>초기 대응은 단순히 <strong>인터럽트 비활성화 (disable interrupts)</strong> 방식 사용</li></ul><h4 id=이론적-기반-정립-19651980-년대>이론적 기반 정립 (1965~1980 년대)<a hidden class=anchor aria-hidden=true href=#이론적-기반-정립-19651980-년대>#</a></h4><ul><li><strong>Dekker&rsquo;s Algorithm (1965)</strong>: 최초의 소프트웨어 기반 상호 배제 알고리즘</li><li><strong>Peterson&rsquo;s Algorithm (1981)</strong>: 간결한 구조의 상호 배제 방식으로 개선</li><li><strong>Dijkstra</strong>: 세마포어 개념 제시, 상호 배제 이론의 근간 제공</li><li><strong>Monitor</strong>: C.A.R. Hoare 가 고수준 동기화 구조로 제안</li></ul><h4 id=운영체제-기반-동기화-기술-19801990-년대>운영체제 기반 동기화 기술 (1980~1990 년대)<a hidden class=anchor aria-hidden=true href=#운영체제-기반-동기화-기술-19801990-년대>#</a></h4><ul><li>운영체제 내장 동기화 기능 (세마포어, 스핀락, 뮤텍스) 도입</li><li><strong>Test-and-Set</strong>, <strong>Compare-and-Swap (CAS)</strong> 등 <strong>하드웨어 수준 명령어</strong> 등장</li><li><strong>POSIX Threads (pthreads)</strong> 기반으로 동기화 도구가 표준화됨</li></ul><h4 id=현대적-발전-1990-년대-후반--현재>현대적 발전 (1990 년대 후반 ~ 현재)<a hidden class=anchor aria-hidden=true href=#현대적-발전-1990-년대-후반--현재>#</a></h4><ul><li><strong>멀티코어 시스템</strong>, <strong>Non-Uniform Memory Access (NUMA)</strong> 구조 등장</li><li><strong>Lock-free</strong>, <strong>Wait-free</strong>, <strong>Transactional Memory</strong> 등 병렬성 극대화 기법 등장</li><li><strong>Java, C++, Python 등 고급 언어</strong>에서 모니터/락 내장 구조 채택</li><li><strong>Memory Consistency Model</strong> (ex. TSO, SC, Release Consistency) 과 동기화 연계</li></ul><h3 id=목적-및-필요성>목적 및 필요성<a hidden class=anchor aria-hidden=true href=#목적-및-필요성>#</a></h3><table><thead><tr><th>분류</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>핵심 목적</td><td><strong>데이터 무결성 및 일관성 유지</strong></td><td>공유 자원의 예상치 못한 변경 방지. 예측 가능한 상태 유지</td></tr><tr><td>핵심 목적</td><td><strong>경쟁 상태 (Race Condition) 방지</strong></td><td>동시에 접근하는 프로세스 간 충돌 방지</td></tr><tr><td>핵심 목적</td><td><strong>시스템 안정성 확보</strong></td><td>충돌, 데드락, 무한 대기 등의 비정상 동작 방지</td></tr><tr><td>핵심 목적</td><td><strong>연산의 원자성 보장</strong></td><td>연산이 완전히 실행되거나 전혀 실행되지 않도록 보장</td></tr><tr><td>핵심 목적</td><td><strong>동기화 및 협력 처리 보장</strong></td><td>작업 간 순서를 조정해 협력적 실행이 가능하도록 함</td></tr><tr><td>필요성</td><td><strong>교착 상태 (Deadlock) 예방</strong></td><td>자원 순환 대기로 인해 시스템이 멈추는 현상 방지</td></tr><tr><td>필요성</td><td><strong>테스트 용이성 확보</strong></td><td>Entry/Exit 가 명확하여 단위 테스트 및 재현이 쉬움</td></tr><tr><td>필요성</td><td><strong>복구 가능성 확보</strong></td><td>오류 발생 시 일관된 상태로 복원 가능하도록 설계됨</td></tr><tr><td>필요성</td><td><strong>성능 최적화 유도</strong></td><td>경합 감소, 불필요한 락 제거로 처리 효율 향상</td></tr><tr><td>필요성</td><td><strong>보안성 강화</strong></td><td>예측 불가능한 상태로 인한 취약점 차단 (e.g., race injection)</td></tr></tbody></table><p>Critical Section 은 동시 실행 환경에서 <strong>공유 자원 보호</strong>와 <strong>예측 가능한 시스템 실행</strong>을 위한 필수 구조이다.<br>가장 핵심적인 목적은 <strong>데이터 무결성과 일관성</strong>을 유지하고, <strong>경쟁 상태나 데드락 같은 동시성 오류</strong>를 방지하는 것이다.<br>또한 구조적으로 명확한 경계를 가짐으로써 <strong>테스트 및 디버깅이 용이</strong>하며, 고신뢰 시스템에서는 <strong>복구 가능성</strong>과 <strong>보안성</strong>까지 중요한 목적이 된다.<br>이러한 목적은 단순한 프로그램 안정성 확보를 넘어, <strong>고성능 병렬 시스템</strong>, <strong>분산 시스템</strong>, <strong>실시간 제어 시스템</strong>에까지 넓게 적용된다.</p><h3 id=핵심-개념>핵심 개념<a hidden class=anchor aria-hidden=true href=#핵심-개념>#</a></h3><ol><li><strong>정의</strong>: Critical Section 은 공유 자원에 대한 접근이 이뤄지는 코드 영역으로, 동시에 하나의 실행 흐름만 진입 가능해야 함.</li><li><strong>목적</strong>: 데이터 무결성 보장, Race Condition 방지, 시스템 안정성 확보.</li><li><strong>구조</strong>: Entry → Critical → Exit → Remainder Section 으로 구성됨.</li><li><strong>동기화 조건</strong>:<ul><li><strong>Mutual Exclusion</strong>: 하나만 진입 가능</li><li><strong>Progress</strong>: 대기 중이면 진입 허용</li><li><strong>Bounded Waiting</strong>: 무한 대기 없음</li></ul></li></ol><h4 id=실무-연관성>실무 연관성<a hidden class=anchor aria-hidden=true href=#실무-연관성>#</a></h4><ul><li>OS 커널, DB 트랜잭션, 웹서버 요청 처리, 클라우드 마이크로서비스까지 모두 적용됨.</li><li>잘못된 동기화는 데드락, 기아 상태, 우선순위 역전 등 치명적 문제 유발.</li></ul><h3 id=critical-section-vs-mutual-exclusion>Critical Section vs. Mutual Exclusion<a hidden class=anchor aria-hidden=true href=#critical-section-vs-mutual-exclusion>#</a></h3><table><thead><tr><th>비교 항목</th><th>Critical Section (임계 구역)</th><th>Mutual Exclusion (상호 배제)</th></tr></thead><tbody><tr><td>정의</td><td>공유 자원에 접근하는 코드 블록</td><td>공유 자원에 동시에 접근 못하게 하는 제어 원칙</td></tr><tr><td>목적</td><td>공유 자원 보호</td><td>데이터 충돌 방지 및 무결성 확보</td></tr><tr><td>실현 방식</td><td>Entry/Exit/Remainder 로 구분된 코드 구조</td><td>다양한 동기화 도구 및 알고리즘 사용</td></tr><tr><td>구현 기술</td><td>mutex, monitor, atomic block</td><td>Dekker, Peterson, Bakery, semaphore 등</td></tr><tr><td>상호 관계</td><td>보호 대상</td><td>보호 방식</td></tr></tbody></table><ul><li>Critical Section 은 <strong>어디를 보호할지</strong>를 정의하고, Mutual Exclusion 은 <strong>어떻게 보호할지</strong> 를 정의한다.</li></ul><h3 id=주요-기능-및-역할>주요 기능 및 역할<a hidden class=anchor aria-hidden=true href=#주요-기능-및-역할>#</a></h3><table><thead><tr><th>분류</th><th>기능 및 역할</th><th>설명</th></tr></thead><tbody><tr><td>보호 기능</td><td><strong>상호 배제 (Mutual Exclusion)</strong></td><td>임계 구역에는 한 번에 하나의 흐름만 접근 가능</td></tr><tr><td>보호 기능</td><td><strong>데이터 무결성 보장</strong></td><td>동시 접근 시 데이터 손상 또는 예측 불가능 상태 방지</td></tr><tr><td>제어 기능</td><td><strong>진행성 보장 (Progress)</strong></td><td>대기 프로세스는 언젠가는 임계 구역에 진입 가능해야 함</td></tr><tr><td>제어 기능</td><td><strong>공정성 보장 (Fairness)</strong></td><td>특정 프로세스가 영원히 기다리는 기아 상태 방지</td></tr><tr><td>제어 기능</td><td><strong>교착 상태 (Deadlock) 예방</strong></td><td>락을 영원히 점유하는 상황 방지</td></tr><tr><td>제어 기능</td><td><strong>자원 관리 (Resource Allocation)</strong></td><td>자원의 요청/해제 흐름을 안전하게 관리</td></tr><tr><td>동기화 기능</td><td><strong>프로세스 동기화 (Synchronization)</strong></td><td>프로세스 간 협업 시 올바른 순서 보장</td></tr><tr><td>지원 기능</td><td><strong>안정적 통신 지원</strong></td><td>공유 상태 기반 메시지 처리나 동기화가 가능하도록 지원</td></tr><tr><td>운영 기능</td><td><strong>오류 전파 방지</strong></td><td>잘못된 공유 상태의 확산 차단 (예: 중간 상태 노출)</td></tr><tr><td>운영 기능</td><td><strong>복구 가능 상태 유지</strong></td><td>임계 구역 중단에도 복구 가능한 일관 상태 유지</td></tr><tr><td>운영 기능</td><td><strong>성능 최적화 지원</strong></td><td>Busy-wait 최소화, 효율적 락 구조 설계</td></tr><tr><td>운영 기능</td><td><strong>디버깅 및 테스트 용이성</strong></td><td>Entry/Exit 가 명확하여 단위 테스트 및 재현 용이</td></tr></tbody></table><p>임계 구역 (Critical Section) 은 단순히 하나의 프로세스만 접근할 수 있도록 제한하는 기능을 넘어서, <strong>데이터 보호, 실행 순서 제어, 시스템 안정성 보장, 자원 관리</strong>, 나아가 <strong>고신뢰성 시스템에서의 오류 복구와 디버깅 가능성 확보</strong>까지 다양한 역할을 수행한다. 상호 배제, 진행성, 공정성은 그 핵심 원칙이며, 이를 뒷받침하는 기능들은 운영체제, 멀티스레드 프레임워크, 분산 시스템 등의 설계 기반이 된다.</p><h3 id=특징>특징<a hidden class=anchor aria-hidden=true href=#특징>#</a></h3><table><thead><tr><th>분류</th><th>특징</th><th>설명</th></tr></thead><tbody><tr><td><strong>기본 속성</strong></td><td><strong>원자성 (Atomicity)</strong></td><td>코드 전체가 중단 없이 실행됨</td></tr><tr><td></td><td><strong>상호 배제 (Mutual Exclusion)</strong></td><td>하나의 실행 흐름만 접근 가능</td></tr><tr><td><strong>실행 조건</strong></td><td><strong>유한 실행 시간 (Bounded Execution)</strong></td><td>무한정 블로킹 없이 종료됨</td></tr><tr><td></td><td><strong>진입 제어 (Controlled Entry)</strong></td><td>진입 시 동기화 조건 만족 필요</td></tr><tr><td></td><td><strong>한정 대기 (Bounded Waiting)</strong></td><td>다른 프로세스가 무기한 대기하지 않음</td></tr><tr><td><strong>운영 특성</strong></td><td><strong>스케줄러 영향 (Scheduler Impact)</strong></td><td>CPU 스케줄링에 따라 접근 시간 달라짐</td></tr><tr><td></td><td><strong>중첩 가능성 (Nested CS)</strong></td><td>중첩 시 재진입 가능 여부에 따라 설계 달라짐</td></tr><tr><td></td><td><strong>재진입성 (Reentrancy)</strong></td><td>락 구조에 따라 중첩된 접근이 가능하거나 불가능</td></tr><tr><td><strong>시스템 연계</strong></td><td><strong>인터럽트 보호 (Interrupt Handling)</strong></td><td>OS 수준에서는 인터럽트 비활성화가 필요할 수 있음</td></tr><tr><td><strong>성능 고려</strong></td><td><strong>락 오버헤드 존재</strong></td><td>성능 저하 원인이 될 수 있음 (대기/컨텍스트 스위칭)</td></tr><tr><td><strong>실무 확장성</strong></td><td><strong>다양한 구현 계층</strong></td><td>하드웨어 (Test-and-Set) 부터 언어 수준까지 대응</td></tr></tbody></table><h3 id=핵심-원칙>핵심 원칙<a hidden class=anchor aria-hidden=true href=#핵심-원칙>#</a></h3><table><thead><tr><th>구분</th><th>핵심 원칙</th><th>설명</th></tr></thead><tbody><tr><td>이론적 필수조건</td><td><strong>상호 배제 (Mutual Exclusion)</strong></td><td>동시에 하나의 프로세스만 임계 구역에 진입할 수 있어야 함</td></tr><tr><td></td><td><strong>진행성 (Progress)</strong></td><td>어떤 프로세스도 불필요하게 임계 구역 진입이 지연되어선 안 됨</td></tr><tr><td></td><td><strong>유한 대기 (Bounded Waiting)</strong></td><td>임계 구역 진입을 원하는 프로세스는 유한 시간 내 진입 기회를 보장받아야 함</td></tr><tr><td>실무 적용 원칙</td><td><strong>확장성 (Scalability)</strong></td><td>시스템 규모가 커져도 동기화 성능 저하가 없어야 함</td></tr><tr><td></td><td><strong>교착 상태 회피 (Deadlock Avoidance)</strong></td><td>자원 순환 대기, 점유 후 대기 등의 교착 조건을 피해야 함</td></tr><tr><td></td><td><strong>성능 최적화 (Performance Consideration)</strong></td><td>락 경쟁 최소화, busy-wait 회피 등으로 효율 향상</td></tr><tr><td></td><td><strong>실패 원자성 (Failure Atomicity)</strong></td><td>실행 중단 또는 오류 발생 시에도 시스템이 일관된 상태로 복구 가능해야 함</td></tr><tr><td></td><td><strong>선점 안전성 (Preemption Safety)</strong></td><td>프로세스가 중간에 중단되더라도 상태가 손상되지 않아야 함</td></tr></tbody></table><p>Critical Section 을 설계하거나 분석할 때 반드시 고려해야 하는 <strong>핵심 원칙</strong>은 크게 이론적 요구사항과 실무적 조건으로 나뉜다.</p><ul><li><p><strong>이론적 필수조건 (3 대 원칙)</strong>: 상호 배제, 진행성, 유한 대기는 모든 동기화 알고리즘이 만족해야 할 기준으로, 이 세 가지가 충족되어야 race condition 없이 안전한 자원 공유가 가능하다.</p></li><li><p><strong>실무 적용 원칙</strong>은 현대 시스템에서 실제로 마주치는 문제 (확장성, 교착 상태, 성능, 오류 회복 등) 를 해결하기 위한 설계 가이드라인이다. 이는 실시간 시스템, 분산 환경, 고성능 컴퓨팅 등에서 필수적으로 고려되어야 한다.</p></li><li><p>특히 <strong>성능 최적화</strong>와 <strong>선점 안전성</strong>, <strong>하드웨어 영향에 대한 대응력</strong>은 멀티코어/멀티스레드 환경에서 안정성과 신뢰성을 동시에 보장하기 위한 실무적 설계 핵심 요소다.</p></li></ul><h4 id=critical-section-문제-해결의-3-가지-조건>Critical Section 문제 해결의 3 가지 조건<a hidden class=anchor aria-hidden=true href=#critical-section-문제-해결의-3-가지-조건>#</a></h4><ol><li><strong>상호 배제 (Mutual Exclusion)</strong>: 한 프로세스가 크리티컬 섹션에서 실행 중일 때 다른 프로세스는 접근 불가</li><li><strong>진행성 (Progress)</strong>: 크리티컬 섹션에 아무도 없고 진입을 원하는 프로세스가 있으면 진입할 수 있어야 함</li><li><strong>유한 대기 (Bounded Waiting)</strong>: 프로세스가 크리티컬 섹션 진입 요청 후 대기하는 시간에 제한이 있어야 함</li></ol><h3 id=주요-원리-및-작동-원리>주요 원리 및 작동 원리<a hidden class=anchor aria-hidden=true href=#주요-원리-및-작동-원리>#</a></h3><h4 id=작동-단계>작동 단계<a hidden class=anchor aria-hidden=true href=#작동-단계>#</a></h4><table><thead><tr><th>순서</th><th>단계</th><th>설명</th></tr></thead><tbody><tr><td>1</td><td><strong>Entry Section</strong></td><td>프로세스 또는 스레드가 크리티컬 섹션에 진입할 수 있는지를 확인하고, 조건이 맞으면 락을 획득하는 단계. 실패 시에는 재시도 또는 대기.</td></tr><tr><td>2</td><td><strong>Critical Section</strong></td><td>하나의 실행 흐름만 접근 가능. 공유 자원 (read/write 등) 에 대한 동작을 수행하는 배타적 실행 구간.</td></tr><tr><td>3</td><td><strong>Exit Section</strong></td><td>크리티컬 섹션에서 작업이 끝난 후 락을 해제하고, 다른 프로세스가 진입할 수 있도록 상태를 전환함.</td></tr><tr><td>4</td><td><strong>Remainder Section</strong></td><td>공유 자원 접근과 무관한 나머지 작업을 수행하는 비임계 구역. 반복 루프 내에서 Entry 로 재진입 가능.</td></tr></tbody></table><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-0-1><a class=lnlinks href=#hl-0-1>1</a>
+</span><span class=lnt id=hl-0-2><a class=lnlinks href=#hl-0-2>2</a>
+</span><span class=lnt id=hl-0-3><a class=lnlinks href=#hl-0-3>3</a>
+</span><span class=lnt id=hl-0-4><a class=lnlinks href=#hl-0-4>4</a>
+</span><span class=lnt id=hl-0-5><a class=lnlinks href=#hl-0-5>5</a>
+</span><span class=lnt id=hl-0-6><a class=lnlinks href=#hl-0-6>6</a>
+</span><span class=lnt id=hl-0-7><a class=lnlinks href=#hl-0-7>7</a>
+</span><span class=lnt id=hl-0-8><a class=lnlinks href=#hl-0-8>8</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>flowchart TD
+</span></span><span class=line><span class=cl>    A[프로세스 시작 / 일반 작업] --&gt; B[Entry Section - 락 요청]
+</span></span><span class=line><span class=cl>    B --&gt; C{락 획득 성공?}
+</span></span><span class=line><span class=cl>    C -- Yes --&gt; D[Critical Section - 공유 자원 접근]
+</span></span><span class=line><span class=cl>    D --&gt; E[Exit Section - 락 해제]
+</span></span><span class=line><span class=cl>    E --&gt; A
+</span></span><span class=line><span class=cl>    C -- No --&gt; F[대기 or 재시도]
+</span></span><span class=line><span class=cl>    F --&gt; B
+</span></span></code></pre></td></tr></table></div></div><ul><li><strong>동기화 핵심은 Entry-Exit 사이의 보호 영역</strong>에서 발생</li><li><strong>조건 불충족 시 재시도 방법은 구현체에 따라 busy-wait / blocking / queueing 등 다양</strong></li><li><strong>Exit 단계에서 다음 후보에게 진입권을 넘겨주는 방식이 시스템의 공정성과 성능을 좌우</strong></li><li><strong>Remainder Section 은 병렬성 극대화에 유리하므로 가능한 짧게 Entry ~ Exit 사이만 보호</strong></li></ul><h3 id=구조-및-아키텍처>구조 및 아키텍처<a hidden class=anchor aria-hidden=true href=#구조-및-아키텍처>#</a></h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-1-1><a class=lnlinks href=#hl-1-1> 1</a>
+</span><span class=lnt id=hl-1-2><a class=lnlinks href=#hl-1-2> 2</a>
+</span><span class=lnt id=hl-1-3><a class=lnlinks href=#hl-1-3> 3</a>
+</span><span class=lnt id=hl-1-4><a class=lnlinks href=#hl-1-4> 4</a>
+</span><span class=lnt id=hl-1-5><a class=lnlinks href=#hl-1-5> 5</a>
+</span><span class=lnt id=hl-1-6><a class=lnlinks href=#hl-1-6> 6</a>
+</span><span class=lnt id=hl-1-7><a class=lnlinks href=#hl-1-7> 7</a>
+</span><span class=lnt id=hl-1-8><a class=lnlinks href=#hl-1-8> 8</a>
+</span><span class=lnt id=hl-1-9><a class=lnlinks href=#hl-1-9> 9</a>
+</span><span class=lnt id=hl-1-10><a class=lnlinks href=#hl-1-10>10</a>
+</span><span class=lnt id=hl-1-11><a class=lnlinks href=#hl-1-11>11</a>
+</span><span class=lnt id=hl-1-12><a class=lnlinks href=#hl-1-12>12</a>
+</span><span class=lnt id=hl-1-13><a class=lnlinks href=#hl-1-13>13</a>
+</span><span class=lnt id=hl-1-14><a class=lnlinks href=#hl-1-14>14</a>
+</span><span class=lnt id=hl-1-15><a class=lnlinks href=#hl-1-15>15</a>
+</span><span class=lnt id=hl-1-16><a class=lnlinks href=#hl-1-16>16</a>
+</span><span class=lnt id=hl-1-17><a class=lnlinks href=#hl-1-17>17</a>
+</span><span class=lnt id=hl-1-18><a class=lnlinks href=#hl-1-18>18</a>
+</span><span class=lnt id=hl-1-19><a class=lnlinks href=#hl-1-19>19</a>
+</span><span class=lnt id=hl-1-20><a class=lnlinks href=#hl-1-20>20</a>
+</span><span class=lnt id=hl-1-21><a class=lnlinks href=#hl-1-21>21</a>
+</span><span class=lnt id=hl-1-22><a class=lnlinks href=#hl-1-22>22</a>
+</span><span class=lnt id=hl-1-23><a class=lnlinks href=#hl-1-23>23</a>
+</span><span class=lnt id=hl-1-24><a class=lnlinks href=#hl-1-24>24</a>
+</span><span class=lnt id=hl-1-25><a class=lnlinks href=#hl-1-25>25</a>
+</span><span class=lnt id=hl-1-26><a class=lnlinks href=#hl-1-26>26</a>
+</span><span class=lnt id=hl-1-27><a class=lnlinks href=#hl-1-27>27</a>
+</span><span class=lnt id=hl-1-28><a class=lnlinks href=#hl-1-28>28</a>
+</span><span class=lnt id=hl-1-29><a class=lnlinks href=#hl-1-29>29</a>
+</span><span class=lnt id=hl-1-30><a class=lnlinks href=#hl-1-30>30</a>
+</span><span class=lnt id=hl-1-31><a class=lnlinks href=#hl-1-31>31</a>
+</span><span class=lnt id=hl-1-32><a class=lnlinks href=#hl-1-32>32</a>
+</span><span class=lnt id=hl-1-33><a class=lnlinks href=#hl-1-33>33</a>
+</span><span class=lnt id=hl-1-34><a class=lnlinks href=#hl-1-34>34</a>
+</span><span class=lnt id=hl-1-35><a class=lnlinks href=#hl-1-35>35</a>
+</span><span class=lnt id=hl-1-36><a class=lnlinks href=#hl-1-36>36</a>
+</span><span class=lnt id=hl-1-37><a class=lnlinks href=#hl-1-37>37</a>
+</span><span class=lnt id=hl-1-38><a class=lnlinks href=#hl-1-38>38</a>
+</span><span class=lnt id=hl-1-39><a class=lnlinks href=#hl-1-39>39</a>
+</span><span class=lnt id=hl-1-40><a class=lnlinks href=#hl-1-40>40</a>
+</span><span class=lnt id=hl-1-41><a class=lnlinks href=#hl-1-41>41</a>
+</span><span class=lnt id=hl-1-42><a class=lnlinks href=#hl-1-42>42</a>
+</span><span class=lnt id=hl-1-43><a class=lnlinks href=#hl-1-43>43</a>
+</span><span class=lnt id=hl-1-44><a class=lnlinks href=#hl-1-44>44</a>
+</span><span class=lnt id=hl-1-45><a class=lnlinks href=#hl-1-45>45</a>
+</span><span class=lnt id=hl-1-46><a class=lnlinks href=#hl-1-46>46</a>
+</span><span class=lnt id=hl-1-47><a class=lnlinks href=#hl-1-47>47</a>
+</span><span class=lnt id=hl-1-48><a class=lnlinks href=#hl-1-48>48</a>
+</span><span class=lnt id=hl-1-49><a class=lnlinks href=#hl-1-49>49</a>
+</span><span class=lnt id=hl-1-50><a class=lnlinks href=#hl-1-50>50</a>
+</span><span class=lnt id=hl-1-51><a class=lnlinks href=#hl-1-51>51</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>flowchart TD
+</span></span><span class=line><span class=cl>    subgraph &#34;Application Threads&#34;
+</span></span><span class=line><span class=cl>        A1[Thread 1]
+</span></span><span class=line><span class=cl>        A2[Thread 2]
+</span></span><span class=line><span class=cl>        A3[Thread N]
+</span></span><span class=line><span class=cl>    end
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    subgraph &#34;Execution Phases&#34;
+</span></span><span class=line><span class=cl>        B1[Entry Section]
+</span></span><span class=line><span class=cl>        B2[Critical Section]
+</span></span><span class=line><span class=cl>        B3[Exit Section]
+</span></span><span class=line><span class=cl>        B4[Remainder Section]
+</span></span><span class=line><span class=cl>    end
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    subgraph &#34;Synchronization Layer&#34;
+</span></span><span class=line><span class=cl>        C1[Mutex / Semaphore / Monitor]
+</span></span><span class=line><span class=cl>        C2[Test-and-Set / CAS / Atomic]
+</span></span><span class=line><span class=cl>        C3[&#34;Waiting Queue (선택)&#34;]
+</span></span><span class=line><span class=cl>        C4[&#34;Priority Inheritance (선택)&#34;]
+</span></span><span class=line><span class=cl>        C5[&#34;Timeout (선택)&#34;]
+</span></span><span class=line><span class=cl>    end
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    subgraph &#34;Resources&#34;
+</span></span><span class=line><span class=cl>        D1[Shared Memory]
+</span></span><span class=line><span class=cl>        D2[Filesystem]
+</span></span><span class=line><span class=cl>        D3[Database]
+</span></span><span class=line><span class=cl>        D4[Network Resource]
+</span></span><span class=line><span class=cl>    end
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    A1 --&gt; B1
+</span></span><span class=line><span class=cl>    A2 --&gt; B1
+</span></span><span class=line><span class=cl>    A3 --&gt; B1
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    B1 --&gt; C1
+</span></span><span class=line><span class=cl>    C1 --&gt; C2
+</span></span><span class=line><span class=cl>    B1 --&gt; B2
+</span></span><span class=line><span class=cl>    B2 --&gt; B3
+</span></span><span class=line><span class=cl>    B3 --&gt; B4
+</span></span><span class=line><span class=cl>    B2 --&gt; D1
+</span></span><span class=line><span class=cl>    B2 --&gt; D2
+</span></span><span class=line><span class=cl>    B2 --&gt; D3
+</span></span><span class=line><span class=cl>    B2 --&gt; D4
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    C1 --&gt; C3
+</span></span><span class=line><span class=cl>    C1 --&gt; C4
+</span></span><span class=line><span class=cl>    C1 --&gt; C5
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    style B2 fill:#ffcccc,stroke:#000,color:#000
+</span></span><span class=line><span class=cl>    style C1 fill:#cce5ff
+</span></span><span class=line><span class=cl>    style C2 fill:#cce5ff
+</span></span><span class=line><span class=cl>    style D1 fill:#d4edda
+</span></span></code></pre></td></tr></table></div></div><ul><li><p><strong>Entry → Critical → Exit → Remainder</strong>의 구조는 모든 동기화 시스템의 표준 흐름이며, 이 구조를 통해 공유 자원 접근을 통제하고 데이터 무결성과 시스템 안정성을 보장한다.</p></li><li><p>**동기화 메커니즘 (Synchronization Mechanism)**은 Mutex, Monitor, Semaphore 등 고수준 도구이고, 그 아래에는 <strong>Test-and-Set, CAS</strong>와 같은 저수준 원자적 연산이 필수로 결합되어야 한다.</p></li><li><p><strong>선택 구성 요소</strong>는 실시간성, 공정성, 성능 보장 등 시스템 목적에 따라 유동적으로 추가되며, 이는 시스템의 복잡도와 성능을 조절하는 핵심 도구로 사용된다.</p></li></ul><h4 id=구성-요소>구성 요소<a hidden class=anchor aria-hidden=true href=#구성-요소>#</a></h4><table><thead><tr><th>구분</th><th>구성 요소</th><th>설명</th></tr></thead><tbody><tr><td>필수</td><td>Entry Section</td><td>Critical Section 진입 전 접근 권한 확인 및 대기 로직 수행</td></tr><tr><td></td><td>Critical Section</td><td>공유 자원에 대한 원자적 연산 및 독점적 접근 수행 영역</td></tr><tr><td></td><td>Exit Section</td><td>락 해제 및 다음 대기자에 진입 기회 제공</td></tr><tr><td></td><td>Remainder Section</td><td>공유 자원과 무관한 일반 작업을 수행하는 영역</td></tr><tr><td></td><td>Synchronization Mechanism</td><td>Mutex, Semaphore, Monitor 등 임계 구역 진입을 통제하는 구조</td></tr><tr><td></td><td>Synchronization Primitive</td><td>Atomic Operation, CAS, Test-and-Set 등 저수준 연산 지원</td></tr><tr><td></td><td>Shared Resource</td><td>공유 메모리, 파일, DB 등 임계 구역 보호 대상 자원</td></tr><tr><td>선택</td><td>Waiting Queue</td><td>대기 중인 스레드를 공정하게 관리하기 위한 큐 구조</td></tr><tr><td></td><td>Priority Management</td><td>우선순위 역전 방지를 위한 Inheritance 또는 Ceiling Protocol 적용</td></tr><tr><td></td><td>Timeout Mechanism</td><td>데드락 방지를 위한 최대 대기 시간 설정</td></tr><tr><td></td><td>Reentrant Lock Support</td><td>동일 스레드의 재진입 가능 여부 제어</td></tr><tr><td></td><td>Hybrid Lock</td><td>Spinlock + Sleep 기반 커널/유저 하이브리드 락 구조</td></tr></tbody></table><h3 id=구현-기법-및-방법>구현 기법 및 방법<a hidden class=anchor aria-hidden=true href=#구현-기법-및-방법>#</a></h3><table><thead><tr><th>구현 방식</th><th>정의 / 목적</th><th>구성 요소</th><th>대표 예시</th></tr></thead><tbody><tr><td><strong>Mutex (뮤텍스)</strong></td><td>단일 쓰레드만 임계 구역에 진입 가능하게 하는 기본 락</td><td>acquire(), release()</td><td><code>threading.Lock</code>, <code>pthread_mutex</code></td></tr><tr><td><strong>Semaphore (세마포어)</strong></td><td>동시 접근 가능한 수를 제한하는 카운팅 동기화 객체</td><td>counter, P()/V()</td><td><code>sem_wait</code>, <code>threading.Semaphore(n)</code></td></tr><tr><td><strong>Spinlock (스핀락)</strong></td><td>락이 해제될 때까지 바쁜 대기 루프를 돌며 기다림</td><td>test-and-set, atomic flag</td><td><code>atomic_flag</code>, Linux spinlock</td></tr><tr><td><strong>Monitor (모니터)</strong></td><td>락과 조건 변수를 객체 내부에 포함한 고수준 동기화 구조</td><td>synchronized, condition variable</td><td>Java <code>synchronized</code>, Python <code>Condition</code></td></tr><tr><td><strong>Atomic Operation</strong></td><td>단일 원자 연산으로 상태 변경 → 락프리 구현</td><td>CAS, fetch_add, atomic load/store</td><td>C++11 <code>std::atomic</code>, Rust <code>AtomicUsize</code></td></tr><tr><td><strong>Peterson/Dekker</strong></td><td>공유 메모리 기반으로 소프트웨어만으로 상호 배제 구현</td><td>flag[], turn 변수</td><td>학습용, 실무에서는 사용 안 함</td></tr><tr><td><strong>CAS (Compare-And-Swap)</strong></td><td>기대 값과 현재 값이 같을 경우에만 원자적으로 교체</td><td>compare, expected, new_value</td><td>Java <code>Unsafe</code>, C++ <code>compare_exchange_strong</code></td></tr><tr><td><strong>Hybrid Lock</strong></td><td>일정 시간 busy wait → timeout 시 blocking 전환</td><td>spin threshold, fallback lock</td><td>TBB hybrid lock, futex 기반 구현</td></tr><tr><td><strong>Read-Write Lock</strong></td><td>다수의 리더는 동시 접근 허용, writer 는 단독 접근 보장</td><td>read lock, write lock</td><td><code>pthread_rwlock_t</code>, Python <code>RWLock</code></td></tr><tr><td><strong>Reentrant Lock</strong></td><td>동일 스레드가 같은 락을 중복 획득 가능</td><td>lock count, owner</td><td><code>threading.RLock</code>, Java <code>ReentrantLock</code></td></tr></tbody></table><h4 id=mutex-뮤텍스>Mutex (뮤텍스)<a hidden class=anchor aria-hidden=true href=#mutex-뮤텍스>#</a></h4><ul><li><strong>정의</strong>: 한 번에 하나의 스레드만 임계 구역에 진입할 수 있도록 보장하는 상호 배제 락.</li><li><strong>역할</strong>: 공유 자원의 배타적 접근 보장.</li><li><strong>목적</strong>: 상태 충돌 없이 일관된 데이터 처리.</li><li><strong>특징</strong>: 블로킹 기반, 소유권 개념 존재, 일반적 사용.</li><li><strong>예시</strong> (Python):</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-2-1><a class=lnlinks href=#hl-2-1>1</a>
+</span><span class=lnt id=hl-2-2><a class=lnlinks href=#hl-2-2>2</a>
+</span><span class=lnt id=hl-2-3><a class=lnlinks href=#hl-2-3>3</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>mutex</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Lock</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=k>with</span> <span class=n>mutex</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>critical_work</span><span class=p>()</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=semaphore-세마포어>Semaphore (세마포어)<a hidden class=anchor aria-hidden=true href=#semaphore-세마포어>#</a></h4><ul><li><strong>정의</strong>: 접근 가능한 리소스의 수를 카운팅하여 여러 쓰레드의 동시 접근을 제어하는 락.</li><li><strong>역할</strong>: 동시에 N 개 접근 허용, 대기열 관리.</li><li><strong>목적</strong>: 제한된 자원의 동시성 제어.</li><li><strong>특징</strong>: Counting 또는 Binary, P/V 연산 기반.</li><li><strong>예시</strong> (Python):</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-3-1><a class=lnlinks href=#hl-3-1>1</a>
+</span><span class=lnt id=hl-3-2><a class=lnlinks href=#hl-3-2>2</a>
+</span><span class=lnt id=hl-3-3><a class=lnlinks href=#hl-3-3>3</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>sem</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Semaphore</span><span class=p>(</span><span class=mi>2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=k>with</span> <span class=n>sem</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>access_limited_resource</span><span class=p>()</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=spinlock-스핀락>Spinlock (스핀락)<a hidden class=anchor aria-hidden=true href=#spinlock-스핀락>#</a></h4><ul><li><strong>정의</strong>: 락이 해제될 때까지 루프를 돌며 대기하는 바쁜 대기 방식의 락.</li><li><strong>역할</strong>: 짧은 시간 보호가 필요한 자원에 적합.</li><li><strong>목적</strong>: 락 획득 속도 극대화.</li><li><strong>특징</strong>: busy-wait, context-switch 없음.</li><li><strong>예시</strong> (C-like pseudo):</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-4-1><a class=lnlinks href=#hl-4-1>1</a>
+</span><span class=lnt id=hl-4-2><a class=lnlinks href=#hl-4-2>2</a>
+</span><span class=lnt id=hl-4-3><a class=lnlinks href=#hl-4-3>3</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=k>while</span> <span class=p>(</span><span class=nf>test_and_set</span><span class=p>(</span><span class=o>&amp;</span><span class=n>lock</span><span class=p>))</span> <span class=p>{}</span>  <span class=c1>// Spin
+</span></span></span><span class=line><span class=cl><span class=nf>critical_section</span><span class=p>();</span>
+</span></span><span class=line><span class=cl><span class=n>lock</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=monitor-모니터>Monitor (모니터)<a hidden class=anchor aria-hidden=true href=#monitor-모니터>#</a></h4><ul><li><strong>정의</strong>: 언어나 OS 에서 제공하는 락 + 조건 변수 기반 고수준 동기화 구조.</li><li><strong>역할</strong>: 객체 단위 보호 및 조건 동기화 제공.</li><li><strong>목적</strong>: 상호 배제 + wait/notify 모델 구현.</li><li><strong>특징</strong>: 구조화된 제어, 조건 변수 연동.</li><li><strong>예시</strong> (Java):</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-5-1><a class=lnlinks href=#hl-5-1>1</a>
+</span><span class=lnt id=hl-5-2><a class=lnlinks href=#hl-5-2>2</a>
+</span><span class=lnt id=hl-5-3><a class=lnlinks href=#hl-5-3>3</a>
+</span><span class=lnt id=hl-5-4><a class=lnlinks href=#hl-5-4>4</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-java data-lang=java><span class=line><span class=cl><span class=kd>synchronized</span><span class=p>(</span><span class=n>obj</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>while</span><span class=w> </span><span class=p>(</span><span class=o>!</span><span class=n>ready</span><span class=p>)</span><span class=w> </span><span class=n>obj</span><span class=p>.</span><span class=na>wait</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// critical section</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h4 id=atomic-operations-cas-tas>Atomic Operations (CAS, TAS)<a hidden class=anchor aria-hidden=true href=#atomic-operations-cas-tas>#</a></h4><ul><li><strong>정의</strong>: 메모리 접근을 하나의 원자적 명령어로 수행하여 동기화.</li><li><strong>역할</strong>: Lock-free 알고리즘의 기반 제공.</li><li><strong>목적</strong>: 병렬성 확보 + 성능 최적화.</li><li><strong>특징</strong>: 하드웨어 지원 필요, 구현은 복잡.</li><li><strong>예시</strong> (C11):</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-6-1><a class=lnlinks href=#hl-6-1>1</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=nf>atomic_compare_exchange_strong</span><span class=p>(</span><span class=o>&amp;</span><span class=n>x</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>expected</span><span class=p>,</span> <span class=n>desired</span><span class=p>);</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=software-based-algorithms-peterson-dekker>Software-based Algorithms (Peterson, Dekker)<a hidden class=anchor aria-hidden=true href=#software-based-algorithms-peterson-dekker>#</a></h4><ul><li><strong>정의</strong>: 공유 변수만으로 임계 구역 접근을 제어하는 고전 알고리즘.</li><li><strong>역할</strong>: 교육용, 하드웨어 독립 테스트 가능.</li><li><strong>목적</strong>: 상호 배제, 진행, 제한 대기 보장.</li><li><strong>특징</strong>: 2 개 프로세스 제한, 실무에는 부적합.</li><li><strong>예시</strong> (Peterson, Python):</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-7-1><a class=lnlinks href=#hl-7-1>1</a>
+</span><span class=lnt id=hl-7-2><a class=lnlinks href=#hl-7-2>2</a>
+</span><span class=lnt id=hl-7-3><a class=lnlinks href=#hl-7-3>3</a>
+</span><span class=lnt id=hl-7-4><a class=lnlinks href=#hl-7-4>4</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># flag[0], flag[1], turn 정의 필요</span>
+</span></span><span class=line><span class=cl><span class=k>while</span> <span class=n>flag</span><span class=p>[</span><span class=n>other</span><span class=p>]</span> <span class=ow>and</span> <span class=n>turn</span> <span class=o>==</span> <span class=n>other</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>pass</span>
+</span></span><span class=line><span class=cl><span class=c1># critical section</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=대표적인-구현-방식과-적용-예시>대표적인 구현 방식과 적용 예시<a hidden class=anchor aria-hidden=true href=#대표적인-구현-방식과-적용-예시>#</a></h3><table><thead><tr><th>구현 방식</th><th>정의</th><th>구성 요소</th><th>목적</th><th>예시</th></tr></thead><tbody><tr><td>Mutex (상호배제 락)</td><td>한 번에 하나의 쓰레드만 접근 가능</td><td>lock/unlock 메서드</td><td>mutual exclusion 보장</td><td>POSIX pthread_mutex, C++ std::mutex</td></tr><tr><td>Binary Semaphore</td><td>0/1 값을 갖는 세마포어로 자원 접근 제어</td><td>wait(), signal()</td><td>임계구역 진입 순서 제어</td><td>POSIX sem_wait/sem_post</td></tr><tr><td>Spinlock</td><td>락이 해제될 때까지 루프 돌며 기다림</td><td>test-and-set 또는 atomic flag</td><td>짧은 작업에 적합</td><td>Linux kernel spinlock</td></tr><tr><td>Monitor</td><td>언어에서 내장된 상호배제 구조</td><td>lock, condition variable</td><td>상호배제 + 조건 동기화</td><td>Java synchronized, Python threading.Lock</td></tr><tr><td>Atomic Operations</td><td>CPU 가 제공하는 단일 명령어로 lock-free 구현</td><td>test-and-set, CAS</td><td>고성능 락프리 동기화</td><td>C11 atomic, Rust atomic API</td></tr></tbody></table><h4 id=9-구현-기법-및-방법>9) 구현 기법 및 방법<a hidden class=anchor aria-hidden=true href=#9-구현-기법-및-방법>#</a></h4><table><thead><tr><th>구현 기법</th><th>구성</th><th>목적</th><th>실제 예시 (시스템 구성)</th></tr></thead><tbody><tr><td>뮤텍스 (Mutex)</td><td>락 (Lock), 언락 (Unlock)</td><td>단일 실행 흐름만 임계 구역 진입</td><td>POSIX Thread, Python threading.Lock</td></tr><tr><td>세마포어 (Semaphore)</td><td>카운터, wait, signal</td><td>n 개까지 동시 진입 허용</td><td>POSIX sem_t, Golang sync.WaitGroup</td></tr><tr><td>모니터 (Monitor)</td><td>조건 변수, 락</td><td>객체 단위 동기화</td><td>Java synchronized, Python threading.Condition</td></tr><tr><td>스핀락 (Spinlock)</td><td>busy-wait 형태 lock</td><td>단기락용, 대기 동안 active spinning</td><td>C/C++ atomic_flag, Linux 커널</td></tr></tbody></table><h2 id=구현-기법-및-방법-1>구현 기법 및 방법<a hidden class=anchor aria-hidden=true href=#구현-기법-및-방법-1>#</a></h2><h3 id=1-소프트웨어-기반-해법>1. 소프트웨어 기반 해법<a hidden class=anchor aria-hidden=true href=#1-소프트웨어-기반-해법>#</a></h3><h4 id=peterson-알고리즘>Peterson 알고리즘<a hidden class=anchor aria-hidden=true href=#peterson-알고리즘>#</a></h4><p><strong>정의</strong>: 두 프로세스 간 상호 배제를 보장하는 소프트웨어 기반 알고리즘</p><p><strong>구성</strong>: flag 배열과 turn 변수 사용</p><ul><li><code>flag[i]</code>: 프로세스 i 의 크리티컬 섹션 진입 의사</li><li><code>turn</code>: 동시 진입 시 우선권 결정</li></ul><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-8-1><a class=lnlinks href=#hl-8-1> 1</a>
+</span><span class=lnt id=hl-8-2><a class=lnlinks href=#hl-8-2> 2</a>
+</span><span class=lnt id=hl-8-3><a class=lnlinks href=#hl-8-3> 3</a>
+</span><span class=lnt id=hl-8-4><a class=lnlinks href=#hl-8-4> 4</a>
+</span><span class=lnt id=hl-8-5><a class=lnlinks href=#hl-8-5> 5</a>
+</span><span class=lnt id=hl-8-6><a class=lnlinks href=#hl-8-6> 6</a>
+</span><span class=lnt id=hl-8-7><a class=lnlinks href=#hl-8-7> 7</a>
+</span><span class=lnt id=hl-8-8><a class=lnlinks href=#hl-8-8> 8</a>
+</span><span class=lnt id=hl-8-9><a class=lnlinks href=#hl-8-9> 9</a>
+</span><span class=lnt id=hl-8-10><a class=lnlinks href=#hl-8-10>10</a>
+</span><span class=lnt id=hl-8-11><a class=lnlinks href=#hl-8-11>11</a>
+</span><span class=lnt id=hl-8-12><a class=lnlinks href=#hl-8-12>12</a>
+</span><span class=lnt id=hl-8-13><a class=lnlinks href=#hl-8-13>13</a>
+</span><span class=lnt id=hl-8-14><a class=lnlinks href=#hl-8-14>14</a>
+</span><span class=lnt id=hl-8-15><a class=lnlinks href=#hl-8-15>15</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># Peterson 알고리즘 구현 예시</span>
+</span></span><span class=line><span class=cl><span class=n>flag</span> <span class=o>=</span> <span class=p>[</span><span class=kc>False</span><span class=p>,</span> <span class=kc>False</span><span class=p>]</span>  <span class=c1># 두 프로세스의 진입 의도</span>
+</span></span><span class=line><span class=cl><span class=n>turn</span> <span class=o>=</span> <span class=mi>0</span>               <span class=c1># 우선권 변수</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>peterson_enter</span><span class=p>(</span><span class=n>process_id</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>other</span> <span class=o>=</span> <span class=mi>1</span> <span class=o>-</span> <span class=n>process_id</span>
+</span></span><span class=line><span class=cl>    <span class=n>flag</span><span class=p>[</span><span class=n>process_id</span><span class=p>]</span> <span class=o>=</span> <span class=kc>True</span>    <span class=c1># 진입 의사 표명</span>
+</span></span><span class=line><span class=cl>    <span class=n>turn</span> <span class=o>=</span> <span class=n>other</span>               <span class=c1># 상대방에게 우선권 양보</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 상대방이 진입 의도가 있고 상대방 차례일 때까지 대기</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=n>flag</span><span class=p>[</span><span class=n>other</span><span class=p>]</span> <span class=ow>and</span> <span class=n>turn</span> <span class=o>==</span> <span class=n>other</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>pass</span>  <span class=c1># 바쁜 대기</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>peterson_exit</span><span class=p>(</span><span class=n>process_id</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>flag</span><span class=p>[</span><span class=n>process_id</span><span class=p>]</span> <span class=o>=</span> <span class=kc>False</span>   <span class=c1># 진입 의사 철회</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=dekker-알고리즘>Dekker 알고리즘<a hidden class=anchor aria-hidden=true href=#dekker-알고리즘>#</a></h4><p><strong>정의</strong>: 최초의 상호 배제 알고리즘으로 공유 메모리만 사용하여 해결</p><p><strong>구성</strong>: 플래그와 턴을 사용한 복잡한 상태 관리</p><h3 id=2-하드웨어-지원-메커니즘>2. 하드웨어 지원 메커니즘<a hidden class=anchor aria-hidden=true href=#2-하드웨어-지원-메커니즘>#</a></h3><h4 id=test-and-set>Test-and-Set<a hidden class=anchor aria-hidden=true href=#test-and-set>#</a></h4><p><strong>정의</strong>: 원자적으로 변수 값을 테스트하고 설정하는 하드웨어 명령어</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-9-1><a class=lnlinks href=#hl-9-1> 1</a>
+</span><span class=lnt id=hl-9-2><a class=lnlinks href=#hl-9-2> 2</a>
+</span><span class=lnt id=hl-9-3><a class=lnlinks href=#hl-9-3> 3</a>
+</span><span class=lnt id=hl-9-4><a class=lnlinks href=#hl-9-4> 4</a>
+</span><span class=lnt id=hl-9-5><a class=lnlinks href=#hl-9-5> 5</a>
+</span><span class=lnt id=hl-9-6><a class=lnlinks href=#hl-9-6> 6</a>
+</span><span class=lnt id=hl-9-7><a class=lnlinks href=#hl-9-7> 7</a>
+</span><span class=lnt id=hl-9-8><a class=lnlinks href=#hl-9-8> 8</a>
+</span><span class=lnt id=hl-9-9><a class=lnlinks href=#hl-9-9> 9</a>
+</span><span class=lnt id=hl-9-10><a class=lnlinks href=#hl-9-10>10</a>
+</span><span class=lnt id=hl-9-11><a class=lnlinks href=#hl-9-11>11</a>
+</span><span class=lnt id=hl-9-12><a class=lnlinks href=#hl-9-12>12</a>
+</span><span class=lnt id=hl-9-13><a class=lnlinks href=#hl-9-13>13</a>
+</span><span class=lnt id=hl-9-14><a class=lnlinks href=#hl-9-14>14</a>
+</span><span class=lnt id=hl-9-15><a class=lnlinks href=#hl-9-15>15</a>
+</span><span class=lnt id=hl-9-16><a class=lnlinks href=#hl-9-16>16</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=c1>// Test-and-Set 기반 구현
+</span></span></span><span class=line><span class=cl><span class=kt>bool</span> <span class=nf>test_and_set</span><span class=p>(</span><span class=kt>bool</span> <span class=o>*</span><span class=n>lock</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>bool</span> <span class=n>old_value</span> <span class=o>=</span> <span class=o>*</span><span class=n>lock</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=o>*</span><span class=n>lock</span> <span class=o>=</span> <span class=nb>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>old_value</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>critical_section_enter</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=p>(</span><span class=nf>test_and_set</span><span class=p>(</span><span class=o>&amp;</span><span class=n>lock</span><span class=p>))</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// 바쁜 대기
+</span></span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>critical_section_exit</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>lock</span> <span class=o>=</span> <span class=nb>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=compare-and-swap-cas>Compare-and-Swap (CAS)<a hidden class=anchor aria-hidden=true href=#compare-and-swap-cas>#</a></h4><p><strong>정의</strong>: 메모리 위치의 값을 기대값과 비교하여 같으면 새 값으로 교체</p><h3 id=3-고수준-동기화-메커니즘>3. 고수준 동기화 메커니즘<a hidden class=anchor aria-hidden=true href=#3-고수준-동기화-메커니즘>#</a></h3><h4 id=뮤텍스-mutex>뮤텍스 (Mutex)<a hidden class=anchor aria-hidden=true href=#뮤텍스-mutex>#</a></h4><p><strong>정의</strong>: 상호 배제를 위한 락킹 메커니즘으로 소유권 개념을 가짐</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-10-1><a class=lnlinks href=#hl-10-1> 1</a>
+</span><span class=lnt id=hl-10-2><a class=lnlinks href=#hl-10-2> 2</a>
+</span><span class=lnt id=hl-10-3><a class=lnlinks href=#hl-10-3> 3</a>
+</span><span class=lnt id=hl-10-4><a class=lnlinks href=#hl-10-4> 4</a>
+</span><span class=lnt id=hl-10-5><a class=lnlinks href=#hl-10-5> 5</a>
+</span><span class=lnt id=hl-10-6><a class=lnlinks href=#hl-10-6> 6</a>
+</span><span class=lnt id=hl-10-7><a class=lnlinks href=#hl-10-7> 7</a>
+</span><span class=lnt id=hl-10-8><a class=lnlinks href=#hl-10-8> 8</a>
+</span><span class=lnt id=hl-10-9><a class=lnlinks href=#hl-10-9> 9</a>
+</span><span class=lnt id=hl-10-10><a class=lnlinks href=#hl-10-10>10</a>
+</span><span class=lnt id=hl-10-11><a class=lnlinks href=#hl-10-11>11</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>threading</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>mutex</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Lock</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>critical_section</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=n>mutex</span><span class=o>.</span><span class=n>acquire</span><span class=p>()</span>  <span class=c1># 뮤텍스 획득</span>
+</span></span><span class=line><span class=cl>    <span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 크리티컬 섹션 코드</span>
+</span></span><span class=line><span class=cl>        <span class=n>shared_resource</span> <span class=o>+=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>    <span class=k>finally</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>mutex</span><span class=o>.</span><span class=n>release</span><span class=p>()</span>  <span class=c1># 뮤텍스 해제</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=세마포어-semaphore>세마포어 (Semaphore)<a hidden class=anchor aria-hidden=true href=#세마포어-semaphore>#</a></h4><p><strong>정의</strong>: 운영체제에서 프로세스나 프로그램이 메모리나 데이터 같은 공유 자원을 충돌 없이 관리하도록 돕는 도구</p><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-11-1><a class=lnlinks href=#hl-11-1> 1</a>
+</span><span class=lnt id=hl-11-2><a class=lnlinks href=#hl-11-2> 2</a>
+</span><span class=lnt id=hl-11-3><a class=lnlinks href=#hl-11-3> 3</a>
+</span><span class=lnt id=hl-11-4><a class=lnlinks href=#hl-11-4> 4</a>
+</span><span class=lnt id=hl-11-5><a class=lnlinks href=#hl-11-5> 5</a>
+</span><span class=lnt id=hl-11-6><a class=lnlinks href=#hl-11-6> 6</a>
+</span><span class=lnt id=hl-11-7><a class=lnlinks href=#hl-11-7> 7</a>
+</span><span class=lnt id=hl-11-8><a class=lnlinks href=#hl-11-8> 8</a>
+</span><span class=lnt id=hl-11-9><a class=lnlinks href=#hl-11-9> 9</a>
+</span><span class=lnt id=hl-11-10><a class=lnlinks href=#hl-11-10>10</a>
+</span><span class=lnt id=hl-11-11><a class=lnlinks href=#hl-11-11>11</a>
+</span><span class=lnt id=hl-11-12><a class=lnlinks href=#hl-11-12>12</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>threading</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 바이너리 세마포어 (크리티컬 섹션용)</span>
+</span></span><span class=line><span class=cl><span class=n>semaphore</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Semaphore</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>critical_section</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=n>semaphore</span><span class=o>.</span><span class=n>acquire</span><span class=p>()</span>  <span class=c1># P 연산</span>
+</span></span><span class=line><span class=cl>    <span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 크리티컬 섹션 코드</span>
+</span></span><span class=line><span class=cl>        <span class=n>process_shared_data</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=k>finally</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>semaphore</span><span class=o>.</span><span class=n>release</span><span class=p>()</span>  <span class=c1># V 연산</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=장점>장점<a hidden class=anchor aria-hidden=true href=#장점>#</a></h3><table><thead><tr><th>카테고리</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>데이터 무결성과 일관성</td><td>데이터 일관성 보장</td><td>공유 자원 접근을 제어하여 일관된 상태 유지, race condition 방지</td></tr><tr><td>시스템 안정성 및 예측 가능성</td><td>경쟁 상태 방지</td><td>임계 구역 진입을 제어함으로써 실행 순서를 예측 가능하게 유지</td></tr><tr><td></td><td>시스템 안정성 및 예측성</td><td>데드락, 기아 상태 등 비정상 동작을 방지하며 안정적 흐름 보장</td></tr><tr><td>구조화 및 유지보수</td><td>구조화된 코드 관리</td><td>Entry/Exit 구간이 명확해 코드 가독성과 구조화에 유리</td></tr><tr><td></td><td>테스트 용이성</td><td>상태 전이가 명확해 테스트 작성 및 자동화에 유리</td></tr><tr><td></td><td>모듈화 및 재사용성</td><td>동기화 로직을 분리해 독립적인 관리 및 재사용 가능</td></tr><tr><td>성능 및 확장성</td><td>병렬 처리 최적화</td><td>락 기반 고속 동기화 (Spinlock 등), Wait-Free 구조 적용 가능</td></tr><tr><td></td><td>하드웨어/소프트웨어 확장성</td><td>멀티코어, 멀티노드 환경에서도 스케일 조정 가능</td></tr><tr><td>보안 및 디버깅 지원</td><td>디버깅 용이성</td><td>진입 - 탈출 구간 추적이 쉬워 디버깅에 유리</td></tr><tr><td></td><td>보안 취약점 방어</td><td>자원 접근 통제 및 경합 조건 제어로 보안성 강화 가능 (e.g., timing attack 대응)</td></tr></tbody></table><ul><li><p><strong>데이터 무결성과 일관성</strong>은 Critical Section 의 가장 기본적인 목적이다. 동시 접근을 제어함으로써 데이터 손상과 불일치를 방지하고, 항상 예측 가능한 결과를 보장한다.</p></li><li><p><strong>시스템 안정성과 예측 가능성</strong>은 race condition, 데드락, starvation 등 동시성 문제를 제거함으로써 시스템 전체의 신뢰성과 예측 가능성을 높인다.</p></li><li><p><strong>구조화 및 유지보수 측면</strong>에서는 명확한 진입/탈출 구간, 테스트 가능성, 모듈화 구조를 제공함으로써 개발과 유지보수, 테스트 자동화에 유리한 구조를 형성한다.</p></li><li><p><strong>성능 및 확장성</strong>은 병렬 처리에 최적화된 구조 (락 프리, 세마포어, 스핀락 등) 를 통해 멀티코어 및 클러스터 환경에서도 높은 효율성을 제공한다.</p></li><li><p><strong>보안 및 디버깅 지원</strong> 측면에서는 상태 전이 지점이 명확하여 디버깅이 쉽고, 자원 보호 구조를 통해 보안 공격에 대한 저항성이 강화된다.</p></li></ul><h3 id=단점과-문제점-그리고-해결방안>단점과 문제점 그리고 해결방안<a hidden class=anchor aria-hidden=true href=#단점과-문제점-그리고-해결방안>#</a></h3><h4 id=단점>단점<a hidden class=anchor aria-hidden=true href=#단점>#</a></h4><table><thead><tr><th><strong>카테고리</strong></th><th><strong>항목</strong></th><th><strong>설명</strong></th><th><strong>해결 방안</strong></th></tr></thead><tbody><tr><td>성능/확장성 저하</td><td>성능 오버헤드</td><td>락 획득/해제로 인한 응답 지연 및 Throughput 저하</td><td>임계 구역 최소화, 락프리 구조, 락 세분화 조정</td></tr><tr><td></td><td>확장성 한계</td><td>스레드 수 증가 시 병목 발생</td><td>파티셔닝, 분산 처리, 세분화된 락 사용</td></tr><tr><td></td><td>컨텍스트 스위칭 비용</td><td>블로킹 락 사용 시 문맥 전환 비용 발생</td><td>비동기 락, 경량 락 적용</td></tr><tr><td>자원 사용 비효율</td><td>바쁜 대기</td><td>CPU 자원을 계속 점유하며 락 상태 확인</td><td>블로킹 대기 전환, Hybrid 락 사용</td></tr><tr><td>설계 복잡성</td><td>디버깅 난이도</td><td>동시성 문제 재현 및 원인 추적이 어려움</td><td>고수준 추상화 도구 사용, 로깅 강화</td></tr><tr><td>정밀도 관리 문제</td><td>락 세분화 과잉</td><td>지나친 분할로 락 수 증가 → 경합 및 데드락 유발 가능</td><td>공유 범위 고려하여 적절한 Granularity 설정</td></tr></tbody></table><ul><li><p><strong>성능/확장성 단점</strong>은 동기화 구조 자체가 처리량과 확장성에 부정적인 영향을 줄 수 있음을 보여주며, 락프리 구조나 파티셔닝, 락 최소화 등의 구조적 접근이 필요하다.</p></li><li><p><strong>자원 효율성 단점</strong>은 바쁜 대기 상태로 인한 CPU 자원 낭비나 불필요한 컨텍스트 스위칭 비용을 초래하며, 하이브리드 락 전략이나 블로킹 대기 방식이 대안이 된다.</p></li><li><p><strong>설계 복잡성 단점</strong>은 락 세분화에 따른 경합 증가, 디버깅 난이도 상승 등을 포함하며, 이를 해결하려면 고수준 추상화 도구나 자동화된 정적 분석 도구의 도입이 필요하다.</p></li></ul><h4 id=문제점>문제점<a hidden class=anchor aria-hidden=true href=#문제점>#</a></h4><table><thead><tr><th><strong>카테고리</strong></th><th><strong>항목</strong></th><th><strong>원인</strong></th><th><strong>영향</strong></th><th><strong>예방/해결 방안</strong></th></tr></thead><tbody><tr><td>동기화 오류</td><td>경쟁 조건 (Race)</td><td>보호되지 않은 임계 구역 접근</td><td>데이터 불일치, 상태 비정합</td><td>락 적용, Atomic 연산, 임계 구역 명확화</td></tr><tr><td>교착 상태</td><td>데드락 (Deadlock)</td><td>자원 순환 대기</td><td>전체 시스템 멈춤</td><td>자원 획득 순서 고정, Timeout, Deadlock Recovery</td></tr><tr><td>응답성 문제</td><td>우선순위 역전</td><td>낮은 우선순위가 락 보유</td><td>높은 우선순위 스레드 대기</td><td>Priority Inheritance, Priority Ceiling 등 적용</td></tr><tr><td>공정성 결여</td><td>기아 상태 (Starvation)</td><td>선점/스케줄링 불균형</td><td>특정 스레드 무한 대기</td><td>Fair Lock, Aging, FIFO Queue</td></tr><tr><td>진행 불능 상태</td><td>라이브락 (Livelock)</td><td>무한한 양보 반복</td><td>상태 변화 있으나 작업 미진행</td><td>Random Delay, Backoff, 우선순위 기반 스케줄링</td></tr></tbody></table><ul><li><p><strong>동기화 오류</strong>는 실질적인 동시성 결함으로 이어질 수 있으며, 임계 구역 명확화 및 Atomic 연산 활용이 가장 기본적인 예방책이다.</p></li><li><p><strong>교착/기아/우선순위 문제</strong>는 시스템 전반의 응답성과 안정성에 직접적인 영향을 주며, 락 획득 순서 고정, 공정성 보장 정책, 우선순위 역전 방지 기법 등이 필수적이다.</p></li><li><p><strong>라이브락</strong>은 프로세스가 계속해서 상태를 바꾸기만 하고 실제로 전진하지 못하는 상태로, 백오프나 랜덤 지연 도입이 필요하다.</p></li></ul><h3 id=도전-과제>도전 과제<a hidden class=anchor aria-hidden=true href=#도전-과제>#</a></h3><table><thead><tr><th>카테고리</th><th>도전 과제</th><th>원인/상황</th><th>영향</th><th>탐지/분석 도구 또는 기법</th><th>대응/예방 전략</th></tr></thead><tbody><tr><td>성능 병목 및 경합</td><td>락 경합/병목</td><td>스레드 경쟁, 공유 자원 집중</td><td>Throughput 감소</td><td>Lock Profiling, perf, Flamegraph</td><td>락 세분화, 배치 처리, 락 프리 구조 도입</td></tr><tr><td>성능 병목 및 경합</td><td>Lock Convoying</td><td>락 소유자가 락을 오래 점유</td><td>지연 전파, 성능 불균형</td><td>TSAN, 스트레스 테스트</td><td>Fast Lock, 우선순위 조정</td></tr><tr><td>하드웨어 특성</td><td>캐시 일관성, False Sharing</td><td>멀티코어 캐시 간 충돌</td><td>불규칙한 성능 저하</td><td>Cache Line Profiler</td><td>구조체 padding, 락 로컬화</td></tr><tr><td>하드웨어 특성</td><td>순서 재배열, 메모리 모델</td><td>CPU 명령어 재배열, 느슨한 일관성 모델</td><td>예측 불가한 데이터 오염</td><td>Memory Model Analyzer</td><td>Memory Barrier, volatile, atomic 사용</td></tr><tr><td>분산 환경 이슈</td><td>락 분실/중복, 분산 상태 불일치</td><td>네트워크 장애, 상태 공유 실패</td><td>데이터 손실, 시스템 충돌</td><td>Fencing, heartbeat, lease 모니터링</td><td>quorum, fencing token, ZooKeeper</td></tr><tr><td>분산 환경 이슈</td><td>시계 불일치, 명령 재정렬</td><td>클럭 드리프트, 논리적 시간 불일치</td><td>이벤트 순서 오류</td><td>Vector Clock, Lamport Clock</td><td>이벤트 ID, 순서 보정 알고리즘 적용</td></tr><tr><td>비차단 구조 적용의 한계</td><td>Lock-Free 실패</td><td>CAS 실패율 급증, retry loop 발생</td><td>CPU 오버헤드 증가</td><td>시뮬레이션, 히스토그램 분석</td><td>실패 한계 설정, fallback 락 적용</td></tr><tr><td>테스트/디버깅의 어려움</td><td>재현성 부족</td><td>경쟁 상태는 조건이 충족돼야만 발생</td><td>디버깅 어려움</td><td>TSAN, model checker, log tracing</td><td>시나리오 기반 스트레스 테스트, 재현 모듈 구성</td></tr><tr><td>실시간 응답 보장</td><td>우선순위 역전</td><td>낮은 우선순위 스레드가 락을 점유</td><td>실시간 응답 실패</td><td>Latency Tracing</td><td>Priority Inheritance, Ceiling Protocol 적용</td></tr></tbody></table><ul><li><p><strong>성능 병목/락 경합</strong>은 가장 빈번하게 발생하는 문제로, 락 세분화, 병렬화, 배치 처리 등을 통해 줄일 수 있다. 특히 lock convoying 현상은 병목을 전파시키므로 주의해야 한다.</p></li><li><p><strong>하드웨어 환경 문제</strong>는 CPU 캐시 구조, 명령어 재정렬, NUMA 등과 직접 연결된다. 캐시 라인 최적화 및 메모리 모델 이해가 중요하다.</p></li><li><p><strong>분산 환경에서는 락의 일관성 유지와 클러스터 간 네트워크 상태 변화 대응</strong>이 핵심이다. fencing token, quorum 기반 락, logical clock 등이 해결책이 된다.</p></li><li><p><strong>Lock-free 구조</strong>는 성능 향상에 유리하지만 실패율 증가나 retry loop 로 인한 과부하를 주의해야 한다.</p></li><li><p><strong>테스트와 디버깅</strong>은 동시성 문제의 재현성 부족으로 인해 어려우며, TSAN, stress test, model checker 도구 활용이 필수적이다.</p></li><li><p><strong>실시간 응답을 요구하는 시스템</strong>은 우선순위 역전 문제에 특히 취약하며, Priority Inheritance 등의 정책 기반 설계가 요구된다.</p></li></ul><h3 id=분류-기준에-따른-종류-및-유형>분류 기준에 따른 종류 및 유형<a hidden class=anchor aria-hidden=true href=#분류-기준에-따른-종류-및-유형>#</a></h3><table><thead><tr><th><strong>분류 기준</strong></th><th><strong>유형</strong></th><th><strong>설명</strong></th></tr></thead><tbody><tr><td>구현 방식</td><td>소프트웨어 기반</td><td>알고리즘 (Peterson, Bakery 등) 으로 구현</td></tr><tr><td></td><td>하드웨어 지원</td><td>Test-and-Set, CAS 등 원자적 명령어 기반</td></tr><tr><td></td><td>운영체제 기반</td><td>Mutex, Semaphore, Monitor 등 OS API 활용</td></tr><tr><td>락 사용 여부</td><td>락 기반 구조</td><td>Mutex, Semaphore 등으로 보호</td></tr><tr><td></td><td>락 없는 구조 (Lock-free)</td><td>CAS 등 atomic 연산 기반, 락 없이 동기화</td></tr><tr><td>대기 방식</td><td>바쁜 대기 (Busy Waiting)</td><td>CPU 를 계속 사용하며 대기 (Spinlock 등)</td></tr><tr><td></td><td>차단 대기 (Blocking Wait)</td><td>실패 시 스레드를 대기열에 넣고 차단 (Mutex, Semaphore 등)</td></tr><tr><td>구현 위치</td><td>사용자 공간</td><td>사용자 애플리케이션 수준에서 동기화 구현</td></tr><tr><td></td><td>커널 공간</td><td>운영체제 내부에서 락 처리 (Kernel Spinlock 등)</td></tr><tr><td>동기화 단위</td><td>단일 임계 구역</td><td>하나의 진입 지점만 허용</td></tr><tr><td></td><td>중첩 임계 구역 (Reentrant)</td><td>동일 스레드가 중복 진입 가능한 구조 (예: <code>threading.RLock</code>)</td></tr><tr><td>동기화 수단</td><td>뮤텍스, 세마포어, 모니터, 스핀락, 조건 변수</td><td>보호 방식 및 자원 획득 방식에 따른 도구 분류</td></tr><tr><td>동기화 범위</td><td>스레드 단위</td><td>같은 프로세스 내 스레드 간 자원 보호</td></tr><tr><td></td><td>프로세스 단위</td><td>프로세스 간 공유 자원 보호</td></tr><tr><td></td><td>분산 환경</td><td>네트워크 상 여러 노드에서 동기화 (Redis, Zookeeper 등)</td></tr><tr><td>보호 방식</td><td>상호 배제 (Mutual Exclusion)</td><td>하나의 실행 흐름만 자원 접근 가능</td></tr><tr><td></td><td>조건 동기화 (Condition Sync)</td><td>특정 조건 만족 시 자원 접근 허용 (조건 변수 기반 협력 동기화)</td></tr><tr><td>공정성</td><td>공정 (Fair)</td><td>FIFO 순서 보장, starvation 방지 (예: Bakery 알고리즘)</td></tr><tr><td></td><td>비공정 (Non-Fair)</td><td>성능 우선, 락 획득 순서 미보장</td></tr><tr><td>접근 구조</td><td>공유 메모리 기반</td><td>스레드 간 공유 메모리에서 동기화</td></tr><tr><td></td><td>메시지 기반 / 분산 기반</td><td>프로세스/노드 간 메시지 또는 분산 락 구조 활용</td></tr></tbody></table><ul><li><p><strong>분류 기준은 시스템 구현 수준, 자원 보호 목적, 처리 방식, 실무 적용 환경</strong>에 따라 체계적으로 구분되며, 학습 및 실무 설계 시 기준점을 제공한다.</p></li><li><p><strong>중복 항목은 &rsquo; 구현 방식 &lsquo;, &rsquo; 대기 방식 &lsquo;, &rsquo; 동기화 범위 &lsquo;, &rsquo; 락 사용 여부 &rsquo; 등의 용어 통일</strong>을 통해 정리되었고, 실제 아키텍처 설계 시 선택 기준이 된다.</p></li><li><p><strong>보완된 항목</strong>은 &rsquo; 락 프리 구조 &lsquo;, &rsquo; 조건 동기화 &lsquo;, &rsquo; 접근 구조 &rsquo; 등 최신 구현 방식과 실시간 시스템/분산 시스템을 포괄하는 형태로 확장되었다.</p></li><li><p>이 정리는 단순 분류가 아니라 <strong>설계 지침, 최적화 전략, 도구 선택 가이드</strong>로도 활용할 수 있으며, Mermaid 다이어그램, 코드 예시와 함께 연계할 수 있는 기준이다.</p></li></ul><h3 id=실무-사용-예시>실무 사용 예시<a hidden class=anchor aria-hidden=true href=#실무-사용-예시>#</a></h3><table><thead><tr><th><strong>카테고리</strong></th><th><strong>적용 분야</strong></th><th><strong>주요 동기화 도구/기술</strong></th><th><strong>효과</strong></th></tr></thead><tbody><tr><td>데이터베이스 시스템</td><td>트랜잭션 동시성 제어</td><td>뮤텍스, 모니터, 2PL, MVCC</td><td>데이터 일관성, ACID 보장</td></tr><tr><td>웹 서버</td><td>세션, 요청 처리</td><td>스레드 락, 세마포어, 커넥션 풀</td><td>동시 요청 안정성, 사용자 상태 유지</td></tr><tr><td>파일 시스템</td><td>파일 접근, 메타데이터 보호</td><td>파일 락, 세마포어, 권한 제어</td><td>파일 손상 방지, 동시 접근 보장</td></tr><tr><td>메모리/리소스 관리</td><td>힙 할당, 자원 초기화</td><td>락, 할당자 동기화, GC 락</td><td>충돌 방지, 누수 및 단편화 방지</td></tr><tr><td>운영체제 커널</td><td>스케줄링, 파일 시스템 등</td><td>스핀락, 세마포어, 인터럽트 비활성화</td><td>커널 안정성, 자원 보호</td></tr><tr><td>네트워크 통신</td><td>소켓, 메시지 큐</td><td>소켓 락, 이벤트 기반 동기화</td><td>순서 보장, 통신 안정성</td></tr><tr><td>임베디드/실시간 시스템</td><td>센서, 인터럽트, MCU</td><td>우선순위 천장, 인터럽트 제어</td><td>실시간 응답성 보장, 우선순위 역전 방지</td></tr><tr><td>병렬/GPU 처리</td><td>멀티스레드, GPU</td><td>고루틴 락, OpenCL Barrier, 락 프리 알고리즘</td><td>성능 최적화, race condition 방지</td></tr><tr><td>클라우드/분산 시스템</td><td>리더 선출, 자원 관리</td><td>Redis/ZooKeeper 락, 쿼럼 알고리즘, fencing token</td><td>고가용성, 일관성 유지</td></tr></tbody></table><ul><li><p><strong>데이터베이스 시스템</strong>에서는 트랜잭션 중 데이터 갱신을 보호하기 위한 락과 MVCC 같은 동시성 제어 기법이 핵심이다.</p></li><li><p><strong>웹 서버/애플리케이션 서버</strong>는 사용자 세션이나 요청 컨텍스트의 일관성을 유지하기 위해 동기화가 필요하며, 스레드 풀과 뮤텍스가 주로 활용된다.</p></li><li><p><strong>파일 시스템</strong>은 파일이나 디렉터리 접근 시 동시 쓰기로 인한 충돌을 방지하기 위해 락 또는 권한 기반 접근 제어가 활용된다.</p></li><li><p><strong>메모리 관리</strong> 영역은 동시 메모리 할당, 객체 초기화에서 경쟁 조건을 피하기 위해 락 또는 락프리 구조가 적용된다.</p></li><li><p><strong>운영체제 커널</strong>은 파일 시스템, 프로세스 스케줄링, 커널 자료구조 보호 등에서 하드락 (spinlock) 이나 세마포어를 주로 활용한다.</p></li><li><p><strong>네트워크 통신</strong>에서는 공유 소켓, 버퍼 접근의 경쟁 조건을 방지하며, 메시지 순서와 상태의 일관성을 유지한다.</p></li><li><p><strong>임베디드/실시간 시스템</strong>은 ISR(인터럽트 서비스 루틴) 과 임계 시간 처리의 응답성을 위해 우선순위 제어와 인터럽트 제어가 핵심이다.</p></li><li><p><strong>병렬 처리와 GPU 처리</strong>는 다수의 실행 흐름 간 데이터 공유를 위한 barrier 나 락프리 알고리즘 적용으로 성능을 극대화한다.</p></li><li><p><strong>클라우드 및 분산 시스템</strong>은 노드 간 자원 관리에 있어 분산 락과 쿼럼 기반 동기화를 통해 일관성과 안정성을 보장한다.</p></li></ul><h3 id=활용-사례>활용 사례<a hidden class=anchor aria-hidden=true href=#활용-사례>#</a></h3><h4 id=사례-1-은행-시스템의-계좌-이체-처리>사례 1: 은행 시스템의 계좌 이체 처리<a hidden class=anchor aria-hidden=true href=#사례-1-은행-시스템의-계좌-이체-처리>#</a></h4><p><strong>시나리오</strong>: 은행 시스템의 계좌 이체 처리</p><p><strong>시스템 구성</strong>:</p><ul><li>다중 ATM 및 온라인 뱅킹 시스템</li><li>중앙 데이터베이스 서버</li><li>트랜잭션 처리 엔진</li><li>동시성 제어 메커니즘</li></ul><p><strong>시스템 구성 다이어그램</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-12-1><a class=lnlinks href=#hl-12-1> 1</a>
+</span><span class=lnt id=hl-12-2><a class=lnlinks href=#hl-12-2> 2</a>
+</span><span class=lnt id=hl-12-3><a class=lnlinks href=#hl-12-3> 3</a>
+</span><span class=lnt id=hl-12-4><a class=lnlinks href=#hl-12-4> 4</a>
+</span><span class=lnt id=hl-12-5><a class=lnlinks href=#hl-12-5> 5</a>
+</span><span class=lnt id=hl-12-6><a class=lnlinks href=#hl-12-6> 6</a>
+</span><span class=lnt id=hl-12-7><a class=lnlinks href=#hl-12-7> 7</a>
+</span><span class=lnt id=hl-12-8><a class=lnlinks href=#hl-12-8> 8</a>
+</span><span class=lnt id=hl-12-9><a class=lnlinks href=#hl-12-9> 9</a>
+</span><span class=lnt id=hl-12-10><a class=lnlinks href=#hl-12-10>10</a>
+</span><span class=lnt id=hl-12-11><a class=lnlinks href=#hl-12-11>11</a>
+</span><span class=lnt id=hl-12-12><a class=lnlinks href=#hl-12-12>12</a>
+</span><span class=lnt id=hl-12-13><a class=lnlinks href=#hl-12-13>13</a>
+</span><span class=lnt id=hl-12-14><a class=lnlinks href=#hl-12-14>14</a>
+</span><span class=lnt id=hl-12-15><a class=lnlinks href=#hl-12-15>15</a>
+</span><span class=lnt id=hl-12-16><a class=lnlinks href=#hl-12-16>16</a>
+</span><span class=lnt id=hl-12-17><a class=lnlinks href=#hl-12-17>17</a>
+</span><span class=lnt id=hl-12-18><a class=lnlinks href=#hl-12-18>18</a>
+</span><span class=lnt id=hl-12-19><a class=lnlinks href=#hl-12-19>19</a>
+</span><span class=lnt id=hl-12-20><a class=lnlinks href=#hl-12-20>20</a>
+</span><span class=lnt id=hl-12-21><a class=lnlinks href=#hl-12-21>21</a>
+</span><span class=lnt id=hl-12-22><a class=lnlinks href=#hl-12-22>22</a>
+</span><span class=lnt id=hl-12-23><a class=lnlinks href=#hl-12-23>23</a>
+</span><span class=lnt id=hl-12-24><a class=lnlinks href=#hl-12-24>24</a>
+</span><span class=lnt id=hl-12-25><a class=lnlinks href=#hl-12-25>25</a>
+</span><span class=lnt id=hl-12-26><a class=lnlinks href=#hl-12-26>26</a>
+</span><span class=lnt id=hl-12-27><a class=lnlinks href=#hl-12-27>27</a>
+</span><span class=lnt id=hl-12-28><a class=lnlinks href=#hl-12-28>28</a>
+</span><span class=lnt id=hl-12-29><a class=lnlinks href=#hl-12-29>29</a>
+</span><span class=lnt id=hl-12-30><a class=lnlinks href=#hl-12-30>30</a>
+</span><span class=lnt id=hl-12-31><a class=lnlinks href=#hl-12-31>31</a>
+</span><span class=lnt id=hl-12-32><a class=lnlinks href=#hl-12-32>32</a>
+</span><span class=lnt id=hl-12-33><a class=lnlinks href=#hl-12-33>33</a>
+</span><span class=lnt id=hl-12-34><a class=lnlinks href=#hl-12-34>34</a>
+</span><span class=lnt id=hl-12-35><a class=lnlinks href=#hl-12-35>35</a>
+</span><span class=lnt id=hl-12-36><a class=lnlinks href=#hl-12-36>36</a>
+</span><span class=lnt id=hl-12-37><a class=lnlinks href=#hl-12-37>37</a>
+</span><span class=lnt id=hl-12-38><a class=lnlinks href=#hl-12-38>38</a>
+</span><span class=lnt id=hl-12-39><a class=lnlinks href=#hl-12-39>39</a>
+</span><span class=lnt id=hl-12-40><a class=lnlinks href=#hl-12-40>40</a>
+</span><span class=lnt id=hl-12-41><a class=lnlinks href=#hl-12-41>41</a>
+</span><span class=lnt id=hl-12-42><a class=lnlinks href=#hl-12-42>42</a>
+</span><span class=lnt id=hl-12-43><a class=lnlinks href=#hl-12-43>43</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>graph TB
+</span></span><span class=line><span class=cl>    subgraph &#34;클라이언트 계층&#34;
+</span></span><span class=line><span class=cl>        A1[ATM 1]
+</span></span><span class=line><span class=cl>        A2[ATM 2]
+</span></span><span class=line><span class=cl>        A3[온라인 뱅킹]
+</span></span><span class=line><span class=cl>        A4[모바일 앱]
+</span></span><span class=line><span class=cl>    end
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    subgraph &#34;애플리케이션 서버&#34;
+</span></span><span class=line><span class=cl>        B1[트랜잭션 매니저]
+</span></span><span class=line><span class=cl>        B2[계좌 서비스]
+</span></span><span class=line><span class=cl>        B3[인증 서비스]
+</span></span><span class=line><span class=cl>    end
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    subgraph &#34;동기화 계층&#34;
+</span></span><span class=line><span class=cl>        C1[Critical Section Controller]
+</span></span><span class=line><span class=cl>        C2[Mutex Manager]
+</span></span><span class=line><span class=cl>        C3[Transaction Lock]
+</span></span><span class=line><span class=cl>    end
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    subgraph &#34;데이터베이스&#34;
+</span></span><span class=line><span class=cl>        D1[계좌 테이블]
+</span></span><span class=line><span class=cl>        D2[거래 내역 테이블]
+</span></span><span class=line><span class=cl>        D3[잔액 정보]
+</span></span><span class=line><span class=cl>    end
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    A1 --&gt; B1
+</span></span><span class=line><span class=cl>    A2 --&gt; B1
+</span></span><span class=line><span class=cl>    A3 --&gt; B2
+</span></span><span class=line><span class=cl>    A4 --&gt; B2
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    B1 --&gt; C1
+</span></span><span class=line><span class=cl>    B2 --&gt; C2
+</span></span><span class=line><span class=cl>    B3 --&gt; C3
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    C1 --&gt; D1
+</span></span><span class=line><span class=cl>    C2 --&gt; D2
+</span></span><span class=line><span class=cl>    C3 --&gt; D3
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    style C1 fill:#ff9999
+</span></span><span class=line><span class=cl>    style C2 fill:#ffcc99
+</span></span><span class=line><span class=cl>    style C3 fill:#99ff99
+</span></span><span class=line><span class=cl>    style D1 fill:#ccccff
+</span></span></code></pre></td></tr></table></div></div><p><strong>Workflow</strong>:</p><ol><li>사용자가 이체 요청 (ATM/온라인)</li><li>트랜잭션 매니저가 요청 수신</li><li>계좌 잠금 획득 (Critical Section 진입)</li><li>출금 계좌 잔액 확인</li><li>잔액 차감 및 입금 계좌 증액</li><li>트랜잭션 로그 기록</li><li>계좌 잠금 해제 (Critical Section 퇴장)</li></ol><p><strong>역할</strong>:</p><ul><li><strong>Critical Section</strong>: 계좌 잔액 수정 구간</li><li><strong>Mutex</strong>: 동일 계좌 동시 접근 방지</li><li><strong>Transaction Lock</strong>: 이체 과정의 원자성 보장</li></ul><p><strong>유무에 따른 차이점</strong>:</p><ul><li><strong>있을 때</strong>: 정확한 잔액 유지, 이중 출금 방지, 데이터 일관성 보장</li><li><strong>없을 때</strong>: 잔액 오류, 돈 증발/생성, 시스템 신뢰도 저하</li></ul><p><strong>구현 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-13-1><a class=lnlinks href=#hl-13-1> 1</a>
+</span><span class=lnt id=hl-13-2><a class=lnlinks href=#hl-13-2> 2</a>
+</span><span class=lnt id=hl-13-3><a class=lnlinks href=#hl-13-3> 3</a>
+</span><span class=lnt id=hl-13-4><a class=lnlinks href=#hl-13-4> 4</a>
+</span><span class=lnt id=hl-13-5><a class=lnlinks href=#hl-13-5> 5</a>
+</span><span class=lnt id=hl-13-6><a class=lnlinks href=#hl-13-6> 6</a>
+</span><span class=lnt id=hl-13-7><a class=lnlinks href=#hl-13-7> 7</a>
+</span><span class=lnt id=hl-13-8><a class=lnlinks href=#hl-13-8> 8</a>
+</span><span class=lnt id=hl-13-9><a class=lnlinks href=#hl-13-9> 9</a>
+</span><span class=lnt id=hl-13-10><a class=lnlinks href=#hl-13-10>10</a>
+</span><span class=lnt id=hl-13-11><a class=lnlinks href=#hl-13-11>11</a>
+</span><span class=lnt id=hl-13-12><a class=lnlinks href=#hl-13-12>12</a>
+</span><span class=lnt id=hl-13-13><a class=lnlinks href=#hl-13-13>13</a>
+</span><span class=lnt id=hl-13-14><a class=lnlinks href=#hl-13-14>14</a>
+</span><span class=lnt id=hl-13-15><a class=lnlinks href=#hl-13-15>15</a>
+</span><span class=lnt id=hl-13-16><a class=lnlinks href=#hl-13-16>16</a>
+</span><span class=lnt id=hl-13-17><a class=lnlinks href=#hl-13-17>17</a>
+</span><span class=lnt id=hl-13-18><a class=lnlinks href=#hl-13-18>18</a>
+</span><span class=lnt id=hl-13-19><a class=lnlinks href=#hl-13-19>19</a>
+</span><span class=lnt id=hl-13-20><a class=lnlinks href=#hl-13-20>20</a>
+</span><span class=lnt id=hl-13-21><a class=lnlinks href=#hl-13-21>21</a>
+</span><span class=lnt id=hl-13-22><a class=lnlinks href=#hl-13-22>22</a>
+</span><span class=lnt id=hl-13-23><a class=lnlinks href=#hl-13-23>23</a>
+</span><span class=lnt id=hl-13-24><a class=lnlinks href=#hl-13-24>24</a>
+</span><span class=lnt id=hl-13-25><a class=lnlinks href=#hl-13-25>25</a>
+</span><span class=lnt id=hl-13-26><a class=lnlinks href=#hl-13-26>26</a>
+</span><span class=lnt id=hl-13-27><a class=lnlinks href=#hl-13-27>27</a>
+</span><span class=lnt id=hl-13-28><a class=lnlinks href=#hl-13-28>28</a>
+</span><span class=lnt id=hl-13-29><a class=lnlinks href=#hl-13-29>29</a>
+</span><span class=lnt id=hl-13-30><a class=lnlinks href=#hl-13-30>30</a>
+</span><span class=lnt id=hl-13-31><a class=lnlinks href=#hl-13-31>31</a>
+</span><span class=lnt id=hl-13-32><a class=lnlinks href=#hl-13-32>32</a>
+</span><span class=lnt id=hl-13-33><a class=lnlinks href=#hl-13-33>33</a>
+</span><span class=lnt id=hl-13-34><a class=lnlinks href=#hl-13-34>34</a>
+</span><span class=lnt id=hl-13-35><a class=lnlinks href=#hl-13-35>35</a>
+</span><span class=lnt id=hl-13-36><a class=lnlinks href=#hl-13-36>36</a>
+</span><span class=lnt id=hl-13-37><a class=lnlinks href=#hl-13-37>37</a>
+</span><span class=lnt id=hl-13-38><a class=lnlinks href=#hl-13-38>38</a>
+</span><span class=lnt id=hl-13-39><a class=lnlinks href=#hl-13-39>39</a>
+</span><span class=lnt id=hl-13-40><a class=lnlinks href=#hl-13-40>40</a>
+</span><span class=lnt id=hl-13-41><a class=lnlinks href=#hl-13-41>41</a>
+</span><span class=lnt id=hl-13-42><a class=lnlinks href=#hl-13-42>42</a>
+</span><span class=lnt id=hl-13-43><a class=lnlinks href=#hl-13-43>43</a>
+</span><span class=lnt id=hl-13-44><a class=lnlinks href=#hl-13-44>44</a>
+</span><span class=lnt id=hl-13-45><a class=lnlinks href=#hl-13-45>45</a>
+</span><span class=lnt id=hl-13-46><a class=lnlinks href=#hl-13-46>46</a>
+</span><span class=lnt id=hl-13-47><a class=lnlinks href=#hl-13-47>47</a>
+</span><span class=lnt id=hl-13-48><a class=lnlinks href=#hl-13-48>48</a>
+</span><span class=lnt id=hl-13-49><a class=lnlinks href=#hl-13-49>49</a>
+</span><span class=lnt id=hl-13-50><a class=lnlinks href=#hl-13-50>50</a>
+</span><span class=lnt id=hl-13-51><a class=lnlinks href=#hl-13-51>51</a>
+</span><span class=lnt id=hl-13-52><a class=lnlinks href=#hl-13-52>52</a>
+</span><span class=lnt id=hl-13-53><a class=lnlinks href=#hl-13-53>53</a>
+</span><span class=lnt id=hl-13-54><a class=lnlinks href=#hl-13-54>54</a>
+</span><span class=lnt id=hl-13-55><a class=lnlinks href=#hl-13-55>55</a>
+</span><span class=lnt id=hl-13-56><a class=lnlinks href=#hl-13-56>56</a>
+</span><span class=lnt id=hl-13-57><a class=lnlinks href=#hl-13-57>57</a>
+</span><span class=lnt id=hl-13-58><a class=lnlinks href=#hl-13-58>58</a>
+</span><span class=lnt id=hl-13-59><a class=lnlinks href=#hl-13-59>59</a>
+</span><span class=lnt id=hl-13-60><a class=lnlinks href=#hl-13-60>60</a>
+</span><span class=lnt id=hl-13-61><a class=lnlinks href=#hl-13-61>61</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>threading</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>time</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>BankAccount</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>account_id</span><span class=p>,</span> <span class=n>balance</span><span class=o>=</span><span class=mi>0</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>account_id</span> <span class=o>=</span> <span class=n>account_id</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>balance</span> <span class=o>=</span> <span class=n>balance</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>lock</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Lock</span><span class=p>()</span>  <span class=c1># 계좌별 뮤텍스</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>transfer</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>to_account</span><span class=p>,</span> <span class=n>amount</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 데드락 방지를 위한 계좌 ID 순서 정렬</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>account_id</span> <span class=o>&lt;</span> <span class=n>to_account</span><span class=o>.</span><span class=n>account_id</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>first_lock</span><span class=p>,</span> <span class=n>second_lock</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>lock</span><span class=p>,</span> <span class=n>to_account</span><span class=o>.</span><span class=n>lock</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>first_lock</span><span class=p>,</span> <span class=n>second_lock</span> <span class=o>=</span> <span class=n>to_account</span><span class=o>.</span><span class=n>lock</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>lock</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># Critical Section 진입 (순서대로 락 획득)</span>
+</span></span><span class=line><span class=cl>        <span class=k>with</span> <span class=n>first_lock</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>with</span> <span class=n>second_lock</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=c1># 잔액 확인 및 이체 실행</span>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>balance</span> <span class=o>&gt;=</span> <span class=n>amount</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;이체 시작: </span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>account_id</span><span class=si>}</span><span class=s2> -&gt; </span><span class=si>{</span><span class=n>to_account</span><span class=o>.</span><span class=n>account_id</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                    
+</span></span><span class=line><span class=cl>                    <span class=c1># 원자적 연산 시뮬레이션</span>
+</span></span><span class=line><span class=cl>                    <span class=n>old_balance_from</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>balance</span>
+</span></span><span class=line><span class=cl>                    <span class=n>old_balance_to</span> <span class=o>=</span> <span class=n>to_account</span><span class=o>.</span><span class=n>balance</span>
+</span></span><span class=line><span class=cl>                    
+</span></span><span class=line><span class=cl>                    <span class=n>time</span><span class=o>.</span><span class=n>sleep</span><span class=p>(</span><span class=mf>0.1</span><span class=p>)</span>  <span class=c1># 처리 시간 시뮬레이션</span>
+</span></span><span class=line><span class=cl>                    
+</span></span><span class=line><span class=cl>                    <span class=bp>self</span><span class=o>.</span><span class=n>balance</span> <span class=o>-=</span> <span class=n>amount</span>
+</span></span><span class=line><span class=cl>                    <span class=n>to_account</span><span class=o>.</span><span class=n>balance</span> <span class=o>+=</span> <span class=n>amount</span>
+</span></span><span class=line><span class=cl>                    
+</span></span><span class=line><span class=cl>                    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;이체 완료: </span><span class=si>{</span><span class=n>amount</span><span class=si>}</span><span class=s2>원&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;출금계좌 잔액: </span><span class=si>{</span><span class=n>old_balance_from</span><span class=si>}</span><span class=s2> -&gt; </span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>balance</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;입금계좌 잔액: </span><span class=si>{</span><span class=n>old_balance_to</span><span class=si>}</span><span class=s2> -&gt; </span><span class=si>{</span><span class=n>to_account</span><span class=o>.</span><span class=n>balance</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                    
+</span></span><span class=line><span class=cl>                    <span class=k>return</span> <span class=kc>True</span>
+</span></span><span class=line><span class=cl>                <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;잔액 부족: 현재 </span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>balance</span><span class=si>}</span><span class=s2>원, 요청 </span><span class=si>{</span><span class=n>amount</span><span class=si>}</span><span class=s2>원&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                    <span class=k>return</span> <span class=kc>False</span>
+</span></span><span class=line><span class=cl>        <span class=c1># Critical Section 자동 퇴장 (with문 종료)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 사용 예시</span>
+</span></span><span class=line><span class=cl><span class=n>account1</span> <span class=o>=</span> <span class=n>BankAccount</span><span class=p>(</span><span class=s2>&#34;A001&#34;</span><span class=p>,</span> <span class=mi>1000</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>account2</span> <span class=o>=</span> <span class=n>BankAccount</span><span class=p>(</span><span class=s2>&#34;A002&#34;</span><span class=p>,</span> <span class=mi>500</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 동시 이체 요청 시뮬레이션</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>transfer_worker</span><span class=p>(</span><span class=n>from_acc</span><span class=p>,</span> <span class=n>to_acc</span><span class=p>,</span> <span class=n>amount</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>from_acc</span><span class=o>.</span><span class=n>transfer</span><span class=p>(</span><span class=n>to_acc</span><span class=p>,</span> <span class=n>amount</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 스레드 생성 및 실행</span>
+</span></span><span class=line><span class=cl><span class=n>thread1</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Thread</span><span class=p>(</span><span class=n>target</span><span class=o>=</span><span class=n>transfer_worker</span><span class=p>,</span> <span class=n>args</span><span class=o>=</span><span class=p>(</span><span class=n>account1</span><span class=p>,</span> <span class=n>account2</span><span class=p>,</span> <span class=mi>300</span><span class=p>))</span>
+</span></span><span class=line><span class=cl><span class=n>thread2</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Thread</span><span class=p>(</span><span class=n>target</span><span class=o>=</span><span class=n>transfer_worker</span><span class=p>,</span> <span class=n>args</span><span class=o>=</span><span class=p>(</span><span class=n>account2</span><span class=p>,</span> <span class=n>account1</span><span class=p>,</span> <span class=mi>200</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>thread1</span><span class=o>.</span><span class=n>start</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=n>thread2</span><span class=o>.</span><span class=n>start</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>thread1</span><span class=o>.</span><span class=n>join</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=n>thread2</span><span class=o>.</span><span class=n>join</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;최종 잔액 - 계좌1: </span><span class=si>{</span><span class=n>account1</span><span class=o>.</span><span class=n>balance</span><span class=si>}</span><span class=s2>, 계좌2: </span><span class=si>{</span><span class=n>account2</span><span class=o>.</span><span class=n>balance</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=사례-2-멀티스레드-웹-서버>사례 2: 멀티스레드 웹 서버<a hidden class=anchor aria-hidden=true href=#사례-2-멀티스레드-웹-서버>#</a></h4><p><strong>시나리오</strong>: 멀티스레드 웹 서버에서 접속자 수를 카운터로 관리할 때, 여러 스레드가 동시에 카운터를 수정할 경우 임계 구역을 설정하여 정확한 카운트 값을 보장해야 함.</p><p><strong>시스템 구성</strong>:</p><ul><li>멀티스레드 웹 서버</li><li>공유 카운터 변수</li><li>임계 구역 동기화 (뮤텍스 사용)</li></ul><p><strong>시스템 구성 다이어그램</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-14-1><a class=lnlinks href=#hl-14-1>1</a>
+</span><span class=lnt id=hl-14-2><a class=lnlinks href=#hl-14-2>2</a>
+</span><span class=lnt id=hl-14-3><a class=lnlinks href=#hl-14-3>3</a>
+</span><span class=lnt id=hl-14-4><a class=lnlinks href=#hl-14-4>4</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>flowchart TB
+</span></span><span class=line><span class=cl>  A[스레드 1] --진입 시도--&gt; C[임계 구역]
+</span></span><span class=line><span class=cl>  B[스레드 2] --진입 시도--&gt; C
+</span></span><span class=line><span class=cl>  C --수정 후 종료--&gt; D[비임계 구역]
+</span></span></code></pre></td></tr></table></div></div><p><strong>Workflow</strong>:</p><ul><li>각 스레드는 요청을 처리하기 전에 동기화 도구로 임계 구역 진입 시도</li><li>동기화 도구가 허용할 때만 공유 자원 (카운터) 접근/수정</li><li>종료 후 동기화 해제, 다음 스레드 진입</li></ul><p><strong>역할</strong>:</p><ul><li>임계 구역: 카운터의 동시 수정 방지</li><li>동기화 도구: 진입 및 종료 제어</li></ul><p><strong>유무에 따른 차이점</strong>:</p><ul><li>임계 구역 있음: 카운트 값의 정확성 및 일관성 보장</li><li>임계 구역 없음: 경쟁 조건으로 인한 잘못된 카운트 발생</li></ul><p><strong>구현 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-15-1><a class=lnlinks href=#hl-15-1> 1</a>
+</span><span class=lnt id=hl-15-2><a class=lnlinks href=#hl-15-2> 2</a>
+</span><span class=lnt id=hl-15-3><a class=lnlinks href=#hl-15-3> 3</a>
+</span><span class=lnt id=hl-15-4><a class=lnlinks href=#hl-15-4> 4</a>
+</span><span class=lnt id=hl-15-5><a class=lnlinks href=#hl-15-5> 5</a>
+</span><span class=lnt id=hl-15-6><a class=lnlinks href=#hl-15-6> 6</a>
+</span><span class=lnt id=hl-15-7><a class=lnlinks href=#hl-15-7> 7</a>
+</span><span class=lnt id=hl-15-8><a class=lnlinks href=#hl-15-8> 8</a>
+</span><span class=lnt id=hl-15-9><a class=lnlinks href=#hl-15-9> 9</a>
+</span><span class=lnt id=hl-15-10><a class=lnlinks href=#hl-15-10>10</a>
+</span><span class=lnt id=hl-15-11><a class=lnlinks href=#hl-15-11>11</a>
+</span><span class=lnt id=hl-15-12><a class=lnlinks href=#hl-15-12>12</a>
+</span><span class=lnt id=hl-15-13><a class=lnlinks href=#hl-15-13>13</a>
+</span><span class=lnt id=hl-15-14><a class=lnlinks href=#hl-15-14>14</a>
+</span><span class=lnt id=hl-15-15><a class=lnlinks href=#hl-15-15>15</a>
+</span><span class=lnt id=hl-15-16><a class=lnlinks href=#hl-15-16>16</a>
+</span><span class=lnt id=hl-15-17><a class=lnlinks href=#hl-15-17>17</a>
+</span><span class=lnt id=hl-15-18><a class=lnlinks href=#hl-15-18>18</a>
+</span><span class=lnt id=hl-15-19><a class=lnlinks href=#hl-15-19>19</a>
+</span><span class=lnt id=hl-15-20><a class=lnlinks href=#hl-15-20>20</a>
+</span><span class=lnt id=hl-15-21><a class=lnlinks href=#hl-15-21>21</a>
+</span><span class=lnt id=hl-15-22><a class=lnlinks href=#hl-15-22>22</a>
+</span><span class=lnt id=hl-15-23><a class=lnlinks href=#hl-15-23>23</a>
+</span><span class=lnt id=hl-15-24><a class=lnlinks href=#hl-15-24>24</a>
+</span><span class=lnt id=hl-15-25><a class=lnlinks href=#hl-15-25>25</a>
+</span><span class=lnt id=hl-15-26><a class=lnlinks href=#hl-15-26>26</a>
+</span><span class=lnt id=hl-15-27><a class=lnlinks href=#hl-15-27>27</a>
+</span><span class=lnt id=hl-15-28><a class=lnlinks href=#hl-15-28>28</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>threading</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 공유 변수</span>
+</span></span><span class=line><span class=cl><span class=n>counter</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 임계 구역 보호용 락 생성</span>
+</span></span><span class=line><span class=cl><span class=n>lock</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Lock</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>increase_counter</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=k>global</span> <span class=n>counter</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>_</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>1000</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 임계 구역 진입</span>
+</span></span><span class=line><span class=cl>        <span class=n>lock</span><span class=o>.</span><span class=n>acquire</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=n>counter</span> <span class=o>+=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 임계 구역 종료</span>
+</span></span><span class=line><span class=cl>        <span class=n>lock</span><span class=o>.</span><span class=n>release</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>threads</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>10</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>t</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Thread</span><span class=p>(</span><span class=n>target</span><span class=o>=</span><span class=n>increase_counter</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>threads</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>t</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>t</span><span class=o>.</span><span class=n>start</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>t</span> <span class=ow>in</span> <span class=n>threads</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>t</span><span class=o>.</span><span class=n>join</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=s1>&#39;최종 카운터 값:&#39;</span><span class=p>,</span> <span class=n>counter</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=c1># 결과: 10000 (정확하게 동기화됨)</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=실무에서-효과적으로-적용하기-위한-고려사항-및-주의할-점>실무에서 효과적으로 적용하기 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#실무에서-효과적으로-적용하기-위한-고려사항-및-주의할-점>#</a></h3><table><thead><tr><th><strong>카테고리</strong></th><th><strong>고려사항</strong></th><th><strong>설명</strong></th><th><strong>권장사항</strong></th></tr></thead><tbody><tr><td>설계 최적화</td><td>임계 구역 최소화</td><td>보호가 꼭 필요한 코드만 임계 구역으로 설정</td><td>I/O, 네트워크 호출 등은 임계 구역 밖에서 처리</td></tr><tr><td></td><td>락 단위 결정 전략</td><td>락 범위가 너무 크거나 작으면 병목 유발 또는 관리 복잡</td><td>데이터 특성에 맞게 객체/행/컬럼 단위로 설정</td></tr><tr><td>안전성 확보</td><td>교착 상태 예방</td><td>순환 대기, 락 중첩 방지</td><td>자원 획득 순서 고정, 타임아웃 설정</td></tr><tr><td></td><td>예외 안전성 확보</td><td>예외 발생 시 락 해제 누락 위험</td><td>try-finally, with 구문, RAII 등 사용</td></tr><tr><td></td><td>재진입성 고려</td><td>동일 스레드가 동일 락을 재획득 가능해야 할 경우 고려</td><td>reentrant lock 사용 여부 확인</td></tr><tr><td>성능 개선</td><td>락 경합 최적화</td><td>다수 흐름에서 동시에 락 시도 시 성능 저하 발생</td><td>락 세분화, 락 프리 자료구조, 읽기 - 쓰기 락 등 활용</td></tr><tr><td></td><td>병렬성 향상</td><td>과도한 동기화로 병렬 처리 제한</td><td>read/write 락, 의도 락, wait-free 기법 등 적용</td></tr><tr><td>운영 및 관찰 가능성</td><td>모니터링 및 메트릭 수집</td><td>락 대기 시간, 경합률, 데드락 발생 등 관측 불가능 시 원인 분석 어려움</td><td>메트릭 수집, 시각화 도구 연동 (Prometheus, Grafana 등)</td></tr><tr><td>확장성과 유연성</td><td>분산 환경 대응</td><td>노드 증가, 스케일 아웃 시 락 소유권/정합성 문제 발생</td><td>ZooKeeper, etcd, Redis 기반 분산 락, fencing token 사용</td></tr><tr><td></td><td>우선순위 제어 및 공정성 보장</td><td>기아 상태, 우선순위 역전 발생 위험</td><td>우선순위 상속 또는 우선순위 천장 프로토콜 적용</td></tr><tr><td>테스트 및 검증</td><td>동시성 테스트 및 시뮬레이션</td><td>경합/교착 상태 등은 정적 분석만으로 확인 어려움</td><td>경쟁 조건 유발 시나리오 설계, stress 테스트, 동시성 디버거 활용</td></tr></tbody></table><ul><li><p><strong>설계 최적화</strong>는 성능 향상과 병목 제거의 핵심으로, 가능한 한 임계 구역 범위를 좁게 유지하고, 락 단위를 데이터 특성에 맞게 설계해야 한다.</p></li><li><p><strong>안전성 확보</strong>는 데드락, 예외 처리, 재진입 등에서 시스템을 안정적으로 유지하는 데 필수적이며, 프로그래밍 시 반드시 반영되어야 하는 요소다.</p></li><li><p><strong>성능 개선</strong>을 위해 락 경합을 줄이는 구조적 개선이 필요하며, 락 프리나 읽기/쓰기 락과 같은 고급 기법이 적절히 활용되어야 한다.</p></li><li><p><strong>운영 및 관찰 가능성</strong>은 실시간 이슈 감지와 병목 진단을 위해 필수로, 메트릭 기반의 모니터링 환경 구축이 요구된다.</p></li><li><p><strong>확장성과 유연성</strong>은 분산 환경 및 실시간 시스템에서 락의 정합성과 공정성을 유지하기 위한 전략을 포함한다.</p></li><li><p><strong>테스트 및 검증</strong>은 경쟁 조건이나 교착 상태와 같은 비결정성 문제를 사전에 발견하고 방지하기 위한 실전 테스트 전략이다.</p></li></ul><h4 id=성능-분석-및-튜닝>성능 분석 및 튜닝<a hidden class=anchor aria-hidden=true href=#성능-분석-및-튜닝>#</a></h4><ul><li>공유 자원 접근 빈도/패턴을 파악하여 임계 구역 위치와 크기 조정</li><li>프로파일링 도구 (Performance Profiler, Trace Tool) 로 병목 구간 탐지</li><li>경쟁 조건, 데드락 등 문제 발생 시 원인 분석을 위한 로그 및 상태 덤프 (State Dump) 필수 확보</li></ul><h4 id=임계-구역-critical-section-의-실무-적용-전략-및-권장-사례>임계 구역 (Critical Section) 의 실무 적용 전략 및 권장 사례<a hidden class=anchor aria-hidden=true href=#임계-구역-critical-section-의-실무-적용-전략-및-권장-사례>#</a></h4><table><thead><tr><th>분류</th><th>핵심 전략 또는 적용 포인트</th><th>적용 대상 또는 환경</th></tr></thead><tbody><tr><td>운영체제/하드웨어 최적화</td><td>Spinlock, NUMA 최적화, Thread Affinity 설정</td><td>멀티코어 시스템, 캐시 중심 CPU 환경</td></tr><tr><td>실시간 시스템 대응</td><td>우선순위 역전 방지, Priority Inheritance 적용</td><td>임베디드 시스템, 실시간 제어 시스템</td></tr><tr><td>병렬성 최적화</td><td>락 최소화, 파인그레인 락, 락 범위 조절</td><td>고부하 서버, 대규모 동시 요청 처리 구조</td></tr><tr><td>동기화 구조 고도화</td><td>Lock-Free, Wait-Free, Transactional Memory 사용</td><td>고성능 시스템, 락 병목으로 인한 성능 저하 구간</td></tr><tr><td>동기화 오류 검출</td><td>Race Detection, Deadlock Analyzer, Event Tracing</td><td>안정성 중요 시스템, 장애 대응 중심 구조</td></tr><tr><td>스케일링 대응</td><td>락 계층화 (Hierarchy), 구간락 (Segment Lock) 적용</td><td>대형 분산 시스템, Thread Pool 기반 아키텍처</td></tr><tr><td>성능 검증 및 모니터링</td><td>TSAN, perf, flamegraph, GC 타이밍 분석</td><td>프로파일링 기반 성능 튜닝 필요 시점</td></tr></tbody></table><h5 id=코드-예시-lock-free-counter-python-atomic-cas-유사>코드 예시: Lock-free Counter (Python, Atomic, CAS 유사)<a hidden class=anchor aria-hidden=true href=#코드-예시-lock-free-counter-python-atomic-cas-유사>#</a></h5><p>Python 의 표준 라이브러리에서는 직접적인 CAS(Compare-and-Swap) 를 지원하지 않지만, 예시적으로 concurrent.futures 나 collections, threading 등을 조합하여 원자적 연산을 구현할 수 있다.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-16-1><a class=lnlinks href=#hl-16-1> 1</a>
+</span><span class=lnt id=hl-16-2><a class=lnlinks href=#hl-16-2> 2</a>
+</span><span class=lnt id=hl-16-3><a class=lnlinks href=#hl-16-3> 3</a>
+</span><span class=lnt id=hl-16-4><a class=lnlinks href=#hl-16-4> 4</a>
+</span><span class=lnt id=hl-16-5><a class=lnlinks href=#hl-16-5> 5</a>
+</span><span class=lnt id=hl-16-6><a class=lnlinks href=#hl-16-6> 6</a>
+</span><span class=lnt id=hl-16-7><a class=lnlinks href=#hl-16-7> 7</a>
+</span><span class=lnt id=hl-16-8><a class=lnlinks href=#hl-16-8> 8</a>
+</span><span class=lnt id=hl-16-9><a class=lnlinks href=#hl-16-9> 9</a>
+</span><span class=lnt id=hl-16-10><a class=lnlinks href=#hl-16-10>10</a>
+</span><span class=lnt id=hl-16-11><a class=lnlinks href=#hl-16-11>11</a>
+</span><span class=lnt id=hl-16-12><a class=lnlinks href=#hl-16-12>12</a>
+</span><span class=lnt id=hl-16-13><a class=lnlinks href=#hl-16-13>13</a>
+</span><span class=lnt id=hl-16-14><a class=lnlinks href=#hl-16-14>14</a>
+</span><span class=lnt id=hl-16-15><a class=lnlinks href=#hl-16-15>15</a>
+</span><span class=lnt id=hl-16-16><a class=lnlinks href=#hl-16-16>16</a>
+</span><span class=lnt id=hl-16-17><a class=lnlinks href=#hl-16-17>17</a>
+</span><span class=lnt id=hl-16-18><a class=lnlinks href=#hl-16-18>18</a>
+</span><span class=lnt id=hl-16-19><a class=lnlinks href=#hl-16-19>19</a>
+</span><span class=lnt id=hl-16-20><a class=lnlinks href=#hl-16-20>20</a>
+</span><span class=lnt id=hl-16-21><a class=lnlinks href=#hl-16-21>21</a>
+</span><span class=lnt id=hl-16-22><a class=lnlinks href=#hl-16-22>22</a>
+</span><span class=lnt id=hl-16-23><a class=lnlinks href=#hl-16-23>23</a>
+</span><span class=lnt id=hl-16-24><a class=lnlinks href=#hl-16-24>24</a>
+</span><span class=lnt id=hl-16-25><a class=lnlinks href=#hl-16-25>25</a>
+</span><span class=lnt id=hl-16-26><a class=lnlinks href=#hl-16-26>26</a>
+</span><span class=lnt id=hl-16-27><a class=lnlinks href=#hl-16-27>27</a>
+</span><span class=lnt id=hl-16-28><a class=lnlinks href=#hl-16-28>28</a>
+</span><span class=lnt id=hl-16-29><a class=lnlinks href=#hl-16-29>29</a>
+</span><span class=lnt id=hl-16-30><a class=lnlinks href=#hl-16-30>30</a>
+</span><span class=lnt id=hl-16-31><a class=lnlinks href=#hl-16-31>31</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>threading</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>AtomicCounter</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>_value</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>_lock</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Lock</span><span class=p>()</span>  <span class=c1># 하드웨어 CAS는 없으므로, 락으로 대체</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>increment</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>while</span> <span class=kc>True</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>with</span> <span class=bp>self</span><span class=o>.</span><span class=n>_lock</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=n>old</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_value</span>
+</span></span><span class=line><span class=cl>                <span class=n>new</span> <span class=o>=</span> <span class=n>old</span> <span class=o>+</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>                <span class=bp>self</span><span class=o>.</span><span class=n>_value</span> <span class=o>=</span> <span class=n>new</span>
+</span></span><span class=line><span class=cl>                <span class=k>return</span> <span class=n>new</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>counter</span> <span class=o>=</span> <span class=n>AtomicCounter</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>worker</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>_</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>1000</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>counter</span><span class=o>.</span><span class=n>increment</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>threads</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>_</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>10</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>t</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Thread</span><span class=p>(</span><span class=n>target</span><span class=o>=</span><span class=n>worker</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>threads</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>t</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>t</span><span class=o>.</span><span class=n>start</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>t</span> <span class=ow>in</span> <span class=n>threads</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>t</span><span class=o>.</span><span class=n>join</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=s2>&#34;최종 카운터 값:&#34;</span><span class=p>,</span> <span class=n>counter</span><span class=o>.</span><span class=n>_value</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=최적화하기-위한-고려사항-및-주의할-점>최적화하기 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#최적화하기-위한-고려사항-및-주의할-점>#</a></h3><table><thead><tr><th>카테고리</th><th>항목</th><th>설명</th><th>권장 전략/기법</th></tr></thead><tbody><tr><td>락 경합 관리</td><td>락 경합 최소화</td><td>스레드 간 동일 자원 경쟁 최소화</td><td>Fine-Grained Lock, 리소스 분산</td></tr><tr><td></td><td>락 보유 시간 최소화</td><td>락 소유 시간 단축으로 대기 시간 줄이기</td><td>락 내 최소 코드, 계산은 외부 처리</td></tr><tr><td></td><td>락 범위 최적화</td><td>락 범위가 좁을수록 병목 완화, 너무 세분화되면 오버헤드 발생</td><td>균형 있는 granularity 조정</td></tr><tr><td>동기화 구조 최적화</td><td>락 프리/논블로킹 구조</td><td>락 없이 원자 연산으로 동기화</td><td>CAS 기반 구조체, lock-free queue</td></tr><tr><td></td><td>Hybrid Lock</td><td>user-space + kernel-space 혼합</td><td>Futex 등 커널 간섭 최소화 락 사용</td></tr><tr><td></td><td>계층적 락 (Hierarchical Locking)</td><td>락 획득 순서 일관성으로 데드락 방지</td><td>락 우선순위 규칙 적용</td></tr><tr><td>메모리/캐시 최적화</td><td>메모리 접근 최적화</td><td>False Sharing 제거, 캐시 라인 정렬</td><td>padding, 캐시 친화적 구조체</td></tr><tr><td></td><td>NUMA-aware 락 분산</td><td>NUMA 환경에서 메모리 접근 비용 최소화</td><td>Thread → local memory 우선</td></tr><tr><td>우선순위/대기 전략</td><td>우선순위 역전 방지</td><td>낮은 우선순위 스레드가 락 소유 시 발생하는 역전 방지</td><td>Priority Inheritance, Ceiling Protocol</td></tr><tr><td></td><td>조건 변수 및 대기 전략</td><td>Busy-wait 회피와 적응형 대기 시간 조절</td><td>condition variable, adaptive spinlock</td></tr><tr><td>비동기/배치 처리 전략</td><td>작업 병렬화 및 비동기 처리</td><td>락 소유 없이 백그라운드/이벤트 기반 처리</td><td>async queue, task offloading</td></tr><tr><td></td><td>배치 처리</td><td>여러 작업을 묶어 락 획득 횟수 줄이기</td><td>Batch queue, event loop</td></tr><tr><td>분석/모니터링 도구</td><td>락 프로파일링 및 병목 추적</td><td>경합 구간 확인 및 성능 병목 분석</td><td>perf, TSAN, flamegraph</td></tr><tr><td></td><td>스레드 경쟁 시각화/분석</td><td>동시성 오류 및 병목 시각화</td><td>VisualVM, async-profiler, contention tracker</td></tr></tbody></table><ul><li><p><strong>락 경합 관리</strong>는 성능 저하의 주요 원인 중 하나인 <code>락 충돌과 대기 시간</code> 을 최소화하는 데 집중한다. 락 범위를 좁히거나 자원 분산, 보유 시간 단축 등의 전략이 효과적이다.</p></li><li><p><strong>동기화 구조 최적화</strong>는 구조적으로 락을 제거하거나 효율적으로 대체하는 방향으로 설계되며, <code>락 프리</code>, <code>하이브리드 락</code>, <code>락 계층화</code> 가 핵심이다.</p></li><li><p><strong>메모리/캐시 최적화</strong>는 CPU 캐시와 NUMA 구조의 특성을 고려하여 접근 패턴을 개선하는 전략으로, <code>False Sharing 제거</code>, <code>캐시 정렬</code>, <code>로컬 메모리 선호</code> 등의 기법이 포함된다.</p></li><li><p><strong>우선순위 및 대기 전략</strong>은 <code>우선순위 역전</code>, <code>Busy Wait</code> 문제를 예방하고, 응답성을 보장하기 위한 실시간 락 설계 요소를 포함한다.</p></li><li><p><strong>비동기 및 배치 처리</strong>는 Critical Section 내부 연산을 외부로 이동하거나 작업을 묶어서 수행하여 락 획득 횟수 자체를 줄이는 고성능 전략이다.</p></li><li><p><strong>분석 및 모니터링 도구 활용</strong>은 실시간 병목 탐지와 프로파일링을 통해 성능 병목이나 동기화 오류를 빠르게 식별하고 대응하는 실전 도구 사용 전략을 포함한다.</p></li></ul><h4 id=락-프리-구조-cas-기반-큐-예시>락 프리 구조 (<code>CAS 기반 큐</code> 예시)<a hidden class=anchor aria-hidden=true href=#락-프리-구조-cas-기반-큐-예시>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-17-1><a class=lnlinks href=#hl-17-1>1</a>
+</span><span class=lnt id=hl-17-2><a class=lnlinks href=#hl-17-2>2</a>
+</span><span class=lnt id=hl-17-3><a class=lnlinks href=#hl-17-3>3</a>
+</span><span class=lnt id=hl-17-4><a class=lnlinks href=#hl-17-4>4</a>
+</span><span class=lnt id=hl-17-5><a class=lnlinks href=#hl-17-5>5</a>
+</span><span class=lnt id=hl-17-6><a class=lnlinks href=#hl-17-6>6</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>flowchart TD
+</span></span><span class=line><span class=cl>    A[Producer Thread] --&gt;|enqueue| B[Lock-Free Queue]
+</span></span><span class=line><span class=cl>    C[Consumer Thread] --&gt;|dequeue| B
+</span></span><span class=line><span class=cl>    B --&gt; D{CAS Success?}
+</span></span><span class=line><span class=cl>    D -- Yes --&gt; E[Update Head/Tail Pointer]
+</span></span><span class=line><span class=cl>    D -- No --&gt; F[Retry with CAS]
+</span></span></code></pre></td></tr></table></div></div><p><strong>실습 코드 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-18-1><a class=lnlinks href=#hl-18-1> 1</a>
+</span><span class=lnt id=hl-18-2><a class=lnlinks href=#hl-18-2> 2</a>
+</span><span class=lnt id=hl-18-3><a class=lnlinks href=#hl-18-3> 3</a>
+</span><span class=lnt id=hl-18-4><a class=lnlinks href=#hl-18-4> 4</a>
+</span><span class=lnt id=hl-18-5><a class=lnlinks href=#hl-18-5> 5</a>
+</span><span class=lnt id=hl-18-6><a class=lnlinks href=#hl-18-6> 6</a>
+</span><span class=lnt id=hl-18-7><a class=lnlinks href=#hl-18-7> 7</a>
+</span><span class=lnt id=hl-18-8><a class=lnlinks href=#hl-18-8> 8</a>
+</span><span class=lnt id=hl-18-9><a class=lnlinks href=#hl-18-9> 9</a>
+</span><span class=lnt id=hl-18-10><a class=lnlinks href=#hl-18-10>10</a>
+</span><span class=lnt id=hl-18-11><a class=lnlinks href=#hl-18-11>11</a>
+</span><span class=lnt id=hl-18-12><a class=lnlinks href=#hl-18-12>12</a>
+</span><span class=lnt id=hl-18-13><a class=lnlinks href=#hl-18-13>13</a>
+</span><span class=lnt id=hl-18-14><a class=lnlinks href=#hl-18-14>14</a>
+</span><span class=lnt id=hl-18-15><a class=lnlinks href=#hl-18-15>15</a>
+</span><span class=lnt id=hl-18-16><a class=lnlinks href=#hl-18-16>16</a>
+</span><span class=lnt id=hl-18-17><a class=lnlinks href=#hl-18-17>17</a>
+</span><span class=lnt id=hl-18-18><a class=lnlinks href=#hl-18-18>18</a>
+</span><span class=lnt id=hl-18-19><a class=lnlinks href=#hl-18-19>19</a>
+</span><span class=lnt id=hl-18-20><a class=lnlinks href=#hl-18-20>20</a>
+</span><span class=lnt id=hl-18-21><a class=lnlinks href=#hl-18-21>21</a>
+</span><span class=lnt id=hl-18-22><a class=lnlinks href=#hl-18-22>22</a>
+</span><span class=lnt id=hl-18-23><a class=lnlinks href=#hl-18-23>23</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>multiprocessing</span> <span class=kn>import</span> <span class=n>Value</span><span class=p>,</span> <span class=n>Lock</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>threading</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>LockFreeCounter</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>counter</span> <span class=o>=</span> <span class=n>Value</span><span class=p>(</span><span class=s1>&#39;i&#39;</span><span class=p>,</span> <span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>cas_increment</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>with</span> <span class=bp>self</span><span class=o>.</span><span class=n>counter</span><span class=o>.</span><span class=n>get_lock</span><span class=p>():</span>  <span class=c1># 실제 CAS는 저수준에서 구현되어야 하지만 여기선 시뮬레이션</span>
+</span></span><span class=line><span class=cl>            <span class=n>old_val</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>counter</span><span class=o>.</span><span class=n>value</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>counter</span><span class=o>.</span><span class=n>value</span> <span class=o>=</span> <span class=n>old_val</span> <span class=o>+</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>counter</span> <span class=o>=</span> <span class=n>LockFreeCounter</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>worker</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>_</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>1000</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>counter</span><span class=o>.</span><span class=n>cas_increment</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>threads</span> <span class=o>=</span> <span class=p>[</span><span class=n>threading</span><span class=o>.</span><span class=n>Thread</span><span class=p>(</span><span class=n>target</span><span class=o>=</span><span class=n>worker</span><span class=p>)</span> <span class=k>for</span> <span class=n>_</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>10</span><span class=p>)]</span>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>t</span> <span class=ow>in</span> <span class=n>threads</span><span class=p>:</span> <span class=n>t</span><span class=o>.</span><span class=n>start</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>t</span> <span class=ow>in</span> <span class=n>threads</span><span class=p>:</span> <span class=n>t</span><span class=o>.</span><span class=n>join</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Counter:&#34;</span><span class=p>,</span> <span class=n>counter</span><span class=o>.</span><span class=n>counter</span><span class=o>.</span><span class=n>value</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=numa-aware-락-분산>NUMA-aware 락 분산<a hidden class=anchor aria-hidden=true href=#numa-aware-락-분산>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-19-1><a class=lnlinks href=#hl-19-1>1</a>
+</span><span class=lnt id=hl-19-2><a class=lnlinks href=#hl-19-2>2</a>
+</span><span class=lnt id=hl-19-3><a class=lnlinks href=#hl-19-3>3</a>
+</span><span class=lnt id=hl-19-4><a class=lnlinks href=#hl-19-4>4</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>graph TD
+</span></span><span class=line><span class=cl>    NUMA1[NUMA Node 1] --&gt;|Local Thread| Q1[Local Lock Q1]
+</span></span><span class=line><span class=cl>    NUMA2[NUMA Node 2] --&gt;|Local Thread| Q2[Local Lock Q2]
+</span></span><span class=line><span class=cl>    Q1 &amp; Q2 --&gt; M[Memory Consistency Sync]
+</span></span></code></pre></td></tr></table></div></div><p><strong>Python 예시 (개념적 시뮬레이션)</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-20-1><a class=lnlinks href=#hl-20-1> 1</a>
+</span><span class=lnt id=hl-20-2><a class=lnlinks href=#hl-20-2> 2</a>
+</span><span class=lnt id=hl-20-3><a class=lnlinks href=#hl-20-3> 3</a>
+</span><span class=lnt id=hl-20-4><a class=lnlinks href=#hl-20-4> 4</a>
+</span><span class=lnt id=hl-20-5><a class=lnlinks href=#hl-20-5> 5</a>
+</span><span class=lnt id=hl-20-6><a class=lnlinks href=#hl-20-6> 6</a>
+</span><span class=lnt id=hl-20-7><a class=lnlinks href=#hl-20-7> 7</a>
+</span><span class=lnt id=hl-20-8><a class=lnlinks href=#hl-20-8> 8</a>
+</span><span class=lnt id=hl-20-9><a class=lnlinks href=#hl-20-9> 9</a>
+</span><span class=lnt id=hl-20-10><a class=lnlinks href=#hl-20-10>10</a>
+</span><span class=lnt id=hl-20-11><a class=lnlinks href=#hl-20-11>11</a>
+</span><span class=lnt id=hl-20-12><a class=lnlinks href=#hl-20-12>12</a>
+</span><span class=lnt id=hl-20-13><a class=lnlinks href=#hl-20-13>13</a>
+</span><span class=lnt id=hl-20-14><a class=lnlinks href=#hl-20-14>14</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>threading</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>NUMALocalLock</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>local_locks</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;node1&#34;</span><span class=p>:</span> <span class=n>threading</span><span class=o>.</span><span class=n>Lock</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;node2&#34;</span><span class=p>:</span> <span class=n>threading</span><span class=o>.</span><span class=n>Lock</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>acquire</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>node_id</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>local_locks</span><span class=p>[</span><span class=n>node_id</span><span class=p>]</span><span class=o>.</span><span class=n>acquire</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>release</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>node_id</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>local_locks</span><span class=p>[</span><span class=n>node_id</span><span class=p>]</span><span class=o>.</span><span class=n>release</span><span class=p>()</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=조건-변수-및-대기-전략-condition-variable>조건 변수 및 대기 전략 (<code>condition variable</code>)<a hidden class=anchor aria-hidden=true href=#조건-변수-및-대기-전략-condition-variable>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-21-1><a class=lnlinks href=#hl-21-1> 1</a>
+</span><span class=lnt id=hl-21-2><a class=lnlinks href=#hl-21-2> 2</a>
+</span><span class=lnt id=hl-21-3><a class=lnlinks href=#hl-21-3> 3</a>
+</span><span class=lnt id=hl-21-4><a class=lnlinks href=#hl-21-4> 4</a>
+</span><span class=lnt id=hl-21-5><a class=lnlinks href=#hl-21-5> 5</a>
+</span><span class=lnt id=hl-21-6><a class=lnlinks href=#hl-21-6> 6</a>
+</span><span class=lnt id=hl-21-7><a class=lnlinks href=#hl-21-7> 7</a>
+</span><span class=lnt id=hl-21-8><a class=lnlinks href=#hl-21-8> 8</a>
+</span><span class=lnt id=hl-21-9><a class=lnlinks href=#hl-21-9> 9</a>
+</span><span class=lnt id=hl-21-10><a class=lnlinks href=#hl-21-10>10</a>
+</span><span class=lnt id=hl-21-11><a class=lnlinks href=#hl-21-11>11</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>sequenceDiagram
+</span></span><span class=line><span class=cl>    participant T1 as Thread 1
+</span></span><span class=line><span class=cl>    participant Lock
+</span></span><span class=line><span class=cl>    participant Condition
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    T1-&gt;&gt;Lock: acquire()
+</span></span><span class=line><span class=cl>    T1-&gt;&gt;Condition: wait()
+</span></span><span class=line><span class=cl>    Note right of T1: 락 해제 + 조건 만족까지 대기
+</span></span><span class=line><span class=cl>    Condition--&gt;&gt;T1: notify()
+</span></span><span class=line><span class=cl>    T1-&gt;&gt;Lock: re-acquire()
+</span></span><span class=line><span class=cl>    T1-&gt;&gt;T1: 작업 수행
+</span></span></code></pre></td></tr></table></div></div><p><strong>실습 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-22-1><a class=lnlinks href=#hl-22-1> 1</a>
+</span><span class=lnt id=hl-22-2><a class=lnlinks href=#hl-22-2> 2</a>
+</span><span class=lnt id=hl-22-3><a class=lnlinks href=#hl-22-3> 3</a>
+</span><span class=lnt id=hl-22-4><a class=lnlinks href=#hl-22-4> 4</a>
+</span><span class=lnt id=hl-22-5><a class=lnlinks href=#hl-22-5> 5</a>
+</span><span class=lnt id=hl-22-6><a class=lnlinks href=#hl-22-6> 6</a>
+</span><span class=lnt id=hl-22-7><a class=lnlinks href=#hl-22-7> 7</a>
+</span><span class=lnt id=hl-22-8><a class=lnlinks href=#hl-22-8> 8</a>
+</span><span class=lnt id=hl-22-9><a class=lnlinks href=#hl-22-9> 9</a>
+</span><span class=lnt id=hl-22-10><a class=lnlinks href=#hl-22-10>10</a>
+</span><span class=lnt id=hl-22-11><a class=lnlinks href=#hl-22-11>11</a>
+</span><span class=lnt id=hl-22-12><a class=lnlinks href=#hl-22-12>12</a>
+</span><span class=lnt id=hl-22-13><a class=lnlinks href=#hl-22-13>13</a>
+</span><span class=lnt id=hl-22-14><a class=lnlinks href=#hl-22-14>14</a>
+</span><span class=lnt id=hl-22-15><a class=lnlinks href=#hl-22-15>15</a>
+</span><span class=lnt id=hl-22-16><a class=lnlinks href=#hl-22-16>16</a>
+</span><span class=lnt id=hl-22-17><a class=lnlinks href=#hl-22-17>17</a>
+</span><span class=lnt id=hl-22-18><a class=lnlinks href=#hl-22-18>18</a>
+</span><span class=lnt id=hl-22-19><a class=lnlinks href=#hl-22-19>19</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>threading</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>lock</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Lock</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=n>condition</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Condition</span><span class=p>(</span><span class=n>lock</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>shared_data</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>producer</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=k>with</span> <span class=n>condition</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>shared_data</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>condition</span><span class=o>.</span><span class=n>notify</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>consumer</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=k>with</span> <span class=n>condition</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>while</span> <span class=ow>not</span> <span class=n>shared_data</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>condition</span><span class=o>.</span><span class=n>wait</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Consumed:&#34;</span><span class=p>,</span> <span class=n>shared_data</span><span class=o>.</span><span class=n>pop</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>threading</span><span class=o>.</span><span class=n>Thread</span><span class=p>(</span><span class=n>target</span><span class=o>=</span><span class=n>consumer</span><span class=p>)</span><span class=o>.</span><span class=n>start</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=n>threading</span><span class=o>.</span><span class=n>Thread</span><span class=p>(</span><span class=n>target</span><span class=o>=</span><span class=n>producer</span><span class=p>)</span><span class=o>.</span><span class=n>start</span><span class=p>()</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=락-프로파일링-및-병목-추적-tsan-예시>락 프로파일링 및 병목 추적 (TSAN 예시)<a hidden class=anchor aria-hidden=true href=#락-프로파일링-및-병목-추적-tsan-예시>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-23-1><a class=lnlinks href=#hl-23-1>1</a>
+</span><span class=lnt id=hl-23-2><a class=lnlinks href=#hl-23-2>2</a>
+</span><span class=lnt id=hl-23-3><a class=lnlinks href=#hl-23-3>3</a>
+</span><span class=lnt id=hl-23-4><a class=lnlinks href=#hl-23-4>4</a>
+</span><span class=lnt id=hl-23-5><a class=lnlinks href=#hl-23-5>5</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>flowchart LR
+</span></span><span class=line><span class=cl>    A[Thread A] --&gt;|Access Shared Var| V[Var X]
+</span></span><span class=line><span class=cl>    B[Thread B] --&gt;|Access Shared Var| V
+</span></span><span class=line><span class=cl>    V --&gt; TSAN[ThreadSanitizer Report]
+</span></span><span class=line><span class=cl>    TSAN --&gt; Dev[Race Detected]
+</span></span></code></pre></td></tr></table></div></div><blockquote><p>💡 실제 TSAN 은 Python 보단 C/C++ 에서 사용된다.<br>Python 에서는 <code>concurrent.futures</code>, <code>threading</code> 을 활용하여 분석 도구를 연결해야 하며, 실질적 시각화는 외부 도구를 통해 수행된다.</p></blockquote><h3 id=주목할-내용>주목할 내용<a hidden class=anchor aria-hidden=true href=#주목할-내용>#</a></h3><table><thead><tr><th>카테고리</th><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>기본 동기화 원리 및 구조</td><td>임계 구역 보호</td><td>뮤텍스, 세마포어, 모니터</td><td>동시 접근 제어를 위한 고수준 동기화 구조들</td></tr><tr><td>고급 동기화 알고리즘/기법</td><td>소프트웨어 동기화 알고리즘</td><td>Peterson, Dekker</td><td>고전적인 상호배제 알고리즘</td></tr><tr><td>고급 동기화 알고리즘/기법</td><td>비차단 동기화</td><td>Lock-free, Wait-free</td><td>CAS 기반 락 없이 임계 구역 제어</td></tr><tr><td>커널 및 하드웨어 수준 동기화</td><td>원자적 연산 및 락 구조</td><td>Test-and-Set, CAS, Futex</td><td>커널 혹은 하드웨어 명령어 기반의 동기화</td></tr><tr><td>성능 최적화 및 문제 대응 전략</td><td>병목 현상 해결</td><td>NUMA 고려, 락 최소화</td><td>병렬 환경에서 락 경합 방지 및 성능 최적화</td></tr><tr><td>성능 최적화 및 문제 대응 전략</td><td>데드락, 기아, 우선순위 역전</td><td>예방 및 대응 기법</td><td>타임아웃, 우선순위 상속, 자원 할당 순서 고정 등</td></tr><tr><td>분산/클라우드 환경에서의 동기화</td><td>분산 락</td><td>Redis, Zookeeper, etcd</td><td>클러스터 환경에서 리소스 접근의 일관성을 보장하는 락 시스템 구현</td></tr><tr><td>실무 적용 및 디버깅/보안</td><td>동시성 분석 도구</td><td>Race Detector, Trace Tool</td><td>경합 조건, 데드락 등을 자동 감지하고 시각화</td></tr><tr><td>실무 적용 및 디버깅/보안</td><td>실시간 시스템 대응</td><td>실시간 락, Deadline 기반 락</td><td>자율주행 등 실시간 응답 보장이 필요한 환경에서의 락 설계</td></tr><tr><td>실무 적용 및 디버깅/보안</td><td>보안 취약점 대응</td><td>경쟁 상태 공격 방어</td><td>동시성 오류를 이용한 타이밍 공격 등 방지 전략 (메모리 일관성, 데이터 변조 방지 등)</td></tr></tbody></table><ul><li><p><strong>기본 동기화 원리 및 구조</strong>는 뮤텍스, 세마포어, 모니터 등을 통해 임계 구역을 보호하며, 고수준 언어의 동기화 기초가 되는 개념이다.</p></li><li><p><strong>고급 동기화 알고리즘/기법</strong>은 CAS 기반 락 프리 설계나 고전 알고리즘을 통해 병렬 처리 환경에서 더 효율적이고 안전한 구조를 구현한다.</p></li><li><p><strong>커널 및 하드웨어 수준 동기화</strong>는 Futex, CAS 와 같은 저수준 기술로, OS 와 CPU 가 제공하는 핵심 동기화 메커니즘을 활용한다.</p></li><li><p><strong>성능 최적화 및 문제 대응 전략</strong>은 병목 완화, 데드락 방지, 우선순위 역전 해결 등 실제 시스템 성능과 안정성을 좌우하는 중요한 부분이다.</p></li><li><p><strong>분산/클라우드 환경 동기화</strong>는 Redis, Zookeeper 등을 이용한 락 구현을 통해 MSA 및 클라우드 환경에서도 일관성과 경쟁 조건을 해결한다.</p></li><li><p><strong>실무 적용 및 디버깅/보안</strong>은 Race Detection, 실시간 시스템 대응, 보안 공격 대응까지 포함하여 신뢰성과 안정성을 높이는 실제 현장 대응 기술이다.</p></li></ul><h3 id=반드시-학습해야할-내용>반드시 학습해야할 내용<a hidden class=anchor aria-hidden=true href=#반드시-학습해야할-내용>#</a></h3><table><thead><tr><th>학습 단계</th><th>카테고리</th><th>주요 항목</th><th>핵심 키워드</th></tr></thead><tbody><tr><td>기본</td><td>기본 개념</td><td>상호 배제, 경쟁 상태, 데드락, 라이블락</td><td>Mutual Exclusion, Race Condition</td></tr><tr><td>기본</td><td>동기화 도구</td><td>뮤텍스, 세마포어, 모니터, Futex</td><td>Mutex, Semaphore, Monitor, Spinlock</td></tr><tr><td>중급</td><td>알고리즘 및 모델</td><td>Peterson, Bakery, CAS, Memory Barrier, Memory Model</td><td>Software Algorithms, Atomic Operation</td></tr><tr><td>중급</td><td>최적화 전략</td><td>락 경합 최소화, NUMA, Work Stealing, Thread Pool</td><td>Lock Granularity, Partitioning, Concurrency</td></tr><tr><td>고급</td><td>분산 시스템 동기화</td><td>분산 락, Paxos, Raft, Kubernetes 동기화</td><td>Distributed Lock, Leader Election</td></tr><tr><td>고급</td><td>실무 적용 및 진단</td><td>Thread Safety, Race Detection, Priority Inversion, Deadlock Debugging</td><td>Debugging, Static Analysis, Logging</td></tr><tr><td>고급</td><td>고급 기법</td><td>Lock-Free, Wait-Free, Transactional Memory, GPGPU 동기화</td><td>Non-blocking, Hardware-level Sync</td></tr></tbody></table><ul><li><strong>기본 개념</strong>은 동시성 문제의 출발점으로, 임계 구역의 충돌과 이로 인한 예외 상태를 이해하는 데 필수적이다.</li><li><strong>동기화 도구</strong>는 뮤텍스, 세마포어, 모니터와 같은 원시 동기화 구조로, 언어나 운영체제 수준에서 반드시 숙지해야 한다.</li><li><strong>알고리즘 및 메모리 모델</strong>은 CPU 명령 재배치, Java Memory Model, CAS 등 소프트웨어/하드웨어 경계를 아우르는 이해를 요구한다.</li><li><strong>최적화 전략</strong>은 락 경합 최소화, NUMA 최적화 등 고성능 시스템 설계 시 핵심 고려사항이다.</li><li><strong>분산 동기화</strong>는 리더 선출, 분산 락 등의 구조적 접근이 필요하며, Kubernetes 와 같은 클라우드 환경에서 특히 중요하다.</li><li><strong>실무 진단</strong>은 병목 분석, Race Detection 도구 사용 등으로 동시성 이슈를 빠르게 식별하고 해결할 수 있게 해준다.</li><li><strong>고급 기법</strong>은 현대 시스템에서 필수인 락 프리/대기 없는 (wait-free) 프로그래밍 방식으로, 고성능 동기화의 핵심 기술이다.</li></ul><hr><h2 id=용어-정리>용어 정리<a hidden class=anchor aria-hidden=true href=#용어-정리>#</a></h2><table><thead><tr><th><strong>카테고리</strong></th><th><strong>용어 (한글/영어)</strong></th><th><strong>설명</strong></th></tr></thead><tbody><tr><td>기본 개념</td><td>임계 구역 (Critical Section)</td><td>동시에 하나만 접근 가능해야 하는 공유 자원 접근 코드 영역</td></tr><tr><td></td><td>상호 배제 (Mutual Exclusion)</td><td>하나의 흐름만 임계 구역에 접근할 수 있도록 제어하는 원칙</td></tr><tr><td></td><td>동기화 (Synchronization)</td><td>실행 순서와 자원 접근을 제어하여 예측 가능한 실행 흐름 보장</td></tr><tr><td></td><td>원자성 (Atomicity)</td><td>연산이 중간에 중단되지 않고 완전히 수행되거나 전혀 수행되지 않음</td></tr><tr><td>동기화 메커니즘</td><td>뮤텍스 (Mutex)</td><td>단일 흐름 진입을 보장하는 이진 락 동기화 도구</td></tr><tr><td></td><td>세마포어 (Semaphore)</td><td>동시 접근 수 제한이 가능한 카운터 기반 동기화 기법</td></tr><tr><td></td><td>모니터 (Monitor)</td><td>락 + 조건변수를 포함한 고수준 동기화 구조 (Java 등)</td></tr><tr><td></td><td>스핀락 (Spinlock)</td><td>락 해제를 바쁜 대기 (busy wait) 로 기다리는 기법</td></tr><tr><td></td><td>재진입성 (Reentrancy)</td><td>동일 스레드가 이미 획득한 락을 다시 획득할 수 있는 특성</td></tr><tr><td>하드웨어/원자 연산</td><td>테스트 - 앤 - 셋 (Test-and-Set)</td><td>락 획득을 위한 하드웨어 수준 원자적 연산</td></tr><tr><td></td><td>컴페어 - 앤 - 스왑 (Compare-and-Swap, CAS)</td><td>메모리 값이 특정 값일 경우 새로운 값으로 원자적으로 변경</td></tr><tr><td></td><td>Atomic Operation</td><td>CPU 가 보장하는 분할 불가능한 단일 연산</td></tr><tr><td>소프트웨어 동기화 알고리즘</td><td>Dekker 알고리즘</td><td>두 스레드 간 상호배제를 보장하는 최초의 소프트웨어 알고리즘</td></tr><tr><td></td><td>Peterson 알고리즘</td><td>간결하고 효과적인 두 스레드 간 상호 배제 알고리즘</td></tr><tr><td></td><td>Lamport Bakery 알고리즘</td><td>여러 프로세스에 대한 상호 배제 제공, 순서를 부여해 접근</td></tr><tr><td>분산 동기화</td><td>분산 락 (Distributed Lock)</td><td>다중 노드 환경에서 자원 접근 제어를 위한 외부 락 시스템 (etcd, Zookeeper, Redis 등)</td></tr><tr><td></td><td>Ricart-Agrawala 알고리즘</td><td>메시지 기반 요청 - 허용 방식의 분산 상호 배제 프로토콜</td></tr><tr><td></td><td>Suzuki-Kasami 알고리즘</td><td>토큰 기반 분산 락, 메시지 수를 최소화</td></tr><tr><td></td><td>Fencing Token</td><td>락 소유권 확인을 위한 분산 환경의 중복 보호 수단</td></tr><tr><td>문제 및 장애</td><td>데드락 (Deadlock)</td><td>상호 대기가 발생해 시스템 전체가 정지되는 상태</td></tr><tr><td></td><td>기아 (Starvation)</td><td>특정 프로세스가 자원을 지속적으로 얻지 못하고 무한 대기</td></tr><tr><td></td><td>라이브락 (Livelock)</td><td>상태는 바뀌지만 진행이 없는 상태 (진행성 부족)</td></tr><tr><td></td><td>우선순위 역전 (Priority Inversion)</td><td>낮은 우선순위 프로세스가 락을 점유해 높은 우선순위가 기다리는 상태</td></tr><tr><td></td><td>경쟁 조건 (Race Condition)</td><td>비동기 흐름의 동시 자원 접근으로 인해 발생하는 오류 가능성</td></tr><tr><td>성능 및 최적화</td><td>락 경합 (Lock Contention)</td><td>여러 실행 흐름이 동일 락을 동시에 요청할 때 발생하는 지연</td></tr><tr><td></td><td>False Sharing</td><td>캐시 라인을 공유하는 변수 접근으로 성능 저하 발생</td></tr><tr><td></td><td>파인 그레인드 락 (Fine-Grained Lock)</td><td>경합을 줄이기 위해 데이터 단위로 락을 세분화하는 기법</td></tr><tr><td></td><td>락 프리 (Lock-Free)</td><td>락 없이 동기화하며 최소한 한 스레드는 항상 진행</td></tr><tr><td></td><td>웨이트 프리 (Wait-Free)</td><td>모든 스레드가 유한 시간 내에 작업을 완료함을 보장</td></tr><tr><td>보완 기술 및 정책</td><td>Entry Section</td><td>임계 구역 진입을 위한 사전 준비 및 조건 검사 구간</td></tr><tr><td></td><td>Exit Section</td><td>임계 구역 탈출 및 락 해제 구간</td></tr><tr><td></td><td>Priority Inheritance</td><td>우선순위 역전 방지를 위해 낮은 우선순위가 높은 우선순위를 상속</td></tr></tbody></table><hr><h2 id=참고-및-출처>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처>#</a></h2><ul><li><a href=https://en.wikipedia.org/wiki/Critical_section>Critical Section – Wikipedia</a></li><li><a href=https://www.geeksforgeeks.org/operating-systems/critical-section-in-synchronization/>Critical Section in Synchronization – GeeksforGeeks</a></li><li><a href=https://www.scaler.com/topics/critical-section-in-os/>Critical Section Problem in OS – Scaler Topics</a></li><li><a href=https://www.prepbytes.com/blog/operating-system/critical-section-in-os/>Critical Section Problem in OS – PrepBytes</a></li><li><a href=https://www.tutorialspoint.com/critical-section-problem>Critical Section Problem – TutorialsPoint</a></li><li><a href=https://www.vaia.com/en-us/explanations/computer-science/computer-programming/critical-section/>Critical Section – VAIA</a></li><li><a href=https://www.baeldung.com/cs/critical-section>Concurrency and Critical Section – Baeldung</a></li><li><a href=https://www.guru99.com/process-synchronization.html>Process Synchronization – Guru99</a></li><li><a href=https://pdos.csail.mit.edu/6.828/2020/>MIT Operating Systems Engineering Lecture Notes</a></li><li><a href=https://web.stanford.edu/class/cs140/>Stanford CS 140 – Operating Systems</a></li><li><a href=https://en.wikipedia.org/wiki/Lamport%27s_bakery_algorithm>Lamport&rsquo;s Bakery Algorithm – Wikipedia</a></li><li><a href=https://www.geeksforgeeks.org/bakery-algorithm-in-process-synchronization/>Bakery Algorithm in Process Synchronization – GeeksforGeeks</a></li><li><a href=https://en.wikipedia.org/wiki/Peterson%27s_algorithm>Peterson&rsquo;s Algorithm – Wikipedia</a></li><li><a href=https://www.geeksforgeeks.org/petersons-algorithm-in-process-synchronization/>Peterson&rsquo;s Algorithm in Process Synchronization – GeeksforGeeks</a></li><li><a href=https://www.geeksforgeeks.org/petersons-algorithm-for-mutual-exclusion-set-1/>Peterson&rsquo;s Algorithm for Mutual Exclusion – GeeksforGeeks</a></li><li><a href=https://www.geeksforgeeks.org/dekkers-algorithm-in-process-synchronization/>Dekker&rsquo;s Algorithm in Process Synchronization – GeeksforGeeks</a></li><li><a href=https://en.wikipedia.org/wiki/Monitor_%28synchronization%29>Monitor Synchronization – Wikipedia</a></li><li><a href=https://www.geeksforgeeks.org/mutex-vs-semaphore/>Mutex vs Semaphore – GeeksforGeeks</a></li><li><a href=https://www.geeksforgeeks.org/lock-free-data-structures/>Lock-free Data Structures – GeeksforGeeks</a></li><li><a href=https://en.wikipedia.org/wiki/Atomic_operation>Atomic Operations – Wikipedia</a></li><li><a href=https://www.tutorialspoint.com/posix-threads-programming/pthreads-overview.htm>POSIX Thread Programming – TutorialsPoint</a></li><li><a href=https://docs.python.org/3/library/threading.html>Python Threading Documentation – Python Docs</a></li><li><a href=https://pkg.go.dev/sync>Go Sync Package – Go.dev</a></li><li><a href=https://learn.microsoft.com/en-us/windows/win32/sync/critical-section-objects>Critical Section Objects – Microsoft Learn</a></li><li><a href="https://learn.microsoft.com/en-us/cpp/parallel/concrt/synchronization-data-structures?view=msvc-170">Microsoft Learn – Concurrency Structures (Concurrency Runtime)</a></li><li><a href=https://zookeeper.apache.org/doc/r3.5.9/recipes.html#sc_recipes_Locks>Distributed Locks with ZooKeeper – Apache Zookeeper</a></li><li><a href=https://redis.io/docs/manual/patterns/distributed-locks/>Redis RedLock Algorithm – Redis Docs</a></li><li><a href=https://www.kernel.org/doc/html/latest/locking/spinlocks.html>Linux Kernel Documentation – Spinlocks</a></li><li><a href=https://www.britannica.com/technology/concurrency-control>Concurrency Control – Britannica</a></li><li><a href=https://www.redhat.com/en/topics/linux/what-is-concurrency>Red Hat – Concurrency Concepts</a></li><li><a href=https://www.infoq.com/news/2024/12/concurrency-parallelism-trends/>InfoQ – Concurrency and Critical Section Trends</a></li></ul><hr></div></main><footer class=footer><span>&copy; 2026 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

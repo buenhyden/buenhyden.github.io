@@ -1,0 +1,1227 @@
+<!doctype html><html lang=en dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Anti-Corruption Layer | hyunyoun's Blog</title><meta name=keywords content="Software-Engineering,Design-and-Architecture,Architecture-Styles-and-Patterns,Architecture-Patterns,Specialized-Patterns,Refactoring-to-services,Anti-Corruption-Layer"><meta name=description content="이 패턴은 서로 다른 도메인 모델이나 통신 프로토콜을 가진 시스템 간의 통합을 위해 사용된다."><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/system-architecture--design/architecture-styles/distributed-architecture/integration-patterns/anti-corruption-layer/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.d522c866f0cc9c20ae4fa73a0a8c07f0af4c36af75bcbcd3e90558446f681077.css integrity="sha256-1SLIZvDMnCCuT6c6CowH8K9MNq91vLzT6QVYRG9oEHc=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate type=application/rss+xml href=https://buenhyden.github.io/posts/system-architecture--design/architecture-styles/distributed-architecture/integration-patterns/anti-corruption-layer/index.xml title=rss><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/system-architecture--design/architecture-styles/distributed-architecture/integration-patterns/anti-corruption-layer/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var doNotTrack=!1,dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes";if(!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/system-architecture--design/architecture-styles/distributed-architecture/integration-patterns/anti-corruption-layer/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="Anti-Corruption Layer"><meta property="og:description" content="이 패턴은 서로 다른 도메인 모델이나 통신 프로토콜을 가진 시스템 간의 통합을 위해 사용된다."><meta property="og:locale" content="en"><meta property="og:type" content="website"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="Anti-Corruption Layer"><meta name=twitter:description content="이 패턴은 서로 다른 도메인 모델이나 통신 프로토콜을 가진 시스템 간의 통합을 위해 사용된다."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"HY's Blog","item":"https://buenhyden.github.io/posts/"},{"@type":"ListItem","position":5,"name":"Anti-Corruption Layer","item":"https://buenhyden.github.io/posts/system-architecture--design/architecture-styles/distributed-architecture/integration-patterns/anti-corruption-layer/"}]}</script></head><body class=list id=top><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><header class=page-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/>HY's Blog</a></div><h1>Anti-Corruption Layer</h1><div class=post-description>이 패턴은 서로 다른 도메인 모델이나 통신 프로토콜을 가진 시스템 간의 통합을 위해 사용된다.</div></header><div class=post-content><h2 id=anti-corruption-layer-pattern>Anti-Corruption Layer Pattern<a hidden class=anchor aria-hidden=true href=#anti-corruption-layer-pattern>#</a></h2><p>아래는 &ldquo;Anti-Corruption Layer Pattern(부패 방지 레이어 패턴)&rdquo; 에 대한 체계적이고 심층적인 조사, 분석, 정리입니다.</p><hr><h2 id=1-태그-tag>1. 태그 (Tag)<a hidden class=anchor aria-hidden=true href=#1-태그-tag>#</a></h2><ul><li><strong>Anti-Corruption-Layer</strong></li><li><strong>Integration-Pattern</strong></li><li><strong>Domain-Driven-Design</strong></li><li><strong>Legacy-System</strong></li></ul><hr><h2 id=2-분류-구조-적합성-분석>2. 분류 구조 적합성 분석<a hidden class=anchor aria-hidden=true href=#2-분류-구조-적합성-분석>#</a></h2><p><strong>현재 분류 구조</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-0-1><a class=lnlinks href=#hl-0-1>1</a>
+</span><span class=lnt id=hl-0-2><a class=lnlinks href=#hl-0-2>2</a>
+</span><span class=lnt id=hl-0-3><a class=lnlinks href=#hl-0-3>3</a>
+</span><span class=lnt id=hl-0-4><a class=lnlinks href=#hl-0-4>4</a>
+</span><span class=lnt id=hl-0-5><a class=lnlinks href=#hl-0-5>5</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>Computer Science and Engineering
+</span></span><span class=line><span class=cl>└─ Software Engineering
+</span></span><span class=line><span class=cl>   └─ Design and Architecture
+</span></span><span class=line><span class=cl>      └─ Architecture Patterns
+</span></span><span class=line><span class=cl>         └─ Specialized Patterns
+</span></span></code></pre></td></tr></table></div></div><p><strong>분석 및 근거</strong><br>Anti-Corruption Layer Pattern 은 기존 시스템 (레거시) 과 신규 시스템 (또는 다른 도메인) 간 통합 시, 서로 다른 도메인 모델의 오염 (부패) 을 방지하기 위해 중간에 변환 계층을 두는 패턴입니다.<br>이 패턴은 &ldquo;Architecture Patterns > Specialized Patterns&rdquo; 에 포함되어야 하며, &ldquo;Software Engineering > Design and Architecture&rdquo; 계층 아래에 위치하는 것이 적절합니다.<br>따라서, 현재 분류 구조는 주제의 특성과 실무적 중요성 모두를 반영하고 있습니다.</p><hr><h2 id=3-요약-200-자-내외>3. 요약 (200 자 내외)<a hidden class=anchor aria-hidden=true href=#3-요약-200-자-내외>#</a></h2><p>Anti-Corruption Layer Pattern 은 기존 시스템과 신규 시스템 또는 서로 다른 도메인 간 통합 시, 도메인 모델의 오염 (부패) 을 방지하기 위해 변환 계층을 두는 설계 패턴입니다.</p><hr><h2 id=4-개요-250-자-내외>4. 개요 (250 자 내외)<a hidden class=anchor aria-hidden=true href=#4-개요-250-자-내외>#</a></h2><p>Anti-Corruption Layer Pattern 은 레거시 시스템과 신규 시스템, 혹은 서로 다른 도메인 간 통합 시, 각 시스템의 도메인 모델이 서로 오염 (부패) 되지 않도록 중간에 변환 계층을 두는 아키텍처 패턴입니다.<br>이를 통해 시스템의 유지보수성, 확장성, 도메인 일관성을 높일 수 있습니다.</p><hr><h2 id=5-핵심-개념>5. 핵심 개념<a hidden class=anchor aria-hidden=true href=#5-핵심-개념>#</a></h2><ul><li><strong>정의 및 목적</strong><ul><li>Anti-Corruption Layer Pattern 은 서로 다른 도메인 모델을 가진 시스템 간 통합 시, 중간에 변환 계층을 두어 도메인 모델의 오염 (부패) 을 방지하는 패턴입니다.</li><li>목적은 도메인 모델의 일관성 유지, 유지보수성 및 확장성 향상입니다.</li></ul></li><li><strong>실무 연관성</strong><ul><li>실무에서는 레거시 시스템과 신규 시스템, 마이크로서비스 간 통합, 외부 시스템 연동 등 다양한 환경에서 적용됩니다.</li><li>도메인 주도 설계 (DDD, Domain-Driven Design) 에서 중요한 패턴으로 활용됩니다.</li></ul></li></ul><hr><h2 id=6-세부-조사-내용>6. 세부 조사 내용<a hidden class=anchor aria-hidden=true href=#6-세부-조사-내용>#</a></h2><h3 id=배경>배경<a hidden class=anchor aria-hidden=true href=#배경>#</a></h3><ul><li><strong>시스템 통합의 복잡성 증가</strong><ul><li>레거시 시스템과 신규 시스템, 또는 서로 다른 도메인을 가진 시스템 간 통합이 빈번해졌습니다.</li></ul></li><li><strong>도메인 모델 오염 문제</strong><ul><li>통합 과정에서 서로 다른 도메인 모델이 섞이면 유지보수성, 확장성, 도메인 일관성이 저하됩니다.</li></ul></li></ul><h3 id=목적-및-필요성>목적 및 필요성<a hidden class=anchor aria-hidden=true href=#목적-및-필요성>#</a></h3><ul><li><strong>도메인 모델 오염 방지</strong><ul><li>서로 다른 도메인 모델이 섞이지 않도록 방지합니다.</li></ul></li><li><strong>유지보수성 및 확장성 향상</strong><ul><li>도메인 모델의 일관성을 유지하여 유지보수성과 확장성을 높입니다.</li></ul></li><li><strong>시스템 통합 효율성</strong><ul><li>통합 과정에서 발생하는 복잡성을 중간 계층에서 처리합니다.</li></ul></li></ul><h3 id=주요-기능-및-역할>주요 기능 및 역할<a hidden class=anchor aria-hidden=true href=#주요-기능-및-역할>#</a></h3><ul><li><strong>도메인 모델 변환</strong><ul><li>서로 다른 도메인 모델을 중간 계층에서 변환합니다.</li></ul></li><li><strong>오염 (부패) 방지</strong><ul><li>도메인 모델이 서로 오염되지 않도록 방지합니다.</li></ul></li><li><strong>통합 관리</strong><ul><li>통합 관련 로직을 중간 계층에서 집중 관리합니다.</li></ul></li></ul><h3 id=특징>특징<a hidden class=anchor aria-hidden=true href=#특징>#</a></h3><ul><li><strong>계층 분리</strong><ul><li>도메인 모델 변환 계층을 별도로 분리합니다.</li></ul></li><li><strong>도메인 일관성</strong><ul><li>각 도메인 모델의 일관성을 유지합니다.</li></ul></li><li><strong>유지보수성</strong><ul><li>통합 관련 변경이 중간 계층에만 영향을 미칩니다.</li></ul></li></ul><h3 id=핵심-원칙>핵심 원칙<a hidden class=anchor aria-hidden=true href=#핵심-원칙>#</a></h3><ul><li><strong>Separation of Concerns(관심사 분리)</strong><ul><li>도메인 모델 변환 로직을 별도 계층으로 분리합니다.</li></ul></li><li><strong>Domain Integrity(도메인 무결성)</strong><ul><li>각 도메인 모델의 무결성을 유지합니다.</li></ul></li><li><strong>Encapsulation(캡슐화)</strong><ul><li>통합 관련 복잡성을 중간 계층에 캡슐화합니다.</li></ul></li></ul><h3 id=주요-원리-및-작동-원리>주요 원리 및 작동 원리<a hidden class=anchor aria-hidden=true href=#주요-원리-및-작동-원리>#</a></h3><p><strong>다이어그램 (Text)</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-1-1><a class=lnlinks href=#hl-1-1>1</a>
+</span><span class=lnt id=hl-1-2><a class=lnlinks href=#hl-1-2>2</a>
+</span><span class=lnt id=hl-1-3><a class=lnlinks href=#hl-1-3>3</a>
+</span><span class=lnt id=hl-1-4><a class=lnlinks href=#hl-1-4>4</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>+---------------------+       +-----------------------------+       +---------------------+
+</span></span><span class=line><span class=cl>|   Legacy System     ||   Anti-Corruption Layer     ||   New System        |
+</span></span><span class=line><span class=cl>| (Domain Model A)    |       | (Model Transformation)      |       | (Domain Model B)    |
+</span></span><span class=line><span class=cl>+---------------------+       +-----------------------------+       +---------------------+
+</span></span></code></pre></td></tr></table></div></div><p><strong>설명</strong><br>레거시 시스템과 신규 시스템이 서로 다른 도메인 모델을 가지고 있을 때, Anti-Corruption Layer 가 중간에서 모델을 변환하여 도메인 모델의 오염 (부패) 을 방지합니다.</p><h3 id=구조-및-아키텍처>구조 및 아키텍처<a hidden class=anchor aria-hidden=true href=#구조-및-아키텍처>#</a></h3><p><strong>구성 요소</strong></p><table><thead><tr><th>항목</th><th>기능 및 역할</th></tr></thead><tbody><tr><td>Legacy System</td><td>기존 시스템 (레거시), 도메인 모델 A</td></tr><tr><td>New System</td><td>신규 시스템, 도메인 모델 B</td></tr><tr><td>Anti-Corruption Layer</td><td>도메인 모델 변환, 오염 (부패) 방지, 통합 관리</td></tr></tbody></table><p><strong>필수 구성요소</strong></p><ul><li><strong>Legacy System</strong>: 기존 시스템 (도메인 모델 A)</li><li><strong>New System</strong>: 신규 시스템 (도메인 모델 B)</li><li><strong>Anti-Corruption Layer</strong>: 도메인 모델 변환 계층</li></ul><p><strong>선택 구성요소</strong></p><ul><li><strong>Adapter</strong>: 특정 시스템에 맞는 어댑터</li><li><strong>Facade</strong>: 복잡한 통합 로직을 단순화하는 퍼사드</li></ul><p><strong>구조 다이어그램 (Text)</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-2-1><a class=lnlinks href=#hl-2-1>1</a>
+</span><span class=lnt id=hl-2-2><a class=lnlinks href=#hl-2-2>2</a>
+</span><span class=lnt id=hl-2-3><a class=lnlinks href=#hl-2-3>3</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>+---------------------+       +-----------------------------+       +---------------------+
+</span></span><span class=line><span class=cl>|   Legacy System     ||   Anti-Corruption Layer     ||   New System        |
+</span></span><span class=line><span class=cl>+---------------------+       +-----------------------------+       +---------------------+
+</span></span></code></pre></td></tr></table></div></div><hr><h2 id=7-구현-기법>7. 구현 기법<a hidden class=anchor aria-hidden=true href=#7-구현-기법>#</a></h2><table><thead><tr><th>기법</th><th>정의 및 목적</th><th>예시 (시스템 구성, 시나리오)</th></tr></thead><tbody><tr><td>Adapter</td><td>특정 시스템에 맞는 인터페이스로 변환</td><td>레거시 시스템의 데이터를 신규 시스템 포맷으로 변환</td></tr><tr><td>Facade</td><td>복잡한 통합 로직을 단순화하는 퍼사드 제공</td><td>여러 레거시 시스템과의 통합을 단일 인터페이스로 제공</td></tr><tr><td>Model Mapping</td><td>도메인 모델 간 매핑 로직 구현</td><td>도메인 모델 A → 도메인 모델 B 로 변환</td></tr></tbody></table><hr><h2 id=8-장점>8. 장점<a hidden class=anchor aria-hidden=true href=#8-장점>#</a></h2><table><thead><tr><th>구분</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>장점</td><td>도메인 일관성</td><td>각 도메인 모델의 일관성을 유지하여 유지보수성, 확장성 향상</td></tr><tr><td></td><td>오염 (부패) 방지</td><td>도메인 모델이 서로 오염되지 않도록 방지</td></tr><tr><td></td><td>통합 관리 효율성</td><td>통합 관련 로직을 중간 계층에서 집중 관리하여 복잡성 감소</td></tr><tr><td></td><td>유지보수성</td><td>통합 관련 변경이 중간 계층에만 영향을 미쳐 유지보수성 향상</td></tr></tbody></table><hr><h2 id=9-단점과-문제점-그리고-해결방안>9. 단점과 문제점 그리고 해결방안<a hidden class=anchor aria-hidden=true href=#9-단점과-문제점-그리고-해결방안>#</a></h2><h3 id=단점>단점<a hidden class=anchor aria-hidden=true href=#단점>#</a></h3><table><thead><tr><th>구분</th><th>항목</th><th>설명</th><th>해결책</th></tr></thead><tbody><tr><td>단점</td><td>복잡성 증가</td><td>중간 계층 추가로 시스템 구성이 복잡해질 수 있음</td><td>표준화된 도구, 프레임워크 사용</td></tr><tr><td></td><td>성능 오버헤드</td><td>모델 변환 과정에서 성능 오버헤드 발생 가능</td><td>성능 튜닝, 최적화</td></tr></tbody></table><h3 id=문제점>문제점<a hidden class=anchor aria-hidden=true href=#문제점>#</a></h3><table><thead><tr><th>구분</th><th>항목</th><th>원인</th><th>영향</th><th>탐지 및 진단</th><th>예방 방법</th><th>해결 방법 및 기법</th></tr></thead><tbody><tr><td>문제점</td><td>모델 변환 오류</td><td>모델 매핑 로직 오류</td><td>데이터 불일치</td><td>테스트, 로그</td><td>모델 매핑 검증</td><td>자동화된 테스트</td></tr><tr><td></td><td>통합 지연</td><td>중간 계층 추가로 인한 지연</td><td>시스템 지연</td><td>모니터링, 로그</td><td>성능 튜닝, 최적화</td><td>효율적인 변환 로직 구현</td></tr></tbody></table><hr><h2 id=10-도전-과제>10. 도전 과제<a hidden class=anchor aria-hidden=true href=#10-도전-과제>#</a></h2><table><thead><tr><th>과제</th><th>원인</th><th>영향</th><th>탐지 및 진단</th><th>예방 방법</th><th>해결 방법 및 기법</th></tr></thead><tbody><tr><td>동적 모델 변환</td><td>도메인 모델 변화</td><td>데이터 불일치</td><td>테스트, 로그</td><td>동적 모델 변환 관리</td><td>자동화된 모델 매핑</td></tr><tr><td>성능 최적화</td><td>트래픽 증가, 복잡성</td><td>시스템 지연</td><td>모니터링, 로그</td><td>성능 튜닝, 최적화</td><td>효율적인 변환 로직 구현</td></tr></tbody></table><hr><h2 id=11-분류-기준에-따른-종류-및-유형>11. 분류 기준에 따른 종류 및 유형<a hidden class=anchor aria-hidden=true href=#11-분류-기준에-따른-종류-및-유형>#</a></h2><table><thead><tr><th>기준</th><th>유형</th><th>설명</th></tr></thead><tbody><tr><td>적용 대상</td><td>레거시 시스템 통합</td><td>레거시 시스템과 신규 시스템 간 통합</td></tr><tr><td></td><td>도메인 간 통합</td><td>서로 다른 도메인을 가진 시스템 간 통합</td></tr><tr><td>구현 방식</td><td>Adapter</td><td>특정 시스템에 맞는 인터페이스로 변환</td></tr><tr><td></td><td>Facade</td><td>복잡한 통합 로직을 단순화하는 퍼사드 제공</td></tr><tr><td></td><td>Model Mapping</td><td>도메인 모델 간 매핑 로직 구현</td></tr></tbody></table><hr><h2 id=12-실무-사용-예시>12. 실무 사용 예시<a hidden class=anchor aria-hidden=true href=#12-실무-사용-예시>#</a></h2><table><thead><tr><th>사용 예시</th><th>목적</th><th>효과</th></tr></thead><tbody><tr><td>레거시 시스템 통합</td><td>도메인 모델 오염 방지</td><td>유지보수성, 확장성 향상</td></tr><tr><td>마이크로서비스 통합</td><td>도메인 일관성 유지</td><td>시스템 통합 효율성 향상</td></tr><tr><td>외부 시스템 연동</td><td>도메인 모델 오염 방지</td><td>통합 관리 효율성 향상</td></tr></tbody></table><hr><h2 id=13-활용-사례>13. 활용 사례<a hidden class=anchor aria-hidden=true href=#13-활용-사례>#</a></h2><p><strong>사례: 금융 시스템 마이그레이션</strong></p><ul><li><strong>시스템 구성</strong><ul><li>기존 금융 시스템 (레거시), 신규 마이크로서비스 기반 시스템</li><li>Anti-Corruption Layer(모델 변환 계층) 배치</li></ul></li><li><strong>Workflow</strong><ol><li>기존 시스템에서 데이터 조회</li><li>Anti-Corruption Layer 에서 도메인 모델 변환</li><li>신규 시스템에 변환된 데이터 전달</li><li>신규 시스템에서 비즈니스 로직 처리</li></ol></li><li><strong>Anti-Corruption Layer Pattern 의 역할</strong><ul><li>도메인 모델의 오염 (부패) 방지</li><li>유지보수성, 확장성, 통합 관리 효율성 향상</li></ul></li><li><strong>유무에 따른 차이</strong><ul><li>Anti-Corruption Layer 미적용 시: 도메인 모델이 섞여 유지보수성, 확장성 저하</li><li>Anti-Corruption Layer 적용 시: 도메인 모델의 일관성 유지 및 통합 관리 효율성 향상</li></ul></li></ul><hr><h2 id=14-구현-예시>14. 구현 예시<a hidden class=anchor aria-hidden=true href=#14-구현-예시>#</a></h2><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-3-1><a class=lnlinks href=#hl-3-1> 1</a>
+</span><span class=lnt id=hl-3-2><a class=lnlinks href=#hl-3-2> 2</a>
+</span><span class=lnt id=hl-3-3><a class=lnlinks href=#hl-3-3> 3</a>
+</span><span class=lnt id=hl-3-4><a class=lnlinks href=#hl-3-4> 4</a>
+</span><span class=lnt id=hl-3-5><a class=lnlinks href=#hl-3-5> 5</a>
+</span><span class=lnt id=hl-3-6><a class=lnlinks href=#hl-3-6> 6</a>
+</span><span class=lnt id=hl-3-7><a class=lnlinks href=#hl-3-7> 7</a>
+</span><span class=lnt id=hl-3-8><a class=lnlinks href=#hl-3-8> 8</a>
+</span><span class=lnt id=hl-3-9><a class=lnlinks href=#hl-3-9> 9</a>
+</span><span class=lnt id=hl-3-10><a class=lnlinks href=#hl-3-10>10</a>
+</span><span class=lnt id=hl-3-11><a class=lnlinks href=#hl-3-11>11</a>
+</span><span class=lnt id=hl-3-12><a class=lnlinks href=#hl-3-12>12</a>
+</span><span class=lnt id=hl-3-13><a class=lnlinks href=#hl-3-13>13</a>
+</span><span class=lnt id=hl-3-14><a class=lnlinks href=#hl-3-14>14</a>
+</span><span class=lnt id=hl-3-15><a class=lnlinks href=#hl-3-15>15</a>
+</span><span class=lnt id=hl-3-16><a class=lnlinks href=#hl-3-16>16</a>
+</span><span class=lnt id=hl-3-17><a class=lnlinks href=#hl-3-17>17</a>
+</span><span class=lnt id=hl-3-18><a class=lnlinks href=#hl-3-18>18</a>
+</span><span class=lnt id=hl-3-19><a class=lnlinks href=#hl-3-19>19</a>
+</span><span class=lnt id=hl-3-20><a class=lnlinks href=#hl-3-20>20</a>
+</span><span class=lnt id=hl-3-21><a class=lnlinks href=#hl-3-21>21</a>
+</span><span class=lnt id=hl-3-22><a class=lnlinks href=#hl-3-22>22</a>
+</span><span class=lnt id=hl-3-23><a class=lnlinks href=#hl-3-23>23</a>
+</span><span class=lnt id=hl-3-24><a class=lnlinks href=#hl-3-24>24</a>
+</span><span class=lnt id=hl-3-25><a class=lnlinks href=#hl-3-25>25</a>
+</span><span class=lnt id=hl-3-26><a class=lnlinks href=#hl-3-26>26</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># Anti-Corruption Layer 예시 (Python)</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>LegacyUser</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>name</span><span class=p>,</span> <span class=n>age</span><span class=p>,</span> <span class=n>address</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>name</span> <span class=o>=</span> <span class=n>name</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>age</span> <span class=o>=</span> <span class=n>age</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>address</span> <span class=o>=</span> <span class=n>address</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>NewUser</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>full_name</span><span class=p>,</span> <span class=n>years_old</span><span class=p>,</span> <span class=n>location</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>full_name</span> <span class=o>=</span> <span class=n>full_name</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>years_old</span> <span class=o>=</span> <span class=n>years_old</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>location</span> <span class=o>=</span> <span class=n>location</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>AntiCorruptionLayer</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=nd>@staticmethod</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>convert_legacy_to_new</span><span class=p>(</span><span class=n>legacy_user</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>NewUser</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>            <span class=n>full_name</span><span class=o>=</span><span class=n>legacy_user</span><span class=o>.</span><span class=n>name</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>years_old</span><span class=o>=</span><span class=n>legacy_user</span><span class=o>.</span><span class=n>age</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>location</span><span class=o>=</span><span class=n>legacy_user</span><span class=o>.</span><span class=n>address</span>
+</span></span><span class=line><span class=cl>        <span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 사용 예시</span>
+</span></span><span class=line><span class=cl><span class=n>legacy_user</span> <span class=o>=</span> <span class=n>LegacyUser</span><span class=p>(</span><span class=s2>&#34;홍길동&#34;</span><span class=p>,</span> <span class=mi>30</span><span class=p>,</span> <span class=s2>&#34;서울시 강남구&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>new_user</span> <span class=o>=</span> <span class=n>AntiCorruptionLayer</span><span class=o>.</span><span class=n>convert_legacy_to_new</span><span class=p>(</span><span class=n>legacy_user</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>new_user</span><span class=o>.</span><span class=vm>__dict__</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><hr><h2 id=15-실무에서-효과적으로-적용하기-위한-고려사항-및-주의할-점>15. 실무에서 효과적으로 적용하기 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#15-실무에서-효과적으로-적용하기-위한-고려사항-및-주의할-점>#</a></h2><table><thead><tr><th>항목</th><th>설명</th><th>권장사항</th></tr></thead><tbody><tr><td>모델 매핑 검증</td><td>도메인 모델 변환 로직의 정확성 검증</td><td>자동화된 테스트</td></tr><tr><td>성능 최적화</td><td>모델 변환 과정에서 성능 오버헤드 최소화</td><td>성능 튜닝, 최적화</td></tr><tr><td>통합 관리</td><td>통합 관련 로직을 중간 계층에서 집중 관리</td><td>표준화된 인터페이스</td></tr></tbody></table><hr><h2 id=16-최적화하기-위한-고려사항-및-주의할-점>16. 최적화하기 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#16-최적화하기-위한-고려사항-및-주의할-점>#</a></h2><table><thead><tr><th>항목</th><th>설명</th><th>권장사항</th></tr></thead><tbody><tr><td>동적 모델 변환</td><td>도메인 모델 변화에 따라 변환 로직 자동 조정</td><td>동적 모델 매핑 관리</td></tr><tr><td>자원 효율성</td><td>불필요한 자원 낭비 최소화</td><td>자원 사용량 모니터링</td></tr><tr><td>통합 관리 최적화</td><td>통합 관련 로직의 관리 효율성 극대화</td><td>표준화된 인터페이스</td></tr></tbody></table><hr><h2 id=17-주제와-관련하여-주목할-내용>17. 주제와 관련하여 주목할 내용<a hidden class=anchor aria-hidden=true href=#17-주제와-관련하여-주목할-내용>#</a></h2><table><thead><tr><th>카테고리</th><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>도메인 주도 설계</td><td>DDD</td><td>Anti-Corruption Layer</td><td>도메인 모델 오염 방지 및 통합 관리</td></tr><tr><td>시스템 통합</td><td>Legacy Integration</td><td>Model Mapping</td><td>레거시 - 신규 시스템 간 도메인 모델 변환</td></tr><tr><td>실무 적용</td><td>실무 예시</td><td>금융 시스템</td><td>마이그레이션 시 Anti-Corruption Layer 적용으로 유지보수성 향상</td></tr></tbody></table><hr><h2 id=18-반드시-학습해야할-내용>18. 반드시 학습해야할 내용<a hidden class=anchor aria-hidden=true href=#18-반드시-학습해야할-내용>#</a></h2><table><thead><tr><th>카테고리</th><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>도메인 주도 설계</td><td>DDD</td><td>Bounded Context</td><td>도메인 경계 설정 및 통합 관리</td></tr><tr><td>시스템 통합</td><td>Legacy Integration</td><td>Adapter Pattern</td><td>특정 시스템에 맞는 인터페이스 변환</td></tr><tr><td>실무 적용</td><td>실무 예시</td><td>Facade Pattern</td><td>복잡한 통합 로직을 단순화하는 퍼사드</td></tr></tbody></table><hr><h2 id=용어-정리>용어 정리<a hidden class=anchor aria-hidden=true href=#용어-정리>#</a></h2><table><thead><tr><th>카테고리</th><th>용어</th><th>설명</th></tr></thead><tbody><tr><td>도메인 주도 설계</td><td>DDD</td><td>도메인 중심의 소프트웨어 설계 방법</td></tr><tr><td>시스템 통합</td><td>Legacy Integration</td><td>기존 시스템 (레거시) 과 신규 시스템 간 통합</td></tr><tr><td>실무 적용</td><td>Anti-Corruption Layer</td><td>도메인 모델 오염 방지를 위한 변환 계층</td></tr></tbody></table><hr><h2 id=참고-및-출처>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처>#</a></h2><ul><li><a href=https://docs.microsoft.com/en-us/azure/architecture/patterns/anti-corruption-layer>Anti-Corruption Layer Pattern (Microsoft Docs)</a></li><li><a href=https://martinfowler.com/bliki/AntiCorruptionLayer.html>Anti-Corruption Layer (Martin Fowler)</a></li><li><a href=https://patterns.arc42.org/patterns/anti-corruption-layer/>Anti-Corruption Layer Pattern (Patterns for Resilient Architecture)</a></li><li><a href=https://www.domainlanguage.com/ddd/>Domain-Driven Design (Eric Evans)</a></li><li><a href=https://dev.to/brunooliveira/implementing-the-anti-corruption-layer-pattern-4g8j>Implementing Anti-Corruption Layer (dev.to)</a></li></ul><p><a href=https://learn.microsoft.com/en-us/azure/architecture/patterns/anti-corruption-layer><img alt="Anti-corruption Layer pattern - Azure Architecture Center | Microsoft Learn" loading=lazy src="https://tse3.mm.bing.net/th?id=OIP.LT0zjk3ksTku3RiRGy2jmAHaDk\\&r=0\\&pid=Api"></a></p><p>다음은 <strong>Anti‑Corruption Layer (ACL) Pattern</strong>에 대한 체계적 정리입니다.</p><hr><h2 id=1-태그>1. 태그<a hidden class=anchor aria-hidden=true href=#1-태그>#</a></h2><p>Anti‑Corruption‑Layer<br>Domain‑Driven‑Design<br>Layered‑Architecture<br>Integration‑Patterns</p><hr><h2 id=2-분류-구조-검토>2. 분류 구조 검토<a hidden class=anchor aria-hidden=true href=#2-분류-구조-검토>#</a></h2><p>주제인 ACL 은 &ldquo;Software Engineering > Design and Architecture > Architecture Patterns > Specialized Patterns&rdquo; 에 적합합니다. 이는 <strong>Legacy/외부 시스템과의 통합에서 내부 도메인 모델 오염을 방지하는 패턴</strong>으로, DDD 에서 도입된 설계 패턴이기 때문입니다 (<a href="https://learn.microsoft.com/en-us/azure/architecture/patterns/anti-corruption-layer?utm_source=chatgpt.com" title="Anti-corruption Layer pattern - Azure Architecture Center">learn.microsoft.com</a>).</p><hr><h2 id=3-요약-약-200-자>3. 요약 (약 200 자)<a hidden class=anchor aria-hidden=true href=#3-요약-약-200-자>#</a></h2><p>ACL 은 외부 시스템 (예: 레거시, 타 시스템) 의 모델/프로토콜이 내부 도메인에 침투하지 않도록 하는 중재 계층입니다. 이 계층은 <strong>Adapter, Facade, Translator</strong> 등의 요소로 구성되며, 두 시스템 간의 통신과 데이터 흐름을 변환, 중계함으로써 내부 도메인의 순수성과 일관성을 유지합니다.</p><hr><h2 id=4-개요-약-250-자>4. 개요 (약 250 자)<a hidden class=anchor aria-hidden=true href=#4-개요-약-250-자>#</a></h2><p>Anti‑Corruption Layer(ACL) 는 **Domain‑Driven Design(DDD)** 에서 제안된 패턴으로, 서로 다른 도메인 언어와 의미를 가진 시스템 간의 통합 과정에서 내부 도메인의 오염을 막기 위해 사용됩니다. 이 계층은 <strong>Facade</strong>와 <strong>Adapter</strong>, <strong>Translator</strong>를 활용하여 외부 시스템 호출을 내부 도메인 모델에 맞게 변환하며, 통신 방식이나 데이터 형식이 변경되더라도 내부 비지니스 로직은 영향을 받지 않습니다. 특히 <strong>Strangler Fig 패턴</strong>이나 <strong>레거시→마이크로서비스 마이그레이션</strong> 시 해당 패턴은 필수 요소로 작용합니다 (<a href="https://martinfowler.com/articles/patterns-legacy-displacement/legacy-mimic.html?utm_source=chatgpt.com" title="Legacy Mimic - Martin Fowler">martinfowler.com</a>).</p><hr><h2 id=5-핵심-개념-1>5. 핵심 개념<a hidden class=anchor aria-hidden=true href=#5-핵심-개념-1>#</a></h2><ul><li><strong>Bounded Context</strong>: 서로 다른 의미 모델을 격리하는 DDD 개념</li><li><strong>Adapter/Facade/Translator</strong>: 외부 모델을 내부 모델로 변환, 매핑, 중계</li><li><strong>Legacy Mimic</strong>: ACL 구현 중 임시 또는 영구적 중재자 역할 수행 (<a href="https://martinfowler.com/articles/patterns-legacy-displacement/legacy-mimic.html?utm_source=chatgpt.com" title="Legacy Mimic - Martin Fowler">martinfowler.com</a>)</li><li><strong>Transitional vs Permanent</strong>: Strangler 전략에 따라 일시적 ACL 또는 장기 사용 ACL 구분</li><li><strong>통합 복잡성 관리</strong>: API, 데이터, 이벤트 변환 및 로깅 관리를 통한 시스템 일관성 보장</li></ul><h3 id=실무-연관성>실무 연관성<a hidden class=anchor aria-hidden=true href=#실무-연관성>#</a></h3><p>ACL 은 <strong>리팩토링</strong>, <strong>도메인 마이그레이션</strong>, <strong>외부 연동 (3rd party API)</strong>, <strong>이벤트 브로커 시스템</strong> 통합에 실질적으로 활용됩니다 (<a href="https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/strangler-fig.html?utm_source=chatgpt.com" title="Strangler fig pattern - AWS Prescriptive Guidance">docs.aws.amazon.com</a>).</p><hr><h2 id=6-배경목적특징>6. 배경·목적·특징<a hidden class=anchor aria-hidden=true href=#6-배경목적특징>#</a></h2><ul><li><strong>배경</strong><ul><li>레거시 시스템이나 외부 API 와 내부 도메인의 언어·모델 차이 발생</li><li>마이그레이션 중 내부 코드가 외부 시스템 모델에 의존하여 오염되는 문제 발생</li></ul></li><li><strong>목적</strong><ul><li>내부 도메인 모델의 순수성 유지</li><li>외부 시스템과 내부 통신 변환 책임을 ACL 로 집중, 유지보수·테스트 효율 향상</li></ul></li><li><strong>특징</strong><ul><li><strong>독립된 계층 구조</strong>로 모듈화 및 테스트 용이</li><li><strong>패턴 조합</strong>: Adapter, Translator, Facade 의 조합 구현 (<a href="https://blogit.michelin.io/anti-corruption-layer/?utm_source=chatgpt.com" title="Anti-Corruption Layer: Transforming Legacy Applications into …">blogit.michelin.io</a>)</li><li><strong>마이그레이션 유연성</strong>, <strong>기술적 부채 완화</strong></li></ul></li></ul><hr><h2 id=7-주요-원리작동-원리>7. 주요 원리·작동 원리<a hidden class=anchor aria-hidden=true href=#7-주요-원리작동-원리>#</a></h2><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-4-1><a class=lnlinks href=#hl-4-1>1</a>
+</span><span class=lnt id=hl-4-2><a class=lnlinks href=#hl-4-2>2</a>
+</span><span class=lnt id=hl-4-3><a class=lnlinks href=#hl-4-3>3</a>
+</span><span class=lnt id=hl-4-4><a class=lnlinks href=#hl-4-4>4</a>
+</span><span class=lnt id=hl-4-5><a class=lnlinks href=#hl-4-5>5</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>flowchart LR
+</span></span><span class=line><span class=cl>  Client --&gt;|internal call| ACL[Anti-Corruption Layer]
+</span></span><span class=line><span class=cl>  ACL --&gt;|translates| ExternalAPI[Legacy or External System]
+</span></span><span class=line><span class=cl>  ExternalAPI --&gt;|response| ACL
+</span></span><span class=line><span class=cl>  ACL --&gt;|internal format| Client
+</span></span></code></pre></td></tr></table></div></div><ul><li><strong>요청 단계</strong>: 내부 시스템은 ACL 을 통해 외부 호출</li><li><strong>변환 단계</strong>: ACL 이 요청/응답을 내부 도메인 모델에 맞게 변환</li><li><strong>응답 단계</strong>: 내부 도메인은 외부 변화 없이 비즈니스 로직 수행 가능</li></ul><p>이 과정을 통해 <strong>외부 의존성 제거</strong>, <strong>도메인 모델 보호</strong>, <strong>유지보수 편의성</strong> 달성.</p><hr><h2 id=8-구조-및-구성-요소>8. 구조 및 구성 요소<a hidden class=anchor aria-hidden=true href=#8-구조-및-구성-요소>#</a></h2><table><thead><tr><th>구성 요소</th><th>유형</th><th>역할 설명</th></tr></thead><tbody><tr><td><strong>Facade</strong></td><td>필수</td><td>외부 시스템 캡슐화, 진입점 제공</td></tr><tr><td><strong>Adapter / Translator</strong></td><td>필수</td><td>데이터 모델 및 API 변환 책임</td></tr><tr><td><strong>Coordinator</strong></td><td>선택</td><td>다수 외부 서브시스템 연계 조정</td></tr><tr><td><strong>Policy/Validation</strong></td><td>선택</td><td>보안·유효성 검사 수행</td></tr><tr><td><strong>Event Interceptor</strong></td><td>선택</td><td>이벤트 기반 시스템 연계 시 변환 역할</td></tr><tr><td><strong>Service/Library</strong></td><td>선택</td><td>내부 사용 API 로 ACL 기능 재사용 가능</td></tr></tbody></table><ul><li>구현 방식: 내부 라이브러리 클래스 또는 독립 서비스</li><li>테스트 용이: ACL 을 유닛 테스트 및 통합 테스트 대상으로 활용 가능 (<a href="https://java-design-patterns.com/patterns/anti-corruption-layer/?utm_source=chatgpt.com" title="Anti-Corruption Layer Pattern in Java: Ensuring System Integrity …">java-design-patterns.com</a>, <a href="https://blogit.michelin.io/anti-corruption-layer/?utm_source=chatgpt.com" title="Anti-Corruption Layer: Transforming Legacy Applications into …">blogit.michelin.io</a>, <a href="https://stackoverflow.com/questions/17868217/how-to-implement-an-anti-corruption-layer-correctly?utm_source=chatgpt.com" title="domain driven design - How to implement an Anti-Corruption Layer …">stackoverflow.com</a>)</li></ul><hr><p><strong>다음 항목부터 이어서 작성 가능합니다:</strong></p><ul><li><strong>구현 기법</strong> (예: Java, C#, 이벤트 기반)</li><li><strong>장단점 분석 표</strong></li><li><strong>도전 과제 및 해결 전략</strong></li><li><strong>실무 사용 예시와 사례 분석</strong></li><li><strong>코드 구현 예시 (Python / JavaScript)</strong></li><li><strong>적용 시 고려 및 최적화 포인트</strong></li><li><strong>용어 정리 + 전체 참고 출처</strong></li></ul><p>어떤 항목을 이어서 보실지 알려주시면 바로 추가 작성해 드리겠습니다.</p><p>좋습니다! 이어서 <strong>Anti‑Corruption Layer</strong> 패턴의 다음 항목을 심층 작성합니다.</p><hr><h2 id=9-구현-기법>9. 구현 기법<a hidden class=anchor aria-hidden=true href=#9-구현-기법>#</a></h2><p>다양한 언어 및 아키텍처 환경에서 ACL 을 구현할 수 있는 기법을 정리했습니다.</p><h3 id=a-java--spring-boot-기반-구현>a) Java + Spring Boot 기반 구현<a hidden class=anchor aria-hidden=true href=#a-java--spring-boot-기반-구현>#</a></h3><ul><li><p><strong>Facade 클래스</strong>: 외부 REST API 호출을 캡슐화</p></li><li><p><strong>Adapter / Translator</strong>: DTO ↔ 도메인 객체 변환 담당</p></li><li><p><strong>구현 예시 구조</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-5-1><a class=lnlinks href=#hl-5-1>1</a>
+</span><span class=lnt id=hl-5-2><a class=lnlinks href=#hl-5-2>2</a>
+</span><span class=lnt id=hl-5-3><a class=lnlinks href=#hl-5-3>3</a>
+</span><span class=lnt id=hl-5-4><a class=lnlinks href=#hl-5-4>4</a>
+</span><span class=lnt id=hl-5-5><a class=lnlinks href=#hl-5-5>5</a>
+</span><span class=lnt id=hl-5-6><a class=lnlinks href=#hl-5-6>6</a>
+</span><span class=lnt id=hl-5-7><a class=lnlinks href=#hl-5-7>7</a>
+</span><span class=lnt id=hl-5-8><a class=lnlinks href=#hl-5-8>8</a>
+</span><span class=lnt id=hl-5-9><a class=lnlinks href=#hl-5-9>9</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>com.example.app
+</span></span><span class=line><span class=cl>├─ acl
+</span></span><span class=line><span class=cl>│   ├─ ExternalFacade.java
+</span></span><span class=line><span class=cl>│   ├─ ExternalAdapter.java
+</span></span><span class=line><span class=cl>│   └─ ExternalPolicyValidator.java
+</span></span><span class=line><span class=cl>├─ domain
+</span></span><span class=line><span class=cl>│   └─ DomainModel.java
+</span></span><span class=line><span class=cl>└─ service
+</span></span><span class=line><span class=cl>    └─ BusinessService.java
+</span></span></code></pre></td></tr></table></div></div></li><li><p><strong>특징</strong></p><ul><li>구조화된 스프링 빈 등록</li><li><code>@FeignClient</code> 나 <code>RestTemplate</code> 사용 시 ACL 에서 호출하고 내부에서는 순수 도메인 사용</li></ul></li></ul><hr><h3 id=b-이벤트-기반-시스템>b) 이벤트 기반 시스템<a hidden class=anchor aria-hidden=true href=#b-이벤트-기반-시스템>#</a></h3><ul><li><strong>Event Translator</strong>: 외부 이벤트 (Broker 메시지 등) 를 내부 이벤트 타입으로 변환</li><li><strong>구성 요소</strong><ul><li>Kafka Consumer → Translator → 내부 도메인 서비스</li><li>Translator 에서 도메인 이벤트로 변환 후 내부 Publisher 로 발행</li></ul></li></ul><hr><h3 id=c-마이크로서비스-중재-서비스>c) 마이크로서비스 중재 서비스<a hidden class=anchor aria-hidden=true href=#c-마이크로서비스-중재-서비스>#</a></h3><ul><li><strong>독립된 Microservice</strong> 형태의 ACL<ul><li>내부 서비스 요청 → ACL 서비스 → 외부 API 호출</li><li>장점: 트랜잭션 분리, 확장성 유연성 확보</li><li>단점: 네트워크 hop 증가, 배포 모니터링 필요</li></ul></li></ul><hr><h3 id=d-라이브러리-형태-구현>d) 라이브러리 형태 구현<a hidden class=anchor aria-hidden=true href=#d-라이브러리-형태-구현>#</a></h3><ul><li><strong>공통 ACL 라이브러리로 모듈화</strong><ul><li>여러 서비스에서 공통 <code>external-adapter.jar</code> 참조</li><li>일관된 번역과 정책 검증 보장</li></ul></li></ul><hr><h2 id=10-장단점-분석>10. 장단점 분석<a hidden class=anchor aria-hidden=true href=#10-장단점-분석>#</a></h2><h3 id=장점>장점<a hidden class=anchor aria-hidden=true href=#장점>#</a></h3><table><thead><tr><th>구분</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>도메인 보호</td><td>외부 모델 무결성 유지</td><td>외부 API 변화 시 내부 도메인 영향 최소화</td></tr><tr><td>테스트 용이</td><td>Facade/Adapter 테스트 분리</td><td>목 (mock) 으로 외부 호출 대체 가능</td></tr><tr><td>유지보수 효율</td><td>통합 로직 집중 관리됨</td><td>개선이나 에러 대응이 용이</td></tr><tr><td>점진 마이그레이션</td><td>Legacy → Microservices 단계별 전환 가능</td><td>Strangler Fig 패턴 구현 시 유연성 확보</td></tr></tbody></table><h3 id=단점-1>단점<a hidden class=anchor aria-hidden=true href=#단점-1>#</a></h3><table><thead><tr><th>구분</th><th>항목</th><th>설명</th><th>해결책</th></tr></thead><tbody><tr><td>복잡도</td><td>계층 추가로 인한 구조 복잡화</td><td>시스템 복잡도 상승</td><td>표준화된 템플릿 및 코드 생성 도구 사용</td></tr><tr><td>성능 오버헤드</td><td>데이터 변환 중 추가 지연 발생</td><td>지연 시간 증가 가능</td><td>캐시, 비동기 처리 적용</td></tr><tr><td>유지보수 부담</td><td>의존 계층 추가로 코드량 증가</td><td>변경 시 주의 요망</td><td>코드 모듈화 및 책임 분리 원칙 준수</td></tr></tbody></table><hr><h2 id=11-도전-과제-및-해결-전략>11. 도전 과제 및 해결 전략<a hidden class=anchor aria-hidden=true href=#11-도전-과제-및-해결-전략>#</a></h2><table><thead><tr><th>과제</th><th>원인</th><th>영향</th><th>탐지 및 진단</th><th>해결 전략</th></tr></thead><tbody><tr><td>모델 동기화 문제</td><td>외부/내부 모델 변경 시 ACL 미반영</td><td>일관성 깨짐, 오류 발생</td><td>통합 테스트 실패, 논리 에러 로그</td><td>모델 버전 관리, Contract 테스트</td></tr><tr><td>ACL 코드 증식</td><td>여러 외부 시스템마다 ACL 중복 생성</td><td>유지보수 부담 증대</td><td>리팩토링 이슈 및 코드 분석</td><td>공통 라이브러리화, 템플릿화</td></tr><tr><td>트랜잭션 경계 불명확</td><td>ACL 추가로 트랜잭션 케스케이드 발생</td><td>트랜잭션 무결성 문제</td><td>DB rollback 등 문제 감지</td><td>ACL 요청 트랜잭션 비포함, 별도 트랜잭션 레이어 구성</td></tr><tr><td>성능 병목</td><td>Adapter 변환 처리량 초과</td><td>응답 지연, 스로틀 현상</td><td>모니터링 툴 (JVM metrics 등)</td><td>Bulk request, 비동기 처리, 캐싱</td></tr></tbody></table><hr><h2 id=12-실무-사용-예시-1>12. 실무 사용 예시<a hidden class=anchor aria-hidden=true href=#12-실무-사용-예시-1>#</a></h2><table><thead><tr><th>조직</th><th>연동 대상</th><th>ACL 구성 방식</th><th>도입 효과</th></tr></thead><tbody><tr><td>전자상거래사 A</td><td>송장 발행 레거시 시스템</td><td>Java/Spring Facade 기반</td><td>내부 모델 오염 방지 및 배포 구조 단순화</td></tr><tr><td>금융 서비스 B</td><td>외부 금융 API</td><td>이벤트 Translator + Policy</td><td>보안 검사 강화, 이벤트 일관성 확보</td></tr><tr><td>물류 플랫폼 C</td><td>외부 웨어하우스 API</td><td>Microservice 형태 ACL</td><td>비즈니스 로직 경량화 및 장애 격리</td></tr></tbody></table><hr><h2 id=13-구현-예시-javascript>13. 구현 예시 (JavaScript)<a hidden class=anchor aria-hidden=true href=#13-구현-예시-javascript>#</a></h2><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-6-1><a class=lnlinks href=#hl-6-1> 1</a>
+</span><span class=lnt id=hl-6-2><a class=lnlinks href=#hl-6-2> 2</a>
+</span><span class=lnt id=hl-6-3><a class=lnlinks href=#hl-6-3> 3</a>
+</span><span class=lnt id=hl-6-4><a class=lnlinks href=#hl-6-4> 4</a>
+</span><span class=lnt id=hl-6-5><a class=lnlinks href=#hl-6-5> 5</a>
+</span><span class=lnt id=hl-6-6><a class=lnlinks href=#hl-6-6> 6</a>
+</span><span class=lnt id=hl-6-7><a class=lnlinks href=#hl-6-7> 7</a>
+</span><span class=lnt id=hl-6-8><a class=lnlinks href=#hl-6-8> 8</a>
+</span><span class=lnt id=hl-6-9><a class=lnlinks href=#hl-6-9> 9</a>
+</span><span class=lnt id=hl-6-10><a class=lnlinks href=#hl-6-10>10</a>
+</span><span class=lnt id=hl-6-11><a class=lnlinks href=#hl-6-11>11</a>
+</span><span class=lnt id=hl-6-12><a class=lnlinks href=#hl-6-12>12</a>
+</span><span class=lnt id=hl-6-13><a class=lnlinks href=#hl-6-13>13</a>
+</span><span class=lnt id=hl-6-14><a class=lnlinks href=#hl-6-14>14</a>
+</span><span class=lnt id=hl-6-15><a class=lnlinks href=#hl-6-15>15</a>
+</span><span class=lnt id=hl-6-16><a class=lnlinks href=#hl-6-16>16</a>
+</span><span class=lnt id=hl-6-17><a class=lnlinks href=#hl-6-17>17</a>
+</span><span class=lnt id=hl-6-18><a class=lnlinks href=#hl-6-18>18</a>
+</span><span class=lnt id=hl-6-19><a class=lnlinks href=#hl-6-19>19</a>
+</span><span class=lnt id=hl-6-20><a class=lnlinks href=#hl-6-20>20</a>
+</span><span class=lnt id=hl-6-21><a class=lnlinks href=#hl-6-21>21</a>
+</span><span class=lnt id=hl-6-22><a class=lnlinks href=#hl-6-22>22</a>
+</span><span class=lnt id=hl-6-23><a class=lnlinks href=#hl-6-23>23</a>
+</span><span class=lnt id=hl-6-24><a class=lnlinks href=#hl-6-24>24</a>
+</span><span class=lnt id=hl-6-25><a class=lnlinks href=#hl-6-25>25</a>
+</span><span class=lnt id=hl-6-26><a class=lnlinks href=#hl-6-26>26</a>
+</span><span class=lnt id=hl-6-27><a class=lnlinks href=#hl-6-27>27</a>
+</span><span class=lnt id=hl-6-28><a class=lnlinks href=#hl-6-28>28</a>
+</span><span class=lnt id=hl-6-29><a class=lnlinks href=#hl-6-29>29</a>
+</span><span class=lnt id=hl-6-30><a class=lnlinks href=#hl-6-30>30</a>
+</span><span class=lnt id=hl-6-31><a class=lnlinks href=#hl-6-31>31</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// externalAdapter.js
+</span></span></span><span class=line><span class=cl><span class=kr>export</span> <span class=kr>class</span> <span class=nx>ExternalAdapter</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>constructor</span><span class=p>(</span><span class=nx>httpClient</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>this</span><span class=p>.</span><span class=nx>http</span> <span class=o>=</span> <span class=nx>httpClient</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=kr>async</span> <span class=nx>fetchExternalData</span><span class=p>(</span><span class=nx>id</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kr>const</span> <span class=nx>resp</span> <span class=o>=</span> <span class=kr>await</span> <span class=k>this</span><span class=p>.</span><span class=nx>http</span><span class=p>.</span><span class=nx>get</span><span class=p>(</span><span class=sb>`/external/</span><span class=si>${</span><span class=nx>id</span><span class=si>}</span><span class=sb>`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=k>this</span><span class=p>.</span><span class=nx>translateToDomain</span><span class=p>(</span><span class=nx>resp</span><span class=p>.</span><span class=nx>data</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=nx>translateToDomain</span><span class=p>(</span><span class=nx>data</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>domainId</span><span class=o>:</span> <span class=nx>data</span><span class=p>.</span><span class=nx>ext_id</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>name</span><span class=o>:</span> <span class=nx>data</span><span class=p>.</span><span class=nx>ext_name</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>quantity</span><span class=o>:</span> <span class=nb>Number</span><span class=p>(</span><span class=nx>data</span><span class=p>.</span><span class=nx>qty</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>    <span class=p>};</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// service.js
+</span></span></span><span class=line><span class=cl><span class=kr>import</span> <span class=p>{</span> <span class=nx>ExternalAdapter</span> <span class=p>}</span> <span class=nx>from</span> <span class=s1>&#39;./externalAdapter.js&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kr>export</span> <span class=kr>class</span> <span class=nx>BusinessService</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>constructor</span><span class=p>(</span><span class=nx>adapter</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>this</span><span class=p>.</span><span class=nx>adapter</span> <span class=o>=</span> <span class=nx>adapter</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=kr>async</span> <span class=nx>getData</span><span class=p>(</span><span class=nx>id</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kr>const</span> <span class=nx>model</span> <span class=o>=</span> <span class=kr>await</span> <span class=k>this</span><span class=p>.</span><span class=nx>adapter</span><span class=p>.</span><span class=nx>fetchExternalData</span><span class=p>(</span><span class=nx>id</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// domain logic...
+</span></span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>model</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><hr><h2 id=14-실무-적용-시-고려사항>14. 실무 적용 시 고려사항<a hidden class=anchor aria-hidden=true href=#14-실무-적용-시-고려사항>#</a></h2><table><thead><tr><th>항목</th><th>설명</th><th>권장 전략</th></tr></thead><tbody><tr><td>계약 테스트</td><td>ACL ↔ 외부 시스템 간의 계약 준수</td><td>Pact 또는 Spring Contract 사용</td></tr><tr><td>버전 관리</td><td>외부 스펙 변경 시 ACL 내부 버전 대응</td><td>ACL 인터페이스 확장 또는 버전 구분</td></tr><tr><td>로깅 및 모니터링</td><td>변환 과정에서 로깅 정책 수립, 장애 시 추적 가능하도록 설정</td><td>Structured Logging 및 APM 연동</td></tr><tr><td>트랜잭셔널 경계</td><td>ACL 전/후 트랜잭션 경계 설계</td><td>DB 트랜잭션 외부 호출 분리 구성</td></tr></tbody></table><hr><h3 id=다음-작성-가능-항목>다음 작성 가능 항목<a hidden class=anchor aria-hidden=true href=#다음-작성-가능-항목>#</a></h3><ul><li>최적화 고려사항 및 권장 전략</li><li>추가 코드 예시 (Python, Java)</li><li>이벤트 기반 ACL 워크플로우</li><li>테스트 설계 (유닛/통합/계약)</li><li>용어 정리 및 참고 출처</li></ul><p>어떤 부분을 먼저 살펴보실까요? 😊</p><p>알겠습니다! 이어서 <strong>Anti‑Corruption Layer Pattern</strong>의 다음 항목을 작성합니다:</p><hr><h2 id=15-최적화-고려-사항-및-권장-전략>15. 최적화 고려 사항 및 권장 전략<a hidden class=anchor aria-hidden=true href=#15-최적화-고려-사항-및-권장-전략>#</a></h2><table><thead><tr><th>항목</th><th>고려 사항</th><th>권장 전략</th></tr></thead><tbody><tr><td>데이터 변환 비용</td><td>Adapter/Translator 의 변환 로직이 복잡하거나 반복 수행됨</td><td>DTO 간 매핑 라이브러리 활용 (예: MapStruct, AutoMapper); 변환 로직 캐싱</td></tr><tr><td>비동기 처리</td><td>외부 호출 지연 시 서비스 처리 전체 지연 가능</td><td>비동기 호출 및 큐 기반 처리; Circuit Braker 연계</td></tr><tr><td>통합 응답 병목</td><td>여러 외부 시스템 호출 시 병합 지연 발생</td><td>다양한 호출을 병렬 수행 후 Aggregation; Bulk API 활용</td></tr><tr><td>로깅/추적 Overhead</td><td>모든 변환 과정을 상세 로그로 기록하면 성능 저하 우려</td><td>샘플링 방식 로깅, APM 툴 연계 (예: Jaeger, Zipkin, NewRelic)</td></tr><tr><td>리소스 관리</td><td>ACL 내 리소스 누수, Excessive Object 생성으로 인한 GC 부담</td><td>Connection Pool 사용, 메모리 사용량 정책, 객체 재사용</td></tr></tbody></table><hr><h2 id=16-추가-구현-예시>16. 추가 구현 예시<a hidden class=anchor aria-hidden=true href=#16-추가-구현-예시>#</a></h2><h3 id=a-python--flask-기반-acl>a) Python + Flask 기반 ACL<a hidden class=anchor aria-hidden=true href=#a-python--flask-기반-acl>#</a></h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-7-1><a class=lnlinks href=#hl-7-1> 1</a>
+</span><span class=lnt id=hl-7-2><a class=lnlinks href=#hl-7-2> 2</a>
+</span><span class=lnt id=hl-7-3><a class=lnlinks href=#hl-7-3> 3</a>
+</span><span class=lnt id=hl-7-4><a class=lnlinks href=#hl-7-4> 4</a>
+</span><span class=lnt id=hl-7-5><a class=lnlinks href=#hl-7-5> 5</a>
+</span><span class=lnt id=hl-7-6><a class=lnlinks href=#hl-7-6> 6</a>
+</span><span class=lnt id=hl-7-7><a class=lnlinks href=#hl-7-7> 7</a>
+</span><span class=lnt id=hl-7-8><a class=lnlinks href=#hl-7-8> 8</a>
+</span><span class=lnt id=hl-7-9><a class=lnlinks href=#hl-7-9> 9</a>
+</span><span class=lnt id=hl-7-10><a class=lnlinks href=#hl-7-10>10</a>
+</span><span class=lnt id=hl-7-11><a class=lnlinks href=#hl-7-11>11</a>
+</span><span class=lnt id=hl-7-12><a class=lnlinks href=#hl-7-12>12</a>
+</span><span class=lnt id=hl-7-13><a class=lnlinks href=#hl-7-13>13</a>
+</span><span class=lnt id=hl-7-14><a class=lnlinks href=#hl-7-14>14</a>
+</span><span class=lnt id=hl-7-15><a class=lnlinks href=#hl-7-15>15</a>
+</span><span class=lnt id=hl-7-16><a class=lnlinks href=#hl-7-16>16</a>
+</span><span class=lnt id=hl-7-17><a class=lnlinks href=#hl-7-17>17</a>
+</span><span class=lnt id=hl-7-18><a class=lnlinks href=#hl-7-18>18</a>
+</span><span class=lnt id=hl-7-19><a class=lnlinks href=#hl-7-19>19</a>
+</span><span class=lnt id=hl-7-20><a class=lnlinks href=#hl-7-20>20</a>
+</span><span class=lnt id=hl-7-21><a class=lnlinks href=#hl-7-21>21</a>
+</span><span class=lnt id=hl-7-22><a class=lnlinks href=#hl-7-22>22</a>
+</span><span class=lnt id=hl-7-23><a class=lnlinks href=#hl-7-23>23</a>
+</span><span class=lnt id=hl-7-24><a class=lnlinks href=#hl-7-24>24</a>
+</span><span class=lnt id=hl-7-25><a class=lnlinks href=#hl-7-25>25</a>
+</span><span class=lnt id=hl-7-26><a class=lnlinks href=#hl-7-26>26</a>
+</span><span class=lnt id=hl-7-27><a class=lnlinks href=#hl-7-27>27</a>
+</span><span class=lnt id=hl-7-28><a class=lnlinks href=#hl-7-28>28</a>
+</span><span class=lnt id=hl-7-29><a class=lnlinks href=#hl-7-29>29</a>
+</span><span class=lnt id=hl-7-30><a class=lnlinks href=#hl-7-30>30</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># adapters/external_adapter.py</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>requests</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>ExternalAdapter</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>base_url</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>base_url</span> <span class=o>=</span> <span class=n>base_url</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>fetch</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>ext_id</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>dict</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>resp</span> <span class=o>=</span> <span class=n>requests</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>base_url</span><span class=si>}</span><span class=s2>/items/</span><span class=si>{</span><span class=n>ext_id</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>resp</span><span class=o>.</span><span class=n>raise_for_status</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>translate</span><span class=p>(</span><span class=n>resp</span><span class=o>.</span><span class=n>json</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>translate</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>data</span><span class=p>:</span> <span class=nb>dict</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>dict</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;internal_id&#34;</span><span class=p>:</span> <span class=n>data</span><span class=p>[</span><span class=s2>&#34;id&#34;</span><span class=p>],</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;name&#34;</span><span class=p>:</span> <span class=n>data</span><span class=p>[</span><span class=s2>&#34;name&#34;</span><span class=p>],</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;amount&#34;</span><span class=p>:</span> <span class=nb>int</span><span class=p>(</span><span class=n>data</span><span class=p>[</span><span class=s2>&#34;stock&#34;</span><span class=p>]),</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># services/business_service.py</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>flask</span> <span class=kn>import</span> <span class=n>Flask</span><span class=p>,</span> <span class=n>jsonify</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>adapters.external_adapter</span> <span class=kn>import</span> <span class=n>ExternalAdapter</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>app</span> <span class=o>=</span> <span class=n>Flask</span><span class=p>(</span><span class=vm>__name__</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>adapter</span> <span class=o>=</span> <span class=n>ExternalAdapter</span><span class=p>(</span><span class=s2>&#34;https://api.external&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nd>@app.route</span><span class=p>(</span><span class=s2>&#34;/items/&lt;item_id&gt;&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>get_item</span><span class=p>(</span><span class=n>item_id</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>model</span> <span class=o>=</span> <span class=n>adapter</span><span class=o>.</span><span class=n>fetch</span><span class=p>(</span><span class=n>item_id</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>model</span><span class=p>[</span><span class=s2>&#34;processed&#34;</span><span class=p>]</span> <span class=o>=</span> <span class=kc>True</span>  <span class=c1># 추가 도메인 로직</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>jsonify</span><span class=p>(</span><span class=n>model</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=b-java--spring--contract-testing-pact>b) Java + Spring + Contract Testing (Pact)<a hidden class=anchor aria-hidden=true href=#b-java--spring--contract-testing-pact>#</a></h3><ul><li><strong>Pact 설정</strong> 통해 <code>ExternalAdapter</code> 가 외부 사양을 따라 구현되었는지 검증</li><li>테스트 시점에 Mock 외부 API 와 합의된 스펙 (contract) 대로 동작하는지 자동 검증</li></ul><hr><h2 id=17-이벤트-기반-acl-워크플로우>17. 이벤트 기반 ACL 워크플로우<a hidden class=anchor aria-hidden=true href=#17-이벤트-기반-acl-워크플로우>#</a></h2><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-8-1><a class=lnlinks href=#hl-8-1>1</a>
+</span><span class=lnt id=hl-8-2><a class=lnlinks href=#hl-8-2>2</a>
+</span><span class=lnt id=hl-8-3><a class=lnlinks href=#hl-8-3>3</a>
+</span><span class=lnt id=hl-8-4><a class=lnlinks href=#hl-8-4>4</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>flowchart TD
+</span></span><span class=line><span class=cl>  ExternalEventSource --&gt;|Kafka| ACLTranslator --&gt; DomainEventBus
+</span></span><span class=line><span class=cl>  DomainEventBus --&gt; BusinessHandler --&gt; Database
+</span></span><span class=line><span class=cl>  ACLTranslator --&gt;|Log| Monitoring
+</span></span></code></pre></td></tr></table></div></div><ul><li>외부 시스템 → ACLTranslator 가 외부 이벤트를 수신하여 내부 도메인 이벤트로 변환</li><li>변환된 이벤트는 내부 로직이나 DB 에 저장, 처리됨</li><li>중간에 로깅/정책 검증을 통해 보안 및 무결성 보장</li></ul><hr><h2 id=18-용어-정리>18. 용어 정리<a hidden class=anchor aria-hidden=true href=#18-용어-정리>#</a></h2><table><thead><tr><th>카테고리</th><th>용어</th><th>설명</th></tr></thead><tbody><tr><td>DDD 개념</td><td>Bounded Context</td><td>도메인 모델이 유효한 경계 구역</td></tr><tr><td>패턴 구성 요소</td><td>Facade</td><td>외부 시스템 인터페이스 감싸기</td></tr><tr><td>패턴 구성 요소</td><td>Adapter/Translator</td><td>외부 데이터 ↔ 내부 도메인 모델 변환</td></tr><tr><td>패턴 구성 요소</td><td>ACL (Anti‑Corruption Layer)</td><td>외부 시스템으로부터 내부 도메인 보호하는 얇은 미들 계층</td></tr><tr><td>테스트</td><td>Contract Testing</td><td>외부 API 와의 계약 (스펙) 기반 테스트</td></tr><tr><td>통신 유형</td><td>이벤트 기반</td><td>메시지 큐/Kafka 등을 이용한 비동기 통신 방식</td></tr></tbody></table><hr><h2 id=19-참고-및-출처>19. 참고 및 출처<a hidden class=anchor aria-hidden=true href=#19-참고-및-출처>#</a></h2><ul><li><strong>Anti‑Corruption Layer 패턴</strong>–Microsoft Azure Architecture Center</li><li><strong>Domain‑Driven Design Patterns</strong>–Anti‑Corruption Layer 조항</li><li><strong>Pact</strong> 및 <strong>Spring Cloud Contract</strong> 예시 적용</li><li>이벤트 기반 ACL 사례–Kafka Translator 구현 예</li></ul><hr><p>✅ <strong>작성 완료 항목</strong>: 15~18 (최적화·추가코드·워크플로우·용어 정리)</p><p>다음으로 필요하신 주제나 더 심화할 항목 있으시면 언제든지 말씀해주세요!</p><p>다음은 <strong>Anti‑Corruption Layer Pattern</strong>의 마지막 항목들 정리입니다.</p><hr><h2 id=20-반드시-학습해야할-내용>20. 반드시 학습해야할 내용<a hidden class=anchor aria-hidden=true href=#20-반드시-학습해야할-내용>#</a></h2><table><thead><tr><th>카테고리</th><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>DDD 패턴</td><td>Bounded Context</td><td>컨텍스트 간 언어 및 모델 경계 설정 방식</td><td>ACL 이 어떤 컨텍스트에 속하는지 명확히 이해</td></tr><tr><td>설계 패턴</td><td>Adapter, Facade, Translator</td><td>ACL 구현 시 이용되는 구조적 구성 요소</td><td>구조화된 중계 계층 설계 이해</td></tr><tr><td>테스트</td><td>Contract Testing</td><td>API 계약 기반 통합 검증 방식</td><td>외부 시스템 변경 방지 및 안정성 확보</td></tr><tr><td>장애 대응</td><td>Resilience Patterns</td><td>Circuit Breaker, Retry 등과 결합</td><td>ACL 내 장애 발생 대응 설계</td></tr><tr><td>모니터링</td><td>Telemetry & Logging</td><td>ACL 에서의 로깅 기준 및 APM 연동</td><td>실행 성능, KPI 모니터링 환경 구성</td></tr></tbody></table><hr><h2 id=21-실무-적용-시-고려사항-및-주의할-점>21. 실무 적용 시 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#21-실무-적용-시-고려사항-및-주의할-점>#</a></h2><table><thead><tr><th>항목</th><th>설명</th><th>권장 방안</th></tr></thead><tbody><tr><td>ACL 라이프사이클 관리</td><td>임시 vs. 영구적 ACL 여부 결정 필요</td><td>마이그레이션 완료 시 ACL 제거</td></tr><tr><td>ACL 스케일링</td><td>고부하 처리 시 병목 발생 가능</td><td>컨테이너 오토스케일링, 클라우드 확장 활용</td></tr><tr><td>관찰성 (Observability)</td><td>ACL 내부 호출 및 변환 흐름 추적 필요</td><td>TraceId 전파, 분산추적 도구 활용</td></tr><tr><td>보안 정책 연계</td><td>ACL 을 통해 인증/인가 또는 데이터 검증 수행 필요</td><td>JWT, OAuth 등 ACL 전담 보안 검증</td></tr><tr><td>의존성 추적</td><td>외부 모델 변경 시 ACL 변동 여부 판단</td><td>스펙 버전 관리, API 테스트 결과 기록</td></tr></tbody></table><hr><h2 id=22-최적화-고려사항-및-주의할-점>22. 최적화 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#22-최적화-고려사항-및-주의할-점>#</a></h2><table><thead><tr><th>항목</th><th>설명</th><th>권장 전략</th></tr></thead><tbody><tr><td>변환 비용</td><td>Object 매핑 비용 과중 시 ACL 성능 저하 우려</td><td>MapStruct, 캐시 응답 DTO 활용</td></tr><tr><td>호출 병렬 처리</td><td>외부 API 호출 순차적 처리 시 응답 시간 증가</td><td><code>Promise.all</code>, <code>CompletableFuture</code> 등 병렬화 구현</td></tr><tr><td>지연 (Latency)</td><td>미들 계층 삽입으로 인한 응답 지연</td><td>ACL 을 내부 호출과 병렬화하거나 Caching 전환</td></tr><tr><td>메모리/GC 부담</td><td>번역 로직 중 객체 생성 과다</td><td>Flyweight 패턴 활용, 객체 재사용</td></tr><tr><td>리소스 풀링</td><td>HTTP 세션, DB 커넥션 누수로 인한 과부하 우려</td><td>연결 풀 사용 (<code>RestTemplate</code>, <code>HttpClient</code>) 설정</td></tr></tbody></table><hr><h2 id=-용어-정리>✅ 용어 정리<a hidden class=anchor aria-hidden=true href=#-용어-정리>#</a></h2><table><thead><tr><th>카테고리</th><th>용어</th><th>설명</th></tr></thead><tbody><tr><td>DDD 개념</td><td>Bounded Context</td><td>모델의 유효 경계를 정의하는 단위</td></tr><tr><td>패턴 구성 요소</td><td>Adapter / Facade / Translator</td><td>외부 시스템을 내부 도메인으로 변환/중계하는 클래스</td></tr><tr><td>모니터링</td><td>Telemetry</td><td>ACL 내 트랜잭션/변환 로그, 메트릭 수집</td></tr><tr><td>복원력 패턴</td><td>Circuit Breaker</td><td>ACL 장애 시 유입 트래픽 차단 및 복구</td></tr><tr><td>통합 테스트</td><td>Contract Testing</td><td>외부 API 와 통신 규격이 명세와 일치하는지 검증</td></tr></tbody></table><hr><h2 id=-참고-및-출처>📚 참고 및 출처<a hidden class=anchor aria-hidden=true href=#-참고-및-출처>#</a></h2><ul><li>Azure Architecture Center–ACL 패턴 개요 (<a href="https://learn.microsoft.com/en-us/azure/architecture/patterns/anti-corruption-layer?utm_source=chatgpt.com" title="Anti-corruption Layer pattern - Azure Architecture Center">learn.microsoft.com</a>, <a href="https://martinfowler.com/articles/patterns-legacy-displacement/legacy-mimic.html?utm_source=chatgpt.com" title="Legacy Mimic - Martin Fowler">linkedin.com</a>, <a href="https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/strangler-fig.html?utm_source=chatgpt.com" title="Strangler fig pattern - AWS Prescriptive Guidance">dremio.com</a>)</li><li>AWS Prescriptive Guidance–ACL 구현 및 고려사항 (<a href="https://blogit.michelin.io/anti-corruption-layer/?utm_source=chatgpt.com" title="Anti-Corruption Layer: Transforming Legacy Applications into …">docs.aws.amazon.com</a>)</li><li>Medium 및 Dremio 등–패턴 적용 예 및 한계 (<a href="https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/strangler-fig.html?utm_source=chatgpt.com" title="Strangler fig pattern - AWS Prescriptive Guidance">dremio.com</a>)</li><li>StackOverflow–Facade/Adapter/Translator 설명 (<a href="https://java-design-patterns.com/patterns/anti-corruption-layer/?utm_source=chatgpt.com" title="Anti-Corruption Layer Pattern in Java: Ensuring System Integrity …">stackoverflow.com</a>)</li></ul><hr><p>🎯 주요 항목 20~22, 용어 및 출처 정리 완료했습니다. 추가로 원하시는 <strong>ACL 테스트 코드 예시, CI/CD 통합, 패턴 비교 분석</strong> 등 다른 주제가 있다면 언제든 요청해주세요!</p><p>이제 수집한 정보를 바탕으로 요청된 형식에 따라 Anti-Corruption Layer Pattern 에 대한 포괄적인 분석을 제공하겠습니다.</p><h2 id=anti-corruption-layer-pattern-분석-보고서>Anti-Corruption Layer Pattern 분석 보고서<a hidden class=anchor aria-hidden=true href=#anti-corruption-layer-pattern-분석-보고서>#</a></h2><h3 id=1-태그-정리>1. 태그 정리<a hidden class=anchor aria-hidden=true href=#1-태그-정리>#</a></h3><ul><li>Anti-Corruption-Layer</li><li>Domain-Driven-Design</li><li>Legacy-Integration</li><li>Architecture-Pattern</li></ul><h3 id=2-주제-분류-검토>2. 주제 분류 검토<a hidden class=anchor aria-hidden=true href=#2-주제-분류-검토>#</a></h3><p>제시된 분류 &ldquo;Computer Science and Engineering > Software Engineering > Design and Architecture > Architecture Patterns > Specialized Patterns&rdquo; 는 매우 적절합니다.</p><p><strong>근거:</strong></p><ul><li>Anti-Corruption Layer Pattern 은 Domain-Driven Design 에서 유래된 전문적인 아키텍처 패턴입니다</li><li>시스템 간 통합과 관련된 특수한 목적의 패턴으로, 일반적인 디자인 패턴보다 더 구체적인 영역에 속합니다</li><li>소프트웨어 아키텍처 설계에서 레거시 시스템과 현대 시스템 간의 경계를 다루는 전문 패턴입니다</li></ul><h3 id=3-주제-요약-200-자-내외>3. 주제 요약 (200 자 내외)<a hidden class=anchor aria-hidden=true href=#3-주제-요약-200-자-내외>#</a></h3><p>Anti-Corruption Layer Pattern 은 서로 다른 시맨틱을 가진 시스템 간 통합 시 한 시스템이 다른 시스템의 복잡성이나 설계 결함에 " 오염 " 되지 않도록 보호하는 중간 계층을 제공하는 아키텍처 패턴입니다. 주로 레거시 시스템과 현대 시스템 간 통합에서 활용됩니다.</p><h3 id=4-전체-개요-250-자-내외>4. 전체 개요 (250 자 내외)<a hidden class=anchor aria-hidden=true href=#4-전체-개요-250-자-내외>#</a></h3><p>본 보고서는 Anti-Corruption Layer Pattern 의 핵심 개념부터 실무 적용까지를 포괄적으로 다룹니다. 패턴의 배경, 구조적 특징, 구현 기법, 장단점 분석, 실무 사례, 그리고 효과적인 적용을 위한 고려사항들을 체계적으로 분석하여 이론과 실무를 연결하는 종합적인 가이드를 제공합니다.</p><hr><h3 id=제-1-부-핵심-개념-및-배경>제 1 부: 핵심 개념 및 배경<a hidden class=anchor aria-hidden=true href=#제-1-부-핵심-개념-및-배경>#</a></h3><h4 id=핵심-개념>핵심 개념<a hidden class=anchor aria-hidden=true href=#핵심-개념>#</a></h4><p>Anti-Corruption Layer (ACL) Pattern 은 <strong>Domain-Driven Design</strong>에서 Eric Evans 에 의해 처음 소개된 아키텍처 패턴입니다. 이 패턴의 핵심은 서로 다른 <strong>바운디드 컨텍스트 (Bounded Context)</strong> 간의 통신에서 한 시스템의 도메인 모델이 다른 시스템의 개념이나 복잡성으로 인해 " 오염 " 되는 것을 방지하는 것입니다.</p><p><strong>실무 구현 연관성:</strong></p><ul><li><strong>Facade Pattern</strong>: 복잡한 레거시 시스템에 대한 단순화된 인터페이스 제공</li><li><strong>Adapter Pattern</strong>: 호환되지 않는 인터페이스 간의 변환 처리</li><li><strong>Translator Pattern</strong>: 도메인 모델 간의 데이터 변환 로직 구현</li><li><strong>Repository Pattern</strong>: 데이터 액세스 계층과 비즈니스 로직 간의 분리</li></ul><h4 id=배경-1>배경<a hidden class=anchor aria-hidden=true href=#배경-1>#</a></h4><p>현대 소프트웨어 개발에서는 다음과 같은 상황들이 ACL Pattern 의 필요성을 증가시키고 있습니다:</p><ol><li><strong>레거시 시스템 현대화</strong>: 기존 시스템을 완전히 교체하지 않고 점진적으로 현대화</li><li><strong>마이크로서비스 아키텍처</strong>: 모놀리식에서 마이크로서비스로의 전환</li><li><strong>서드파티 시스템 통합</strong>: 외부 API 나 SaaS 솔루션과의 통합</li><li><strong>데이터 품질 보장</strong>: 다양한 소스로부터 오는 데이터의 일관성 유지</li></ol><h4 id=목적-및-필요성-1>목적 및 필요성<a hidden class=anchor aria-hidden=true href=#목적-및-필요성-1>#</a></h4><ul><li><strong>도메인 모델 보호</strong>: 핵심 비즈니스 로직이 외부 시스템의 복잡성으로부터 격리</li><li><strong>점진적 마이그레이션</strong>: 대규모 시스템 교체 시 단계적 접근 가능</li><li><strong>시스템 간 결합도 감소</strong>: 독립적인 진화와 유지보수 가능</li><li><strong>데이터 무결성 보장</strong>: 외부로부터 오는 잘못된 데이터나 요청 차단</li></ul><hr><h3 id=제-2-부-구조-및-작동-원리>제 2 부: 구조 및 작동 원리<a hidden class=anchor aria-hidden=true href=#제-2-부-구조-및-작동-원리>#</a></h3><h4 id=주요-기능-및-역할-1>주요 기능 및 역할<a hidden class=anchor aria-hidden=true href=#주요-기능-및-역할-1>#</a></h4><h5 id=anti-corruption-layer-주요-기능>Anti-Corruption Layer 주요 기능<a hidden class=anchor aria-hidden=true href=#anti-corruption-layer-주요-기능>#</a></h5><h6 id=1-데이터-변환-data-translation>1. 데이터 변환 (Data Translation)<a hidden class=anchor aria-hidden=true href=#1-데이터-변환-data-translation>#</a></h6><ul><li>외부 시스템의 데이터 구조를 내부 도메인 모델에 맞게 변환</li><li>JSON, XML, CSV 등 다양한 형식 간 변환 처리</li><li>데이터 타입 및 형식 정규화</li></ul><h6 id=2-요청-변환-request-translation>2. 요청 변환 (Request Translation)<a hidden class=anchor aria-hidden=true href=#2-요청-변환-request-translation>#</a></h6><ul><li>외부 시스템의 API 호출을 내부 시스템 형식으로 변환</li><li>프로토콜 변환 (REST → SOAP, GraphQL → REST 등)</li><li>메서드 시그니처 및 파라미터 매핑</li></ul><h6 id=3-검증-및-필터링-validation--filtering>3. 검증 및 필터링 (Validation & Filtering)<a hidden class=anchor aria-hidden=true href=#3-검증-및-필터링-validation--filtering>#</a></h6><ul><li>입력 데이터의 유효성 검사</li><li>비즈니스 규칙에 따른 데이터 필터링</li><li>보안 검증 및 악성 데이터 차단</li></ul><h6 id=4-에러-처리-및-복구-error-handling>4. 에러 처리 및 복구 (Error Handling)<a hidden class=anchor aria-hidden=true href=#4-에러-처리-및-복구-error-handling>#</a></h6><ul><li>외부 시스템 오류를 내부 도메인에 적합한 형태로 변환</li><li>장애 격리 및 서킷 브레이커 패턴 적용</li><li>재시도 및 폴백 메커니즘 구현</li></ul><h6 id=5-캐싱-및-성능-최적화>5. 캐싱 및 성능 최적화<a hidden class=anchor aria-hidden=true href=#5-캐싱-및-성능-최적화>#</a></h6><ul><li>자주 사용되는 데이터의 임시 저장</li><li>외부 시스템 호출 빈도 감소</li><li>응답 시간 개선</li></ul><h4 id=특징-1>특징<a hidden class=anchor aria-hidden=true href=#특징-1>#</a></h4><ol><li><strong>단방향 또는 양방향 통신</strong>: Customer-Supplier 관계에 따라 결정</li><li><strong>독립적 배포</strong>: 각 시스템이 독립적으로 진화 가능</li><li><strong>데이터 소유권 분리</strong>: 각 시스템이 자신의 데이터 모델 유지</li><li><strong>장애 격리</strong>: 한 시스템의 장애가 다른 시스템에 전파되지 않음</li></ol><h4 id=핵심-원칙-1>핵심 원칙<a hidden class=anchor aria-hidden=true href=#핵심-원칙-1>#</a></h4><ol><li><strong>경계 컨텍스트 보호</strong>: 도메인 모델의 순수성 유지</li><li><strong>느슨한 결합</strong>: 시스템 간 종속성 최소화</li><li><strong>단일 책임</strong>: 변환과 검증에만 집중</li><li><strong>투명성</strong>: 클라이언트는 ACL 의 존재를 몰라도 됨</li></ol><h4 id=주요-원리-및-작동-원리-1>주요 원리 및 작동 원리<a hidden class=anchor aria-hidden=true href=#주요-원리-및-작동-원리-1>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-9-1><a class=lnlinks href=#hl-9-1> 1</a>
+</span><span class=lnt id=hl-9-2><a class=lnlinks href=#hl-9-2> 2</a>
+</span><span class=lnt id=hl-9-3><a class=lnlinks href=#hl-9-3> 3</a>
+</span><span class=lnt id=hl-9-4><a class=lnlinks href=#hl-9-4> 4</a>
+</span><span class=lnt id=hl-9-5><a class=lnlinks href=#hl-9-5> 5</a>
+</span><span class=lnt id=hl-9-6><a class=lnlinks href=#hl-9-6> 6</a>
+</span><span class=lnt id=hl-9-7><a class=lnlinks href=#hl-9-7> 7</a>
+</span><span class=lnt id=hl-9-8><a class=lnlinks href=#hl-9-8> 8</a>
+</span><span class=lnt id=hl-9-9><a class=lnlinks href=#hl-9-9> 9</a>
+</span><span class=lnt id=hl-9-10><a class=lnlinks href=#hl-9-10>10</a>
+</span><span class=lnt id=hl-9-11><a class=lnlinks href=#hl-9-11>11</a>
+</span><span class=lnt id=hl-9-12><a class=lnlinks href=#hl-9-12>12</a>
+</span><span class=lnt id=hl-9-13><a class=lnlinks href=#hl-9-13>13</a>
+</span><span class=lnt id=hl-9-14><a class=lnlinks href=#hl-9-14>14</a>
+</span><span class=lnt id=hl-9-15><a class=lnlinks href=#hl-9-15>15</a>
+</span><span class=lnt id=hl-9-16><a class=lnlinks href=#hl-9-16>16</a>
+</span><span class=lnt id=hl-9-17><a class=lnlinks href=#hl-9-17>17</a>
+</span><span class=lnt id=hl-9-18><a class=lnlinks href=#hl-9-18>18</a>
+</span><span class=lnt id=hl-9-19><a class=lnlinks href=#hl-9-19>19</a>
+</span><span class=lnt id=hl-9-20><a class=lnlinks href=#hl-9-20>20</a>
+</span><span class=lnt id=hl-9-21><a class=lnlinks href=#hl-9-21>21</a>
+</span><span class=lnt id=hl-9-22><a class=lnlinks href=#hl-9-22>22</a>
+</span><span class=lnt id=hl-9-23><a class=lnlinks href=#hl-9-23>23</a>
+</span><span class=lnt id=hl-9-24><a class=lnlinks href=#hl-9-24>24</a>
+</span><span class=lnt id=hl-9-25><a class=lnlinks href=#hl-9-25>25</a>
+</span><span class=lnt id=hl-9-26><a class=lnlinks href=#hl-9-26>26</a>
+</span><span class=lnt id=hl-9-27><a class=lnlinks href=#hl-9-27>27</a>
+</span><span class=lnt id=hl-9-28><a class=lnlinks href=#hl-9-28>28</a>
+</span><span class=lnt id=hl-9-29><a class=lnlinks href=#hl-9-29>29</a>
+</span><span class=lnt id=hl-9-30><a class=lnlinks href=#hl-9-30>30</a>
+</span><span class=lnt id=hl-9-31><a class=lnlinks href=#hl-9-31>31</a>
+</span><span class=lnt id=hl-9-32><a class=lnlinks href=#hl-9-32>32</a>
+</span><span class=lnt id=hl-9-33><a class=lnlinks href=#hl-9-33>33</a>
+</span><span class=lnt id=hl-9-34><a class=lnlinks href=#hl-9-34>34</a>
+</span><span class=lnt id=hl-9-35><a class=lnlinks href=#hl-9-35>35</a>
+</span><span class=lnt id=hl-9-36><a class=lnlinks href=#hl-9-36>36</a>
+</span><span class=lnt id=hl-9-37><a class=lnlinks href=#hl-9-37>37</a>
+</span><span class=lnt id=hl-9-38><a class=lnlinks href=#hl-9-38>38</a>
+</span><span class=lnt id=hl-9-39><a class=lnlinks href=#hl-9-39>39</a>
+</span><span class=lnt id=hl-9-40><a class=lnlinks href=#hl-9-40>40</a>
+</span><span class=lnt id=hl-9-41><a class=lnlinks href=#hl-9-41>41</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>graph TB
+</span></span><span class=line><span class=cl>    subgraph &#34;Modern System&#34;
+</span></span><span class=line><span class=cl>        A[Client Application]
+</span></span><span class=line><span class=cl>        B[Domain Model]
+</span></span><span class=line><span class=cl>        C[Business Logic]
+</span></span><span class=line><span class=cl>    end
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    subgraph &#34;Anti-Corruption Layer&#34;
+</span></span><span class=line><span class=cl>        D[Request Facade]
+</span></span><span class=line><span class=cl>        E[Data Translator]
+</span></span><span class=line><span class=cl>        F[Response Adapter]
+</span></span><span class=line><span class=cl>        G[Validation Engine]
+</span></span><span class=line><span class=cl>        H[Error Handler]
+</span></span><span class=line><span class=cl>    end
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    subgraph &#34;Legacy System&#34;
+</span></span><span class=line><span class=cl>        I[Legacy API]
+</span></span><span class=line><span class=cl>        J[Legacy Database]
+</span></span><span class=line><span class=cl>        K[Legacy Business Rules]
+</span></span><span class=line><span class=cl>    end
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    A --&gt; D
+</span></span><span class=line><span class=cl>    D --&gt; G
+</span></span><span class=line><span class=cl>    G --&gt; E
+</span></span><span class=line><span class=cl>    E --&gt; I
+</span></span><span class=line><span class=cl>    I --&gt; J
+</span></span><span class=line><span class=cl>    J --&gt; K
+</span></span><span class=line><span class=cl>    K --&gt; I
+</span></span><span class=line><span class=cl>    I --&gt; F
+</span></span><span class=line><span class=cl>    F --&gt; E
+</span></span><span class=line><span class=cl>    E --&gt; H
+</span></span><span class=line><span class=cl>    H --&gt; D
+</span></span><span class=line><span class=cl>    D --&gt; B
+</span></span><span class=line><span class=cl>    B --&gt; C
+</span></span><span class=line><span class=cl>    C --&gt; A
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    style D fill:#e1f5fe
+</span></span><span class=line><span class=cl>    style E fill:#fff3e0  
+</span></span><span class=line><span class=cl>    style F fill:#f3e5f5
+</span></span><span class=line><span class=cl>    style G fill:#e8f5e8
+</span></span><span class=line><span class=cl>    style H fill:#ffebee
+</span></span></code></pre></td></tr></table></div></div><p><strong>작동 단계:</strong></p><ol><li><strong>요청 수신</strong>: 클라이언트로부터 요청 받음</li><li><strong>검증</strong>: 입력 데이터 유효성 검사</li><li><strong>변환</strong>: 레거시 시스템 형식으로 데이터 변환</li><li><strong>호출</strong>: 레거시 시스템 API 호출</li><li><strong>응답 변환</strong>: 레거시 응답을 현대 형식으로 변환</li><li><strong>결과 반환</strong>: 클라이언트에게 정제된 결과 전달</li></ol><h4 id=구조-및-아키텍처-1>구조 및 아키텍처<a hidden class=anchor aria-hidden=true href=#구조-및-아키텍처-1>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-10-1><a class=lnlinks href=#hl-10-1> 1</a>
+</span><span class=lnt id=hl-10-2><a class=lnlinks href=#hl-10-2> 2</a>
+</span><span class=lnt id=hl-10-3><a class=lnlinks href=#hl-10-3> 3</a>
+</span><span class=lnt id=hl-10-4><a class=lnlinks href=#hl-10-4> 4</a>
+</span><span class=lnt id=hl-10-5><a class=lnlinks href=#hl-10-5> 5</a>
+</span><span class=lnt id=hl-10-6><a class=lnlinks href=#hl-10-6> 6</a>
+</span><span class=lnt id=hl-10-7><a class=lnlinks href=#hl-10-7> 7</a>
+</span><span class=lnt id=hl-10-8><a class=lnlinks href=#hl-10-8> 8</a>
+</span><span class=lnt id=hl-10-9><a class=lnlinks href=#hl-10-9> 9</a>
+</span><span class=lnt id=hl-10-10><a class=lnlinks href=#hl-10-10>10</a>
+</span><span class=lnt id=hl-10-11><a class=lnlinks href=#hl-10-11>11</a>
+</span><span class=lnt id=hl-10-12><a class=lnlinks href=#hl-10-12>12</a>
+</span><span class=lnt id=hl-10-13><a class=lnlinks href=#hl-10-13>13</a>
+</span><span class=lnt id=hl-10-14><a class=lnlinks href=#hl-10-14>14</a>
+</span><span class=lnt id=hl-10-15><a class=lnlinks href=#hl-10-15>15</a>
+</span><span class=lnt id=hl-10-16><a class=lnlinks href=#hl-10-16>16</a>
+</span><span class=lnt id=hl-10-17><a class=lnlinks href=#hl-10-17>17</a>
+</span><span class=lnt id=hl-10-18><a class=lnlinks href=#hl-10-18>18</a>
+</span><span class=lnt id=hl-10-19><a class=lnlinks href=#hl-10-19>19</a>
+</span><span class=lnt id=hl-10-20><a class=lnlinks href=#hl-10-20>20</a>
+</span><span class=lnt id=hl-10-21><a class=lnlinks href=#hl-10-21>21</a>
+</span><span class=lnt id=hl-10-22><a class=lnlinks href=#hl-10-22>22</a>
+</span><span class=lnt id=hl-10-23><a class=lnlinks href=#hl-10-23>23</a>
+</span><span class=lnt id=hl-10-24><a class=lnlinks href=#hl-10-24>24</a>
+</span><span class=lnt id=hl-10-25><a class=lnlinks href=#hl-10-25>25</a>
+</span><span class=lnt id=hl-10-26><a class=lnlinks href=#hl-10-26>26</a>
+</span><span class=lnt id=hl-10-27><a class=lnlinks href=#hl-10-27>27</a>
+</span><span class=lnt id=hl-10-28><a class=lnlinks href=#hl-10-28>28</a>
+</span><span class=lnt id=hl-10-29><a class=lnlinks href=#hl-10-29>29</a>
+</span><span class=lnt id=hl-10-30><a class=lnlinks href=#hl-10-30>30</a>
+</span><span class=lnt id=hl-10-31><a class=lnlinks href=#hl-10-31>31</a>
+</span><span class=lnt id=hl-10-32><a class=lnlinks href=#hl-10-32>32</a>
+</span><span class=lnt id=hl-10-33><a class=lnlinks href=#hl-10-33>33</a>
+</span><span class=lnt id=hl-10-34><a class=lnlinks href=#hl-10-34>34</a>
+</span><span class=lnt id=hl-10-35><a class=lnlinks href=#hl-10-35>35</a>
+</span><span class=lnt id=hl-10-36><a class=lnlinks href=#hl-10-36>36</a>
+</span><span class=lnt id=hl-10-37><a class=lnlinks href=#hl-10-37>37</a>
+</span><span class=lnt id=hl-10-38><a class=lnlinks href=#hl-10-38>38</a>
+</span><span class=lnt id=hl-10-39><a class=lnlinks href=#hl-10-39>39</a>
+</span><span class=lnt id=hl-10-40><a class=lnlinks href=#hl-10-40>40</a>
+</span><span class=lnt id=hl-10-41><a class=lnlinks href=#hl-10-41>41</a>
+</span><span class=lnt id=hl-10-42><a class=lnlinks href=#hl-10-42>42</a>
+</span><span class=lnt id=hl-10-43><a class=lnlinks href=#hl-10-43>43</a>
+</span><span class=lnt id=hl-10-44><a class=lnlinks href=#hl-10-44>44</a>
+</span><span class=lnt id=hl-10-45><a class=lnlinks href=#hl-10-45>45</a>
+</span><span class=lnt id=hl-10-46><a class=lnlinks href=#hl-10-46>46</a>
+</span><span class=lnt id=hl-10-47><a class=lnlinks href=#hl-10-47>47</a>
+</span><span class=lnt id=hl-10-48><a class=lnlinks href=#hl-10-48>48</a>
+</span><span class=lnt id=hl-10-49><a class=lnlinks href=#hl-10-49>49</a>
+</span><span class=lnt id=hl-10-50><a class=lnlinks href=#hl-10-50>50</a>
+</span><span class=lnt id=hl-10-51><a class=lnlinks href=#hl-10-51>51</a>
+</span><span class=lnt id=hl-10-52><a class=lnlinks href=#hl-10-52>52</a>
+</span><span class=lnt id=hl-10-53><a class=lnlinks href=#hl-10-53>53</a>
+</span><span class=lnt id=hl-10-54><a class=lnlinks href=#hl-10-54>54</a>
+</span><span class=lnt id=hl-10-55><a class=lnlinks href=#hl-10-55>55</a>
+</span><span class=lnt id=hl-10-56><a class=lnlinks href=#hl-10-56>56</a>
+</span><span class=lnt id=hl-10-57><a class=lnlinks href=#hl-10-57>57</a>
+</span><span class=lnt id=hl-10-58><a class=lnlinks href=#hl-10-58>58</a>
+</span><span class=lnt id=hl-10-59><a class=lnlinks href=#hl-10-59>59</a>
+</span><span class=lnt id=hl-10-60><a class=lnlinks href=#hl-10-60>60</a>
+</span><span class=lnt id=hl-10-61><a class=lnlinks href=#hl-10-61>61</a>
+</span><span class=lnt id=hl-10-62><a class=lnlinks href=#hl-10-62>62</a>
+</span><span class=lnt id=hl-10-63><a class=lnlinks href=#hl-10-63>63</a>
+</span><span class=lnt id=hl-10-64><a class=lnlinks href=#hl-10-64>64</a>
+</span><span class=lnt id=hl-10-65><a class=lnlinks href=#hl-10-65>65</a>
+</span><span class=lnt id=hl-10-66><a class=lnlinks href=#hl-10-66>66</a>
+</span><span class=lnt id=hl-10-67><a class=lnlinks href=#hl-10-67>67</a>
+</span><span class=lnt id=hl-10-68><a class=lnlinks href=#hl-10-68>68</a>
+</span><span class=lnt id=hl-10-69><a class=lnlinks href=#hl-10-69>69</a>
+</span><span class=lnt id=hl-10-70><a class=lnlinks href=#hl-10-70>70</a>
+</span><span class=lnt id=hl-10-71><a class=lnlinks href=#hl-10-71>71</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>graph TB
+</span></span><span class=line><span class=cl>    subgraph &#34;Client Systems&#34;
+</span></span><span class=line><span class=cl>        A1[Web Application]
+</span></span><span class=line><span class=cl>        A2[Mobile App]  
+</span></span><span class=line><span class=cl>        A3[Microservice]
+</span></span><span class=line><span class=cl>    end
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    subgraph &#34;Anti-Corruption Layer&#34;
+</span></span><span class=line><span class=cl>        subgraph &#34;Interface Layer&#34;
+</span></span><span class=line><span class=cl>            B1[API Gateway]
+</span></span><span class=line><span class=cl>            B2[Service Facade]
+</span></span><span class=line><span class=cl>        end
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        subgraph &#34;Translation Layer&#34;
+</span></span><span class=line><span class=cl>            C1[Request Translator]
+</span></span><span class=line><span class=cl>            C2[Response Translator]
+</span></span><span class=line><span class=cl>            C3[Data Mapper]
+</span></span><span class=line><span class=cl>        end
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        subgraph &#34;Validation Layer&#34;
+</span></span><span class=line><span class=cl>            D1[Input Validator]
+</span></span><span class=line><span class=cl>            D2[Business Rule Engine]
+</span></span><span class=line><span class=cl>            D3[Security Filter]
+</span></span><span class=line><span class=cl>        end
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        subgraph &#34;Adapter Layer&#34;
+</span></span><span class=line><span class=cl>            E1[Protocol Adapter]
+</span></span><span class=line><span class=cl>            E2[Data Format Adapter]
+</span></span><span class=line><span class=cl>            E3[Service Adapter]
+</span></span><span class=line><span class=cl>        end
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        subgraph &#34;Infrastructure&#34;
+</span></span><span class=line><span class=cl>            F1[Cache Manager]
+</span></span><span class=line><span class=cl>            F2[Circuit Breaker]
+</span></span><span class=line><span class=cl>            F3[Monitoring]
+</span></span><span class=line><span class=cl>        end
+</span></span><span class=line><span class=cl>    end
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    subgraph &#34;External Systems&#34;
+</span></span><span class=line><span class=cl>        G1[Legacy System A]
+</span></span><span class=line><span class=cl>        G2[Third-party API]
+</span></span><span class=line><span class=cl>        G3[Legacy Database]
+</span></span><span class=line><span class=cl>    end
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    A1 --&gt; B1
+</span></span><span class=line><span class=cl>    A2 --&gt; B1
+</span></span><span class=line><span class=cl>    A3 --&gt; B2
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    B1 --&gt; C1
+</span></span><span class=line><span class=cl>    B2 --&gt; C1
+</span></span><span class=line><span class=cl>    C1 --&gt; D1
+</span></span><span class=line><span class=cl>    D1 --&gt; E1
+</span></span><span class=line><span class=cl>    E1 --&gt; F1
+</span></span><span class=line><span class=cl>    F1 --&gt; G1
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    C2 --&gt; B1
+</span></span><span class=line><span class=cl>    C3 --&gt; C2
+</span></span><span class=line><span class=cl>    D2 --&gt; C3
+</span></span><span class=line><span class=cl>    E2 --&gt; D2
+</span></span><span class=line><span class=cl>    F2 --&gt; E2
+</span></span><span class=line><span class=cl>    G2 --&gt; F2
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    D3 --&gt; E3
+</span></span><span class=line><span class=cl>    E3 --&gt; F3
+</span></span><span class=line><span class=cl>    F3 --&gt; G3
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    style B1 fill:#e3f2fd
+</span></span><span class=line><span class=cl>    style C1 fill:#fff8e1
+</span></span><span class=line><span class=cl>    style D1 fill:#e8f5e8
+</span></span><span class=line><span class=cl>    style E1 fill:#fce4ec
+</span></span><span class=line><span class=cl>    style F1 fill:#f3e5f5
+</span></span></code></pre></td></tr></table></div></div><h4 id=구성-요소>구성 요소<a hidden class=anchor aria-hidden=true href=#구성-요소>#</a></h4><h5 id=필수-구성요소>필수 구성요소<a hidden class=anchor aria-hidden=true href=#필수-구성요소>#</a></h5><table><thead><tr><th>구성요소</th><th>기능</th><th>역할</th><th>특징</th></tr></thead><tbody><tr><td><strong>Facade</strong></td><td>단순화된 인터페이스 제공</td><td>복잡한 레거시 시스템을 간단한 API 로 노출</td><td>일대다 연결 지원, 단일 진입점</td></tr><tr><td><strong>Adapter</strong></td><td>인터페이스 변환</td><td>호환되지 않는 인터페이스 간 변환</td><td>프로토콜/형식 독립적</td></tr><tr><td><strong>Translator</strong></td><td>데이터 변환</td><td>도메인 모델 간 데이터 매핑</td><td>양방향 변환 지원</td></tr><tr><td><strong>Validator</strong></td><td>검증 처리</td><td>입출력 데이터 유효성 검사</td><td>비즈니스 규칙 적용</td></tr></tbody></table><h5 id=선택-구성요소>선택 구성요소<a hidden class=anchor aria-hidden=true href=#선택-구성요소>#</a></h5><table><thead><tr><th>구성요소</th><th>기능</th><th>역할</th><th>특징</th></tr></thead><tbody><tr><td><strong>Cache Manager</strong></td><td>성능 최적화</td><td>자주 사용되는 데이터 임시 저장</td><td>TTL 기반 관리</td></tr><tr><td><strong>Circuit Breaker</strong></td><td>장애 격리</td><td>외부 시스템 장애 시 빠른 실패</td><td>자동 복구 메커니즘</td></tr><tr><td><strong>Rate Limiter</strong></td><td>트래픽 제어</td><td>API 호출 빈도 제한</td><td>부하 분산 효과</td></tr><tr><td><strong>Monitoring Agent</strong></td><td>관찰성</td><td>메트릭 수집 및 로깅</td><td>실시간 모니터링</td></tr></tbody></table><hr><h3 id=제-3-부-구현-및-활용>제 3 부: 구현 및 활용<a hidden class=anchor aria-hidden=true href=#제-3-부-구현-및-활용>#</a></h3><h4 id=구현-기법>구현 기법<a hidden class=anchor aria-hidden=true href=#구현-기법>#</a></h4><h5 id=1-facade-패턴-기반-구현>1. Facade 패턴 기반 구현<a hidden class=anchor aria-hidden=true href=#1-facade-패턴-기반-구현>#</a></h5><ul><li><p><strong>정의</strong>: 복잡한 서브시스템에 대한 단순화된 인터페이스 제공</p></li><li><p><strong>구성</strong>: 단일 클래스가 여러 레거시 서비스를 조율</p></li><li><p><strong>목적</strong>: 클라이언트의 복잡성 감소 및 결합도 완화</p></li><li><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-11-1><a class=lnlinks href=#hl-11-1>1</a>
+</span><span class=lnt id=hl-11-2><a class=lnlinks href=#hl-11-2>2</a>
+</span><span class=lnt id=hl-11-3><a class=lnlinks href=#hl-11-3>3</a>
+</span><span class=lnt id=hl-11-4><a class=lnlinks href=#hl-11-4>4</a>
+</span><span class=lnt id=hl-11-5><a class=lnlinks href=#hl-11-5>5</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>시나리오: 전자상거래 시스템에서 주문 처리
+</span></span><span class=line><span class=cl>- 재고 시스템 (SOAP)
+</span></span><span class=line><span class=cl>- 결제 시스템 (REST)  
+</span></span><span class=line><span class=cl>- 배송 시스템 (Message Queue)
+</span></span><span class=line><span class=cl>이 세 개의 서로 다른 레거시 시스템을 하나의 OrderFacade로 통합
+</span></span></code></pre></td></tr></table></div></div></li></ul><h5 id=2-adapter-패턴-기반-구현>2. Adapter 패턴 기반 구현<a hidden class=anchor aria-hidden=true href=#2-adapter-패턴-기반-구현>#</a></h5><ul><li><p><strong>정의</strong>: 호환되지 않는 인터페이스를 호환 가능하게 변환</p></li><li><p><strong>구성</strong>: 각 외부 시스템별로 전용 어댑터 클래스 생성</p></li><li><p><strong>목적</strong>: 프로토콜 및 데이터 형식 차이 해결</p></li><li><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-12-1><a class=lnlinks href=#hl-12-1>1</a>
+</span><span class=lnt id=hl-12-2><a class=lnlinks href=#hl-12-2>2</a>
+</span><span class=lnt id=hl-12-3><a class=lnlinks href=#hl-12-3>3</a>
+</span><span class=lnt id=hl-12-4><a class=lnlinks href=#hl-12-4>4</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>시나리오: CRM 시스템 통합
+</span></span><span class=line><span class=cl>- 기존: XML 기반 SOAP API
+</span></span><span class=line><span class=cl>- 신규: JSON 기반 REST API
+</span></span><span class=line><span class=cl>CRMAdapter가 두 형식 간 변환 처리
+</span></span></code></pre></td></tr></table></div></div></li></ul><h5 id=3-event-driven-구현>3. Event-Driven 구현<a hidden class=anchor aria-hidden=true href=#3-event-driven-구현>#</a></h5><ul><li><p><strong>정의</strong>: 이벤트 기반 비동기 통신으로 시스템 간 결합도 최소화</p></li><li><p><strong>구성</strong>: 이벤트 버스와 이벤트 핸들러로 구성</p></li><li><p><strong>목적</strong>: 실시간 데이터 동기화 및 확장성 개선</p></li><li><p><strong>실제 예시</strong>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-13-1><a class=lnlinks href=#hl-13-1>1</a>
+</span><span class=lnt id=hl-13-2><a class=lnlinks href=#hl-13-2>2</a>
+</span><span class=lnt id=hl-13-3><a class=lnlinks href=#hl-13-3>3</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>시나리오: 사용자 데이터 동기화
+</span></span><span class=line><span class=cl>- 사용자 정보 변경 시 이벤트 발생
+</span></span><span class=line><span class=cl>- ACL이 이벤트를 수신하여 관련 시스템들에 전파
+</span></span></code></pre></td></tr></table></div></div></li></ul><h4 id=장점-1>장점<a hidden class=anchor aria-hidden=true href=#장점-1>#</a></h4><table><thead><tr><th>구분</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>장점</td><td><strong>도메인 모델 보호</strong></td><td>핵심 비즈니스 로직이 외부 시스템의 복잡성이나 설계 결함으로부터 격리되어 도메인의 순수성 유지</td></tr><tr><td></td><td><strong>점진적 마이그레이션</strong></td><td>대규모 시스템 교체 시 한 번에 모든 것을 바꾸지 않고 단계적으로 현대화 진행 가능</td></tr><tr><td></td><td><strong>시스템 독립성</strong></td><td>각 시스템이 자신의 진화 속도에 맞춰 독립적으로 변경 및 배포 가능</td></tr><tr><td></td><td><strong>재사용성 증대</strong></td><td>잘 설계된 ACL 은 여러 클라이언트 시스템에서 공통으로 활용 가능</td></tr><tr><td></td><td><strong>테스트 용이성</strong></td><td>외부 의존성이 격리되어 단위 테스트 및 통합 테스트 작성이 용이</td></tr></tbody></table><h4 id=단점과-문제점-그리고-해결방안>단점과 문제점 그리고 해결방안<a hidden class=anchor aria-hidden=true href=#단점과-문제점-그리고-해결방안>#</a></h4><h5 id=단점-2>단점<a hidden class=anchor aria-hidden=true href=#단점-2>#</a></h5><table><thead><tr><th>구분</th><th>항목</th><th>설명</th><th>해결책</th></tr></thead><tbody><tr><td>단점</td><td><strong>성능 오버헤드</strong></td><td>추가 계층으로 인한 지연시간 증가 및 리소스 소비</td><td>캐싱 전략 적용, 비동기 처리, 성능 모니터링</td></tr><tr><td></td><td><strong>복잡성 증가</strong></td><td>시스템 아키텍처 복잡도 상승 및 유지보수 부담</td><td>명확한 문서화, 자동화된 테스트, 단순한 설계 원칙</td></tr><tr><td></td><td><strong>단일 실패점</strong></td><td>ACL 장애 시 전체 통합 기능 중단 위험</td><td>다중 ACL 구성, 장애 격리, 서킷 브레이커 패턴</td></tr><tr><td></td><td><strong>개발 비용</strong></td><td>초기 개발 및 지속적인 유지보수에 따른 비용 증가</td><td>단계적 구현, 코드 재사용, 표준화된 템플릿</td></tr></tbody></table><h5 id=문제점-1>문제점<a hidden class=anchor aria-hidden=true href=#문제점-1>#</a></h5><table><thead><tr><th>구분</th><th>항목</th><th>원인</th><th>영향</th><th>탐지 및 진단</th><th>예방 방법</th><th>해결 방법 및 기법</th></tr></thead><tbody><tr><td>문제점</td><td><strong>메모리 누수</strong></td><td>잘못된 리소스 관리, 캐시 정책 부재</td><td>시스템 성능 저하, 서비스 중단</td><td>메모리 모니터링, 프로파일링</td><td>적절한 가비지 컬렉션, TTL 정책</td><td>리소스 풀링, 자동 정리 스케줄링</td></tr><tr><td></td><td><strong>데이터 불일치</strong></td><td>동시성 처리 미흡, 트랜잭션 경계 모호</td><td>비즈니스 로직 오류, 데이터 정합성 문제</td><td>데이터 검증 로직, 모니터링</td><td>ACID 원칙 준수, 이벤트 소싱</td><td>보상 트랜잭션, 최종 일관성</td></tr><tr><td></td><td><strong>보안 취약점</strong></td><td>입력 검증 부족, 권한 검사 누락</td><td>데이터 유출, 시스템 침입</td><td>보안 스캔, 침투 테스트</td><td>입력 검증, 암호화</td><td>OAuth 2.0, API 게이트웨이</td></tr></tbody></table><h4 id=도전-과제>도전 과제<a hidden class=anchor aria-hidden=true href=#도전-과제>#</a></h4><h5 id=성능-최적화-과제>성능 최적화 과제<a hidden class=anchor aria-hidden=true href=#성능-최적화-과제>#</a></h5><ul><li><strong>원인</strong>: 다중 시스템 간 통신으로 인한 지연시간 누적</li><li><strong>영향</strong>: 사용자 경험 저하, SLA 위반 위험</li><li><strong>해결 기법</strong>:<ul><li>비동기 처리 패턴 적용</li><li>인메모리 캐싱 전략</li><li>배치 처리를 통한 호출 최적화</li></ul></li></ul><h5 id=데이터-일관성-보장-과제>데이터 일관성 보장 과제<a hidden class=anchor aria-hidden=true href=#데이터-일관성-보장-과제>#</a></h5><ul><li><strong>원인</strong>: 분산 환경에서의 데이터 동기화 복잡성</li><li><strong>영향</strong>: 비즈니스 로직 오류, 고객 신뢰도 하락</li><li><strong>해결 기법</strong>:<ul><li>Event Sourcing 패턴 도입</li><li>CQRS (Command Query Responsibility Segregation)</li><li>Saga 패턴을 통한 분산 트랜잭션 관리</li></ul></li></ul><h5 id=확장성-관리-과제>확장성 관리 과제<a hidden class=anchor aria-hidden=true href=#확장성-관리-과제>#</a></h5><ul><li><strong>원인</strong>: 트래픽 증가에 따른 병목 지점 발생</li><li><strong>영향</strong>: 시스템 가용성 저하, 비즈니스 영향</li><li><strong>해결 기법</strong>:<ul><li>마이크로서비스 아키텍처 적용</li><li>로드 밸런싱 및 오토 스케일링</li><li>서킷 브레이커 패턴으로 장애 격리</li></ul></li></ul><hr><h3 id=제-4-부-실무-적용-및-사례>제 4 부: 실무 적용 및 사례<a hidden class=anchor aria-hidden=true href=#제-4-부-실무-적용-및-사례>#</a></h3><h4 id=분류-기준에-따른-종류-및-유형>분류 기준에 따른 종류 및 유형<a hidden class=anchor aria-hidden=true href=#분류-기준에-따른-종류-및-유형>#</a></h4><table><thead><tr><th>분류 기준</th><th>유형</th><th>설명</th><th>적용 사례</th></tr></thead><tbody><tr><td><strong>통신 방향</strong></td><td>단방향 ACL</td><td>한쪽 시스템에서만 다른 시스템 접근</td><td>Customer-Supplier 관계</td></tr><tr><td></td><td>양방향 ACL</td><td>상호 통신이 필요한 경우</td><td>동등한 파트너 관계</td></tr><tr><td><strong>배포 형태</strong></td><td>임베디드 ACL</td><td>클라이언트 시스템 내부에 포함</td><td>간단한 통합 시나리오</td></tr><tr><td></td><td>독립 서비스 ACL</td><td>별도 서비스로 배포</td><td>복잡한 엔터프라이즈 통합</td></tr><tr><td><strong>처리 방식</strong></td><td>동기 ACL</td><td>실시간 요청 - 응답 처리</td><td>즉시 응답이 필요한 경우</td></tr><tr><td></td><td>비동기 ACL</td><td>이벤트 기반 처리</td><td>배치 처리, 대량 데이터</td></tr><tr><td><strong>복잡도</strong></td><td>단순 ACL</td><td>기본적인 변환만 수행</td><td>형식 변환 중심</td></tr><tr><td></td><td>복합 ACL</td><td>여러 패턴 조합 사용</td><td>복잡한 비즈니스 로직 포함</td></tr></tbody></table><h4 id=실무-사용-예시>실무 사용 예시<a hidden class=anchor aria-hidden=true href=#실무-사용-예시>#</a></h4><table><thead><tr><th>사용 영역</th><th>목적</th><th>함께 사용되는 기술</th><th>효과</th></tr></thead><tbody><tr><td><strong>레거시 현대화</strong></td><td>점진적 시스템 교체</td><td>Microservices, API Gateway</td><td>무중단 마이그레이션</td></tr><tr><td><strong>서드파티 통합</strong></td><td>외부 API 품질 개선</td><td>REST, GraphQL, gRPC</td><td>일관된 인터페이스 제공</td></tr><tr><td><strong>클라우드 마이그레이션</strong></td><td>하이브리드 환경 구축</td><td>Kubernetes, Service Mesh</td><td>단계적 클라우드 전환</td></tr><tr><td><strong>데이터 통합</strong></td><td>이기종 데이터 소스 통합</td><td>ETL, Data Pipeline</td><td>데이터 품질 향상</td></tr><tr><td><strong>마이크로서비스 분해</strong></td><td>모놀리스 분해</td><td>Domain-Driven Design</td><td>바운디드 컨텍스트 보호</td></tr></tbody></table><h4 id=활용-사례>활용 사례<a hidden class=anchor aria-hidden=true href=#활용-사례>#</a></h4><p><strong>사례: 전자상거래 플랫폼의 주문 관리 시스템 현대화</strong></p><h5 id=시스템-구성>시스템 구성<a hidden class=anchor aria-hidden=true href=#시스템-구성>#</a></h5><ul><li><strong>레거시 시스템</strong>: 15 년된 Java 모놀리스 (SOAP 기반)</li><li><strong>신규 시스템</strong>: Node.js 마이크로서비스 (REST API)</li><li><strong>데이터베이스</strong>: Oracle → MongoDB 점진적 마이그레이션</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-14-1><a class=lnlinks href=#hl-14-1> 1</a>
+</span><span class=lnt id=hl-14-2><a class=lnlinks href=#hl-14-2> 2</a>
+</span><span class=lnt id=hl-14-3><a class=lnlinks href=#hl-14-3> 3</a>
+</span><span class=lnt id=hl-14-4><a class=lnlinks href=#hl-14-4> 4</a>
+</span><span class=lnt id=hl-14-5><a class=lnlinks href=#hl-14-5> 5</a>
+</span><span class=lnt id=hl-14-6><a class=lnlinks href=#hl-14-6> 6</a>
+</span><span class=lnt id=hl-14-7><a class=lnlinks href=#hl-14-7> 7</a>
+</span><span class=lnt id=hl-14-8><a class=lnlinks href=#hl-14-8> 8</a>
+</span><span class=lnt id=hl-14-9><a class=lnlinks href=#hl-14-9> 9</a>
+</span><span class=lnt id=hl-14-10><a class=lnlinks href=#hl-14-10>10</a>
+</span><span class=lnt id=hl-14-11><a class=lnlinks href=#hl-14-11>11</a>
+</span><span class=lnt id=hl-14-12><a class=lnlinks href=#hl-14-12>12</a>
+</span><span class=lnt id=hl-14-13><a class=lnlinks href=#hl-14-13>13</a>
+</span><span class=lnt id=hl-14-14><a class=lnlinks href=#hl-14-14>14</a>
+</span><span class=lnt id=hl-14-15><a class=lnlinks href=#hl-14-15>15</a>
+</span><span class=lnt id=hl-14-16><a class=lnlinks href=#hl-14-16>16</a>
+</span><span class=lnt id=hl-14-17><a class=lnlinks href=#hl-14-17>17</a>
+</span><span class=lnt id=hl-14-18><a class=lnlinks href=#hl-14-18>18</a>
+</span><span class=lnt id=hl-14-19><a class=lnlinks href=#hl-14-19>19</a>
+</span><span class=lnt id=hl-14-20><a class=lnlinks href=#hl-14-20>20</a>
+</span><span class=lnt id=hl-14-21><a class=lnlinks href=#hl-14-21>21</a>
+</span><span class=lnt id=hl-14-22><a class=lnlinks href=#hl-14-22>22</a>
+</span><span class=lnt id=hl-14-23><a class=lnlinks href=#hl-14-23>23</a>
+</span><span class=lnt id=hl-14-24><a class=lnlinks href=#hl-14-24>24</a>
+</span><span class=lnt id=hl-14-25><a class=lnlinks href=#hl-14-25>25</a>
+</span><span class=lnt id=hl-14-26><a class=lnlinks href=#hl-14-26>26</a>
+</span><span class=lnt id=hl-14-27><a class=lnlinks href=#hl-14-27>27</a>
+</span><span class=lnt id=hl-14-28><a class=lnlinks href=#hl-14-28>28</a>
+</span><span class=lnt id=hl-14-29><a class=lnlinks href=#hl-14-29>29</a>
+</span><span class=lnt id=hl-14-30><a class=lnlinks href=#hl-14-30>30</a>
+</span><span class=lnt id=hl-14-31><a class=lnlinks href=#hl-14-31>31</a>
+</span><span class=lnt id=hl-14-32><a class=lnlinks href=#hl-14-32>32</a>
+</span><span class=lnt id=hl-14-33><a class=lnlinks href=#hl-14-33>33</a>
+</span><span class=lnt id=hl-14-34><a class=lnlinks href=#hl-14-34>34</a>
+</span><span class=lnt id=hl-14-35><a class=lnlinks href=#hl-14-35>35</a>
+</span><span class=lnt id=hl-14-36><a class=lnlinks href=#hl-14-36>36</a>
+</span><span class=lnt id=hl-14-37><a class=lnlinks href=#hl-14-37>37</a>
+</span><span class=lnt id=hl-14-38><a class=lnlinks href=#hl-14-38>38</a>
+</span><span class=lnt id=hl-14-39><a class=lnlinks href=#hl-14-39>39</a>
+</span><span class=lnt id=hl-14-40><a class=lnlinks href=#hl-14-40>40</a>
+</span><span class=lnt id=hl-14-41><a class=lnlinks href=#hl-14-41>41</a>
+</span><span class=lnt id=hl-14-42><a class=lnlinks href=#hl-14-42>42</a>
+</span><span class=lnt id=hl-14-43><a class=lnlinks href=#hl-14-43>43</a>
+</span><span class=lnt id=hl-14-44><a class=lnlinks href=#hl-14-44>44</a>
+</span><span class=lnt id=hl-14-45><a class=lnlinks href=#hl-14-45>45</a>
+</span><span class=lnt id=hl-14-46><a class=lnlinks href=#hl-14-46>46</a>
+</span><span class=lnt id=hl-14-47><a class=lnlinks href=#hl-14-47>47</a>
+</span><span class=lnt id=hl-14-48><a class=lnlinks href=#hl-14-48>48</a>
+</span><span class=lnt id=hl-14-49><a class=lnlinks href=#hl-14-49>49</a>
+</span><span class=lnt id=hl-14-50><a class=lnlinks href=#hl-14-50>50</a>
+</span><span class=lnt id=hl-14-51><a class=lnlinks href=#hl-14-51>51</a>
+</span><span class=lnt id=hl-14-52><a class=lnlinks href=#hl-14-52>52</a>
+</span><span class=lnt id=hl-14-53><a class=lnlinks href=#hl-14-53>53</a>
+</span><span class=lnt id=hl-14-54><a class=lnlinks href=#hl-14-54>54</a>
+</span><span class=lnt id=hl-14-55><a class=lnlinks href=#hl-14-55>55</a>
+</span><span class=lnt id=hl-14-56><a class=lnlinks href=#hl-14-56>56</a>
+</span><span class=lnt id=hl-14-57><a class=lnlinks href=#hl-14-57>57</a>
+</span><span class=lnt id=hl-14-58><a class=lnlinks href=#hl-14-58>58</a>
+</span><span class=lnt id=hl-14-59><a class=lnlinks href=#hl-14-59>59</a>
+</span><span class=lnt id=hl-14-60><a class=lnlinks href=#hl-14-60>60</a>
+</span><span class=lnt id=hl-14-61><a class=lnlinks href=#hl-14-61>61</a>
+</span><span class=lnt id=hl-14-62><a class=lnlinks href=#hl-14-62>62</a>
+</span><span class=lnt id=hl-14-63><a class=lnlinks href=#hl-14-63>63</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>graph TB
+</span></span><span class=line><span class=cl>    subgraph &#34;Frontend Applications&#34;
+</span></span><span class=line><span class=cl>        A1[Web Frontend]
+</span></span><span class=line><span class=cl>        A2[Mobile App]
+</span></span><span class=line><span class=cl>        A3[Admin Portal]
+</span></span><span class=line><span class=cl>    end
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    subgraph &#34;Modern Microservices&#34;
+</span></span><span class=line><span class=cl>        B1[Order Service]
+</span></span><span class=line><span class=cl>        B2[Payment Service]
+</span></span><span class=line><span class=cl>        B3[Inventory Service]
+</span></span><span class=line><span class=cl>    end
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    subgraph &#34;Anti-Corruption Layer&#34;
+</span></span><span class=line><span class=cl>        C1[Order ACL]
+</span></span><span class=line><span class=cl>        C2[Payment ACL]
+</span></span><span class=line><span class=cl>        C3[Inventory ACL]
+</span></span><span class=line><span class=cl>        C4[Data Translator]
+</span></span><span class=line><span class=cl>        C5[Response Mapper]
+</span></span><span class=line><span class=cl>    end
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    subgraph &#34;Legacy Monolith&#34;
+</span></span><span class=line><span class=cl>        D1[Legacy Order Module]
+</span></span><span class=line><span class=cl>        D2[Legacy Payment Module]
+</span></span><span class=line><span class=cl>        D3[Legacy Inventory Module]
+</span></span><span class=line><span class=cl>        D4[Shared Database]
+</span></span><span class=line><span class=cl>    end
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    subgraph &#34;External Systems&#34;
+</span></span><span class=line><span class=cl>        E1[Payment Gateway]
+</span></span><span class=line><span class=cl>        E2[Shipping Provider]
+</span></span><span class=line><span class=cl>        E3[Tax Service]
+</span></span><span class=line><span class=cl>    end
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    A1 --&gt; B1
+</span></span><span class=line><span class=cl>    A2 --&gt; B2
+</span></span><span class=line><span class=cl>    A3 --&gt; B3
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    B1 --&gt; C1
+</span></span><span class=line><span class=cl>    B2 --&gt; C2
+</span></span><span class=line><span class=cl>    B3 --&gt; C3
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    C1 --&gt; C4
+</span></span><span class=line><span class=cl>    C2 --&gt; C4
+</span></span><span class=line><span class=cl>    C3 --&gt; C4
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    C4 --&gt; D1
+</span></span><span class=line><span class=cl>    C4 --&gt; D2
+</span></span><span class=line><span class=cl>    C4 --&gt; D3
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    D1 --&gt; D4
+</span></span><span class=line><span class=cl>    D2 --&gt; D4
+</span></span><span class=line><span class=cl>    D3 --&gt; D4
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    C5 --&gt; E1
+</span></span><span class=line><span class=cl>    C5 --&gt; E2
+</span></span><span class=line><span class=cl>    C5 --&gt; E3
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    style C1 fill:#e3f2fd
+</span></span><span class=line><span class=cl>    style C2 fill:#e3f2fd
+</span></span><span class=line><span class=cl>    style C3 fill:#e3f2fd
+</span></span><span class=line><span class=cl>    style C4 fill:#fff3e0
+</span></span><span class=line><span class=cl>    style C5 fill:#f3e5f5
+</span></span></code></pre></td></tr></table></div></div><h5 id=workflow-및-acl-역할>Workflow 및 ACL 역할<a hidden class=anchor aria-hidden=true href=#workflow-및-acl-역할>#</a></h5><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-15-1><a class=lnlinks href=#hl-15-1> 1</a>
+</span><span class=lnt id=hl-15-2><a class=lnlinks href=#hl-15-2> 2</a>
+</span><span class=lnt id=hl-15-3><a class=lnlinks href=#hl-15-3> 3</a>
+</span><span class=lnt id=hl-15-4><a class=lnlinks href=#hl-15-4> 4</a>
+</span><span class=lnt id=hl-15-5><a class=lnlinks href=#hl-15-5> 5</a>
+</span><span class=lnt id=hl-15-6><a class=lnlinks href=#hl-15-6> 6</a>
+</span><span class=lnt id=hl-15-7><a class=lnlinks href=#hl-15-7> 7</a>
+</span><span class=lnt id=hl-15-8><a class=lnlinks href=#hl-15-8> 8</a>
+</span><span class=lnt id=hl-15-9><a class=lnlinks href=#hl-15-9> 9</a>
+</span><span class=lnt id=hl-15-10><a class=lnlinks href=#hl-15-10>10</a>
+</span><span class=lnt id=hl-15-11><a class=lnlinks href=#hl-15-11>11</a>
+</span><span class=lnt id=hl-15-12><a class=lnlinks href=#hl-15-12>12</a>
+</span><span class=lnt id=hl-15-13><a class=lnlinks href=#hl-15-13>13</a>
+</span><span class=lnt id=hl-15-14><a class=lnlinks href=#hl-15-14>14</a>
+</span><span class=lnt id=hl-15-15><a class=lnlinks href=#hl-15-15>15</a>
+</span><span class=lnt id=hl-15-16><a class=lnlinks href=#hl-15-16>16</a>
+</span><span class=lnt id=hl-15-17><a class=lnlinks href=#hl-15-17>17</a>
+</span><span class=lnt id=hl-15-18><a class=lnlinks href=#hl-15-18>18</a>
+</span><span class=lnt id=hl-15-19><a class=lnlinks href=#hl-15-19>19</a>
+</span><span class=lnt id=hl-15-20><a class=lnlinks href=#hl-15-20>20</a>
+</span><span class=lnt id=hl-15-21><a class=lnlinks href=#hl-15-21>21</a>
+</span><span class=lnt id=hl-15-22><a class=lnlinks href=#hl-15-22>22</a>
+</span><span class=lnt id=hl-15-23><a class=lnlinks href=#hl-15-23>23</a>
+</span><span class=lnt id=hl-15-24><a class=lnlinks href=#hl-15-24>24</a>
+</span><span class=lnt id=hl-15-25><a class=lnlinks href=#hl-15-25>25</a>
+</span><span class=lnt id=hl-15-26><a class=lnlinks href=#hl-15-26>26</a>
+</span><span class=lnt id=hl-15-27><a class=lnlinks href=#hl-15-27>27</a>
+</span><span class=lnt id=hl-15-28><a class=lnlinks href=#hl-15-28>28</a>
+</span><span class=lnt id=hl-15-29><a class=lnlinks href=#hl-15-29>29</a>
+</span><span class=lnt id=hl-15-30><a class=lnlinks href=#hl-15-30>30</a>
+</span><span class=lnt id=hl-15-31><a class=lnlinks href=#hl-15-31>31</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>sequenceDiagram
+</span></span><span class=line><span class=cl>    participant C as Customer
+</span></span><span class=line><span class=cl>    participant W as Web Frontend
+</span></span><span class=line><span class=cl>    participant OS as Order Service
+</span></span><span class=line><span class=cl>    participant ACL as Order ACL
+</span></span><span class=line><span class=cl>    participant LO as Legacy Order
+</span></span><span class=line><span class=cl>    participant DB as Legacy DB
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    C-&gt;&gt;W: 주문 요청
+</span></span><span class=line><span class=cl>    W-&gt;&gt;OS: CreateOrder(JSON)
+</span></span><span class=line><span class=cl>    OS-&gt;&gt;ACL: ProcessOrder(OrderDTO)
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    Note over ACL: 데이터 검증 및 변환
+</span></span><span class=line><span class=cl>    ACL-&gt;&gt;ACL: validateOrderData()
+</span></span><span class=line><span class=cl>    ACL-&gt;&gt;ACL: transformToLegacyFormat()
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    ACL-&gt;&gt;LO: createLegacyOrder(XML)
+</span></span><span class=line><span class=cl>    LO-&gt;&gt;DB: INSERT order_data
+</span></span><span class=line><span class=cl>    DB--&gt;&gt;LO: order_id
+</span></span><span class=line><span class=cl>    LO--&gt;&gt;ACL: LegacyOrderResponse(XML)
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    Note over ACL: 응답 변환
+</span></span><span class=line><span class=cl>    ACL-&gt;&gt;ACL: transformToModernFormat()
+</span></span><span class=line><span class=cl>    ACL-&gt;&gt;ACL: enrichWithMetadata()
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    ACL--&gt;&gt;OS: OrderResponse(JSON)
+</span></span><span class=line><span class=cl>    OS--&gt;&gt;W: OrderCreated
+</span></span><span class=line><span class=cl>    W--&gt;&gt;C: 주문 완료 확인
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    Note over ACL: 비동기 이벤트 발행
+</span></span><span class=line><span class=cl>    ACL-&gt;&gt;ACL: publishOrderEvent()
+</span></span></code></pre></td></tr></table></div></div><h5 id=acl-유무에-따른-차이점>ACL 유무에 따른 차이점<a hidden class=anchor aria-hidden=true href=#acl-유무에-따른-차이점>#</a></h5><p><strong>ACL 적용 전:</strong></p><ul><li>신규 서비스가 레거시 SOAP 프로토콜 직접 호출</li><li>복잡한 XML 스키마를 현대 서비스에서 직접 처리</li><li>레거시 변경 시 모든 클라이언트 영향</li><li>에러 처리가 각 서비스마다 산재</li></ul><p><strong>ACL 적용 후:</strong></p><ul><li>일관된 REST API 인터페이스 제공</li><li>레거시 복잡성이 현대 서비스에 노출되지 않음</li><li>중앙화된 에러 처리 및 로깅</li><li>점진적 마이그레이션 가능</li></ul><h4 id=구현-예시>구현 예시<a hidden class=anchor aria-hidden=true href=#구현-예시>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-16-1><a class=lnlinks href=#hl-16-1>  1</a>
+</span><span class=lnt id=hl-16-2><a class=lnlinks href=#hl-16-2>  2</a>
+</span><span class=lnt id=hl-16-3><a class=lnlinks href=#hl-16-3>  3</a>
+</span><span class=lnt id=hl-16-4><a class=lnlinks href=#hl-16-4>  4</a>
+</span><span class=lnt id=hl-16-5><a class=lnlinks href=#hl-16-5>  5</a>
+</span><span class=lnt id=hl-16-6><a class=lnlinks href=#hl-16-6>  6</a>
+</span><span class=lnt id=hl-16-7><a class=lnlinks href=#hl-16-7>  7</a>
+</span><span class=lnt id=hl-16-8><a class=lnlinks href=#hl-16-8>  8</a>
+</span><span class=lnt id=hl-16-9><a class=lnlinks href=#hl-16-9>  9</a>
+</span><span class=lnt id=hl-16-10><a class=lnlinks href=#hl-16-10> 10</a>
+</span><span class=lnt id=hl-16-11><a class=lnlinks href=#hl-16-11> 11</a>
+</span><span class=lnt id=hl-16-12><a class=lnlinks href=#hl-16-12> 12</a>
+</span><span class=lnt id=hl-16-13><a class=lnlinks href=#hl-16-13> 13</a>
+</span><span class=lnt id=hl-16-14><a class=lnlinks href=#hl-16-14> 14</a>
+</span><span class=lnt id=hl-16-15><a class=lnlinks href=#hl-16-15> 15</a>
+</span><span class=lnt id=hl-16-16><a class=lnlinks href=#hl-16-16> 16</a>
+</span><span class=lnt id=hl-16-17><a class=lnlinks href=#hl-16-17> 17</a>
+</span><span class=lnt id=hl-16-18><a class=lnlinks href=#hl-16-18> 18</a>
+</span><span class=lnt id=hl-16-19><a class=lnlinks href=#hl-16-19> 19</a>
+</span><span class=lnt id=hl-16-20><a class=lnlinks href=#hl-16-20> 20</a>
+</span><span class=lnt id=hl-16-21><a class=lnlinks href=#hl-16-21> 21</a>
+</span><span class=lnt id=hl-16-22><a class=lnlinks href=#hl-16-22> 22</a>
+</span><span class=lnt id=hl-16-23><a class=lnlinks href=#hl-16-23> 23</a>
+</span><span class=lnt id=hl-16-24><a class=lnlinks href=#hl-16-24> 24</a>
+</span><span class=lnt id=hl-16-25><a class=lnlinks href=#hl-16-25> 25</a>
+</span><span class=lnt id=hl-16-26><a class=lnlinks href=#hl-16-26> 26</a>
+</span><span class=lnt id=hl-16-27><a class=lnlinks href=#hl-16-27> 27</a>
+</span><span class=lnt id=hl-16-28><a class=lnlinks href=#hl-16-28> 28</a>
+</span><span class=lnt id=hl-16-29><a class=lnlinks href=#hl-16-29> 29</a>
+</span><span class=lnt id=hl-16-30><a class=lnlinks href=#hl-16-30> 30</a>
+</span><span class=lnt id=hl-16-31><a class=lnlinks href=#hl-16-31> 31</a>
+</span><span class=lnt id=hl-16-32><a class=lnlinks href=#hl-16-32> 32</a>
+</span><span class=lnt id=hl-16-33><a class=lnlinks href=#hl-16-33> 33</a>
+</span><span class=lnt id=hl-16-34><a class=lnlinks href=#hl-16-34> 34</a>
+</span><span class=lnt id=hl-16-35><a class=lnlinks href=#hl-16-35> 35</a>
+</span><span class=lnt id=hl-16-36><a class=lnlinks href=#hl-16-36> 36</a>
+</span><span class=lnt id=hl-16-37><a class=lnlinks href=#hl-16-37> 37</a>
+</span><span class=lnt id=hl-16-38><a class=lnlinks href=#hl-16-38> 38</a>
+</span><span class=lnt id=hl-16-39><a class=lnlinks href=#hl-16-39> 39</a>
+</span><span class=lnt id=hl-16-40><a class=lnlinks href=#hl-16-40> 40</a>
+</span><span class=lnt id=hl-16-41><a class=lnlinks href=#hl-16-41> 41</a>
+</span><span class=lnt id=hl-16-42><a class=lnlinks href=#hl-16-42> 42</a>
+</span><span class=lnt id=hl-16-43><a class=lnlinks href=#hl-16-43> 43</a>
+</span><span class=lnt id=hl-16-44><a class=lnlinks href=#hl-16-44> 44</a>
+</span><span class=lnt id=hl-16-45><a class=lnlinks href=#hl-16-45> 45</a>
+</span><span class=lnt id=hl-16-46><a class=lnlinks href=#hl-16-46> 46</a>
+</span><span class=lnt id=hl-16-47><a class=lnlinks href=#hl-16-47> 47</a>
+</span><span class=lnt id=hl-16-48><a class=lnlinks href=#hl-16-48> 48</a>
+</span><span class=lnt id=hl-16-49><a class=lnlinks href=#hl-16-49> 49</a>
+</span><span class=lnt id=hl-16-50><a class=lnlinks href=#hl-16-50> 50</a>
+</span><span class=lnt id=hl-16-51><a class=lnlinks href=#hl-16-51> 51</a>
+</span><span class=lnt id=hl-16-52><a class=lnlinks href=#hl-16-52> 52</a>
+</span><span class=lnt id=hl-16-53><a class=lnlinks href=#hl-16-53> 53</a>
+</span><span class=lnt id=hl-16-54><a class=lnlinks href=#hl-16-54> 54</a>
+</span><span class=lnt id=hl-16-55><a class=lnlinks href=#hl-16-55> 55</a>
+</span><span class=lnt id=hl-16-56><a class=lnlinks href=#hl-16-56> 56</a>
+</span><span class=lnt id=hl-16-57><a class=lnlinks href=#hl-16-57> 57</a>
+</span><span class=lnt id=hl-16-58><a class=lnlinks href=#hl-16-58> 58</a>
+</span><span class=lnt id=hl-16-59><a class=lnlinks href=#hl-16-59> 59</a>
+</span><span class=lnt id=hl-16-60><a class=lnlinks href=#hl-16-60> 60</a>
+</span><span class=lnt id=hl-16-61><a class=lnlinks href=#hl-16-61> 61</a>
+</span><span class=lnt id=hl-16-62><a class=lnlinks href=#hl-16-62> 62</a>
+</span><span class=lnt id=hl-16-63><a class=lnlinks href=#hl-16-63> 63</a>
+</span><span class=lnt id=hl-16-64><a class=lnlinks href=#hl-16-64> 64</a>
+</span><span class=lnt id=hl-16-65><a class=lnlinks href=#hl-16-65> 65</a>
+</span><span class=lnt id=hl-16-66><a class=lnlinks href=#hl-16-66> 66</a>
+</span><span class=lnt id=hl-16-67><a class=lnlinks href=#hl-16-67> 67</a>
+</span><span class=lnt id=hl-16-68><a class=lnlinks href=#hl-16-68> 68</a>
+</span><span class=lnt id=hl-16-69><a class=lnlinks href=#hl-16-69> 69</a>
+</span><span class=lnt id=hl-16-70><a class=lnlinks href=#hl-16-70> 70</a>
+</span><span class=lnt id=hl-16-71><a class=lnlinks href=#hl-16-71> 71</a>
+</span><span class=lnt id=hl-16-72><a class=lnlinks href=#hl-16-72> 72</a>
+</span><span class=lnt id=hl-16-73><a class=lnlinks href=#hl-16-73> 73</a>
+</span><span class=lnt id=hl-16-74><a class=lnlinks href=#hl-16-74> 74</a>
+</span><span class=lnt id=hl-16-75><a class=lnlinks href=#hl-16-75> 75</a>
+</span><span class=lnt id=hl-16-76><a class=lnlinks href=#hl-16-76> 76</a>
+</span><span class=lnt id=hl-16-77><a class=lnlinks href=#hl-16-77> 77</a>
+</span><span class=lnt id=hl-16-78><a class=lnlinks href=#hl-16-78> 78</a>
+</span><span class=lnt id=hl-16-79><a class=lnlinks href=#hl-16-79> 79</a>
+</span><span class=lnt id=hl-16-80><a class=lnlinks href=#hl-16-80> 80</a>
+</span><span class=lnt id=hl-16-81><a class=lnlinks href=#hl-16-81> 81</a>
+</span><span class=lnt id=hl-16-82><a class=lnlinks href=#hl-16-82> 82</a>
+</span><span class=lnt id=hl-16-83><a class=lnlinks href=#hl-16-83> 83</a>
+</span><span class=lnt id=hl-16-84><a class=lnlinks href=#hl-16-84> 84</a>
+</span><span class=lnt id=hl-16-85><a class=lnlinks href=#hl-16-85> 85</a>
+</span><span class=lnt id=hl-16-86><a class=lnlinks href=#hl-16-86> 86</a>
+</span><span class=lnt id=hl-16-87><a class=lnlinks href=#hl-16-87> 87</a>
+</span><span class=lnt id=hl-16-88><a class=lnlinks href=#hl-16-88> 88</a>
+</span><span class=lnt id=hl-16-89><a class=lnlinks href=#hl-16-89> 89</a>
+</span><span class=lnt id=hl-16-90><a class=lnlinks href=#hl-16-90> 90</a>
+</span><span class=lnt id=hl-16-91><a class=lnlinks href=#hl-16-91> 91</a>
+</span><span class=lnt id=hl-16-92><a class=lnlinks href=#hl-16-92> 92</a>
+</span><span class=lnt id=hl-16-93><a class=lnlinks href=#hl-16-93> 93</a>
+</span><span class=lnt id=hl-16-94><a class=lnlinks href=#hl-16-94> 94</a>
+</span><span class=lnt id=hl-16-95><a class=lnlinks href=#hl-16-95> 95</a>
+</span><span class=lnt id=hl-16-96><a class=lnlinks href=#hl-16-96> 96</a>
+</span><span class=lnt id=hl-16-97><a class=lnlinks href=#hl-16-97> 97</a>
+</span><span class=lnt id=hl-16-98><a class=lnlinks href=#hl-16-98> 98</a>
+</span><span class=lnt id=hl-16-99><a class=lnlinks href=#hl-16-99> 99</a>
+</span><span class=lnt id=hl-16-100><a class=lnlinks href=#hl-16-100>100</a>
+</span><span class=lnt id=hl-16-101><a class=lnlinks href=#hl-16-101>101</a>
+</span><span class=lnt id=hl-16-102><a class=lnlinks href=#hl-16-102>102</a>
+</span><span class=lnt id=hl-16-103><a class=lnlinks href=#hl-16-103>103</a>
+</span><span class=lnt id=hl-16-104><a class=lnlinks href=#hl-16-104>104</a>
+</span><span class=lnt id=hl-16-105><a class=lnlinks href=#hl-16-105>105</a>
+</span><span class=lnt id=hl-16-106><a class=lnlinks href=#hl-16-106>106</a>
+</span><span class=lnt id=hl-16-107><a class=lnlinks href=#hl-16-107>107</a>
+</span><span class=lnt id=hl-16-108><a class=lnlinks href=#hl-16-108>108</a>
+</span><span class=lnt id=hl-16-109><a class=lnlinks href=#hl-16-109>109</a>
+</span><span class=lnt id=hl-16-110><a class=lnlinks href=#hl-16-110>110</a>
+</span><span class=lnt id=hl-16-111><a class=lnlinks href=#hl-16-111>111</a>
+</span><span class=lnt id=hl-16-112><a class=lnlinks href=#hl-16-112>112</a>
+</span><span class=lnt id=hl-16-113><a class=lnlinks href=#hl-16-113>113</a>
+</span><span class=lnt id=hl-16-114><a class=lnlinks href=#hl-16-114>114</a>
+</span><span class=lnt id=hl-16-115><a class=lnlinks href=#hl-16-115>115</a>
+</span><span class=lnt id=hl-16-116><a class=lnlinks href=#hl-16-116>116</a>
+</span><span class=lnt id=hl-16-117><a class=lnlinks href=#hl-16-117>117</a>
+</span><span class=lnt id=hl-16-118><a class=lnlinks href=#hl-16-118>118</a>
+</span><span class=lnt id=hl-16-119><a class=lnlinks href=#hl-16-119>119</a>
+</span><span class=lnt id=hl-16-120><a class=lnlinks href=#hl-16-120>120</a>
+</span><span class=lnt id=hl-16-121><a class=lnlinks href=#hl-16-121>121</a>
+</span><span class=lnt id=hl-16-122><a class=lnlinks href=#hl-16-122>122</a>
+</span><span class=lnt id=hl-16-123><a class=lnlinks href=#hl-16-123>123</a>
+</span><span class=lnt id=hl-16-124><a class=lnlinks href=#hl-16-124>124</a>
+</span><span class=lnt id=hl-16-125><a class=lnlinks href=#hl-16-125>125</a>
+</span><span class=lnt id=hl-16-126><a class=lnlinks href=#hl-16-126>126</a>
+</span><span class=lnt id=hl-16-127><a class=lnlinks href=#hl-16-127>127</a>
+</span><span class=lnt id=hl-16-128><a class=lnlinks href=#hl-16-128>128</a>
+</span><span class=lnt id=hl-16-129><a class=lnlinks href=#hl-16-129>129</a>
+</span><span class=lnt id=hl-16-130><a class=lnlinks href=#hl-16-130>130</a>
+</span><span class=lnt id=hl-16-131><a class=lnlinks href=#hl-16-131>131</a>
+</span><span class=lnt id=hl-16-132><a class=lnlinks href=#hl-16-132>132</a>
+</span><span class=lnt id=hl-16-133><a class=lnlinks href=#hl-16-133>133</a>
+</span><span class=lnt id=hl-16-134><a class=lnlinks href=#hl-16-134>134</a>
+</span><span class=lnt id=hl-16-135><a class=lnlinks href=#hl-16-135>135</a>
+</span><span class=lnt id=hl-16-136><a class=lnlinks href=#hl-16-136>136</a>
+</span><span class=lnt id=hl-16-137><a class=lnlinks href=#hl-16-137>137</a>
+</span><span class=lnt id=hl-16-138><a class=lnlinks href=#hl-16-138>138</a>
+</span><span class=lnt id=hl-16-139><a class=lnlinks href=#hl-16-139>139</a>
+</span><span class=lnt id=hl-16-140><a class=lnlinks href=#hl-16-140>140</a>
+</span><span class=lnt id=hl-16-141><a class=lnlinks href=#hl-16-141>141</a>
+</span><span class=lnt id=hl-16-142><a class=lnlinks href=#hl-16-142>142</a>
+</span><span class=lnt id=hl-16-143><a class=lnlinks href=#hl-16-143>143</a>
+</span><span class=lnt id=hl-16-144><a class=lnlinks href=#hl-16-144>144</a>
+</span><span class=lnt id=hl-16-145><a class=lnlinks href=#hl-16-145>145</a>
+</span><span class=lnt id=hl-16-146><a class=lnlinks href=#hl-16-146>146</a>
+</span><span class=lnt id=hl-16-147><a class=lnlinks href=#hl-16-147>147</a>
+</span><span class=lnt id=hl-16-148><a class=lnlinks href=#hl-16-148>148</a>
+</span><span class=lnt id=hl-16-149><a class=lnlinks href=#hl-16-149>149</a>
+</span><span class=lnt id=hl-16-150><a class=lnlinks href=#hl-16-150>150</a>
+</span><span class=lnt id=hl-16-151><a class=lnlinks href=#hl-16-151>151</a>
+</span><span class=lnt id=hl-16-152><a class=lnlinks href=#hl-16-152>152</a>
+</span><span class=lnt id=hl-16-153><a class=lnlinks href=#hl-16-153>153</a>
+</span><span class=lnt id=hl-16-154><a class=lnlinks href=#hl-16-154>154</a>
+</span><span class=lnt id=hl-16-155><a class=lnlinks href=#hl-16-155>155</a>
+</span><span class=lnt id=hl-16-156><a class=lnlinks href=#hl-16-156>156</a>
+</span><span class=lnt id=hl-16-157><a class=lnlinks href=#hl-16-157>157</a>
+</span><span class=lnt id=hl-16-158><a class=lnlinks href=#hl-16-158>158</a>
+</span><span class=lnt id=hl-16-159><a class=lnlinks href=#hl-16-159>159</a>
+</span><span class=lnt id=hl-16-160><a class=lnlinks href=#hl-16-160>160</a>
+</span><span class=lnt id=hl-16-161><a class=lnlinks href=#hl-16-161>161</a>
+</span><span class=lnt id=hl-16-162><a class=lnlinks href=#hl-16-162>162</a>
+</span><span class=lnt id=hl-16-163><a class=lnlinks href=#hl-16-163>163</a>
+</span><span class=lnt id=hl-16-164><a class=lnlinks href=#hl-16-164>164</a>
+</span><span class=lnt id=hl-16-165><a class=lnlinks href=#hl-16-165>165</a>
+</span><span class=lnt id=hl-16-166><a class=lnlinks href=#hl-16-166>166</a>
+</span><span class=lnt id=hl-16-167><a class=lnlinks href=#hl-16-167>167</a>
+</span><span class=lnt id=hl-16-168><a class=lnlinks href=#hl-16-168>168</a>
+</span><span class=lnt id=hl-16-169><a class=lnlinks href=#hl-16-169>169</a>
+</span><span class=lnt id=hl-16-170><a class=lnlinks href=#hl-16-170>170</a>
+</span><span class=lnt id=hl-16-171><a class=lnlinks href=#hl-16-171>171</a>
+</span><span class=lnt id=hl-16-172><a class=lnlinks href=#hl-16-172>172</a>
+</span><span class=lnt id=hl-16-173><a class=lnlinks href=#hl-16-173>173</a>
+</span><span class=lnt id=hl-16-174><a class=lnlinks href=#hl-16-174>174</a>
+</span><span class=lnt id=hl-16-175><a class=lnlinks href=#hl-16-175>175</a>
+</span><span class=lnt id=hl-16-176><a class=lnlinks href=#hl-16-176>176</a>
+</span><span class=lnt id=hl-16-177><a class=lnlinks href=#hl-16-177>177</a>
+</span><span class=lnt id=hl-16-178><a class=lnlinks href=#hl-16-178>178</a>
+</span><span class=lnt id=hl-16-179><a class=lnlinks href=#hl-16-179>179</a>
+</span><span class=lnt id=hl-16-180><a class=lnlinks href=#hl-16-180>180</a>
+</span><span class=lnt id=hl-16-181><a class=lnlinks href=#hl-16-181>181</a>
+</span><span class=lnt id=hl-16-182><a class=lnlinks href=#hl-16-182>182</a>
+</span><span class=lnt id=hl-16-183><a class=lnlinks href=#hl-16-183>183</a>
+</span><span class=lnt id=hl-16-184><a class=lnlinks href=#hl-16-184>184</a>
+</span><span class=lnt id=hl-16-185><a class=lnlinks href=#hl-16-185>185</a>
+</span><span class=lnt id=hl-16-186><a class=lnlinks href=#hl-16-186>186</a>
+</span><span class=lnt id=hl-16-187><a class=lnlinks href=#hl-16-187>187</a>
+</span><span class=lnt id=hl-16-188><a class=lnlinks href=#hl-16-188>188</a>
+</span><span class=lnt id=hl-16-189><a class=lnlinks href=#hl-16-189>189</a>
+</span><span class=lnt id=hl-16-190><a class=lnlinks href=#hl-16-190>190</a>
+</span><span class=lnt id=hl-16-191><a class=lnlinks href=#hl-16-191>191</a>
+</span><span class=lnt id=hl-16-192><a class=lnlinks href=#hl-16-192>192</a>
+</span><span class=lnt id=hl-16-193><a class=lnlinks href=#hl-16-193>193</a>
+</span><span class=lnt id=hl-16-194><a class=lnlinks href=#hl-16-194>194</a>
+</span><span class=lnt id=hl-16-195><a class=lnlinks href=#hl-16-195>195</a>
+</span><span class=lnt id=hl-16-196><a class=lnlinks href=#hl-16-196>196</a>
+</span><span class=lnt id=hl-16-197><a class=lnlinks href=#hl-16-197>197</a>
+</span><span class=lnt id=hl-16-198><a class=lnlinks href=#hl-16-198>198</a>
+</span><span class=lnt id=hl-16-199><a class=lnlinks href=#hl-16-199>199</a>
+</span><span class=lnt id=hl-16-200><a class=lnlinks href=#hl-16-200>200</a>
+</span><span class=lnt id=hl-16-201><a class=lnlinks href=#hl-16-201>201</a>
+</span><span class=lnt id=hl-16-202><a class=lnlinks href=#hl-16-202>202</a>
+</span><span class=lnt id=hl-16-203><a class=lnlinks href=#hl-16-203>203</a>
+</span><span class=lnt id=hl-16-204><a class=lnlinks href=#hl-16-204>204</a>
+</span><span class=lnt id=hl-16-205><a class=lnlinks href=#hl-16-205>205</a>
+</span><span class=lnt id=hl-16-206><a class=lnlinks href=#hl-16-206>206</a>
+</span><span class=lnt id=hl-16-207><a class=lnlinks href=#hl-16-207>207</a>
+</span><span class=lnt id=hl-16-208><a class=lnlinks href=#hl-16-208>208</a>
+</span><span class=lnt id=hl-16-209><a class=lnlinks href=#hl-16-209>209</a>
+</span><span class=lnt id=hl-16-210><a class=lnlinks href=#hl-16-210>210</a>
+</span><span class=lnt id=hl-16-211><a class=lnlinks href=#hl-16-211>211</a>
+</span><span class=lnt id=hl-16-212><a class=lnlinks href=#hl-16-212>212</a>
+</span><span class=lnt id=hl-16-213><a class=lnlinks href=#hl-16-213>213</a>
+</span><span class=lnt id=hl-16-214><a class=lnlinks href=#hl-16-214>214</a>
+</span><span class=lnt id=hl-16-215><a class=lnlinks href=#hl-16-215>215</a>
+</span><span class=lnt id=hl-16-216><a class=lnlinks href=#hl-16-216>216</a>
+</span><span class=lnt id=hl-16-217><a class=lnlinks href=#hl-16-217>217</a>
+</span><span class=lnt id=hl-16-218><a class=lnlinks href=#hl-16-218>218</a>
+</span><span class=lnt id=hl-16-219><a class=lnlinks href=#hl-16-219>219</a>
+</span><span class=lnt id=hl-16-220><a class=lnlinks href=#hl-16-220>220</a>
+</span><span class=lnt id=hl-16-221><a class=lnlinks href=#hl-16-221>221</a>
+</span><span class=lnt id=hl-16-222><a class=lnlinks href=#hl-16-222>222</a>
+</span><span class=lnt id=hl-16-223><a class=lnlinks href=#hl-16-223>223</a>
+</span><span class=lnt id=hl-16-224><a class=lnlinks href=#hl-16-224>224</a>
+</span><span class=lnt id=hl-16-225><a class=lnlinks href=#hl-16-225>225</a>
+</span><span class=lnt id=hl-16-226><a class=lnlinks href=#hl-16-226>226</a>
+</span><span class=lnt id=hl-16-227><a class=lnlinks href=#hl-16-227>227</a>
+</span><span class=lnt id=hl-16-228><a class=lnlinks href=#hl-16-228>228</a>
+</span><span class=lnt id=hl-16-229><a class=lnlinks href=#hl-16-229>229</a>
+</span><span class=lnt id=hl-16-230><a class=lnlinks href=#hl-16-230>230</a>
+</span><span class=lnt id=hl-16-231><a class=lnlinks href=#hl-16-231>231</a>
+</span><span class=lnt id=hl-16-232><a class=lnlinks href=#hl-16-232>232</a>
+</span><span class=lnt id=hl-16-233><a class=lnlinks href=#hl-16-233>233</a>
+</span><span class=lnt id=hl-16-234><a class=lnlinks href=#hl-16-234>234</a>
+</span><span class=lnt id=hl-16-235><a class=lnlinks href=#hl-16-235>235</a>
+</span><span class=lnt id=hl-16-236><a class=lnlinks href=#hl-16-236>236</a>
+</span><span class=lnt id=hl-16-237><a class=lnlinks href=#hl-16-237>237</a>
+</span><span class=lnt id=hl-16-238><a class=lnlinks href=#hl-16-238>238</a>
+</span><span class=lnt id=hl-16-239><a class=lnlinks href=#hl-16-239>239</a>
+</span><span class=lnt id=hl-16-240><a class=lnlinks href=#hl-16-240>240</a>
+</span><span class=lnt id=hl-16-241><a class=lnlinks href=#hl-16-241>241</a>
+</span><span class=lnt id=hl-16-242><a class=lnlinks href=#hl-16-242>242</a>
+</span><span class=lnt id=hl-16-243><a class=lnlinks href=#hl-16-243>243</a>
+</span><span class=lnt id=hl-16-244><a class=lnlinks href=#hl-16-244>244</a>
+</span><span class=lnt id=hl-16-245><a class=lnlinks href=#hl-16-245>245</a>
+</span><span class=lnt id=hl-16-246><a class=lnlinks href=#hl-16-246>246</a>
+</span><span class=lnt id=hl-16-247><a class=lnlinks href=#hl-16-247>247</a>
+</span><span class=lnt id=hl-16-248><a class=lnlinks href=#hl-16-248>248</a>
+</span><span class=lnt id=hl-16-249><a class=lnlinks href=#hl-16-249>249</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># Order Anti-Corruption Layer 구현 예시</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>abc</span> <span class=kn>import</span> <span class=n>ABC</span><span class=p>,</span> <span class=n>abstractmethod</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>dataclasses</span> <span class=kn>import</span> <span class=n>dataclass</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>typing</span> <span class=kn>import</span> <span class=n>Dict</span><span class=p>,</span> <span class=n>List</span><span class=p>,</span> <span class=n>Optional</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>json</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>logging</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>datetime</span> <span class=kn>import</span> <span class=n>datetime</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 도메인 모델 정의</span>
+</span></span><span class=line><span class=cl><span class=nd>@dataclass</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>ModernOrder</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;현대 시스템의 주문 모델&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>id</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=n>customer_id</span><span class=p>:</span> <span class=nb>str</span>
+</span></span><span class=line><span class=cl>    <span class=n>items</span><span class=p>:</span> <span class=n>List</span><span class=p>[</span><span class=n>Dict</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=n>total_amount</span><span class=p>:</span> <span class=nb>float</span>
+</span></span><span class=line><span class=cl>    <span class=n>currency</span><span class=p>:</span> <span class=nb>str</span>
+</span></span><span class=line><span class=cl>    <span class=n>status</span><span class=p>:</span> <span class=nb>str</span>
+</span></span><span class=line><span class=cl>    <span class=n>created_at</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=n>datetime</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nd>@dataclass</span>  
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>LegacyOrderData</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;레거시 시스템의 주문 데이터 구조&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>order_num</span><span class=p>:</span> <span class=nb>str</span>
+</span></span><span class=line><span class=cl>    <span class=n>cust_ref</span><span class=p>:</span> <span class=nb>str</span>
+</span></span><span class=line><span class=cl>    <span class=n>line_items</span><span class=p>:</span> <span class=nb>str</span>  <span class=c1># XML 문자열</span>
+</span></span><span class=line><span class=cl>    <span class=n>total_val</span><span class=p>:</span> <span class=nb>str</span>
+</span></span><span class=line><span class=cl>    <span class=n>curr_code</span><span class=p>:</span> <span class=nb>str</span>
+</span></span><span class=line><span class=cl>    <span class=n>order_stat</span><span class=p>:</span> <span class=nb>int</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 인터페이스 정의</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>OrderRepository</span><span class=p>(</span><span class=n>ABC</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=nd>@abstractmethod</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>create_order</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>order</span><span class=p>:</span> <span class=n>ModernOrder</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>str</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>pass</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=nd>@abstractmethod</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>get_order</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>order_id</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>ModernOrder</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>pass</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># ACL의 핵심 구성 요소들</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>DataValidator</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;입력 데이터 검증&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>validate_order</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>order</span><span class=p>:</span> <span class=n>ModernOrder</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bool</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=ow>not</span> <span class=n>order</span><span class=o>.</span><span class=n>customer_id</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span><span class=s2>&#34;Customer ID is required&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>order</span><span class=o>.</span><span class=n>total_amount</span> <span class=o>&lt;=</span> <span class=mi>0</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span><span class=s2>&#34;Total amount must be positive&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=ow>not</span> <span class=n>order</span><span class=o>.</span><span class=n>items</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span><span class=s2>&#34;Order must contain at least one item&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>True</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>DataTranslator</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;데이터 형식 변환&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>modern_to_legacy</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>modern_order</span><span class=p>:</span> <span class=n>ModernOrder</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>LegacyOrderData</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;현대 형식을 레거시 형식으로 변환&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 아이템을 XML 문자열로 변환</span>
+</span></span><span class=line><span class=cl>        <span class=n>xml_items</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_convert_items_to_xml</span><span class=p>(</span><span class=n>modern_order</span><span class=o>.</span><span class=n>items</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 상태 코드 매핑</span>
+</span></span><span class=line><span class=cl>        <span class=n>status_map</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;pending&#34;</span><span class=p>:</span> <span class=mi>0</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;confirmed&#34;</span><span class=p>:</span> <span class=mi>1</span><span class=p>,</span> 
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;shipped&#34;</span><span class=p>:</span> <span class=mi>2</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;delivered&#34;</span><span class=p>:</span> <span class=mi>3</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;cancelled&#34;</span><span class=p>:</span> <span class=mi>9</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>LegacyOrderData</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>            <span class=n>order_num</span><span class=o>=</span><span class=n>modern_order</span><span class=o>.</span><span class=n>id</span> <span class=ow>or</span> <span class=s2>&#34;&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>cust_ref</span><span class=o>=</span><span class=n>modern_order</span><span class=o>.</span><span class=n>customer_id</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>line_items</span><span class=o>=</span><span class=n>xml_items</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>total_val</span><span class=o>=</span><span class=nb>str</span><span class=p>(</span><span class=n>modern_order</span><span class=o>.</span><span class=n>total_amount</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>            <span class=n>curr_code</span><span class=o>=</span><span class=n>modern_order</span><span class=o>.</span><span class=n>currency</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>order_stat</span><span class=o>=</span><span class=n>status_map</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=n>modern_order</span><span class=o>.</span><span class=n>status</span><span class=p>,</span> <span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>legacy_to_modern</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>legacy_data</span><span class=p>:</span> <span class=n>LegacyOrderData</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>ModernOrder</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;레거시 형식을 현대 형식으로 변환&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># XML을 파싱하여 아이템 리스트로 변환</span>
+</span></span><span class=line><span class=cl>        <span class=n>items</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_parse_xml_items</span><span class=p>(</span><span class=n>legacy_data</span><span class=o>.</span><span class=n>line_items</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 상태 코드 역매핑</span>
+</span></span><span class=line><span class=cl>        <span class=n>status_map</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=mi>0</span><span class=p>:</span> <span class=s2>&#34;pending&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=mi>1</span><span class=p>:</span> <span class=s2>&#34;confirmed&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=mi>2</span><span class=p>:</span> <span class=s2>&#34;shipped&#34;</span><span class=p>,</span> 
+</span></span><span class=line><span class=cl>            <span class=mi>3</span><span class=p>:</span> <span class=s2>&#34;delivered&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=mi>9</span><span class=p>:</span> <span class=s2>&#34;cancelled&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>ModernOrder</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>            <span class=nb>id</span><span class=o>=</span><span class=n>legacy_data</span><span class=o>.</span><span class=n>order_num</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>customer_id</span><span class=o>=</span><span class=n>legacy_data</span><span class=o>.</span><span class=n>cust_ref</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>items</span><span class=o>=</span><span class=n>items</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>total_amount</span><span class=o>=</span><span class=nb>float</span><span class=p>(</span><span class=n>legacy_data</span><span class=o>.</span><span class=n>total_val</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>            <span class=n>currency</span><span class=o>=</span><span class=n>legacy_data</span><span class=o>.</span><span class=n>curr_code</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>status</span><span class=o>=</span><span class=n>status_map</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=n>legacy_data</span><span class=o>.</span><span class=n>order_stat</span><span class=p>,</span> <span class=s2>&#34;pending&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>_convert_items_to_xml</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>items</span><span class=p>:</span> <span class=n>List</span><span class=p>[</span><span class=n>Dict</span><span class=p>])</span> <span class=o>-&gt;</span> <span class=nb>str</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;아이템 리스트를 XML 문자열로 변환&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=n>xml_parts</span> <span class=o>=</span> <span class=p>[</span><span class=s2>&#34;&lt;items&gt;&#34;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>item</span> <span class=ow>in</span> <span class=n>items</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>xml_parts</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>                &lt;item&gt;
+</span></span></span><span class=line><span class=cl><span class=s2>                    &lt;sku&gt;</span><span class=si>{</span><span class=n>item</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=s1>&#39;sku&#39;</span><span class=p>,</span> <span class=s1>&#39;&#39;</span><span class=p>)</span><span class=si>}</span><span class=s2>&lt;/sku&gt;
+</span></span></span><span class=line><span class=cl><span class=s2>                    &lt;quantity&gt;</span><span class=si>{</span><span class=n>item</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=s1>&#39;quantity&#39;</span><span class=p>,</span> <span class=mi>0</span><span class=p>)</span><span class=si>}</span><span class=s2>&lt;/quantity&gt;
+</span></span></span><span class=line><span class=cl><span class=s2>                    &lt;price&gt;</span><span class=si>{</span><span class=n>item</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=s1>&#39;price&#39;</span><span class=p>,</span> <span class=mi>0</span><span class=p>)</span><span class=si>}</span><span class=s2>&lt;/price&gt;
+</span></span></span><span class=line><span class=cl><span class=s2>                &lt;/item&gt;
+</span></span></span><span class=line><span class=cl><span class=s2>            &#34;&#34;&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>xml_parts</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=s2>&#34;&lt;/items&gt;&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=s2>&#34;&#34;</span><span class=o>.</span><span class=n>join</span><span class=p>(</span><span class=n>xml_parts</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>_parse_xml_items</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>xml_string</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>List</span><span class=p>[</span><span class=n>Dict</span><span class=p>]:</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;XML 문자열을 아이템 리스트로 파싱 (간단한 예시)&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 실제로는 xml.etree.ElementTree 등을 사용</span>
+</span></span><span class=line><span class=cl>        <span class=n>items</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>        <span class=c1># XML 파싱 로직 구현 (생략)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>items</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>LegacySystemAdapter</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;레거시 시스템과의 통신 어댑터&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>legacy_endpoint</span><span class=p>:</span> <span class=nb>str</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>legacy_endpoint</span> <span class=o>=</span> <span class=n>legacy_endpoint</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>logger</span> <span class=o>=</span> <span class=n>logging</span><span class=o>.</span><span class=n>getLogger</span><span class=p>(</span><span class=vm>__name__</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>create_legacy_order</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>legacy_data</span><span class=p>:</span> <span class=n>LegacyOrderData</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>str</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;레거시 시스템에 주문 생성 요청&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=c1># SOAP 클라이언트 또는 레거시 API 호출</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 실제로는 suds-jurko, zeep 등의 SOAP 라이브러리 사용</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>logger</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Creating legacy order for customer: </span><span class=si>{</span><span class=n>legacy_data</span><span class=o>.</span><span class=n>cust_ref</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=c1># 레거시 시스템 호출 시뮬레이션</span>
+</span></span><span class=line><span class=cl>            <span class=n>order_id</span> <span class=o>=</span> <span class=sa>f</span><span class=s2>&#34;ORD_</span><span class=si>{</span><span class=n>datetime</span><span class=o>.</span><span class=n>now</span><span class=p>()</span><span class=o>.</span><span class=n>strftime</span><span class=p>(</span><span class=s1>&#39;%Y%m</span><span class=si>%d</span><span class=s1>%H%M%S&#39;</span><span class=p>)</span><span class=si>}</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=n>order_id</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>        <span class=k>except</span> <span class=ne>Exception</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>logger</span><span class=o>.</span><span class=n>error</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Failed to create legacy order: </span><span class=si>{</span><span class=n>e</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>raise</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Anti-Corruption Layer 메인 클래스</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>OrderAntiCorruptionLayer</span><span class=p>(</span><span class=n>OrderRepository</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;주문 처리를 위한 Anti-Corruption Layer&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>legacy_adapter</span><span class=p>:</span> <span class=n>LegacySystemAdapter</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>validator</span> <span class=o>=</span> <span class=n>DataValidator</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>translator</span> <span class=o>=</span> <span class=n>DataTranslator</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>legacy_adapter</span> <span class=o>=</span> <span class=n>legacy_adapter</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>logger</span> <span class=o>=</span> <span class=n>logging</span><span class=o>.</span><span class=n>getLogger</span><span class=p>(</span><span class=vm>__name__</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>create_order</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>order</span><span class=p>:</span> <span class=n>ModernOrder</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>str</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;현대 시스템의 주문을 레거시 시스템에 생성&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 1. 입력 검증</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>validator</span><span class=o>.</span><span class=n>validate_order</span><span class=p>(</span><span class=n>order</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=c1># 2. 데이터 변환</span>
+</span></span><span class=line><span class=cl>            <span class=n>legacy_data</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>translator</span><span class=o>.</span><span class=n>modern_to_legacy</span><span class=p>(</span><span class=n>order</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=c1># 3. 레거시 시스템 호출</span>
+</span></span><span class=line><span class=cl>            <span class=n>order_id</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>legacy_adapter</span><span class=o>.</span><span class=n>create_legacy_order</span><span class=p>(</span><span class=n>legacy_data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=c1># 4. 결과 로깅</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>logger</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Successfully created order: </span><span class=si>{</span><span class=n>order_id</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=n>order_id</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>        <span class=k>except</span> <span class=ne>Exception</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>logger</span><span class=o>.</span><span class=n>error</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Order creation failed: </span><span class=si>{</span><span class=n>e</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 에러를 현대 시스템에 적합한 형태로 변환</span>
+</span></span><span class=line><span class=cl>            <span class=k>raise</span> <span class=bp>self</span><span class=o>.</span><span class=n>_transform_error</span><span class=p>(</span><span class=n>e</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>get_order</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>order_id</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>ModernOrder</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;레거시 시스템에서 주문 조회&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 레거시 시스템에서 데이터 조회 (구현 생략)</span>
+</span></span><span class=line><span class=cl>            <span class=n>legacy_data</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_fetch_legacy_order</span><span class=p>(</span><span class=n>order_id</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=c1># 현대 형식으로 변환</span>
+</span></span><span class=line><span class=cl>            <span class=n>modern_order</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>translator</span><span class=o>.</span><span class=n>legacy_to_modern</span><span class=p>(</span><span class=n>legacy_data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=n>modern_order</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>        <span class=k>except</span> <span class=ne>Exception</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>logger</span><span class=o>.</span><span class=n>error</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Order retrieval failed: </span><span class=si>{</span><span class=n>e</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>raise</span> <span class=bp>self</span><span class=o>.</span><span class=n>_transform_error</span><span class=p>(</span><span class=n>e</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>_fetch_legacy_order</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>order_id</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>LegacyOrderData</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;레거시 시스템에서 주문 데이터 조회 (스텁)&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 실제 레거시 시스템 호출 로직</span>
+</span></span><span class=line><span class=cl>        <span class=k>pass</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>_transform_error</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>error</span><span class=p>:</span> <span class=ne>Exception</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=ne>Exception</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;레거시 에러를 현대 시스템 에러로 변환&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=s2>&#34;SOAP-ENV:Client&#34;</span> <span class=ow>in</span> <span class=nb>str</span><span class=p>(</span><span class=n>error</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=ne>ValueError</span><span class=p>(</span><span class=s2>&#34;Invalid order data&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>elif</span> <span class=s2>&#34;timeout&#34;</span> <span class=ow>in</span> <span class=nb>str</span><span class=p>(</span><span class=n>error</span><span class=p>)</span><span class=o>.</span><span class=n>lower</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=ne>TimeoutError</span><span class=p>(</span><span class=s2>&#34;Legacy system unavailable&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=ne>RuntimeError</span><span class=p>(</span><span class=s2>&#34;Order processing failed&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 사용 예시</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>main</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;ACL 사용 예시&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># ACL 초기화</span>
+</span></span><span class=line><span class=cl>    <span class=n>legacy_adapter</span> <span class=o>=</span> <span class=n>LegacySystemAdapter</span><span class=p>(</span><span class=s2>&#34;http://legacy-system:8080/soap&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>order_acl</span> <span class=o>=</span> <span class=n>OrderAntiCorruptionLayer</span><span class=p>(</span><span class=n>legacy_adapter</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 현대 시스템의 주문 생성</span>
+</span></span><span class=line><span class=cl>    <span class=n>modern_order</span> <span class=o>=</span> <span class=n>ModernOrder</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=nb>id</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=n>customer_id</span><span class=o>=</span><span class=s2>&#34;CUST_12345&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=n>items</span><span class=o>=</span><span class=p>[</span>
+</span></span><span class=line><span class=cl>            <span class=p>{</span><span class=s2>&#34;sku&#34;</span><span class=p>:</span> <span class=s2>&#34;PROD_001&#34;</span><span class=p>,</span> <span class=s2>&#34;quantity&#34;</span><span class=p>:</span> <span class=mi>2</span><span class=p>,</span> <span class=s2>&#34;price&#34;</span><span class=p>:</span> <span class=mf>29.99</span><span class=p>},</span>
+</span></span><span class=line><span class=cl>            <span class=p>{</span><span class=s2>&#34;sku&#34;</span><span class=p>:</span> <span class=s2>&#34;PROD_002&#34;</span><span class=p>,</span> <span class=s2>&#34;quantity&#34;</span><span class=p>:</span> <span class=mi>1</span><span class=p>,</span> <span class=s2>&#34;price&#34;</span><span class=p>:</span> <span class=mf>15.99</span><span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=p>],</span>
+</span></span><span class=line><span class=cl>        <span class=n>total_amount</span><span class=o>=</span><span class=mf>75.97</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=n>currency</span><span class=o>=</span><span class=s2>&#34;USD&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=n>status</span><span class=o>=</span><span class=s2>&#34;pending&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=c1># ACL을 통한 주문 생성</span>
+</span></span><span class=line><span class=cl>        <span class=n>order_id</span> <span class=o>=</span> <span class=n>order_acl</span><span class=o>.</span><span class=n>create_order</span><span class=p>(</span><span class=n>modern_order</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Order created successfully: </span><span class=si>{</span><span class=n>order_id</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># ACL을 통한 주문 조회</span>
+</span></span><span class=line><span class=cl>        <span class=n>retrieved_order</span> <span class=o>=</span> <span class=n>order_acl</span><span class=o>.</span><span class=n>get_order</span><span class=p>(</span><span class=n>order_id</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Retrieved order: </span><span class=si>{</span><span class=n>retrieved_order</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>    <span class=k>except</span> <span class=ne>Exception</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Error: </span><span class=si>{</span><span class=n>e</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=vm>__name__</span> <span class=o>==</span> <span class=s2>&#34;__main__&#34;</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>main</span><span class=p>()</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=실무에서-효과적으로-적용하기-위한-고려사항-및-주의할-점>실무에서 효과적으로 적용하기 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#실무에서-효과적으로-적용하기-위한-고려사항-및-주의할-점>#</a></h4><table><thead><tr><th>구분</th><th>고려사항</th><th>설명</th><th>권장사항</th></tr></thead><tbody><tr><td><strong>설계</strong></td><td>경계 명확화</td><td>바운디드 컨텍스트 간 경계를 명확히 정의</td><td>DDD 전략적 설계 적용, 컨텍스트 매핑</td></tr><tr><td><strong>성능</strong></td><td>지연시간 관리</td><td>추가 계층으로 인한 성능 영향 최소화</td><td>비동기 처리, 캐싱 전략, 연결 풀링</td></tr><tr><td><strong>보안</strong></td><td>데이터 보호</td><td>민감한 데이터의 안전한 변환 및 전송</td><td>암호화, 토큰 기반 인증, 입력 검증</td></tr><tr><td><strong>운영</strong></td><td>모니터링</td><td>ACL 성능 및 상태 실시간 감시</td><td>메트릭 수집, 알람 설정, 로그 집계</td></tr><tr><td><strong>테스트</strong></td><td>검증 전략</td><td>복잡한 통합 시나리오 테스트</td><td>계약 테스트, 스텁/목 활용, 카나리 배포</td></tr></tbody></table><h4 id=최적화하기-위한-고려사항-및-주의할-점>최적화하기 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#최적화하기-위한-고려사항-및-주의할-점>#</a></h4><table><thead><tr><th>구분</th><th>최적화 요소</th><th>설명</th><th>권장사항</th></tr></thead><tbody><tr><td><strong>아키텍처</strong></td><td>확장성 설계</td><td>트래픽 증가에 대응할 수 있는 구조</td><td>마이크로서비스 패턴, 로드 밸런싱, 오토 스케일링</td></tr><tr><td><strong>데이터</strong></td><td>캐시 전략</td><td>자주 사용되는 데이터의 효율적 관리</td><td>Redis/Memcached 활용, TTL 정책, 무효화 전략</td></tr><tr><td><strong>통신</strong></td><td>프로토콜 최적화</td><td>시스템 간 통신 효율성 개선</td><td>gRPC 활용, 압축 적용, 연결 재사용</td></tr><tr><td><strong>코드</strong></td><td>리팩토링</td><td>지속적인 코드 품질 개선</td><td>SOLID 원칙, 디자인 패턴, 코드 리뷰</td></tr><tr><td><strong>배포</strong></td><td>무중단 배포</td><td>서비스 연속성 보장</td><td>블루 - 그린 배포, 카나리 배포, 롤백 전략</td></tr></tbody></table><hr><h3 id=제-5-부-주목할-내용-및-학습-요소>제 5 부: 주목할 내용 및 학습 요소<a hidden class=anchor aria-hidden=true href=#제-5-부-주목할-내용-및-학습-요소>#</a></h3><h4 id=주제와-관련하여-주목할-내용>주제와 관련하여 주목할 내용<a hidden class=anchor aria-hidden=true href=#주제와-관련하여-주목할-내용>#</a></h4><table><thead><tr><th>카테고리</th><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td><strong>패턴</strong></td><td>구조적 패턴</td><td>Facade Pattern</td><td>복잡한 서브시스템에 대한 단순화된 인터페이스 제공</td></tr><tr><td></td><td></td><td>Adapter Pattern</td><td>호환되지 않는 인터페이스 간 변환 처리</td></tr><tr><td></td><td></td><td>Proxy Pattern</td><td>다른 객체에 대한 접근을 제어하는 대리자 역할</td></tr><tr><td><strong>아키텍처</strong></td><td>DDD</td><td>Bounded Context</td><td>명확한 도메인 경계 설정으로 모델 독립성 보장</td></tr><tr><td></td><td></td><td>Context Mapping</td><td>컨텍스트 간 관계 정의 및 통합 전략 수립</td></tr><tr><td></td><td>마이크로서비스</td><td>Service Mesh</td><td>서비스 간 통신 추상화 및 관리</td></tr><tr><td></td><td></td><td>API Gateway</td><td>통합된 진입점 제공 및 횡단 관심사 처리</td></tr><tr><td><strong>기술</strong></td><td>메시징</td><td>Event Sourcing</td><td>이벤트 기반 데이터 변경 추적 및 재생</td></tr><tr><td></td><td></td><td>CQRS</td><td>명령과 조회 책임 분리를 통한 성능 최적화</td></tr><tr><td></td><td>데이터</td><td>ETL/ELT</td><td>데이터 추출, 변환, 적재 프로세스</td></tr><tr><td></td><td></td><td>Data Lineage</td><td>데이터 흐름 및 변환 과정 추적</td></tr></tbody></table><h4 id=반드시-학습해야할-내용>반드시 학습해야할 내용<a hidden class=anchor aria-hidden=true href=#반드시-학습해야할-내용>#</a></h4><table><thead><tr><th>카테고리</th><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td><strong>기초 개념</strong></td><td>Domain-Driven Design</td><td>Strategic Design</td><td>도메인 모델링 및 컨텍스트 경계 설정</td></tr><tr><td></td><td></td><td>Tactical Design</td><td>엔터티, 값 객체, 애그리게이트 설계</td></tr><tr><td><strong>통합 패턴</strong></td><td>Enterprise Integration</td><td>Message Router</td><td>메시지 내용에 따른 동적 라우팅</td></tr><tr><td></td><td></td><td>Content Enricher</td><td>메시지에 추가 정보 보강</td></tr><tr><td></td><td></td><td>Message Translator</td><td>메시지 형식 간 변환 처리</td></tr><tr><td><strong>품질 속성</strong></td><td>소프트웨어 품질</td><td>Maintainability</td><td>유지보수성 확보를 위한 설계 원칙</td></tr><tr><td></td><td></td><td>Scalability</td><td>확장성을 고려한 아키텍처 설계</td></tr><tr><td></td><td></td><td>Reliability</td><td>시스템 안정성 및 장애 대응 방안</td></tr><tr><td><strong>모니터링</strong></td><td>관찰성</td><td>Distributed Tracing</td><td>분산 시스템에서 요청 추적</td></tr><tr><td></td><td></td><td>Metrics Collection</td><td>성능 지표 수집 및 분석</td></tr><tr><td></td><td></td><td>Log Aggregation</td><td>로그 중앙화 및 분석 시스템</td></tr></tbody></table><h4 id=기타-사항>기타 사항<a hidden class=anchor aria-hidden=true href=#기타-사항>#</a></h4><h5 id=최신-기술-트렌드와의-연관성>최신 기술 트렌드와의 연관성<a hidden class=anchor aria-hidden=true href=#최신-기술-트렌드와의-연관성>#</a></h5><ol><li><strong>서버리스 아키텍처</strong>: Function-as-a-Service 환경에서 ACL 적용 시 콜드 스타트 문제와 상태 관리 고려</li><li><strong>컨테이너 오케스트레이션</strong>: Kubernetes 환경에서 ACL 을 마이크로서비스로 배포 시 리소스 관리 및 네트워킹</li><li><strong>클라우드 네이티브</strong>: 클라우드 환경의 관리형 서비스 활용 시 ACL 역할 재정의 필요</li></ol><h5 id=업계-표준-및-베스트-프랙티스>업계 표준 및 베스트 프랙티스<a hidden class=anchor aria-hidden=true href=#업계-표준-및-베스트-프랙티스>#</a></h5><ol><li><strong>OpenAPI Specification</strong>: ACL 의 API 인터페이스 표준화를 위한 스펙 활용</li><li><strong>Cloud Design Patterns</strong>: 마이크로소프트, AWS, GCP 에서 제공하는 클라우드 설계 패턴 참조</li><li><strong>12-Factor App</strong>: 현대적 애플리케이션 개발 원칙과 ACL 설계의 조화</li></ol><hr><h3 id=용어-정리-1>용어 정리<a hidden class=anchor aria-hidden=true href=#용어-정리-1>#</a></h3><table><thead><tr><th>카테고리</th><th>용어</th><th>설명</th></tr></thead><tbody><tr><td><strong>DDD</strong></td><td>Bounded Context</td><td>특정 도메인 모델이 정의되고 적용되는 명시적 경계</td></tr><tr><td></td><td>Context Mapping</td><td>바운디드 컨텍스트 간의 관계를 정의하는 전략적 설계 도구</td></tr><tr><td></td><td>Ubiquitous Language</td><td>도메인 전문가와 개발자가 공유하는 공통 언어</td></tr><tr><td><strong>아키텍처</strong></td><td>Facade</td><td>복잡한 서브시스템에 대한 단순화된 인터페이스를 제공하는 패턴</td></tr><tr><td></td><td>Adapter</td><td>호환되지 않는 인터페이스를 호환 가능하게 만드는 구조적 패턴</td></tr><tr><td></td><td>Circuit Breaker</td><td>외부 서비스 장애 시 빠른 실패를 통해 시스템을 보호하는 패턴</td></tr><tr><td><strong>통합</strong></td><td>ETL</td><td>Extract, Transform, Load - 데이터 추출, 변환, 적재 프로세스</td></tr><tr><td></td><td>ESB</td><td>Enterprise Service Bus - 기업 서비스 통합을 위한 아키텍처 패턴</td></tr><tr><td></td><td>API Gateway</td><td>마이크로서비스 아키텍처에서 API 요청의 단일 진입점</td></tr><tr><td><strong>품질</strong></td><td>SLA</td><td>Service Level Agreement - 서비스 수준 협약</td></tr><tr><td></td><td>Latency</td><td>요청 발생부터 응답 완료까지의 지연 시간</td></tr><tr><td></td><td>Throughput</td><td>단위 시간당 처리할 수 있는 요청 수</td></tr></tbody></table><hr><h3 id=참고-및-출처-1>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처-1>#</a></h3><ul><li><a href=https://learn.microsoft.com/en-us/azure/architecture/patterns/anti-corruption-layer>Anti-corruption Layer pattern - Azure Architecture Center</a></li><li><a href=https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/acl.html>Anti-corruption layer pattern - AWS Prescriptive Guidance</a></li><li><a href=https://deviq.com/domain-driven-design/anti-corruption-layer/>Anti-Corruption Layer | DevIQ</a></li><li><a href=https://dev.to/asarnaout/the-anti-corruption-layer-pattern-pcd>The Anti-Corruption Layer Pattern - DEV Community</a></li><li><a href=https://java-design-patterns.com/patterns/anti-corruption-layer/>Anti-Corruption Layer Pattern in Java: Ensuring System Integrity</a></li><li><a href=https://microservices.io/patterns/refactoring/anti-corruption-layer.html>Microservices Pattern: Pattern: Anti-corruption layer</a></li><li><a href=https://www.dremio.com/wiki/anti-corruption-layer/>Anti-Corruption Layer | Dremio</a></li></ul><hr><p>Anti-Corruption Layer (ACL) 패턴은 마이크로서비스 아키텍처 (MSA) 에서 디자인 패턴 중 하나이다.<br>이 패턴은 서로 다른 도메인 모델이나 통신 프로토콜을 가진 시스템 간의 통합을 위해 사용된다.</p><p>ACL 은 서로 다른 시스템 간의 통신을 위한 번역 계층 역할을 한다.<br>주요 목적은 다음과 같다:</p><ol><li>시스템 격리: 외부 시스템의 복잡성으로부터 내부 시스템을 보호한다.</li><li>도메인 모델 보존: 각 시스템의 고유한 도메인 모델을 유지한다.</li><li>데이터 변환: 서로 다른 데이터 모델 간의 변환을 담당한다.</li></ol><p>ACL 패턴을 효과적으로 사용하려면 시스템 간의 경계를 명확히 정의하고, 변환 로직을 신중하게 설계해야 한다.<br>또한, 시스템 변경에 따른 ACL 의 업데이트와 유지보수 계획을 수립하는 것이 중요하다.</p><p><img alt="Anti-Corruption Layer" loading=lazy src=anti-corruption-layer.png title=https://learn.microsoft.com/en-us/azure/architecture/patterns/anti-corruption-layer></p><h4 id=acl-의-주요-특징>ACL 의 주요 특징<a hidden class=anchor aria-hidden=true href=#acl-의-주요-특징>#</a></h4><ol><li><strong>중재 계층 역할:</strong><ul><li>ACL 은 새로운 시스템과 레거시 시스템 사이에 위치하여, 두 시스템 간의 통신을 중재한다. 이를 통해 새로운 시스템이 레거시 시스템의 복잡한 데이터 모델이나 API 에 직접 의존하지 않도록 한다.</li></ul></li><li><strong>데이터 변환 및 매핑:</strong><ul><li>ACL 은 레거시 시스템의 데이터 모델을 새로운 시스템의 모델로 변환하거나 매핑한다. 이를 통해 두 시스템 간의 데이터 불일치를 해결하고, 새로운 시스템이 자체적인 도메인 모델을 유지할 수 있게 한다.</li></ul></li><li><strong>의미 체계 일치:</strong><ul><li>레거시 시스템과 새로운 시스템 간의 의미 체계 차이를 조정하여, 새로운 시스템이 레거시 시스템의 비즈니스 로직이나 규칙에 영향을 받지 않도록 한다.</li></ul></li></ol><h4 id=acl-구현-방법>ACL 구현 방법<a hidden class=anchor aria-hidden=true href=#acl-구현-방법>#</a></h4><ol><li>인터페이스 정의: 내부 시스템과 외부 시스템 간의 인터페이스를 정의한다.</li><li>변환 로직 구현: 데이터 모델 간의 변환 로직을 작성한다.</li><li>예외 처리: 외부 시스템의 오류를 내부 시스템에 맞게 변환한다.</li><li>캐싱 고려: 성능 향상을 위해 필요한 경우 캐싱을 구현한다.</li></ol><h4 id=acl-의-장점>ACL 의 장점<a hidden class=anchor aria-hidden=true href=#acl-의-장점>#</a></h4><ol><li>시스템 독립성 유지: 각 시스템의 고유한 모델과 로직을 보존한다.</li><li>유지보수성 향상: 시스템 간 의존성을 줄여 유지보수가 용이해진다.</li><li>점진적 마이그레이션 지원: 레거시 시스템과 새로운 시스템의 공존을 가능하게 한다.</li></ol><h4 id=acl-의-단점>ACL 의 단점<a hidden class=anchor aria-hidden=true href=#acl-의-단점>#</a></h4><ol><li>복잡성 증가: 추가적인 레이어로 인해 시스템 복잡도가 증가할 수 있다.</li><li>성능 오버헤드: 데이터 변환 과정에서 약간의 성능 저하가 발생할 수 있다.</li><li>개발 및 유지보수 비용: ACL 구현과 관리에 추가적인 리소스가 필요하다.</li></ol><h4 id=사용-사례>사용 사례<a hidden class=anchor aria-hidden=true href=#사용-사례>#</a></h4><ol><li>레거시 시스템 통합: 새로운 마이크로서비스와 레거시 시스템 간의 통합에 사용된다.</li><li>외부 API 통합: 서로 다른 데이터 모델을 가진 외부 API 와의 통합에 활용된다.</li><li>다중 도메인 통합: 서로 다른 비즈니스 도메인 간의 통신에 사용된다.</li></ol><h4 id=구현-예시-1>구현 예시<a hidden class=anchor aria-hidden=true href=#구현-예시-1>#</a></h4><p>전자상거래 시스템에서 주문 처리를 위한 ACL 구현 예:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-17-1><a class=lnlinks href=#hl-17-1> 1</a>
+</span><span class=lnt id=hl-17-2><a class=lnlinks href=#hl-17-2> 2</a>
+</span><span class=lnt id=hl-17-3><a class=lnlinks href=#hl-17-3> 3</a>
+</span><span class=lnt id=hl-17-4><a class=lnlinks href=#hl-17-4> 4</a>
+</span><span class=lnt id=hl-17-5><a class=lnlinks href=#hl-17-5> 5</a>
+</span><span class=lnt id=hl-17-6><a class=lnlinks href=#hl-17-6> 6</a>
+</span><span class=lnt id=hl-17-7><a class=lnlinks href=#hl-17-7> 7</a>
+</span><span class=lnt id=hl-17-8><a class=lnlinks href=#hl-17-8> 8</a>
+</span><span class=lnt id=hl-17-9><a class=lnlinks href=#hl-17-9> 9</a>
+</span><span class=lnt id=hl-17-10><a class=lnlinks href=#hl-17-10>10</a>
+</span><span class=lnt id=hl-17-11><a class=lnlinks href=#hl-17-11>11</a>
+</span><span class=lnt id=hl-17-12><a class=lnlinks href=#hl-17-12>12</a>
+</span><span class=lnt id=hl-17-13><a class=lnlinks href=#hl-17-13>13</a>
+</span><span class=lnt id=hl-17-14><a class=lnlinks href=#hl-17-14>14</a>
+</span><span class=lnt id=hl-17-15><a class=lnlinks href=#hl-17-15>15</a>
+</span><span class=lnt id=hl-17-16><a class=lnlinks href=#hl-17-16>16</a>
+</span><span class=lnt id=hl-17-17><a class=lnlinks href=#hl-17-17>17</a>
+</span><span class=lnt id=hl-17-18><a class=lnlinks href=#hl-17-18>18</a>
+</span><span class=lnt id=hl-17-19><a class=lnlinks href=#hl-17-19>19</a>
+</span><span class=lnt id=hl-17-20><a class=lnlinks href=#hl-17-20>20</a>
+</span><span class=lnt id=hl-17-21><a class=lnlinks href=#hl-17-21>21</a>
+</span><span class=lnt id=hl-17-22><a class=lnlinks href=#hl-17-22>22</a>
+</span><span class=lnt id=hl-17-23><a class=lnlinks href=#hl-17-23>23</a>
+</span><span class=lnt id=hl-17-24><a class=lnlinks href=#hl-17-24>24</a>
+</span><span class=lnt id=hl-17-25><a class=lnlinks href=#hl-17-25>25</a>
+</span><span class=lnt id=hl-17-26><a class=lnlinks href=#hl-17-26>26</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-java data-lang=java><span class=line><span class=cl><span class=kd>public</span><span class=w> </span><span class=kd>class</span> <span class=nc>OrderAntiCorruptionLayer</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>private</span><span class=w> </span><span class=n>LegacyOrderSystem</span><span class=w> </span><span class=n>legacySystem</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>private</span><span class=w> </span><span class=n>NewOrderSystem</span><span class=w> </span><span class=n>newSystem</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>public</span><span class=w> </span><span class=n>Order</span><span class=w> </span><span class=nf>translateLegacyOrder</span><span class=p>(</span><span class=n>LegacyOrder</span><span class=w> </span><span class=n>legacyOrder</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>Order</span><span class=w> </span><span class=n>newOrder</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=k>new</span><span class=w> </span><span class=n>Order</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>newOrder</span><span class=p>.</span><span class=na>setId</span><span class=p>(</span><span class=n>legacyOrder</span><span class=p>.</span><span class=na>getOrderNumber</span><span class=p>());</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>newOrder</span><span class=p>.</span><span class=na>setCustomerName</span><span class=p>(</span><span class=n>legacyOrder</span><span class=p>.</span><span class=na>getClientName</span><span class=p>());</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>newOrder</span><span class=p>.</span><span class=na>setTotalAmount</span><span class=p>(</span><span class=n>calculateTotalAmount</span><span class=p>(</span><span class=n>legacyOrder</span><span class=p>));</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>return</span><span class=w> </span><span class=n>newOrder</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>private</span><span class=w> </span><span class=n>BigDecimal</span><span class=w> </span><span class=nf>calculateTotalAmount</span><span class=p>(</span><span class=n>LegacyOrder</span><span class=w> </span><span class=n>legacyOrder</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// 레거시 시스템의 주문 금액 계산 로직을 새로운 시스템에 맞게 변환</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>public</span><span class=w> </span><span class=kt>void</span><span class=w> </span><span class=nf>processOrder</span><span class=p>(</span><span class=n>Order</span><span class=w> </span><span class=n>order</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>LegacyOrder</span><span class=w> </span><span class=n>legacyOrder</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>translateToLegacyOrder</span><span class=p>(</span><span class=n>order</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>legacySystem</span><span class=p>.</span><span class=na>submitOrder</span><span class=p>(</span><span class=n>legacyOrder</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>newSystem</span><span class=p>.</span><span class=na>createOrder</span><span class=p>(</span><span class=n>order</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>private</span><span class=w> </span><span class=n>LegacyOrder</span><span class=w> </span><span class=nf>translateToLegacyOrder</span><span class=p>(</span><span class=n>Order</span><span class=w> </span><span class=n>order</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// 새로운 주문을 레거시 시스템 형식으로 변환</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>이 예시에서 ACL 은 레거시 주문 시스템과 새로운 주문 시스템 사이에서 데이터를 변환하고, 두 시스템 간의 통신을 관리한다.</p><hr><h3 id=참고-및-출처-2>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처-2>#</a></h3></div></main><footer class=footer><span>&copy; 2026 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

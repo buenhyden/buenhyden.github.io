@@ -1,0 +1,943 @@
+<!doctype html><html lang=en dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Distributed Coordination | hyunyoun's Blog</title><meta name=keywords content="Software-Engineering,System-Design,Distributed-Systems,Distributed-Coordination"><meta name=description content="Distributed Coordination 은 다중 노드 환경에서 **합의 (consensus)**, **리더 선출 (leader election)**, **락 (locking)**, **상태 동기화 (state synchronization)** 등을 통해 **일관성과 안정성**을 보장하는 필수 메커니즘으로, Paxos·Raft·2PC 같은 프로토콜을 기반으로 구성된다."><meta name=author content="Me"><link rel=canonical href=https://buenhyden.github.io/posts/system-architecture--design/distributed-systems/distribution-fundamentals/coordination/><meta name=google-site-verification content="googlee06938ebbfcbac49.html"><link crossorigin=anonymous href=/assets/css/stylesheet.d522c866f0cc9c20ae4fa73a0a8c07f0af4c36af75bcbcd3e90558446f681077.css integrity="sha256-1SLIZvDMnCCuT6c6CowH8K9MNq91vLzT6QVYRG9oEHc=" rel="preload stylesheet" as=style><link rel=icon href=https://buenhyden.github.io/favicons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://buenhyden.github.io/favicons/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://buenhyden.github.io/favicons/favicon-32x32.png><link rel=apple-touch-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><link rel=mask-icon href=https://buenhyden.github.io/favicons/apple-touch-icon.png><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate type=application/rss+xml href=https://buenhyden.github.io/posts/system-architecture--design/distributed-systems/distribution-fundamentals/coordination/index.xml title=rss><link rel=alternate hreflang=en href=https://buenhyden.github.io/posts/system-architecture--design/distributed-systems/distribution-fundamentals/coordination/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3156423099418350" crossorigin=anonymous></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-W8XTMYPTLC"></script><script>var doNotTrack=!1,dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes";if(!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-W8XTMYPTLC")}</script><meta property="og:url" content="https://buenhyden.github.io/posts/system-architecture--design/distributed-systems/distribution-fundamentals/coordination/"><meta property="og:site_name" content="hyunyoun's Blog"><meta property="og:title" content="Distributed Coordination"><meta property="og:description" content="Distributed Coordination 은 다중 노드 환경에서 **합의 (consensus)**, **리더 선출 (leader election)**, **락 (locking)**, **상태 동기화 (state synchronization)** 등을 통해 **일관성과 안정성**을 보장하는 필수 메커니즘으로, Paxos·Raft·2PC 같은 프로토콜을 기반으로 구성된다."><meta property="og:locale" content="en"><meta property="og:type" content="website"><meta property="og:image" content="https://buenhyden.github.io/images"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://buenhyden.github.io/images"><meta name=twitter:title content="Distributed Coordination"><meta name=twitter:description content="Distributed Coordination 은 다중 노드 환경에서 **합의 (consensus)**, **리더 선출 (leader election)**, **락 (locking)**, **상태 동기화 (state synchronization)** 등을 통해 **일관성과 안정성**을 보장하는 필수 메커니즘으로, Paxos·Raft·2PC 같은 프로토콜을 기반으로 구성된다."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"HY's Blog","item":"https://buenhyden.github.io/posts/"},{"@type":"ListItem","position":5,"name":"Distributed Coordination","item":"https://buenhyden.github.io/posts/system-architecture--design/distributed-systems/distribution-fundamentals/coordination/"}]}</script></head><body class=list id=top><header class=header><nav class=nav><div class=logo><a href=https://buenhyden.github.io/ accesskey=h title="Hy's Blog (Alt + H)"><img src=https://buenhyden.github.io/favicons/apple-touch-icon.png alt aria-label=logo height=35>Hy's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://buenhyden.github.io/archives/ title=Archives><span>Archives</span></a></li><li><a href=https://buenhyden.github.io/posts/ title=Posts><span>Posts</span></a></li><li><a href=https://buenhyden.github.io/til/ title="Today I Learned"><span>Today I Learned</span></a></li><li><a href=https://buenhyden.github.io/coding-test/ title="Coding Test"><span>Coding Test</span></a></li><li><a href=https://buenhyden.github.io/categories/ title=categories><span>categories</span></a></li><li><a href=https://buenhyden.github.io/tags/ title=tags><span>tags</span></a></li><li><a href=https://buenhyden.github.io/search/ title="Search (Alt + /)" accesskey=/><span>Search</span></a></li></ul></nav></header><main class=main><header class=page-header><div class=breadcrumbs><a href=https://buenhyden.github.io/>Home</a>&nbsp;»&nbsp;<a href=https://buenhyden.github.io/posts/>HY's Blog</a></div><h1>Distributed Coordination</h1><div class=post-description>Distributed Coordination 은 다중 노드 환경에서 <strong>합의 (consensus)</strong>, <strong>리더 선출 (leader election)</strong>, <strong>락 (locking)</strong>, <strong>상태 동기화 (state synchronization)</strong> 등을 통해 <strong>일관성과 안정성</strong>을 보장하는 필수 메커니즘으로, Paxos·Raft·2PC 같은 프로토콜을 기반으로 구성된다.</div></header><div class=post-content><h2 id=distributed-coordination>Distributed Coordination<a hidden class=anchor aria-hidden=true href=#distributed-coordination>#</a></h2><h3 id=4-전체-개요-250-자-내외>4. 전체 개요 (250 자 내외)<a hidden class=anchor aria-hidden=true href=#4-전체-개요-250-자-내외>#</a></h3><p>분산 조정 (Distributed Coordination) 은 <strong>분산 시스템의 핵심 구조</strong>로, 노드 간 협업을 위해 <strong>합의</strong>, <strong>리더 선출</strong>, <strong>락</strong>, <strong>이벤트 통지</strong> 등을 관리한다. ZooKeeper 또는 etcd 와 같은 분산 조정 서비스는 트리 기반의 데이터 모델, 감시 (watches), 순차 Znode, 쿼럼을 통해 일관적이고 내결함성 있는 운영을 지원한다. Paxos·Raft·2PC 및 gossip 방식 등 다양한 알고리즘이 사용되며, 시스템 설계 시 CAP 정리, 장애 대응, 성능 최적화가 주요 고려 요소다.</p><h2 id=-작업-5-핵심-개념>✅ 작업 5: 핵심 개념<a hidden class=anchor aria-hidden=true href=#-작업-5-핵심-개념>#</a></h2><ul><li><strong>Consensus (합의)</strong>: Paxos, Raft 기반으로 다수 노드가 하나의 상태에 동의</li><li><strong>Leader Election (리더 선출)</strong>: 쿼럼 기반 프로토콜로 역할 위임</li><li><strong>Distributed Lock (분산 락)</strong>: 상호 배제 및 동시 수정 방지</li><li><strong>Configuration Management</strong>: ZooKeeper, etcd 의 트리 기반 키 - 값 데이터</li><li><strong>Event Notification (감시/watches)</strong>: 상태 변경 알림 서비스</li><li><strong>Quorum (쿼럼)</strong>: 다수 노드 허용을 위한 합의 기준</li><li><strong>Atomic Transactions (2PC, 3PC)</strong>: 분산 환경에서 원자성 보장</li><li><strong>CAP Theorem</strong>: 일관성·가용성·분할 내성을 이해하고 설계 시 균형 필요</li></ul><h3 id=51-실무-연관성>5.1 실무 연관성<a hidden class=anchor aria-hidden=true href=#51-실무-연관성>#</a></h3><ul><li><strong>Paxos/Raft</strong>: 리더 선출, 상태 복제 구현</li><li><strong>ZooKeeper/etcd</strong>: 서비스 디스커버리, 설정 저장소 구현</li><li><strong>2PC/3PC</strong>: 분산 트랜잭션 처리</li><li><strong>Gossip Protocol</strong>: 캐시 무결성, 상태 복제 확산</li><li><strong>CAP 설계 전략</strong>: 분할·가용·일관성 간 균형</li></ul><h3 id=5-핵심-개념>5. 핵심 개념<a hidden class=anchor aria-hidden=true href=#5-핵심-개념>#</a></h3><ul><li><strong>분산 코디네이션 (Distributed Coordination)</strong>: 여러 노드가 네트워크 환경에서 공동의 상태나 리소스를 안전하게 관리하고, 일관성 있게 동작하도록 조율하는 기술.</li><li><strong>합의 (Consensus)</strong>: 여러 노드가 동일한 결정을 내리도록 보장하는 메커니즘. 예: Paxos, Raft, Zab(ZooKeeper Atomic Broadcast).</li><li><strong>분산 락 (Distributed Lock)</strong>: 여러 노드가 동일 리소스에 동시 접근하지 않도록 제어하는 메커니즘.</li><li><strong>리더 선출 (Leader Election)</strong>: 시스템 내에서 대표 노드를 선정하여 작업을 위임하거나 조율하도록 하는 과정.</li><li><strong>장애 감지 (Failure Detection)</strong>: 노드의 장애를 신속하게 감지하여 시스템의 일관성을 유지하는 기능.</li></ul><h4 id=51-실무-구현-연관성>5.1 실무 구현 연관성<a hidden class=anchor aria-hidden=true href=#51-실무-구현-연관성>#</a></h4><ul><li><strong>API/서비스 동기화</strong>: 마이크로서비스 환경에서 서비스 등록/해제, 구성 변경 시 일관성 보장.</li><li><strong>분산 락 활용</strong>: 크론잡, 자원 할당 등에서 중복 실행 방지.</li><li><strong>장애 복구</strong>: 노드 장애 시 자동으로 리더를 재선출하여 무중단 서비스 제공.</li><li><strong>데이터 일관성</strong>: 분산 DB, 캐시 등에서 데이터 동기화 및 일관성 유지.</li></ul><h3 id=5-핵심-개념-1>5. 핵심 개념<a hidden class=anchor aria-hidden=true href=#5-핵심-개념-1>#</a></h3><h4 id=51-기본-개념들>5.1 기본 개념들<a hidden class=anchor aria-hidden=true href=#51-기본-개념들>#</a></h4><p><strong>분산 합의 (Distributed Consensus)</strong></p><ul><li>여러 노드가 공통된 값이나 결정에 도달하는 과정</li><li>안전성 (Safety) 과 활성 (Liveness) 보장 필요</li><li>Byzantine Fault Tolerance (BFT) 와 Crash Fault Tolerance (CFT) 구분</li></ul><p><strong>논리적 시계 (Logical Clocks)</strong></p><ul><li>물리적 시계 동기화 없이 이벤트 순서 결정</li><li>램포트 타임스탬프와 벡터 클럭으로 구현</li><li>인과관계 (Causality) 추적 가능</li></ul><p><strong>리더 선출 (Leader Election)</strong></p><ul><li>분산 시스템에서 단일 조정자 선택</li><li>Bully Algorithm, Ring Algorithm 등 다양한 기법</li><li>장애 탐지와 재선출 메커니즘 포함</li></ul><p><strong>상호 배제 (Mutual Exclusion)</strong></p><ul><li>공유 자원에 대한 독점적 접근 보장</li><li>토큰 기반과 권한 기반 알고리즘</li><li>데드락과 기아 상태 방지 필요</li></ul><h4 id=52-실무-구현-연관성>5.2 실무 구현 연관성<a hidden class=anchor aria-hidden=true href=#52-실무-구현-연관성>#</a></h4><p><strong>합의 메커니즘의 실무 구현</strong></p><ul><li>분산 데이터베이스에서 트랜잭션 일관성 보장</li><li>블록체인 네트워크의 블록 생성과 검증</li><li>마이크로서비스 간 상태 동기화</li></ul><p><strong>시계 동기화의 실무 적용</strong></p><ul><li>분산 로깅 시스템의 이벤트 순서 결정</li><li>분산 트랜잭션의 타임스탬프 기반 충돌 해결</li><li>실시간 협업 도구의 동시 편집 처리</li></ul><p><strong>리더 선출의 실무 활용</strong></p><ul><li>Apache Kafka 의 파티션 리더 관리</li><li>Kubernetes 컨트롤러의 리더 선출</li><li>분산 캐시 시스템의 마스터 노드 결정</li></ul><h3 id=6-심층-조사-및-분석>6. 심층 조사 및 분석<a hidden class=anchor aria-hidden=true href=#6-심층-조사-및-분석>#</a></h3><h4 id=61-배경>6.1 배경<a hidden class=anchor aria-hidden=true href=#61-배경>#</a></h4><ul><li>분산 시스템은 네트워크 지연, 노드 장애, 메시지 손실 등 다양한 문제에 직면함.</li><li>단일 장애점 (SPOF, Single Point of Failure) 제거 및 확장성 확보를 위해 분산 코디네이션이 필요.</li></ul><h4 id=62-목적-및-필요성>6.2 목적 및 필요성<a hidden class=anchor aria-hidden=true href=#62-목적-및-필요성>#</a></h4><ul><li>시스템 신뢰성, 일관성, 가용성 확보.</li><li>노드 간 협력 및 상태 공유의 안전성 보장.</li><li>장애 발생 시 빠른 복구 및 서비스 지속성 지원.</li></ul><h4 id=61-배경-및-필요성>6.1 배경 및 필요성<a hidden class=anchor aria-hidden=true href=#61-배경-및-필요성>#</a></h4><p>분산 시스템에서는 노드 간의 물리적 분리, 네트워크 지연, 부분적 장애 등으로 인해 전통적인 중앙 집중식 조정 방식이 불가능합니다. 다음과 같은 근본적 문제들을 해결하기 위해 분산 조정이 필요합니다:</p><ul><li><strong>CAP 정리 (CAP Theorem)</strong>: 일관성 (Consistency), 가용성 (Availability), 분할 내성 (Partition Tolerance) 중 최대 2 개만 동시에 보장 가능</li><li><strong>FLP 불가능성 (FLP Impossibility)</strong>: 비동기 환경에서 단일 노드 장애 시에도 합의 불가능</li><li><strong>비잔틴 장군 문제</strong>: 악의적 노드 존재 시 합의의 어려움</li></ul><h4 id=62-주요-기능-및-역할>6.2 주요 기능 및 역할<a hidden class=anchor aria-hidden=true href=#62-주요-기능-및-역할>#</a></h4><p><strong>조정 기능</strong></p><ul><li>노드 간 일관된 상태 유지</li><li>충돌하는 연산의 순서 결정</li><li>장애 노드 탐지 및 복구</li></ul><p><strong>동기화 역할</strong></p><ul><li>분산 트랜잭션 관리</li><li>공유 자원 접근 제어</li><li>이벤트 순서 보장</li></ul><h4 id=63-주요-기능-및-역할>6.3 주요 기능 및 역할<a hidden class=anchor aria-hidden=true href=#63-주요-기능-및-역할>#</a></h4><ul><li>분산 락, 리더 선출, 장애 감지, 서비스 디스커버리, 설정 관리, 분산 큐 등.</li></ul><h4 id=64-특징>6.4 특징<a hidden class=anchor aria-hidden=true href=#64-특징>#</a></h4><ul><li>높은 신뢰성, 내결함성 (Fault Tolerance), 확장성, 강한 일관성 (Strong Consistency) 제공.</li></ul><h4 id=63-특징>6.3 특징<a hidden class=anchor aria-hidden=true href=#63-특징>#</a></h4><p><strong>분산성 (Distribution)</strong></p><ul><li>중앙 조정자 없이 동작</li><li>노드 간 P2P 통신 기반</li><li>확장성과 장애 내성 제공</li></ul><p><strong>비동기성 (Asynchrony)</strong></p><ul><li>메시지 전달 시간 보장 없음</li><li>노드 간 시계 동기화 불필요</li><li>네트워크 지연 허용</li></ul><p><strong>장애 내성 (Fault Tolerance)</strong></p><ul><li>일부 노드 장애 시에도 동작 지속</li><li>네트워크 분할 상황 처리</li><li>악의적 노드 대응 가능</li></ul><h4 id=64-핵심-원칙>6.4 핵심 원칙<a hidden class=anchor aria-hidden=true href=#64-핵심-원칙>#</a></h4><p><strong>안전성 원칙 (Safety)</strong></p><ul><li>잘못된 결과 절대 생성 금지</li><li>일관성 속성 항상 유지</li><li>무결성 보장</li></ul><p><strong>활성 원칙 (Liveness)</strong></p><ul><li>진행 상황 보장</li><li>최종적 합의 도달</li><li>교착 상태 방지</li></ul><p><strong>공정성 원칙 (Fairness)</strong></p><ul><li>모든 노드에 균등한 기회 제공</li><li>기아 상태 방지</li><li>우선순위 공정 분배</li></ul><h4 id=65-핵심-원칙>6.5 핵심 원칙<a hidden class=anchor aria-hidden=true href=#65-핵심-원칙>#</a></h4><ul><li>CAP 이론 (Consistency, Availability, Partition tolerance) 에서 일관성 및 파티션 허용성을 중시.</li><li>합의 알고리즘 기반의 상태 동기화.</li></ul><h4 id=66-주요-원리>6.6 주요 원리<a hidden class=anchor aria-hidden=true href=#66-주요-원리>#</a></h4><ul><li>Paxos, Raft, Zab 등 분산 합의 알고리즘 활용.</li><li>노드 간 상태 복제 및 로그 동기화.</li></ul><h4 id=67-작동-원리-및-방식>6.7 작동 원리 및 방식<a hidden class=anchor aria-hidden=true href=#67-작동-원리-및-방식>#</a></h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-0-1><a class=lnlinks href=#hl-0-1>1</a>
+</span><span class=lnt id=hl-0-2><a class=lnlinks href=#hl-0-2>2</a>
+</span><span class=lnt id=hl-0-3><a class=lnlinks href=#hl-0-3>3</a>
+</span><span class=lnt id=hl-0-4><a class=lnlinks href=#hl-0-4>4</a>
+</span><span class=lnt id=hl-0-5><a class=lnlinks href=#hl-0-5>5</a>
+</span><span class=lnt id=hl-0-6><a class=lnlinks href=#hl-0-6>6</a>
+</span><span class=lnt id=hl-0-7><a class=lnlinks href=#hl-0-7>7</a>
+</span><span class=lnt id=hl-0-8><a class=lnlinks href=#hl-0-8>8</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>sequenceDiagram
+</span></span><span class=line><span class=cl>    participant NodeA
+</span></span><span class=line><span class=cl>    participant NodeB
+</span></span><span class=line><span class=cl>    participant NodeC
+</span></span><span class=line><span class=cl>    NodeA-&gt;&gt;NodeB: Lock 요청
+</span></span><span class=line><span class=cl>    NodeB-&gt;&gt;NodeC: Lock 상태 확인
+</span></span><span class=line><span class=cl>    NodeC--&gt;&gt;NodeB: 상태 반환
+</span></span><span class=line><span class=cl>    NodeB--&gt;&gt;NodeA: Lock 허용/거부 응답
+</span></span></code></pre></td></tr></table></div></div><ul><li>각 노드는 상태를 공유하며, 합의 알고리즘을 통해 결정된 리더가 코디네이션 역할을 수행.</li></ul><h4 id=65-주요-원리와-작동-방식>6.5 주요 원리와 작동 방식<a hidden class=anchor aria-hidden=true href=#65-주요-원리와-작동-방식>#</a></h4><h5 id=합의-알고리즘-원리>합의 알고리즘 원리<a hidden class=anchor aria-hidden=true href=#합의-알고리즘-원리>#</a></h5><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-1-1><a class=lnlinks href=#hl-1-1> 1</a>
+</span><span class=lnt id=hl-1-2><a class=lnlinks href=#hl-1-2> 2</a>
+</span><span class=lnt id=hl-1-3><a class=lnlinks href=#hl-1-3> 3</a>
+</span><span class=lnt id=hl-1-4><a class=lnlinks href=#hl-1-4> 4</a>
+</span><span class=lnt id=hl-1-5><a class=lnlinks href=#hl-1-5> 5</a>
+</span><span class=lnt id=hl-1-6><a class=lnlinks href=#hl-1-6> 6</a>
+</span><span class=lnt id=hl-1-7><a class=lnlinks href=#hl-1-7> 7</a>
+</span><span class=lnt id=hl-1-8><a class=lnlinks href=#hl-1-8> 8</a>
+</span><span class=lnt id=hl-1-9><a class=lnlinks href=#hl-1-9> 9</a>
+</span><span class=lnt id=hl-1-10><a class=lnlinks href=#hl-1-10>10</a>
+</span><span class=lnt id=hl-1-11><a class=lnlinks href=#hl-1-11>11</a>
+</span><span class=lnt id=hl-1-12><a class=lnlinks href=#hl-1-12>12</a>
+</span><span class=lnt id=hl-1-13><a class=lnlinks href=#hl-1-13>13</a>
+</span><span class=lnt id=hl-1-14><a class=lnlinks href=#hl-1-14>14</a>
+</span><span class=lnt id=hl-1-15><a class=lnlinks href=#hl-1-15>15</a>
+</span><span class=lnt id=hl-1-16><a class=lnlinks href=#hl-1-16>16</a>
+</span><span class=lnt id=hl-1-17><a class=lnlinks href=#hl-1-17>17</a>
+</span><span class=lnt id=hl-1-18><a class=lnlinks href=#hl-1-18>18</a>
+</span><span class=lnt id=hl-1-19><a class=lnlinks href=#hl-1-19>19</a>
+</span><span class=lnt id=hl-1-20><a class=lnlinks href=#hl-1-20>20</a>
+</span><span class=lnt id=hl-1-21><a class=lnlinks href=#hl-1-21>21</a>
+</span><span class=lnt id=hl-1-22><a class=lnlinks href=#hl-1-22>22</a>
+</span><span class=lnt id=hl-1-23><a class=lnlinks href=#hl-1-23>23</a>
+</span><span class=lnt id=hl-1-24><a class=lnlinks href=#hl-1-24>24</a>
+</span><span class=lnt id=hl-1-25><a class=lnlinks href=#hl-1-25>25</a>
+</span><span class=lnt id=hl-1-26><a class=lnlinks href=#hl-1-26>26</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>sequenceDiagram
+</span></span><span class=line><span class=cl>    participant P1 as Proposer
+</span></span><span class=line><span class=cl>    participant A1 as Acceptor 1
+</span></span><span class=line><span class=cl>    participant A2 as Acceptor 2
+</span></span><span class=line><span class=cl>    participant A3 as Acceptor 3
+</span></span><span class=line><span class=cl>    participant L as Learner
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    Note over P1,L: Paxos 합의 프로토콜
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    P1-&gt;&gt;A1: Prepare(n)
+</span></span><span class=line><span class=cl>    P1-&gt;&gt;A2: Prepare(n)
+</span></span><span class=line><span class=cl>    P1-&gt;&gt;A3: Prepare(n)
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    A1-&gt;&gt;P1: Promise(n, v1)
+</span></span><span class=line><span class=cl>    A2-&gt;&gt;P1: Promise(n, v2)
+</span></span><span class=line><span class=cl>    A3-&gt;&gt;P1: Promise(n, null)
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    P1-&gt;&gt;A1: Accept(n, v)
+</span></span><span class=line><span class=cl>    P1-&gt;&gt;A2: Accept(n, v)
+</span></span><span class=line><span class=cl>    P1-&gt;&gt;A3: Accept(n, v)
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    A1-&gt;&gt;L: Accepted(n, v)
+</span></span><span class=line><span class=cl>    A2-&gt;&gt;L: Accepted(n, v)
+</span></span><span class=line><span class=cl>    A3-&gt;&gt;L: Accepted(n, v)
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    Note over L: 합의 완료
+</span></span></code></pre></td></tr></table></div></div><h5 id=논리적-시계-동작-원리>논리적 시계 동작 원리<a hidden class=anchor aria-hidden=true href=#논리적-시계-동작-원리>#</a></h5><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-2-1><a class=lnlinks href=#hl-2-1>1</a>
+</span><span class=lnt id=hl-2-2><a class=lnlinks href=#hl-2-2>2</a>
+</span><span class=lnt id=hl-2-3><a class=lnlinks href=#hl-2-3>3</a>
+</span><span class=lnt id=hl-2-4><a class=lnlinks href=#hl-2-4>4</a>
+</span><span class=lnt id=hl-2-5><a class=lnlinks href=#hl-2-5>5</a>
+</span><span class=lnt id=hl-2-6><a class=lnlinks href=#hl-2-6>6</a>
+</span><span class=lnt id=hl-2-7><a class=lnlinks href=#hl-2-7>7</a>
+</span><span class=lnt id=hl-2-8><a class=lnlinks href=#hl-2-8>8</a>
+</span><span class=lnt id=hl-2-9><a class=lnlinks href=#hl-2-9>9</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>graph TD
+</span></span><span class=line><span class=cl>    A[Process A&lt;br/&gt;Clock: 1] --&gt;|Event| B[Process A&lt;br/&gt;Clock: 2]
+</span></span><span class=line><span class=cl>    B --&gt;|Send Msg&lt;br/&gt;T=3| D[Process B&lt;br/&gt;Clock: max(1,3)+1=4]
+</span></span><span class=line><span class=cl>    C[Process B&lt;br/&gt;Clock: 1] --&gt; D
+</span></span><span class=line><span class=cl>    D --&gt;|Event| E[Process B&lt;br/&gt;Clock: 5]
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    F[Process C&lt;br/&gt;Clock: 1] --&gt;|Event| G[Process C&lt;br/&gt;Clock: 2]
+</span></span><span class=line><span class=cl>    G --&gt;|Send Msg&lt;br/&gt;T=3| H[Process A&lt;br/&gt;Clock: max(2,3)+1=4]
+</span></span><span class=line><span class=cl>    B --&gt; H
+</span></span></code></pre></td></tr></table></div></div><h2 id=2-주요-원리-및-작동-방식>2. 주요 원리 및 작동 방식<a hidden class=anchor aria-hidden=true href=#2-주요-원리-및-작동-방식>#</a></h2><h3 id=원리-요약>원리 요약<a hidden class=anchor aria-hidden=true href=#원리-요약>#</a></h3><ol><li><strong>Leader Election</strong>: ZAB 나 Paxos/Raft 스타일로 쿼럼 기반 leader 선출</li><li><strong>Atomic Broadcast</strong>: write 요청 시 leader→followers 에 전파, 다수 응답 후 commit</li><li><strong>Log Ordering</strong>: zxid(글로벌 트랜잭션 ID) 로 모든 변경 순서 보장 (<a href="https://medium.com/%40vinciabhinav7/apache-zookeeper-but-why-part-1-distributed-coordination-overview-65c7cebb6c79?utm_source=chatgpt.com" title="Apache ZooKeeper: But Why??—Part 1: Distributed Coordination …">nofluffjuststuff.com</a>)</li><li><strong>Watch Mechanism</strong>: 상태 변경 시 이벤트 알림 → client 가 재등록 필요 (<a href="https://restate.dev/blog/every-system-is-a-log-avoiding-coordination-in-distributed-applications/?utm_source=chatgpt.com" title="Every System is a Log: Avoiding coordination in distributed … - Restate">tutorialspoint.com</a>)</li><li><strong>Quorum 기반</strong>: read 엔 가용성, write 엔 consistency 보장 → CAP 정리에 따른 설계 균형 (<a href="https://en.wikipedia.org/wiki/Distributed_coordination_function?utm_source=chatgpt.com" title="Distributed coordination function">en.wikipedia.org</a>)</li></ol><h3 id=작동-흐름>작동 흐름<a hidden class=anchor aria-hidden=true href=#작동-흐름>#</a></h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-3-1><a class=lnlinks href=#hl-3-1>1</a>
+</span><span class=lnt id=hl-3-2><a class=lnlinks href=#hl-3-2>2</a>
+</span><span class=lnt id=hl-3-3><a class=lnlinks href=#hl-3-3>3</a>
+</span><span class=lnt id=hl-3-4><a class=lnlinks href=#hl-3-4>4</a>
+</span><span class=lnt id=hl-3-5><a class=lnlinks href=#hl-3-5>5</a>
+</span><span class=lnt id=hl-3-6><a class=lnlinks href=#hl-3-6>6</a>
+</span><span class=lnt id=hl-3-7><a class=lnlinks href=#hl-3-7>7</a>
+</span><span class=lnt id=hl-3-8><a class=lnlinks href=#hl-3-8>8</a>
+</span><span class=lnt id=hl-3-9><a class=lnlinks href=#hl-3-9>9</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>sequenceDiagram
+</span></span><span class=line><span class=cl>  Client-&gt;&gt;ZooKeeper: write /app/config, register watch
+</span></span><span class=line><span class=cl>  ZooKeeper Leader-&gt;&gt;Followers: AppendEntry(zxid, data)
+</span></span><span class=line><span class=cl>  Followers--&gt;&gt;Leader: ACK
+</span></span><span class=line><span class=cl>  alt 쿼럼 응답 도달
+</span></span><span class=line><span class=cl>    Leader-&gt;&gt;Client: Commit OK
+</span></span><span class=line><span class=cl>    Leader-&gt;&gt;Followers: Commit broadcast
+</span></span><span class=line><span class=cl>  end
+</span></span><span class=line><span class=cl>  Note right of Client: Client receives watch events on changes
+</span></span></code></pre></td></tr></table></div></div><h4 id=68-구조-및-아키텍처>6.8 구조 및 아키텍처<a hidden class=anchor aria-hidden=true href=#68-구조-및-아키텍처>#</a></h4><h5 id=아키텍처-다이어그램>아키텍처 다이어그램<a hidden class=anchor aria-hidden=true href=#아키텍처-다이어그램>#</a></h5><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-4-1><a class=lnlinks href=#hl-4-1>1</a>
+</span><span class=lnt id=hl-4-2><a class=lnlinks href=#hl-4-2>2</a>
+</span><span class=lnt id=hl-4-3><a class=lnlinks href=#hl-4-3>3</a>
+</span><span class=lnt id=hl-4-4><a class=lnlinks href=#hl-4-4>4</a>
+</span><span class=lnt id=hl-4-5><a class=lnlinks href=#hl-4-5>5</a>
+</span><span class=lnt id=hl-4-6><a class=lnlinks href=#hl-4-6>6</a>
+</span><span class=lnt id=hl-4-7><a class=lnlinks href=#hl-4-7>7</a>
+</span><span class=lnt id=hl-4-8><a class=lnlinks href=#hl-4-8>8</a>
+</span><span class=lnt id=hl-4-9><a class=lnlinks href=#hl-4-9>9</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>graph TD
+</span></span><span class=line><span class=cl>    Client1 -- Request --&gt; Coordination-Service
+</span></span><span class=line><span class=cl>    Client2 -- Request --&gt; Coordination-Service
+</span></span><span class=line><span class=cl>    Coordination-Service -- Sync --&gt; Node1
+</span></span><span class=line><span class=cl>    Coordination-Service -- Sync --&gt; Node2
+</span></span><span class=line><span class=cl>    Coordination-Service -- Sync --&gt; Node3
+</span></span><span class=line><span class=cl>    Node1 -- Heartbeat --&gt; Coordination-Service
+</span></span><span class=line><span class=cl>    Node2 -- Heartbeat --&gt; Coordination-Service
+</span></span><span class=line><span class=cl>    Node3 -- Heartbeat --&gt; Coordination-Service
+</span></span></code></pre></td></tr></table></div></div><h5 id=구성-요소-및-역할>구성 요소 및 역할<a hidden class=anchor aria-hidden=true href=#구성-요소-및-역할>#</a></h5><table><thead><tr><th>구성 요소</th><th>기능/역할</th></tr></thead><tbody><tr><td>클라이언트 (Client)</td><td>코디네이션 서비스에 요청 (락, 리더 선출 등) 을 보냄</td></tr><tr><td>코디네이션 서비스 (Coordination Service)</td><td>합의 알고리즘 실행, 상태 동기화, 장애 감지</td></tr><tr><td>노드 (Node)</td><td>분산 시스템의 각 구성원, 상태 복제 및 Heartbeat 전송</td></tr></tbody></table><h5 id=필수선택-구성-요소>필수/선택 구성 요소<a hidden class=anchor aria-hidden=true href=#필수선택-구성-요소>#</a></h5><table><thead><tr><th>구분</th><th>구성 요소</th><th>기능</th><th>특징</th></tr></thead><tbody><tr><td>필수</td><td>합의 알고리즘</td><td>상태 일관성 보장</td><td>Paxos, Raft 등</td></tr><tr><td>필수</td><td>노드 상태 복제</td><td>데이터 동기화</td><td>로그 복제</td></tr><tr><td>선택</td><td>Watch/Notification</td><td>상태 변화 감지</td><td>이벤트 기반</td></tr><tr><td>선택</td><td>Access Control</td><td>권한 관리</td><td>ACL, 인증</td></tr></tbody></table><h4 id=66-구조-및-아키텍처>6.6 구조 및 아키텍처<a hidden class=anchor aria-hidden=true href=#66-구조-및-아키텍처>#</a></h4><h5 id=필수-구성요소>필수 구성요소<a hidden class=anchor aria-hidden=true href=#필수-구성요소>#</a></h5><table><thead><tr><th>구성요소</th><th>기능</th><th>역할</th></tr></thead><tbody><tr><td><strong>합의 엔진 (Consensus Engine)</strong></td><td>분산 합의 수행</td><td>노드 간 일치된 결정 도출</td></tr><tr><td><strong>장애 탐지기 (Failure Detector)</strong></td><td>노드 상태 모니터링</td><td>장애 노드 식별 및 알림</td></tr><tr><td><strong>메시지 전달 계층 (Message Passing Layer)</strong></td><td>노드 간 통신</td><td>신뢰성 있는 메시지 전송</td></tr><tr><td><strong>논리적 시계 (Logical Clock)</strong></td><td>이벤트 순서 관리</td><td>인과관계 추적 및 순서 결정</td></tr></tbody></table><h5 id=선택-구성요소>선택 구성요소<a hidden class=anchor aria-hidden=true href=#선택-구성요소>#</a></h5><table><thead><tr><th>구성요소</th><th>기능</th><th>특징</th></tr></thead><tbody><tr><td><strong>리더 선출기 (Leader Elector)</strong></td><td>조정자 선택</td><td>성능 최적화 및 중앙 조정</td></tr><tr><td><strong>상태 머신 (State Machine)</strong></td><td>일관된 상태 유지</td><td>복제된 상태 관리</td></tr><tr><td><strong>체크포인트 관리자</strong></td><td>상태 저장/복구</td><td>장애 복구 지원</td></tr></tbody></table><h5 id=전체-아키텍처>전체 아키텍처<a hidden class=anchor aria-hidden=true href=#전체-아키텍처>#</a></h5><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-5-1><a class=lnlinks href=#hl-5-1> 1</a>
+</span><span class=lnt id=hl-5-2><a class=lnlinks href=#hl-5-2> 2</a>
+</span><span class=lnt id=hl-5-3><a class=lnlinks href=#hl-5-3> 3</a>
+</span><span class=lnt id=hl-5-4><a class=lnlinks href=#hl-5-4> 4</a>
+</span><span class=lnt id=hl-5-5><a class=lnlinks href=#hl-5-5> 5</a>
+</span><span class=lnt id=hl-5-6><a class=lnlinks href=#hl-5-6> 6</a>
+</span><span class=lnt id=hl-5-7><a class=lnlinks href=#hl-5-7> 7</a>
+</span><span class=lnt id=hl-5-8><a class=lnlinks href=#hl-5-8> 8</a>
+</span><span class=lnt id=hl-5-9><a class=lnlinks href=#hl-5-9> 9</a>
+</span><span class=lnt id=hl-5-10><a class=lnlinks href=#hl-5-10>10</a>
+</span><span class=lnt id=hl-5-11><a class=lnlinks href=#hl-5-11>11</a>
+</span><span class=lnt id=hl-5-12><a class=lnlinks href=#hl-5-12>12</a>
+</span><span class=lnt id=hl-5-13><a class=lnlinks href=#hl-5-13>13</a>
+</span><span class=lnt id=hl-5-14><a class=lnlinks href=#hl-5-14>14</a>
+</span><span class=lnt id=hl-5-15><a class=lnlinks href=#hl-5-15>15</a>
+</span><span class=lnt id=hl-5-16><a class=lnlinks href=#hl-5-16>16</a>
+</span><span class=lnt id=hl-5-17><a class=lnlinks href=#hl-5-17>17</a>
+</span><span class=lnt id=hl-5-18><a class=lnlinks href=#hl-5-18>18</a>
+</span><span class=lnt id=hl-5-19><a class=lnlinks href=#hl-5-19>19</a>
+</span><span class=lnt id=hl-5-20><a class=lnlinks href=#hl-5-20>20</a>
+</span><span class=lnt id=hl-5-21><a class=lnlinks href=#hl-5-21>21</a>
+</span><span class=lnt id=hl-5-22><a class=lnlinks href=#hl-5-22>22</a>
+</span><span class=lnt id=hl-5-23><a class=lnlinks href=#hl-5-23>23</a>
+</span><span class=lnt id=hl-5-24><a class=lnlinks href=#hl-5-24>24</a>
+</span><span class=lnt id=hl-5-25><a class=lnlinks href=#hl-5-25>25</a>
+</span><span class=lnt id=hl-5-26><a class=lnlinks href=#hl-5-26>26</a>
+</span><span class=lnt id=hl-5-27><a class=lnlinks href=#hl-5-27>27</a>
+</span><span class=lnt id=hl-5-28><a class=lnlinks href=#hl-5-28>28</a>
+</span><span class=lnt id=hl-5-29><a class=lnlinks href=#hl-5-29>29</a>
+</span><span class=lnt id=hl-5-30><a class=lnlinks href=#hl-5-30>30</a>
+</span><span class=lnt id=hl-5-31><a class=lnlinks href=#hl-5-31>31</a>
+</span><span class=lnt id=hl-5-32><a class=lnlinks href=#hl-5-32>32</a>
+</span><span class=lnt id=hl-5-33><a class=lnlinks href=#hl-5-33>33</a>
+</span><span class=lnt id=hl-5-34><a class=lnlinks href=#hl-5-34>34</a>
+</span><span class=lnt id=hl-5-35><a class=lnlinks href=#hl-5-35>35</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>graph TB
+</span></span><span class=line><span class=cl>    subgraph &#34;분산 조정 아키텍처&#34;
+</span></span><span class=line><span class=cl>        subgraph &#34;애플리케이션 계층&#34;
+</span></span><span class=line><span class=cl>            APP[애플리케이션]
+</span></span><span class=line><span class=cl>        end
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        subgraph &#34;조정 계층&#34;
+</span></span><span class=line><span class=cl>            CON[합의 엔진]
+</span></span><span class=line><span class=cl>            LE[리더 선출기]
+</span></span><span class=line><span class=cl>            ME[상호 배제 관리자]
+</span></span><span class=line><span class=cl>            LC[논리적 시계]
+</span></span><span class=line><span class=cl>        end
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        subgraph &#34;통신 계층&#34;
+</span></span><span class=line><span class=cl>            MP[메시지 전달]
+</span></span><span class=line><span class=cl>            FD[장애 탐지기]
+</span></span><span class=line><span class=cl>            NT[네트워크 토폴로지]
+</span></span><span class=line><span class=cl>        end
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        subgraph &#34;저장 계층&#34;
+</span></span><span class=line><span class=cl>            LOG[합의 로그]
+</span></span><span class=line><span class=cl>            STATE[상태 저장소]
+</span></span><span class=line><span class=cl>        end
+</span></span><span class=line><span class=cl>    end
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    APP --&gt; CON
+</span></span><span class=line><span class=cl>    APP --&gt; LE
+</span></span><span class=line><span class=cl>    APP --&gt; ME
+</span></span><span class=line><span class=cl>    CON --&gt; LC
+</span></span><span class=line><span class=cl>    CON --&gt; MP
+</span></span><span class=line><span class=cl>    LE --&gt; FD
+</span></span><span class=line><span class=cl>    ME --&gt; MP
+</span></span><span class=line><span class=cl>    MP --&gt; NT
+</span></span><span class=line><span class=cl>    CON --&gt; LOG
+</span></span><span class=line><span class=cl>    CON --&gt; STATE
+</span></span></code></pre></td></tr></table></div></div><h2 id=1-구조-및-아키텍처--구성-요소>1. 구조 및 아키텍처 + 구성 요소<a hidden class=anchor aria-hidden=true href=#1-구조-및-아키텍처--구성-요소>#</a></h2><h3 id=-zookeeper-아키텍처-다이어그램>🧩 ZooKeeper 아키텍처 다이어그램<a hidden class=anchor aria-hidden=true href=#-zookeeper-아키텍처-다이어그램>#</a></h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-6-1><a class=lnlinks href=#hl-6-1> 1</a>
+</span><span class=lnt id=hl-6-2><a class=lnlinks href=#hl-6-2> 2</a>
+</span><span class=lnt id=hl-6-3><a class=lnlinks href=#hl-6-3> 3</a>
+</span><span class=lnt id=hl-6-4><a class=lnlinks href=#hl-6-4> 4</a>
+</span><span class=lnt id=hl-6-5><a class=lnlinks href=#hl-6-5> 5</a>
+</span><span class=lnt id=hl-6-6><a class=lnlinks href=#hl-6-6> 6</a>
+</span><span class=lnt id=hl-6-7><a class=lnlinks href=#hl-6-7> 7</a>
+</span><span class=lnt id=hl-6-8><a class=lnlinks href=#hl-6-8> 8</a>
+</span><span class=lnt id=hl-6-9><a class=lnlinks href=#hl-6-9> 9</a>
+</span><span class=lnt id=hl-6-10><a class=lnlinks href=#hl-6-10>10</a>
+</span><span class=lnt id=hl-6-11><a class=lnlinks href=#hl-6-11>11</a>
+</span><span class=lnt id=hl-6-12><a class=lnlinks href=#hl-6-12>12</a>
+</span><span class=lnt id=hl-6-13><a class=lnlinks href=#hl-6-13>13</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>graph LR
+</span></span><span class=line><span class=cl>  subgraph Ensemble
+</span></span><span class=line><span class=cl>    Leader
+</span></span><span class=line><span class=cl>    Follower1
+</span></span><span class=line><span class=cl>    Follower2
+</span></span><span class=line><span class=cl>  end
+</span></span><span class=line><span class=cl>  Client--&gt;Leader
+</span></span><span class=line><span class=cl>  Client--&gt;Follower1
+</span></span><span class=line><span class=cl>  Client--&gt;Follower2
+</span></span><span class=line><span class=cl>  Leader--&gt;Follower1
+</span></span><span class=line><span class=cl>  Leader--&gt;Follower2
+</span></span><span class=line><span class=cl>  Follower1--&gt;Leader
+</span></span><span class=line><span class=cl>  Follower2--&gt;Leader
+</span></span></code></pre></td></tr></table></div></div><h3 id=구성-요소-및-역할-1>구성 요소 및 역할<a hidden class=anchor aria-hidden=true href=#구성-요소-및-역할-1>#</a></h3><ul><li><strong>Ensemble</strong>: 최소 3 개의 서버로 구성된 클러스터, 일관성과 내결함성 보장 (<a href="https://www.cs.umbc.edu/courses/undergraduate/421/spring03/slides/ch17.pdf?utm_source=chatgpt.com" title="[PDF] Chapter 17 Distributed Coordination">en.wikipedia.org</a>, <a href="https://restate.dev/blog/every-system-is-a-log-avoiding-coordination-in-distributed-applications/?utm_source=chatgpt.com" title="Every System is a Log: Avoiding coordination in distributed … - Restate">tutorialspoint.com</a>)</li><li><strong>Leader</strong>: 쓰기 요청 처리, 로그 순차적 배포 (ZAB/ZAB Atomic Broadcast)</li><li><strong>Followers</strong>: 읽기 요청 수행, leader 와 동기화, 쿼럼 형성에 참여</li><li><strong>Client</strong>: 세션 유지 (heartbeat), 요청 (읽기·쓰 기), watch 등록 기능 ��citeturn0search16turn0search22</li><li><strong>ZNode</strong>: 계층적 상태 저장소, persistent/ephemeral/sequence 타입 존재 (<a href="https://www.geeksforgeeks.org/distributed-coordination-services-zookeeper-system-design/?utm_source=chatgpt.com" title="Distributed Coordination services (ZooKeeper) - System design …">numberanalytics.com</a>)</li><li><strong>Watch</strong>: 변경 알림 메커니즘, 일회성이며 재등록 필요</li><li><strong>ZAB 프로토콜</strong>: 원자 브로드캐스트, 쓰기 일관성 및 leader fail-over 시 복구 지원 (<a href="https://www.cs.umbc.edu/courses/undergraduate/421/spring03/slides/ch17.pdf?utm_source=chatgpt.com" title="[PDF] Chapter 17 Distributed Coordination">en.wikipedia.org</a>)</li></ul><hr><h2 id=3-구현-기법>3. 구현 기법<a hidden class=anchor aria-hidden=true href=#3-구현-기법>#</a></h2><ul><li><strong>ZAB (ZooKeeper Atomic Broadcast)</strong>: leader 선출 + 순차적 로그 복제</li><li><strong>ZNode 계층 구조</strong>: 설정, 락, 노드 등록 등에 활용</li><li><strong>Watch 등록 및 이벤트 처리</strong>: Pub/sub 스타일의 상태 변경 통보</li><li><strong>Ephemeral ZNode</strong>: client 연결 기반 임시 노드 활용 → 서비스 디스커버리, 리더 election 구현</li><li><strong>Sequential ZNode</strong>: 순차적 순번 생성 → 분산 락, barrier 구현에 사용</li></ul><h3 id=69-구현-기법>6.9 구현 기법<a hidden class=anchor aria-hidden=true href=#69-구현-기법>#</a></h3><table><thead><tr><th>기법</th><th>정의</th><th>구성</th><th>목적</th><th>실제 예시</th></tr></thead><tbody><tr><td>Paxos</td><td>합의 알고리즘</td><td>Proposer, Acceptor, Learner</td><td>일관성 보장</td><td>ZooKeeper 내부</td></tr><tr><td>Raft</td><td>합의 알고리즘</td><td>Leader, Follower, Candidate</td><td>이해 용이, 구현 단순화</td><td>etcd, Consul</td></tr><tr><td>Distributed Lock</td><td>분산 락</td><td>Lock Node, Client</td><td>동시성 제어</td><td>ZooKeeper Lock Recipe</td></tr><tr><td>Leader Election</td><td>리더 선출</td><td>Candidate, Voter</td><td>대표 노드 선정</td><td>ZooKeeper, etcd</td></tr><tr><td>Failure Detection</td><td>장애 감지</td><td>Heartbeat, Timeout</td><td>신속한 장애 대응</td><td>Consul Health Check</td></tr></tbody></table><h4 id=67-구현-기법>6.7 구현 기법<a hidden class=anchor aria-hidden=true href=#67-구현-기법>#</a></h4><h5 id=paxos-알고리즘-구현>Paxos 알고리즘 구현<a hidden class=anchor aria-hidden=true href=#paxos-알고리즘-구현>#</a></h5><ul><li><strong>정의</strong>: 비동기 환경에서 노드 장애를 허용하는 합의 알고리즘</li><li><strong>구성</strong>: Proposer, Acceptor, Learner 역할 분리</li><li><strong>목적</strong>: 안전성 보장하며 단일 값에 대한 합의 달성</li><li><strong>실제 예시</strong>: Google Chubby, Apache Cassandra</li></ul><h5 id=raft-알고리즘-구현>Raft 알고리즘 구현<a hidden class=anchor aria-hidden=true href=#raft-알고리즘-구현>#</a></h5><ul><li><strong>정의</strong>: 이해하기 쉬운 리더 기반 합의 알고리즘</li><li><strong>구성</strong>: Leader, Follower, Candidate 상태 기계</li><li><strong>목적</strong>: Paxos 대비 구현 복잡도 감소</li><li><strong>실제 예시</strong>: etcd, Consul, TiKV</li></ul><h5 id=벡터-클럭-구현>벡터 클럭 구현<a hidden class=anchor aria-hidden=true href=#벡터-클럭-구현>#</a></h5><ul><li><strong>정의</strong>: 분산 시스템에서 인과관계 추적하는 논리적 시계</li><li><strong>구성</strong>: 각 프로세스별 카운터 벡터</li><li><strong>목적</strong>: 동시 이벤트 탐지 및 인과관계 보존</li><li><strong>실제 예시</strong>: Amazon DynamoDB, Riak</li></ul><h5 id=토큰-기반-상호-배제>토큰 기반 상호 배제<a hidden class=anchor aria-hidden=true href=#토큰-기반-상호-배제>#</a></h5><ul><li><strong>정의</strong>: 토큰 소유자만 임계 영역 접근 허용</li><li><strong>구성</strong>: 토큰 순환 메커니즘</li><li><strong>목적</strong>: 데드락 없는 상호 배제 보장</li><li><strong>실제 예시</strong>: Raymond&rsquo;s Algorithm, Suzuki-Kasami Algorithm</li></ul><h2 id=12-paxos-vs-raft-vs-zab-비교>12. Paxos Vs Raft Vs ZAB 비교<a hidden class=anchor aria-hidden=true href=#12-paxos-vs-raft-vs-zab-비교>#</a></h2><h3 id=-비교표>📊 비교표<a hidden class=anchor aria-hidden=true href=#-비교표>#</a></h3><table><thead><tr><th>항목</th><th>Paxos</th><th>Raft</th><th>ZAB</th></tr></thead><tbody><tr><td>설계 목적</td><td>이론적 안전성 중심</td><td>실용성과 이해 용이성 중심</td><td>ZooKeeper 전용 Atomic Broadcast</td></tr><tr><td>리더 선출 방식</td><td>Prepare/Promise</td><td>Leader election via term 투표</td><td>Leader-Quorum 기반</td></tr><tr><td>로그 복제</td><td>Multi-decree 준비/제안</td><td>AppendEntries RPC</td><td>write→ACK 기반</td></tr><tr><td>이해 난이도</td><td>복잡, 수학 중심</td><td>단순하며 실용적</td><td>Raft 와 유사하지만 ZK 최적화</td></tr><tr><td>구현성</td><td>구현 어려움</td><td>다양한 언어로 구현 제공</td><td>ZooKeeper 내부 구현</td></tr><tr><td>사용 사례</td><td>Google/아카시™ 연구용</td><td>etcd, Consul, RethinkDB 등</td><td>ZooKeeper</td></tr><tr><td>잠재 문제</td><td>liveness 보장 어렵</td><td>스냅샷/로그 압축 필요</td><td>ZooKeeper 특성 종속</td></tr></tbody></table><h3 id=-분석-요약>📌 분석 요약<a hidden class=anchor aria-hidden=true href=#-분석-요약>#</a></h3><ul><li><strong>Paxos</strong>는 이론적으로 안전하지만 구현 및 이해가 어려움.</li><li><strong>Raft</strong>는 실무 적용에 인기 높은 대체재로, 후보 선출 (term), AppendEntries 등을 단순화하여 부담 최소화.</li><li><strong>ZAB</strong>는 ZooKeeper 용으로 설계돼 Raft 와 유사하나 ZNode 기반 트리 구조에 최적화됨.</li></ul><hr><h2 id=13-2pc-및-3pc-분산-트랜잭션-프로토콜>13. 2PC 및 3PC 분산 트랜잭션 프로토콜<a hidden class=anchor aria-hidden=true href=#13-2pc-및-3pc-분산-트랜잭션-프로토콜>#</a></h2><h3 id=-2-단계-커밋-2pc>🧩 2 단계 커밋 (2PC)<a hidden class=anchor aria-hidden=true href=#-2-단계-커밋-2pc>#</a></h3><ol><li><strong>prepare 단계</strong>: coordinator -> 참가자들, 준비 여부 요청</li><li><strong>commit 단계</strong>: 모두 OK 면 commit, 아니면 rollback</li><li>장애 시 <strong>blocking 문제</strong>: 한 참가자 실패 시 전체 정지</li></ol><h3 id=-3-단계-커밋-3pc>🛡 3 단계 커밋 (3PC)<a hidden class=anchor aria-hidden=true href=#-3-단계-커밋-3pc>#</a></h3><ul><li><strong>pre-commit 단계</strong> 추가: commit 확신 단계로 non-blocking 목표</li><li>네트워크 파티션 대응 강화</li><li>하지만 여전히 복잡하며 실제 도입은 적음</li></ul><hr><h2 id=14-cap-트레이드오프-설계>14. CAP 트레이드오프 설계<a hidden class=anchor aria-hidden=true href=#14-cap-트레이드오프-설계>#</a></h2><p>분산 조정에서 CAP 일관성 (Consistency), 가용성 (Availability), 파티션 내성 (Partition Tolerance) 간 균형을 맞추는 설계 전략입니다.</p><h3 id=-선택-기준>🔍 선택 기준<a hidden class=anchor aria-hidden=true href=#-선택-기준>#</a></h3><table><thead><tr><th>목표 요소</th><th>선택 방향</th><th>설명</th><th>사례</th></tr></thead><tbody><tr><td>강한 일관성</td><td>CP</td><td>파티션 발생 시 가용성 희생</td><td>ZooKeeper, etcd</td></tr><tr><td>높은 가용성</td><td>AP (Eventual)</td><td>일부 일관성 희생</td><td>DNS, CDN</td></tr><tr><td>균형 선택</td><td>CA (단일 장애 없는 환경)</td><td>파티션 고려 안 됨</td><td>전통 RDBMS</td></tr></tbody></table><h3 id=설계-시-고려사항>설계 시 고려사항<a hidden class=anchor aria-hidden=true href=#설계-시-고려사항>#</a></h3><ul><li>사용 패턴: 읽기 중심 vs 쓰기 중심</li><li>장애 유형: 장애 빈도, 영향 범위</li><li>일관성 모델: linearizability → CP, eventual consistency → AP</li></ul><hr><h3 id=-다음-단계-안내>✅ 다음 단계 안내<a hidden class=anchor aria-hidden=true href=#-다음-단계-안내>#</a></h3><p>이제 주요 주제인 분산 조정 내부 메커니즘 (Paxos/Raft/ZAB), 분산 트랜잭션 (2PC/3PC), CAP 이론 설계까지 정리되었습니다.<br>필요하다면 다음과 같은 심화 내용을 제공할 수 있습니다:</p><ul><li>Java/Python 기반 Paxos·Raft 실전 구현 코드</li><li>2PC/3PC 트랜잭션 시뮬레이션 및 장애 복구 로직</li><li>특정 환경 (CI/CD, 마이크로서비스) 에서 CAP 트레이드오프 문서 예제</li></ul><p>필요한 주제나 추가 항목을 말씀해 주세요.</p><p>이번에는 <strong>Paxos 의 구조 및 코드 구현 예시</strong>, <strong>Raft 구현 간략 소개</strong>, 그리고 <strong>분산 트랜잭션 (2PC/3PC) 의 Java 기반 시뮬레이션 개념 코드</strong>를 중심으로 심층 분석합니다.</p><hr><h2 id=15-paxos-구현-예시-python>15. Paxos 구현 예시 (Python)<a hidden class=anchor aria-hidden=true href=#15-paxos-구현-예시-python>#</a></h2><h3 id=-구성-요소>🧩 구성 요소<a hidden class=anchor aria-hidden=true href=#-구성-요소>#</a></h3><ul><li><strong>Proposer</strong>: 제안자, 값을 제안하고 다수 응답을 기다림</li><li><strong>Acceptor</strong>: 승낙자, 제안을 저장하고 응답</li><li><strong>Learner</strong>: 학습자, 합의 결과를 수신</li></ul><h3 id=-메시지-흐름-다이어그램-mermaid>🧭 메시지 흐름 다이어그램 (mermaid)<a hidden class=anchor aria-hidden=true href=#-메시지-흐름-다이어그램-mermaid>#</a></h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-7-1><a class=lnlinks href=#hl-7-1>1</a>
+</span><span class=lnt id=hl-7-2><a class=lnlinks href=#hl-7-2>2</a>
+</span><span class=lnt id=hl-7-3><a class=lnlinks href=#hl-7-3>3</a>
+</span><span class=lnt id=hl-7-4><a class=lnlinks href=#hl-7-4>4</a>
+</span><span class=lnt id=hl-7-5><a class=lnlinks href=#hl-7-5>5</a>
+</span><span class=lnt id=hl-7-6><a class=lnlinks href=#hl-7-6>6</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>sequenceDiagram
+</span></span><span class=line><span class=cl>  Proposer-&gt;&gt;Acceptor: PREPARE(n)
+</span></span><span class=line><span class=cl>  Acceptor--&gt;&gt;Proposer: PROMISE(n, last_accepted)
+</span></span><span class=line><span class=cl>  Proposer-&gt;&gt;Acceptor: ACCEPT(n, value)
+</span></span><span class=line><span class=cl>  Acceptor--&gt;&gt;Proposer: ACCEPTED(n)
+</span></span><span class=line><span class=cl>  Proposer-&gt;&gt;Learner: COMMIT(value)
+</span></span></code></pre></td></tr></table></div></div><h3 id=-python-코드-예시-단순-버전>🧑‍💻 Python 코드 예시 (단순 버전)<a hidden class=anchor aria-hidden=true href=#-python-코드-예시-단순-버전>#</a></h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-8-1><a class=lnlinks href=#hl-8-1> 1</a>
+</span><span class=lnt id=hl-8-2><a class=lnlinks href=#hl-8-2> 2</a>
+</span><span class=lnt id=hl-8-3><a class=lnlinks href=#hl-8-3> 3</a>
+</span><span class=lnt id=hl-8-4><a class=lnlinks href=#hl-8-4> 4</a>
+</span><span class=lnt id=hl-8-5><a class=lnlinks href=#hl-8-5> 5</a>
+</span><span class=lnt id=hl-8-6><a class=lnlinks href=#hl-8-6> 6</a>
+</span><span class=lnt id=hl-8-7><a class=lnlinks href=#hl-8-7> 7</a>
+</span><span class=lnt id=hl-8-8><a class=lnlinks href=#hl-8-8> 8</a>
+</span><span class=lnt id=hl-8-9><a class=lnlinks href=#hl-8-9> 9</a>
+</span><span class=lnt id=hl-8-10><a class=lnlinks href=#hl-8-10>10</a>
+</span><span class=lnt id=hl-8-11><a class=lnlinks href=#hl-8-11>11</a>
+</span><span class=lnt id=hl-8-12><a class=lnlinks href=#hl-8-12>12</a>
+</span><span class=lnt id=hl-8-13><a class=lnlinks href=#hl-8-13>13</a>
+</span><span class=lnt id=hl-8-14><a class=lnlinks href=#hl-8-14>14</a>
+</span><span class=lnt id=hl-8-15><a class=lnlinks href=#hl-8-15>15</a>
+</span><span class=lnt id=hl-8-16><a class=lnlinks href=#hl-8-16>16</a>
+</span><span class=lnt id=hl-8-17><a class=lnlinks href=#hl-8-17>17</a>
+</span><span class=lnt id=hl-8-18><a class=lnlinks href=#hl-8-18>18</a>
+</span><span class=lnt id=hl-8-19><a class=lnlinks href=#hl-8-19>19</a>
+</span><span class=lnt id=hl-8-20><a class=lnlinks href=#hl-8-20>20</a>
+</span><span class=lnt id=hl-8-21><a class=lnlinks href=#hl-8-21>21</a>
+</span><span class=lnt id=hl-8-22><a class=lnlinks href=#hl-8-22>22</a>
+</span><span class=lnt id=hl-8-23><a class=lnlinks href=#hl-8-23>23</a>
+</span><span class=lnt id=hl-8-24><a class=lnlinks href=#hl-8-24>24</a>
+</span><span class=lnt id=hl-8-25><a class=lnlinks href=#hl-8-25>25</a>
+</span><span class=lnt id=hl-8-26><a class=lnlinks href=#hl-8-26>26</a>
+</span><span class=lnt id=hl-8-27><a class=lnlinks href=#hl-8-27>27</a>
+</span><span class=lnt id=hl-8-28><a class=lnlinks href=#hl-8-28>28</a>
+</span><span class=lnt id=hl-8-29><a class=lnlinks href=#hl-8-29>29</a>
+</span><span class=lnt id=hl-8-30><a class=lnlinks href=#hl-8-30>30</a>
+</span><span class=lnt id=hl-8-31><a class=lnlinks href=#hl-8-31>31</a>
+</span><span class=lnt id=hl-8-32><a class=lnlinks href=#hl-8-32>32</a>
+</span><span class=lnt id=hl-8-33><a class=lnlinks href=#hl-8-33>33</a>
+</span><span class=lnt id=hl-8-34><a class=lnlinks href=#hl-8-34>34</a>
+</span><span class=lnt id=hl-8-35><a class=lnlinks href=#hl-8-35>35</a>
+</span><span class=lnt id=hl-8-36><a class=lnlinks href=#hl-8-36>36</a>
+</span><span class=lnt id=hl-8-37><a class=lnlinks href=#hl-8-37>37</a>
+</span><span class=lnt id=hl-8-38><a class=lnlinks href=#hl-8-38>38</a>
+</span><span class=lnt id=hl-8-39><a class=lnlinks href=#hl-8-39>39</a>
+</span><span class=lnt id=hl-8-40><a class=lnlinks href=#hl-8-40>40</a>
+</span><span class=lnt id=hl-8-41><a class=lnlinks href=#hl-8-41>41</a>
+</span><span class=lnt id=hl-8-42><a class=lnlinks href=#hl-8-42>42</a>
+</span><span class=lnt id=hl-8-43><a class=lnlinks href=#hl-8-43>43</a>
+</span><span class=lnt id=hl-8-44><a class=lnlinks href=#hl-8-44>44</a>
+</span><span class=lnt id=hl-8-45><a class=lnlinks href=#hl-8-45>45</a>
+</span><span class=lnt id=hl-8-46><a class=lnlinks href=#hl-8-46>46</a>
+</span><span class=lnt id=hl-8-47><a class=lnlinks href=#hl-8-47>47</a>
+</span><span class=lnt id=hl-8-48><a class=lnlinks href=#hl-8-48>48</a>
+</span><span class=lnt id=hl-8-49><a class=lnlinks href=#hl-8-49>49</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>threading</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>random</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>Acceptor</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>name</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>name</span> <span class=o>=</span> <span class=n>name</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>promised_n</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>accepted</span> <span class=o>=</span> <span class=p>(</span><span class=kc>None</span><span class=p>,</span> <span class=kc>None</span><span class=p>)</span>  <span class=c1># (n, value)</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>on_prepare</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>n</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>n</span> <span class=o>&gt;</span> <span class=bp>self</span><span class=o>.</span><span class=n>promised_n</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>promised_n</span> <span class=o>=</span> <span class=n>n</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>True</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>accepted</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>False</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>accepted</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>on_accept</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>n</span><span class=p>,</span> <span class=n>value</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>n</span> <span class=o>&gt;=</span> <span class=bp>self</span><span class=o>.</span><span class=n>promised_n</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>promised_n</span> <span class=o>=</span> <span class=n>n</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>accepted</span> <span class=o>=</span> <span class=p>(</span><span class=n>n</span><span class=p>,</span> <span class=n>value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>True</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>False</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>Proposer</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>proposer_id</span><span class=p>,</span> <span class=n>acceptors</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>n</span> <span class=o>=</span> <span class=n>proposer_id</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>acceptors</span> <span class=o>=</span> <span class=n>acceptors</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>majority</span> <span class=o>=</span> <span class=nb>len</span><span class=p>(</span><span class=n>acceptors</span><span class=p>)</span><span class=o>//</span><span class=mi>2</span> <span class=o>+</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>propose</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>value</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>promises</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>        <span class=n>highest</span> <span class=o>=</span> <span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=kc>None</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>a</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>acceptors</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>ok</span><span class=p>,</span> <span class=p>(</span><span class=n>n2</span><span class=p>,</span> <span class=n>v2</span><span class=p>)</span> <span class=o>=</span> <span class=n>a</span><span class=o>.</span><span class=n>on_prepare</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>n</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=n>ok</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=n>promises</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>a</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=n>v2</span> <span class=ow>and</span> <span class=n>v2</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span> <span class=o>&gt;</span> <span class=n>highest</span><span class=p>[</span><span class=mi>0</span><span class=p>]:</span>
+</span></span><span class=line><span class=cl>                    <span class=n>highest</span> <span class=o>=</span> <span class=n>v2</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=n>promises</span><span class=p>)</span> <span class=o>&lt;</span> <span class=bp>self</span><span class=o>.</span><span class=n>majority</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>False</span>
+</span></span><span class=line><span class=cl>        <span class=n>chosen</span> <span class=o>=</span> <span class=n>highest</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span> <span class=ow>or</span> <span class=n>value</span>
+</span></span><span class=line><span class=cl>        <span class=n>accepts</span> <span class=o>=</span> <span class=nb>sum</span><span class=p>(</span><span class=n>a</span><span class=o>.</span><span class=n>on_accept</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>n</span><span class=p>,</span> <span class=n>chosen</span><span class=p>)</span> <span class=k>for</span> <span class=n>a</span> <span class=ow>in</span> <span class=n>promises</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>accepts</span> <span class=o>&gt;=</span> <span class=bp>self</span><span class=o>.</span><span class=n>majority</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>for</span> <span class=n>a</span> <span class=ow>in</span> <span class=n>promises</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=k>pass</span>  <span class=c1># learner 통보 생략</span>
+</span></span><span class=line><span class=cl>            <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Value chosen: </span><span class=si>{</span><span class=n>chosen</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>True</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>False</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 테스트 코드</span>
+</span></span><span class=line><span class=cl><span class=n>acceptors</span> <span class=o>=</span> <span class=p>[</span><span class=n>Acceptor</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;A</span><span class=si>{</span><span class=n>i</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span> <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>5</span><span class=p>)]</span>
+</span></span><span class=line><span class=cl><span class=n>p</span> <span class=o>=</span> <span class=n>Proposer</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=n>acceptors</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>p</span><span class=o>.</span><span class=n>propose</span><span class=p>(</span><span class=s2>&#34;Alpha&#34;</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><p><strong>설명</strong>:</p><ul><li><code>prepare</code> 단계에서 다수 응답 확보</li><li><code>accept</code> 단계에서 값 승인 후 다수에게 commit</li></ul><p>실무에서는 네트워크 통신, 장애 처리, 재전송, QoS 로직 등을 추가해야 합니다.</p><hr><h2 id=16-raft-구현-개요>16. Raft 구현 개요<a hidden class=anchor aria-hidden=true href=#16-raft-구현-개요>#</a></h2><ul><li><strong>Leader election via term & Vote RPC</strong></li><li><strong>AppendEntries RPC</strong>로 로그 복제</li><li><strong>Commit index 관리</strong> 및 <strong>Snapshot 과 압축</strong> 기능</li><li><code>etcd</code>, <code>Consul</code> 등에서 라이브러리 제공</li></ul><p>직접 구현보다 <code>hashicorp/raft</code> (Go), <code>raftos</code> (Python) 과 같은 오픈소스 활용을 권장합니다.</p><hr><h2 id=17-2pc3pc-java-기반-시뮬레이션-개념-코드>17. 2PC/3PC Java 기반 시뮬레이션 개념 코드<a hidden class=anchor aria-hidden=true href=#17-2pc3pc-java-기반-시뮬레이션-개념-코드>#</a></h2><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-9-1><a class=lnlinks href=#hl-9-1> 1</a>
+</span><span class=lnt id=hl-9-2><a class=lnlinks href=#hl-9-2> 2</a>
+</span><span class=lnt id=hl-9-3><a class=lnlinks href=#hl-9-3> 3</a>
+</span><span class=lnt id=hl-9-4><a class=lnlinks href=#hl-9-4> 4</a>
+</span><span class=lnt id=hl-9-5><a class=lnlinks href=#hl-9-5> 5</a>
+</span><span class=lnt id=hl-9-6><a class=lnlinks href=#hl-9-6> 6</a>
+</span><span class=lnt id=hl-9-7><a class=lnlinks href=#hl-9-7> 7</a>
+</span><span class=lnt id=hl-9-8><a class=lnlinks href=#hl-9-8> 8</a>
+</span><span class=lnt id=hl-9-9><a class=lnlinks href=#hl-9-9> 9</a>
+</span><span class=lnt id=hl-9-10><a class=lnlinks href=#hl-9-10>10</a>
+</span><span class=lnt id=hl-9-11><a class=lnlinks href=#hl-9-11>11</a>
+</span><span class=lnt id=hl-9-12><a class=lnlinks href=#hl-9-12>12</a>
+</span><span class=lnt id=hl-9-13><a class=lnlinks href=#hl-9-13>13</a>
+</span><span class=lnt id=hl-9-14><a class=lnlinks href=#hl-9-14>14</a>
+</span><span class=lnt id=hl-9-15><a class=lnlinks href=#hl-9-15>15</a>
+</span><span class=lnt id=hl-9-16><a class=lnlinks href=#hl-9-16>16</a>
+</span><span class=lnt id=hl-9-17><a class=lnlinks href=#hl-9-17>17</a>
+</span><span class=lnt id=hl-9-18><a class=lnlinks href=#hl-9-18>18</a>
+</span><span class=lnt id=hl-9-19><a class=lnlinks href=#hl-9-19>19</a>
+</span><span class=lnt id=hl-9-20><a class=lnlinks href=#hl-9-20>20</a>
+</span><span class=lnt id=hl-9-21><a class=lnlinks href=#hl-9-21>21</a>
+</span><span class=lnt id=hl-9-22><a class=lnlinks href=#hl-9-22>22</a>
+</span><span class=lnt id=hl-9-23><a class=lnlinks href=#hl-9-23>23</a>
+</span><span class=lnt id=hl-9-24><a class=lnlinks href=#hl-9-24>24</a>
+</span><span class=lnt id=hl-9-25><a class=lnlinks href=#hl-9-25>25</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-java data-lang=java><span class=line><span class=cl><span class=c1>// Coordinator 역할: Prepare, Commit/Abort</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>public</span><span class=w> </span><span class=kd>class</span> <span class=nc>Coordinator</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>List</span><span class=o>&lt;</span><span class=n>Participant</span><span class=o>&gt;</span><span class=w> </span><span class=n>parts</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>public</span><span class=w> </span><span class=kt>boolean</span><span class=w> </span><span class=nf>twoPhaseCommit</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kt>boolean</span><span class=w> </span><span class=n>allOk</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>parts</span><span class=p>.</span><span class=na>stream</span><span class=p>().</span><span class=na>allMatch</span><span class=p>(</span><span class=n>p</span><span class=w> </span><span class=o>-&gt;</span><span class=w> </span><span class=n>p</span><span class=p>.</span><span class=na>prepare</span><span class=p>());</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>parts</span><span class=p>.</span><span class=na>forEach</span><span class=p>(</span><span class=n>p</span><span class=w> </span><span class=o>-&gt;</span><span class=w> </span><span class=p>{</span><span class=w> </span><span class=k>if</span><span class=p>(</span><span class=n>allOk</span><span class=p>)</span><span class=w> </span><span class=n>p</span><span class=p>.</span><span class=na>commit</span><span class=p>();</span><span class=w> </span><span class=k>else</span><span class=w> </span><span class=n>p</span><span class=p>.</span><span class=na>abort</span><span class=p>();</span><span class=w> </span><span class=p>});</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>return</span><span class=w> </span><span class=n>allOk</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// Participant 역할: 분산 트랜잭션 참가자</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>public</span><span class=w> </span><span class=kd>class</span> <span class=nc>Participant</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>String</span><span class=w> </span><span class=n>name</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>public</span><span class=w> </span><span class=kt>boolean</span><span class=w> </span><span class=nf>prepare</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>return</span><span class=w> </span><span class=k>new</span><span class=w> </span><span class=n>Random</span><span class=p>().</span><span class=na>nextBoolean</span><span class=p>();</span><span class=w>  </span><span class=c1>// 랜덤 준비 상태</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>public</span><span class=w> </span><span class=kt>void</span><span class=w> </span><span class=nf>commit</span><span class=p>(){</span><span class=w> </span><span class=n>System</span><span class=p>.</span><span class=na>out</span><span class=p>.</span><span class=na>println</span><span class=p>(</span><span class=n>name</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=s>&#34; commit&#34;</span><span class=p>);</span><span class=w> </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>public</span><span class=w> </span><span class=kt>void</span><span class=w> </span><span class=nf>abort</span><span class=p>(){</span><span class=w> </span><span class=n>System</span><span class=p>.</span><span class=na>out</span><span class=p>.</span><span class=na>println</span><span class=p>(</span><span class=n>name</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=s>&#34; abort&#34;</span><span class=p>);</span><span class=w> </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// 실행</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>public</span><span class=w> </span><span class=kd>static</span><span class=w> </span><span class=kt>void</span><span class=w> </span><span class=nf>main</span><span class=p>(</span><span class=n>String</span><span class=o>[]</span><span class=w> </span><span class=n>args</span><span class=p>){</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Coordinator</span><span class=w> </span><span class=n>c</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=k>new</span><span class=w> </span><span class=n>Coordinator</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>c</span><span class=p>.</span><span class=na>parts</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>Arrays</span><span class=p>.</span><span class=na>asList</span><span class=p>(</span><span class=k>new</span><span class=w> </span><span class=n>Participant</span><span class=p>(</span><span class=s>&#34;P1&#34;</span><span class=p>),</span><span class=w> </span><span class=k>new</span><span class=w> </span><span class=n>Participant</span><span class=p>(</span><span class=s>&#34;P2&#34;</span><span class=p>));</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kt>boolean</span><span class=w> </span><span class=n>ok</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>c</span><span class=p>.</span><span class=na>twoPhaseCommit</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>System</span><span class=p>.</span><span class=na>out</span><span class=p>.</span><span class=na>println</span><span class=p>(</span><span class=s>&#34;Global &#34;</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=p>(</span><span class=n>ok</span><span class=w> </span><span class=o>?</span><span class=w> </span><span class=s>&#34;Commit&#34;</span><span class=w> </span><span class=p>:</span><span class=w> </span><span class=s>&#34;Abort&#34;</span><span class=p>));</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>3PC 는 여기에 <strong>pre-commit</strong> 단계를 추가해 비차단성을 목표로 확장할 수 있습니다.</p><hr><h2 id=18-cap-설계-문서화-예시>18. CAP 설계 문서화 예시<a hidden class=anchor aria-hidden=true href=#18-cap-설계-문서화-예시>#</a></h2><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-10-1><a class=lnlinks href=#hl-10-1>1</a>
+</span><span class=lnt id=hl-10-2><a class=lnlinks href=#hl-10-2>2</a>
+</span><span class=lnt id=hl-10-3><a class=lnlinks href=#hl-10-3>3</a>
+</span><span class=lnt id=hl-10-4><a class=lnlinks href=#hl-10-4>4</a>
+</span><span class=lnt id=hl-10-5><a class=lnlinks href=#hl-10-5>5</a>
+</span><span class=lnt id=hl-10-6><a class=lnlinks href=#hl-10-6>6</a>
+</span><span class=lnt id=hl-10-7><a class=lnlinks href=#hl-10-7>7</a>
+</span><span class=lnt id=hl-10-8><a class=lnlinks href=#hl-10-8>8</a>
+</span><span class=lnt id=hl-10-9><a class=lnlinks href=#hl-10-9>9</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-markdown data-lang=markdown><span class=line><span class=cl><span class=gu>### [서비스 X]의 CAP 트레이드오프 분석
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>| 요구사항         | 선택 요소 | 이유 |
+</span></span><span class=line><span class=cl>|------------------|----------|------|
+</span></span><span class=line><span class=cl>| 데이터 일관성 필요 | C (Consistency) | 금융 거래 로그 정확성 때문 |
+</span></span><span class=line><span class=cl>| 분산 환경 운영 | P (Partition tolerance) | 멀티 리전 구성 시 가용성 유지 |
+</span></span><span class=line><span class=cl>| 가용성 | 약간 희생 | 네트워크 분할 시 일관성 우선 보장 |
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>→ 설계: CP 시스템 채택 (예: etcd, ZooKeeper), 분할 복제, leader 읽기 중심 방식
+</span></span></code></pre></td></tr></table></div></div><hr><p>이로써 <strong>Paxos 구현</strong>, <strong>Raft 개요</strong>, <strong>Java 기반 2PC 예시</strong>, <strong>CAP 설계 문서화</strong>까지 마무리했습니다. 더 알고 싶은 내용 (예: log compaction, 장애 회복, 프로토콜 시뮬레이션 도구, Java Curator 레시피 등) 이 있다면 말씀해주세요!</p><hr><h3 id=68-장점>6.8 장점<a hidden class=anchor aria-hidden=true href=#68-장점>#</a></h3><table><thead><tr><th>구분</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>장점</td><td><strong>확장성</strong></td><td>노드 수 증가에 따른 선형적 성능 확장 가능</td></tr><tr><td>장점</td><td><strong>가용성</strong></td><td>일부 노드 장애 시에도 서비스 지속 제공</td></tr><tr><td>장점</td><td><strong>일관성</strong></td><td>모든 노드에서 동일한 데이터 상태 보장</td></tr><tr><td>장점</td><td><strong>장애 내성</strong></td><td>네트워크 분할이나 노드 장애 상황 극복</td></tr><tr><td>장점</td><td><strong>분산성</strong></td><td>단일 장애 지점 (SPOF) 제거</td></tr></tbody></table><h2 id=7-장점>7. 장점<a hidden class=anchor aria-hidden=true href=#7-장점>#</a></h2><table><thead><tr><th>구분</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>장점</td><td>데이터 일관성</td><td>합의 알고리즘을 통해 강한 일관성 보장</td></tr><tr><td>장점</td><td>장애 내성</td><td>노드 장애 시 자동 복구 및 서비스 지속성</td></tr><tr><td>장점</td><td>확장성</td><td>노드 추가/제거에 유연하게 대응</td></tr><tr><td>장점</td><td>자동화</td><td>리더 선출, 락 관리 등 자동화 지원</td></tr></tbody></table><h2 id=장점>장점<a hidden class=anchor aria-hidden=true href=#장점>#</a></h2><table><thead><tr><th>구분</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>장점</td><td>일관성</td><td>Atomic broadcast + 쿼럼을 통해 linearizability 보장</td></tr><tr><td></td><td>내결함성</td><td>Leader 장애 시 빠른 재선출, 쿼럼 기반 운영</td></tr><tr><td></td><td>단순 API</td><td>계층적 키, watch, 락 등 단순 구조로 사용 용이</td></tr><tr><td></td><td>고성능</td><td>읽기 중심 워크로드에서 낮은 지연 및 높은 처리량</td></tr></tbody></table><h2 id=단점-및-문제점>단점 및 문제점<a hidden class=anchor aria-hidden=true href=#단점-및-문제점>#</a></h2><table><thead><tr><th>구분</th><th>항목</th><th>설명</th><th>해결책</th></tr></thead><tbody><tr><td>단점</td><td>쓰기 병목</td><td>Leader 중심 구조 → 쓰기 확장 제한</td><td>쓰기 분할, leader 수평 확장</td></tr><tr><td></td><td>watch miss</td><td>재등록 간 이벤트 손실</td><td>이벤트 재조회 패턴, 주기적 상태 검사</td></tr><tr><td>문제점</td><td>Leader Split</td><td>네트워크 파티션으로 복수 leader 발생</td><td>ZAB 기반 안전한 리더 election</td></tr><tr><td></td><td>Client stale reads</td><td>Followers lagging read stale state</td><td>읽기 - 최신성 설정, leader affinity</td></tr><tr><td></td><td>ZooKeeper turtle</td><td>장애 시 지연 발생</td><td>tiered architecture, 캐시 활용</td></tr></tbody></table><h2 id=8-단점과-문제점-그리고-해결방안>8. 단점과 문제점 그리고 해결방안<a hidden class=anchor aria-hidden=true href=#8-단점과-문제점-그리고-해결방안>#</a></h2><h3 id=단점>단점<a hidden class=anchor aria-hidden=true href=#단점>#</a></h3><table><thead><tr><th>구분</th><th>항목</th><th>설명</th><th>해결책</th></tr></thead><tbody><tr><td>단점</td><td>성능 저하</td><td>합의 과정에서 네트워크 오버헤드 발생</td><td>최적화된 알고리즘, 네트워크 튜닝</td></tr><tr><td>단점</td><td>복잡성</td><td>시스템 설계 및 운영 복잡</td><td>관리 도구 사용, 자동화</td></tr><tr><td>단점</td><td>장애 전파</td><td>일부 노드 장애가 전체에 영향</td><td>장애 격리, 빠른 장애 감지</td></tr></tbody></table><h3 id=문제점>문제점<a hidden class=anchor aria-hidden=true href=#문제점>#</a></h3><table><thead><tr><th>구분</th><th>항목</th><th>원인</th><th>영향</th><th>탐지 및 진단</th><th>예방 방법</th><th>해결 방법 및 기법</th></tr></thead><tbody><tr><td>문제점</td><td>스플릿 브레인</td><td>네트워크 분할</td><td>데이터 불일치</td><td>로그 분석, 모니터링</td><td>네트워크 이중화</td><td>Quorum 기반 합의</td></tr><tr><td>문제점</td><td>리더 장애</td><td>리더 노드 다운</td><td>서비스 중단</td><td>헬스 체크</td><td>리더 자동 선출</td><td>리더 재선출 알고리즘</td></tr><tr><td>문제점</td><td>락 경합</td><td>동시성 높은 환경</td><td>성능 저하</td><td>지표 모니터링</td><td>락 분산</td><td>락 샤딩, 대기열 적용</td></tr></tbody></table><h4 id=69-단점과-문제점-그리고-해결방안>6.9 단점과 문제점 그리고 해결방안<a hidden class=anchor aria-hidden=true href=#69-단점과-문제점-그리고-해결방안>#</a></h4><h5 id=단점-1>단점<a hidden class=anchor aria-hidden=true href=#단점-1>#</a></h5><table><thead><tr><th>구분</th><th>항목</th><th>설명</th><th>해결책</th></tr></thead><tbody><tr><td>단점</td><td><strong>성능 오버헤드</strong></td><td>합의 과정으로 인한 지연 증가</td><td>파이프라이닝, 배칭 기법 적용</td></tr><tr><td>단점</td><td><strong>복잡성 증가</strong></td><td>알고리즘 구현과 디버깅의 어려움</td><td>검증된 라이브러리 사용, 단계적 구현</td></tr><tr><td>단점</td><td><strong>네트워크 의존성</strong></td><td>네트워크 품질에 따른 성능 변화</td><td>적응적 타임아웃, 재시도 메커니즘</td></tr></tbody></table><h5 id=문제점-1>문제점<a hidden class=anchor aria-hidden=true href=#문제점-1>#</a></h5><table><thead><tr><th>구분</th><th>항목</th><th>원인</th><th>영향</th><th>탐지 및 진단</th><th>예방 방법</th><th>해결 방법 및 기법</th></tr></thead><tbody><tr><td>문제점</td><td><strong>Split Brain</strong></td><td>네트워크 분할로 인한 다중 리더</td><td>데이터 불일치</td><td>하트비트 실패 감지</td><td>쿼럼 기반 의사결정</td><td>리더 리스 (Lease) 메커니즘</td></tr><tr><td>문제점</td><td><strong>라이브락</strong></td><td>무한 재시도로 인한 진행 불가</td><td>시스템 정지</td><td>진행률 모니터링</td><td>지수적 백오프</td><td>랜덤 지연 도입</td></tr><tr><td>문제점</td><td><strong>메시지 순서 역전</strong></td><td>네트워크 지연 차이</td><td>인과관계 위반</td><td>논리적 시계 비교</td><td>메시지 시퀀싱</td><td>벡터 클럭 사용</td></tr></tbody></table><h2 id=7-도전-과제>7. 도전 과제<a hidden class=anchor aria-hidden=true href=#7-도전-과제>#</a></h2><p>실무 환경 및 기술 트렌드를 반영해 다음과 같이 정리했습니다.</p><table><thead><tr><th>카테고리</th><th>도전 과제</th><th>원인</th><th>영향</th><th>탐지 및 진단</th><th>예방 / 해결</th></tr></thead><tbody><tr><td>확장성</td><td>쓰기 확장 한계</td><td>Leader 중심 구조</td><td>Write throughput bottleneck</td><td>모니터링 지표 (QPS, latency)</td><td>샤딩, 멀티 리더 구조 도입</td></tr><tr><td>네트워크 장애</td><td>팔라이어션 (split brain)</td><td>파티션 후 복수 leader</td><td>데이터 불일치</td><td>헬스 체크 실패, 리더 불일치 감지</td><td>강력한 election 알고리즘, 캐시 기반 장애 대응</td></tr><tr><td>일관성 요구</td><td>stale read</td><td>follower lag</td><td>잘못된 응답</td><td>Latency / sync 지연 로그</td><td>leader-centric read 또는 sync API 사용</td></tr><tr><td>이벤트 신뢰성</td><td>watch 누락 or over-notify</td><td>일회성/비연속 알림</td><td>상태 누락 또는 과도한 처리</td><td>모니터링/경고</td><td>재등록 루프, 순차 버전 읽기</td></tr><tr><td>운영 복잡성</td><td>스냅샷 및 로그 관리</td><td>로그 누적, 디스크 압박</td><td>복구 지연, 스토리지 낭비</td><td>디스크 IO / 스냅샷 지연 모니터링</td><td>주기 스냅샷, 백업 주기 설정</td></tr><tr><td>장애 복구</td><td>세션 및 ephemeral 노드 문제</td><td>Leader 재선출 시 ephemeral 노드 삭제</td><td>서비스 중단 또는 노드 상태 소실</td><td>Session expiry 이벤트</td><td>세션 연장 전략, ephemeral ZNode 구조 정비</td></tr></tbody></table><h3 id=12-도전-과제>12. 도전 과제<a hidden class=anchor aria-hidden=true href=#12-도전-과제>#</a></h3><table><thead><tr><th>카테고리</th><th>항목</th><th>원인</th><th>영향</th><th>탐지 및 진단</th><th>예방 방법</th><th>해결 방법 및 기법</th></tr></thead><tbody><tr><td>확장성</td><td>노드 증가에 따른 성능 저하</td><td>합의 메시지 증가</td><td>응답 지연</td><td>성능 모니터링</td><td>노드 그룹화</td><td>Sharding, Hierarchical Coordination</td></tr><tr><td>보안</td><td>인증/권한 미비</td><td>비인가 접근</td><td>데이터 유출</td><td>접근 로그</td><td>ACL, 인증 적용</td><td>TLS, RBAC</td></tr><tr><td>운영</td><td>복잡한 장애 대응</td><td>다양한 장애 유형</td><td>운영 비용 증가</td><td>장애 시나리오 테스트</td><td>자동화 도구</td><td>Self-healing, 자동화</td></tr></tbody></table><h4 id=610-도전-과제>6.10 도전 과제<a hidden class=anchor aria-hidden=true href=#610-도전-과제>#</a></h4><h5 id=성능-최적화-과제>성능 최적화 과제<a hidden class=anchor aria-hidden=true href=#성능-최적화-과제>#</a></h5><ul><li><strong>원인</strong>: 합의 과정의 네트워크 라운드트립 오버헤드</li><li><strong>영향</strong>: 시스템 응답 시간 증가, 처리량 감소</li><li><strong>해결 방법</strong>: Multi-Paxos, 배칭, 파이프라이닝 기법</li></ul><h5 id=확장성-과제>확장성 과제<a hidden class=anchor aria-hidden=true href=#확장성-과제>#</a></h5><ul><li><strong>원인</strong>: 노드 수 증가에 따른 통신 복잡도 O(n²) 증가</li><li><strong>영향</strong>: 대규모 시스템에서 성능 저하</li><li><strong>해결 방법</strong>: 계층적 합의, 위원회 기반 프로토콜</li></ul><h5 id=보안-과제>보안 과제<a hidden class=anchor aria-hidden=true href=#보안-과제>#</a></h5><ul><li><strong>원인</strong>: 악의적 노드나 네트워크 공격 위협</li><li><strong>영향</strong>: 시스템 무결성 침해 가능성</li><li><strong>해결 방법</strong>: BFT 알고리즘, 암호학적 서명</li></ul><h2 id=6-분류-기준에-따른-종류-및-유형>6. 분류 기준에 따른 종류 및 유형<a hidden class=anchor aria-hidden=true href=#6-분류-기준에-따른-종류-및-유형>#</a></h2><p>(제목 변경: " 분류 기준에 따른 종류 및 유형 " (기존: " 분류 기준에 따른 종류 및 유형 &ldquo;))</p><table><thead><tr><th>분류 기준</th><th>유형</th><th>설명</th></tr></thead><tbody><tr><td>합의 프로토콜</td><td>Paxos, Raft, ZAB</td><td>로그 복제 및 상태 일관성 유지</td></tr><tr><td>Transaction 방식</td><td>2PC, 3PC</td><td>글로벌 트랜잭션의 원자적 커밋</td></tr><tr><td>동기화 메커니즘</td><td>분산 락, Barrier, Leader Election</td><td>동시성 제어 및 순서 보장</td></tr><tr><td>상태 전파 방식</td><td>Gossip vs BroadCast</td><td>효율적 상태 확산과 이벤트 보장</td></tr><tr><td>스토리지 모델</td><td>ZNode- 트리, Key-Value</td><td>계층적 vs 평탄 구조 데이터 저장</td></tr><tr><td>이벤트 & Watch 방식</td><td>Pull vs Push 이벤트 통지</td><td>클라이언트 상태 감지 메커니즘</td></tr></tbody></table><h3 id=13-분류-기준에-따른-종류-및-유형>13. 분류 기준에 따른 종류 및 유형<a hidden class=anchor aria-hidden=true href=#13-분류-기준에-따른-종류-및-유형>#</a></h3><table><thead><tr><th>기준</th><th>유형</th><th>설명</th></tr></thead><tbody><tr><td>합의 알고리즘</td><td>Paxos, Raft, Zab</td><td>합의 방식에 따라 구분</td></tr><tr><td>구현 방식</td><td>중앙 집중형, 분산형</td><td>서비스 구조에 따라 구분</td></tr><tr><td>사용 목적</td><td>락, 리더 선출, 서비스 디스커버리</td><td>주요 기능에 따라 구분</td></tr></tbody></table><h4 id=611-분류-기준에-따른-종류-및-유형>6.11 분류 기준에 따른 종류 및 유형<a hidden class=anchor aria-hidden=true href=#611-분류-기준에-따른-종류-및-유형>#</a></h4><table><thead><tr><th>분류 기준</th><th>유형</th><th>특징</th><th>대표 알고리즘</th></tr></thead><tbody><tr><td><strong>장애 모델</strong></td><td>CFT (Crash Fault Tolerant)</td><td>노드 정지 장애만 고려</td><td>Paxos, Raft</td></tr><tr><td><strong>장애 모델</strong></td><td>BFT (Byzantine Fault Tolerant)</td><td>악의적 행동 고려</td><td>PBFT, Tendermint</td></tr><tr><td><strong>동기화 모델</strong></td><td>동기식</td><td>메시지 전달 시간 상한 보장</td><td>Synchronous Consensus</td></tr><tr><td><strong>동기화 모델</strong></td><td>비동기식</td><td>메시지 전달 시간 보장 없음</td><td>FLP Impossibility 적용</td></tr><tr><td><strong>리더십</strong></td><td>리더 기반</td><td>단일 리더가 조정 담당</td><td>Raft, Multi-Paxos</td></tr><tr><td><strong>리더십</strong></td><td>리더리스</td><td>모든 노드가 동등한 역할</td><td>Basic Paxos, PBFT</td></tr></tbody></table><h4 id=612-실무-사용-예시>6.12 실무 사용 예시<a hidden class=anchor aria-hidden=true href=#612-실무-사용-예시>#</a></h4><table><thead><tr><th>사용 분야</th><th>목적</th><th>함께 사용되는 기술</th><th>효과</th></tr></thead><tbody><tr><td><strong>분산 데이터베이스</strong></td><td>트랜잭션 일관성 보장</td><td>ACID 속성, 2PC</td><td>데이터 무결성 유지</td></tr><tr><td><strong>블록체인</strong></td><td>블록 합의 및 검증</td><td>암호화, 해시 함수</td><td>탈중앙화된 신뢰</td></tr><tr><td><strong>마이크로서비스</strong></td><td>서비스 간 상태 동기화</td><td>API Gateway, 로드밸런서</td><td>일관된 서비스 제공</td></tr><tr><td><strong>분산 파일 시스템</strong></td><td>메타데이터 일관성</td><td>복제, 샤딩</td><td>고가용성 스토리지</td></tr></tbody></table><h2 id=9-실무-사용-예시>9. 실무 사용 예시<a hidden class=anchor aria-hidden=true href=#9-실무-사용-예시>#</a></h2><table><thead><tr><th>시스템</th><th>함께 사용하는 기술</th><th>목적</th><th>효과</th></tr></thead><tbody><tr><td>마이크로서비스</td><td>ZooKeeper, etcd</td><td>서비스 디스커버리, 설정 관리</td><td>무중단 배포, 자동 장애 복구</td></tr><tr><td>분산 DB</td><td>ZooKeeper</td><td>리더 선출, 락 관리</td><td>데이터 일관성, 장애 내성</td></tr><tr><td>클러스터 관리</td><td>Consul</td><td>노드 상태 감시, 서비스 등록</td><td>자동 스케일링, 장애 대응</td></tr></tbody></table><h2 id=8-실무-사용-예시>8. 실무 사용 예시<a hidden class=anchor aria-hidden=true href=#8-실무-사용-예시>#</a></h2><table><thead><tr><th>서비스 목적</th><th>구성 요소</th><th>목표</th><th>효과</th></tr></thead><tbody><tr><td>서비스 디스커버리</td><td>etcd/ZooKeeper + Ephemeral ZNode</td><td>동적 서비스 등록/해제 감지</td><td>자동 재연결/로드밸런서 업데이트</td></tr><tr><td>분산 락</td><td>ZNode sequence + watch</td><td>리소스 상호 배제 동시 접근 제어</td><td>경합 최소화, 안전한 락 해제</td></tr><tr><td>설정 중앙관리</td><td>ZooKeeper 트리 저장 + watch</td><td>실시간 설정 변경 반영</td><td>빠른 롤아웃, 설정 일관성 유지</td></tr><tr><td>리더 선출 및 장애 복구</td><td>Paxos/Raft 기반 Coordination</td><td>분산 중 leader 자동 선출</td><td>가용성 및 장애 시 자동 역할 재조정</td></tr></tbody></table><hr><h2 id=9-활용-사례-서비스-디스커버리-zookeeper-기반>9. 활용 사례: 서비스 디스커버리 (ZooKeeper 기반)<a hidden class=anchor aria-hidden=true href=#9-활용-사례-서비스-디스커버리-zookeeper-기반>#</a></h2><h3 id=시나리오>시나리오<a hidden class=anchor aria-hidden=true href=#시나리오>#</a></h3><p>마이크로서비스 A, B, C 가 ZooKeeper 를 통해 서로를 발견 (Discover) 하고 통신.</p><h3 id=구성도-mermaid>구성도 (mermaid)<a hidden class=anchor aria-hidden=true href=#구성도-mermaid>#</a></h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-11-1><a class=lnlinks href=#hl-11-1> 1</a>
+</span><span class=lnt id=hl-11-2><a class=lnlinks href=#hl-11-2> 2</a>
+</span><span class=lnt id=hl-11-3><a class=lnlinks href=#hl-11-3> 3</a>
+</span><span class=lnt id=hl-11-4><a class=lnlinks href=#hl-11-4> 4</a>
+</span><span class=lnt id=hl-11-5><a class=lnlinks href=#hl-11-5> 5</a>
+</span><span class=lnt id=hl-11-6><a class=lnlinks href=#hl-11-6> 6</a>
+</span><span class=lnt id=hl-11-7><a class=lnlinks href=#hl-11-7> 7</a>
+</span><span class=lnt id=hl-11-8><a class=lnlinks href=#hl-11-8> 8</a>
+</span><span class=lnt id=hl-11-9><a class=lnlinks href=#hl-11-9> 9</a>
+</span><span class=lnt id=hl-11-10><a class=lnlinks href=#hl-11-10>10</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>flowchart LR
+</span></span><span class=line><span class=cl>  subgraph ZooKeeper-Ensemble
+</span></span><span class=line><span class=cl>    Z1[Leader]
+</span></span><span class=line><span class=cl>    Z2[Follower]
+</span></span><span class=line><span class=cl>    Z3[Follower]
+</span></span><span class=line><span class=cl>  end
+</span></span><span class=line><span class=cl>  ServiceA --&gt; Zk(creates /services/A/1)
+</span></span><span class=line><span class=cl>  ServiceB --&gt; Zk(creates /services/B/1)
+</span></span><span class=line><span class=cl>  ServiceC --&gt; Zk(watches /services)
+</span></span><span class=line><span class=cl>  Z2 -- Notify --&gt; ServiceC
+</span></span></code></pre></td></tr></table></div></div><h3 id=workflow>Workflow<a hidden class=anchor aria-hidden=true href=#workflow>#</a></h3><ol><li>A, B 가 <code>/services/A/1</code>, <code>/services/B/1</code> Ephemeral ZNode 등록</li><li>C 는 <code>/services</code> 디렉토리를 watch</li><li>A 또는 B 시작/종료 시 C 는 이벤트 수신</li><li>C 는 서비스 주소를 업데이트하고 consumer or router 에 반영</li></ol><h3 id=역할>역할<a hidden class=anchor aria-hidden=true href=#역할>#</a></h3><ul><li><strong>Ephemeral ZNode</strong>: 마이크로서비스 registry</li><li><strong>Watcher</strong>: 동적 서비스 탐색</li><li><strong>쿼럼 Root</strong>: 장애 발생 시 ensemble 에서 서비스 변경 가용 보장</li></ul><h3 id=차이>차이<a hidden class=anchor aria-hidden=true href=#차이>#</a></h3><ul><li>디스커버리 기능 제외 시 C 는 수동 조회 필요 → 자동화 미지원, 장애 감지 지연</li></ul><h3 id=10-활용-사례>10. 활용 사례<a hidden class=anchor aria-hidden=true href=#10-활용-사례>#</a></h3><h4 id=사례-마이크로서비스-환경에서-zookeeper-를-통한-서비스-디스커버리-및-리더-선출>사례: 마이크로서비스 환경에서 ZooKeeper 를 통한 서비스 디스커버리 및 리더 선출<a hidden class=anchor aria-hidden=true href=#사례-마이크로서비스-환경에서-zookeeper-를-통한-서비스-디스커버리-및-리더-선출>#</a></h4><ul><li><strong>시스템 구성</strong>: 여러 마이크로서비스 인스턴스, ZooKeeper 클러스터, 클라이언트</li><li><strong>워크플로우</strong>:<ol><li>각 서비스 인스턴스가 ZooKeeper 에 자신의 상태 등록</li><li>ZooKeeper 가 서비스 상태를 모니터링하며, 장애 발생 시 자동으로 리더 선출</li><li>클라이언트는 ZooKeeper 를 통해 현재 가용한 서비스 목록을 조회</li></ol></li><li><strong>다이어그램</strong>:</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-12-1><a class=lnlinks href=#hl-12-1>1</a>
+</span><span class=lnt id=hl-12-2><a class=lnlinks href=#hl-12-2>2</a>
+</span><span class=lnt id=hl-12-3><a class=lnlinks href=#hl-12-3>3</a>
+</span><span class=lnt id=hl-12-4><a class=lnlinks href=#hl-12-4>4</a>
+</span><span class=lnt id=hl-12-5><a class=lnlinks href=#hl-12-5>5</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>graph LR
+</span></span><span class=line><span class=cl>    S1[Service 1] --&gt; ZK[ZooKeeper]
+</span></span><span class=line><span class=cl>    S2[Service 2] --&gt; ZK
+</span></span><span class=line><span class=cl>    S3[Service 3] --&gt; ZK
+</span></span><span class=line><span class=cl>    ZK --&gt; C[Client]
+</span></span></code></pre></td></tr></table></div></div><ul><li><strong>주제의 역할</strong>: 서비스 상태 동기화, 장애 시 리더 자동 선출, 서비스 목록 제공</li><li><strong>유무 차이</strong>: 분산 코디네이션이 없으면 서비스 장애 시 수동 복구 필요, 일관성 저하</li></ul><h4 id=613-활용-사례>6.13 활용 사례<a hidden class=anchor aria-hidden=true href=#613-활용-사례>#</a></h4><p><strong>Apache Kafka 의 분산 조정 활용</strong></p><p>Kafka 는 대규모 실시간 데이터 스트리밍을 위해 분산 조정을 핵심적으로 활용합니다.</p><p><strong>시스템 구성:</strong></p><ul><li>Kafka Cluster: 여러 브로커 노드로 구성</li><li>Zookeeper Ensemble: 메타데이터 관리 및 조정 서비스</li><li>Producer/Consumer: 데이터 생산/소비 클라이언트</li></ul><p><strong>시스템 구성 다이어그램:</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-13-1><a class=lnlinks href=#hl-13-1> 1</a>
+</span><span class=lnt id=hl-13-2><a class=lnlinks href=#hl-13-2> 2</a>
+</span><span class=lnt id=hl-13-3><a class=lnlinks href=#hl-13-3> 3</a>
+</span><span class=lnt id=hl-13-4><a class=lnlinks href=#hl-13-4> 4</a>
+</span><span class=lnt id=hl-13-5><a class=lnlinks href=#hl-13-5> 5</a>
+</span><span class=lnt id=hl-13-6><a class=lnlinks href=#hl-13-6> 6</a>
+</span><span class=lnt id=hl-13-7><a class=lnlinks href=#hl-13-7> 7</a>
+</span><span class=lnt id=hl-13-8><a class=lnlinks href=#hl-13-8> 8</a>
+</span><span class=lnt id=hl-13-9><a class=lnlinks href=#hl-13-9> 9</a>
+</span><span class=lnt id=hl-13-10><a class=lnlinks href=#hl-13-10>10</a>
+</span><span class=lnt id=hl-13-11><a class=lnlinks href=#hl-13-11>11</a>
+</span><span class=lnt id=hl-13-12><a class=lnlinks href=#hl-13-12>12</a>
+</span><span class=lnt id=hl-13-13><a class=lnlinks href=#hl-13-13>13</a>
+</span><span class=lnt id=hl-13-14><a class=lnlinks href=#hl-13-14>14</a>
+</span><span class=lnt id=hl-13-15><a class=lnlinks href=#hl-13-15>15</a>
+</span><span class=lnt id=hl-13-16><a class=lnlinks href=#hl-13-16>16</a>
+</span><span class=lnt id=hl-13-17><a class=lnlinks href=#hl-13-17>17</a>
+</span><span class=lnt id=hl-13-18><a class=lnlinks href=#hl-13-18>18</a>
+</span><span class=lnt id=hl-13-19><a class=lnlinks href=#hl-13-19>19</a>
+</span><span class=lnt id=hl-13-20><a class=lnlinks href=#hl-13-20>20</a>
+</span><span class=lnt id=hl-13-21><a class=lnlinks href=#hl-13-21>21</a>
+</span><span class=lnt id=hl-13-22><a class=lnlinks href=#hl-13-22>22</a>
+</span><span class=lnt id=hl-13-23><a class=lnlinks href=#hl-13-23>23</a>
+</span><span class=lnt id=hl-13-24><a class=lnlinks href=#hl-13-24>24</a>
+</span><span class=lnt id=hl-13-25><a class=lnlinks href=#hl-13-25>25</a>
+</span><span class=lnt id=hl-13-26><a class=lnlinks href=#hl-13-26>26</a>
+</span><span class=lnt id=hl-13-27><a class=lnlinks href=#hl-13-27>27</a>
+</span><span class=lnt id=hl-13-28><a class=lnlinks href=#hl-13-28>28</a>
+</span><span class=lnt id=hl-13-29><a class=lnlinks href=#hl-13-29>29</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>graph TB
+</span></span><span class=line><span class=cl>    subgraph &#34;Kafka 클러스터&#34;
+</span></span><span class=line><span class=cl>        B1[Broker 1&lt;br/&gt;Leader for P1]
+</span></span><span class=line><span class=cl>        B2[Broker 2&lt;br/&gt;Leader for P2]
+</span></span><span class=line><span class=cl>        B3[Broker 3&lt;br/&gt;Follower]
+</span></span><span class=line><span class=cl>    end
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    subgraph &#34;Zookeeper 앙상블&#34;
+</span></span><span class=line><span class=cl>        Z1[Zookeeper 1]
+</span></span><span class=line><span class=cl>        Z2[Zookeeper 2] 
+</span></span><span class=line><span class=cl>        Z3[Zookeeper 3]
+</span></span><span class=line><span class=cl>    end
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    subgraph &#34;클라이언트&#34;
+</span></span><span class=line><span class=cl>        P[Producer]
+</span></span><span class=line><span class=cl>        C[Consumer]
+</span></span><span class=line><span class=cl>    end
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    B1 &lt;--&gt; Z1
+</span></span><span class=line><span class=cl>    B2 &lt;--&gt; Z2
+</span></span><span class=line><span class=cl>    B3 &lt;--&gt; Z3
+</span></span><span class=line><span class=cl>    Z1 &lt;--&gt; Z2
+</span></span><span class=line><span class=cl>    Z2 &lt;--&gt; Z3
+</span></span><span class=line><span class=cl>    Z3 &lt;--&gt; Z1
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    P --&gt; B1
+</span></span><span class=line><span class=cl>    P --&gt; B2
+</span></span><span class=line><span class=cl>    B1 --&gt; C
+</span></span><span class=line><span class=cl>    B2 --&gt; C
+</span></span></code></pre></td></tr></table></div></div><p><strong>활용 사례 Workflow:</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-14-1><a class=lnlinks href=#hl-14-1> 1</a>
+</span><span class=lnt id=hl-14-2><a class=lnlinks href=#hl-14-2> 2</a>
+</span><span class=lnt id=hl-14-3><a class=lnlinks href=#hl-14-3> 3</a>
+</span><span class=lnt id=hl-14-4><a class=lnlinks href=#hl-14-4> 4</a>
+</span><span class=lnt id=hl-14-5><a class=lnlinks href=#hl-14-5> 5</a>
+</span><span class=lnt id=hl-14-6><a class=lnlinks href=#hl-14-6> 6</a>
+</span><span class=lnt id=hl-14-7><a class=lnlinks href=#hl-14-7> 7</a>
+</span><span class=lnt id=hl-14-8><a class=lnlinks href=#hl-14-8> 8</a>
+</span><span class=lnt id=hl-14-9><a class=lnlinks href=#hl-14-9> 9</a>
+</span><span class=lnt id=hl-14-10><a class=lnlinks href=#hl-14-10>10</a>
+</span><span class=lnt id=hl-14-11><a class=lnlinks href=#hl-14-11>11</a>
+</span><span class=lnt id=hl-14-12><a class=lnlinks href=#hl-14-12>12</a>
+</span><span class=lnt id=hl-14-13><a class=lnlinks href=#hl-14-13>13</a>
+</span><span class=lnt id=hl-14-14><a class=lnlinks href=#hl-14-14>14</a>
+</span><span class=lnt id=hl-14-15><a class=lnlinks href=#hl-14-15>15</a>
+</span><span class=lnt id=hl-14-16><a class=lnlinks href=#hl-14-16>16</a>
+</span><span class=lnt id=hl-14-17><a class=lnlinks href=#hl-14-17>17</a>
+</span><span class=lnt id=hl-14-18><a class=lnlinks href=#hl-14-18>18</a>
+</span><span class=lnt id=hl-14-19><a class=lnlinks href=#hl-14-19>19</a>
+</span><span class=lnt id=hl-14-20><a class=lnlinks href=#hl-14-20>20</a>
+</span><span class=lnt id=hl-14-21><a class=lnlinks href=#hl-14-21>21</a>
+</span><span class=lnt id=hl-14-22><a class=lnlinks href=#hl-14-22>22</a>
+</span><span class=lnt id=hl-14-23><a class=lnlinks href=#hl-14-23>23</a>
+</span><span class=lnt id=hl-14-24><a class=lnlinks href=#hl-14-24>24</a>
+</span><span class=lnt id=hl-14-25><a class=lnlinks href=#hl-14-25>25</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>sequenceDiagram
+</span></span><span class=line><span class=cl>    participant P as Producer
+</span></span><span class=line><span class=cl>    participant B1 as Broker 1 (Leader)
+</span></span><span class=line><span class=cl>    participant B2 as Broker 2 (Follower)
+</span></span><span class=line><span class=cl>    participant Z as Zookeeper
+</span></span><span class=line><span class=cl>    participant C as Consumer
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    Note over P,C: Kafka 분산 조정 워크플로우
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    P-&gt;&gt;Z: 메타데이터 요청
+</span></span><span class=line><span class=cl>    Z-&gt;&gt;P: 파티션 리더 정보 반환
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    P-&gt;&gt;B1: 메시지 전송
+</span></span><span class=line><span class=cl>    B1-&gt;&gt;B2: 복제 동기화
+</span></span><span class=line><span class=cl>    B2-&gt;&gt;B1: ACK
+</span></span><span class=line><span class=cl>    B1-&gt;&gt;P: 전송 완료
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    Note over B1,B2: 리더 장애 시
+</span></span><span class=line><span class=cl>    B1--XB2: 연결 끊어짐
+</span></span><span class=line><span class=cl>    B2-&gt;&gt;Z: 리더 장애 감지
+</span></span><span class=line><span class=cl>    Z-&gt;&gt;B2: 새 리더로 선출
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    C-&gt;&gt;Z: 새 리더 정보 요청
+</span></span><span class=line><span class=cl>    Z-&gt;&gt;C: 업데이트된 메타데이터
+</span></span><span class=line><span class=cl>    C-&gt;&gt;B2: 메시지 소비
+</span></span></code></pre></td></tr></table></div></div><p><strong>분산 조정의 역할:</strong></p><ol><li><strong>리더 선출</strong>: 각 파티션의 리더 브로커 결정</li><li><strong>메타데이터 일관성</strong>: 토픽, 파티션 정보 동기화</li><li><strong>장애 복구</strong>: 브로커 장애 시 자동 failover</li><li><strong>부하 분산</strong>: 파티션 재분배를 통한 균등 분산</li></ol><p><strong>분산 조정 유무에 따른 차이점:</strong></p><table><thead><tr><th>구분</th><th>분산 조정 적용</th><th>분산 조정 미적용</th></tr></thead><tbody><tr><td><strong>가용성</strong></td><td>브로커 장애 시 자동 복구</td><td>수동 개입 필요, 서비스 중단</td></tr><tr><td><strong>일관성</strong></td><td>메타데이터 자동 동기화</td><td>데이터 불일치 가능성</td></tr><tr><td><strong>확장성</strong></td><td>동적 브로커 추가/제거</td><td>정적 구성만 지원</td></tr><tr><td><strong>성능</strong></td><td>최적화된 파티션 분배</td><td>수동 튜닝 필요</td></tr></tbody></table><h4 id=614-구현-예시>6.14 구현 예시<a hidden class=anchor aria-hidden=true href=#614-구현-예시>#</a></h4><p>다음은 Kafka 와 유사한 분산 메시지 브로커에서 리더 선출을 구현하는 Python 예제입니다:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-15-1><a class=lnlinks href=#hl-15-1>  1</a>
+</span><span class=lnt id=hl-15-2><a class=lnlinks href=#hl-15-2>  2</a>
+</span><span class=lnt id=hl-15-3><a class=lnlinks href=#hl-15-3>  3</a>
+</span><span class=lnt id=hl-15-4><a class=lnlinks href=#hl-15-4>  4</a>
+</span><span class=lnt id=hl-15-5><a class=lnlinks href=#hl-15-5>  5</a>
+</span><span class=lnt id=hl-15-6><a class=lnlinks href=#hl-15-6>  6</a>
+</span><span class=lnt id=hl-15-7><a class=lnlinks href=#hl-15-7>  7</a>
+</span><span class=lnt id=hl-15-8><a class=lnlinks href=#hl-15-8>  8</a>
+</span><span class=lnt id=hl-15-9><a class=lnlinks href=#hl-15-9>  9</a>
+</span><span class=lnt id=hl-15-10><a class=lnlinks href=#hl-15-10> 10</a>
+</span><span class=lnt id=hl-15-11><a class=lnlinks href=#hl-15-11> 11</a>
+</span><span class=lnt id=hl-15-12><a class=lnlinks href=#hl-15-12> 12</a>
+</span><span class=lnt id=hl-15-13><a class=lnlinks href=#hl-15-13> 13</a>
+</span><span class=lnt id=hl-15-14><a class=lnlinks href=#hl-15-14> 14</a>
+</span><span class=lnt id=hl-15-15><a class=lnlinks href=#hl-15-15> 15</a>
+</span><span class=lnt id=hl-15-16><a class=lnlinks href=#hl-15-16> 16</a>
+</span><span class=lnt id=hl-15-17><a class=lnlinks href=#hl-15-17> 17</a>
+</span><span class=lnt id=hl-15-18><a class=lnlinks href=#hl-15-18> 18</a>
+</span><span class=lnt id=hl-15-19><a class=lnlinks href=#hl-15-19> 19</a>
+</span><span class=lnt id=hl-15-20><a class=lnlinks href=#hl-15-20> 20</a>
+</span><span class=lnt id=hl-15-21><a class=lnlinks href=#hl-15-21> 21</a>
+</span><span class=lnt id=hl-15-22><a class=lnlinks href=#hl-15-22> 22</a>
+</span><span class=lnt id=hl-15-23><a class=lnlinks href=#hl-15-23> 23</a>
+</span><span class=lnt id=hl-15-24><a class=lnlinks href=#hl-15-24> 24</a>
+</span><span class=lnt id=hl-15-25><a class=lnlinks href=#hl-15-25> 25</a>
+</span><span class=lnt id=hl-15-26><a class=lnlinks href=#hl-15-26> 26</a>
+</span><span class=lnt id=hl-15-27><a class=lnlinks href=#hl-15-27> 27</a>
+</span><span class=lnt id=hl-15-28><a class=lnlinks href=#hl-15-28> 28</a>
+</span><span class=lnt id=hl-15-29><a class=lnlinks href=#hl-15-29> 29</a>
+</span><span class=lnt id=hl-15-30><a class=lnlinks href=#hl-15-30> 30</a>
+</span><span class=lnt id=hl-15-31><a class=lnlinks href=#hl-15-31> 31</a>
+</span><span class=lnt id=hl-15-32><a class=lnlinks href=#hl-15-32> 32</a>
+</span><span class=lnt id=hl-15-33><a class=lnlinks href=#hl-15-33> 33</a>
+</span><span class=lnt id=hl-15-34><a class=lnlinks href=#hl-15-34> 34</a>
+</span><span class=lnt id=hl-15-35><a class=lnlinks href=#hl-15-35> 35</a>
+</span><span class=lnt id=hl-15-36><a class=lnlinks href=#hl-15-36> 36</a>
+</span><span class=lnt id=hl-15-37><a class=lnlinks href=#hl-15-37> 37</a>
+</span><span class=lnt id=hl-15-38><a class=lnlinks href=#hl-15-38> 38</a>
+</span><span class=lnt id=hl-15-39><a class=lnlinks href=#hl-15-39> 39</a>
+</span><span class=lnt id=hl-15-40><a class=lnlinks href=#hl-15-40> 40</a>
+</span><span class=lnt id=hl-15-41><a class=lnlinks href=#hl-15-41> 41</a>
+</span><span class=lnt id=hl-15-42><a class=lnlinks href=#hl-15-42> 42</a>
+</span><span class=lnt id=hl-15-43><a class=lnlinks href=#hl-15-43> 43</a>
+</span><span class=lnt id=hl-15-44><a class=lnlinks href=#hl-15-44> 44</a>
+</span><span class=lnt id=hl-15-45><a class=lnlinks href=#hl-15-45> 45</a>
+</span><span class=lnt id=hl-15-46><a class=lnlinks href=#hl-15-46> 46</a>
+</span><span class=lnt id=hl-15-47><a class=lnlinks href=#hl-15-47> 47</a>
+</span><span class=lnt id=hl-15-48><a class=lnlinks href=#hl-15-48> 48</a>
+</span><span class=lnt id=hl-15-49><a class=lnlinks href=#hl-15-49> 49</a>
+</span><span class=lnt id=hl-15-50><a class=lnlinks href=#hl-15-50> 50</a>
+</span><span class=lnt id=hl-15-51><a class=lnlinks href=#hl-15-51> 51</a>
+</span><span class=lnt id=hl-15-52><a class=lnlinks href=#hl-15-52> 52</a>
+</span><span class=lnt id=hl-15-53><a class=lnlinks href=#hl-15-53> 53</a>
+</span><span class=lnt id=hl-15-54><a class=lnlinks href=#hl-15-54> 54</a>
+</span><span class=lnt id=hl-15-55><a class=lnlinks href=#hl-15-55> 55</a>
+</span><span class=lnt id=hl-15-56><a class=lnlinks href=#hl-15-56> 56</a>
+</span><span class=lnt id=hl-15-57><a class=lnlinks href=#hl-15-57> 57</a>
+</span><span class=lnt id=hl-15-58><a class=lnlinks href=#hl-15-58> 58</a>
+</span><span class=lnt id=hl-15-59><a class=lnlinks href=#hl-15-59> 59</a>
+</span><span class=lnt id=hl-15-60><a class=lnlinks href=#hl-15-60> 60</a>
+</span><span class=lnt id=hl-15-61><a class=lnlinks href=#hl-15-61> 61</a>
+</span><span class=lnt id=hl-15-62><a class=lnlinks href=#hl-15-62> 62</a>
+</span><span class=lnt id=hl-15-63><a class=lnlinks href=#hl-15-63> 63</a>
+</span><span class=lnt id=hl-15-64><a class=lnlinks href=#hl-15-64> 64</a>
+</span><span class=lnt id=hl-15-65><a class=lnlinks href=#hl-15-65> 65</a>
+</span><span class=lnt id=hl-15-66><a class=lnlinks href=#hl-15-66> 66</a>
+</span><span class=lnt id=hl-15-67><a class=lnlinks href=#hl-15-67> 67</a>
+</span><span class=lnt id=hl-15-68><a class=lnlinks href=#hl-15-68> 68</a>
+</span><span class=lnt id=hl-15-69><a class=lnlinks href=#hl-15-69> 69</a>
+</span><span class=lnt id=hl-15-70><a class=lnlinks href=#hl-15-70> 70</a>
+</span><span class=lnt id=hl-15-71><a class=lnlinks href=#hl-15-71> 71</a>
+</span><span class=lnt id=hl-15-72><a class=lnlinks href=#hl-15-72> 72</a>
+</span><span class=lnt id=hl-15-73><a class=lnlinks href=#hl-15-73> 73</a>
+</span><span class=lnt id=hl-15-74><a class=lnlinks href=#hl-15-74> 74</a>
+</span><span class=lnt id=hl-15-75><a class=lnlinks href=#hl-15-75> 75</a>
+</span><span class=lnt id=hl-15-76><a class=lnlinks href=#hl-15-76> 76</a>
+</span><span class=lnt id=hl-15-77><a class=lnlinks href=#hl-15-77> 77</a>
+</span><span class=lnt id=hl-15-78><a class=lnlinks href=#hl-15-78> 78</a>
+</span><span class=lnt id=hl-15-79><a class=lnlinks href=#hl-15-79> 79</a>
+</span><span class=lnt id=hl-15-80><a class=lnlinks href=#hl-15-80> 80</a>
+</span><span class=lnt id=hl-15-81><a class=lnlinks href=#hl-15-81> 81</a>
+</span><span class=lnt id=hl-15-82><a class=lnlinks href=#hl-15-82> 82</a>
+</span><span class=lnt id=hl-15-83><a class=lnlinks href=#hl-15-83> 83</a>
+</span><span class=lnt id=hl-15-84><a class=lnlinks href=#hl-15-84> 84</a>
+</span><span class=lnt id=hl-15-85><a class=lnlinks href=#hl-15-85> 85</a>
+</span><span class=lnt id=hl-15-86><a class=lnlinks href=#hl-15-86> 86</a>
+</span><span class=lnt id=hl-15-87><a class=lnlinks href=#hl-15-87> 87</a>
+</span><span class=lnt id=hl-15-88><a class=lnlinks href=#hl-15-88> 88</a>
+</span><span class=lnt id=hl-15-89><a class=lnlinks href=#hl-15-89> 89</a>
+</span><span class=lnt id=hl-15-90><a class=lnlinks href=#hl-15-90> 90</a>
+</span><span class=lnt id=hl-15-91><a class=lnlinks href=#hl-15-91> 91</a>
+</span><span class=lnt id=hl-15-92><a class=lnlinks href=#hl-15-92> 92</a>
+</span><span class=lnt id=hl-15-93><a class=lnlinks href=#hl-15-93> 93</a>
+</span><span class=lnt id=hl-15-94><a class=lnlinks href=#hl-15-94> 94</a>
+</span><span class=lnt id=hl-15-95><a class=lnlinks href=#hl-15-95> 95</a>
+</span><span class=lnt id=hl-15-96><a class=lnlinks href=#hl-15-96> 96</a>
+</span><span class=lnt id=hl-15-97><a class=lnlinks href=#hl-15-97> 97</a>
+</span><span class=lnt id=hl-15-98><a class=lnlinks href=#hl-15-98> 98</a>
+</span><span class=lnt id=hl-15-99><a class=lnlinks href=#hl-15-99> 99</a>
+</span><span class=lnt id=hl-15-100><a class=lnlinks href=#hl-15-100>100</a>
+</span><span class=lnt id=hl-15-101><a class=lnlinks href=#hl-15-101>101</a>
+</span><span class=lnt id=hl-15-102><a class=lnlinks href=#hl-15-102>102</a>
+</span><span class=lnt id=hl-15-103><a class=lnlinks href=#hl-15-103>103</a>
+</span><span class=lnt id=hl-15-104><a class=lnlinks href=#hl-15-104>104</a>
+</span><span class=lnt id=hl-15-105><a class=lnlinks href=#hl-15-105>105</a>
+</span><span class=lnt id=hl-15-106><a class=lnlinks href=#hl-15-106>106</a>
+</span><span class=lnt id=hl-15-107><a class=lnlinks href=#hl-15-107>107</a>
+</span><span class=lnt id=hl-15-108><a class=lnlinks href=#hl-15-108>108</a>
+</span><span class=lnt id=hl-15-109><a class=lnlinks href=#hl-15-109>109</a>
+</span><span class=lnt id=hl-15-110><a class=lnlinks href=#hl-15-110>110</a>
+</span><span class=lnt id=hl-15-111><a class=lnlinks href=#hl-15-111>111</a>
+</span><span class=lnt id=hl-15-112><a class=lnlinks href=#hl-15-112>112</a>
+</span><span class=lnt id=hl-15-113><a class=lnlinks href=#hl-15-113>113</a>
+</span><span class=lnt id=hl-15-114><a class=lnlinks href=#hl-15-114>114</a>
+</span><span class=lnt id=hl-15-115><a class=lnlinks href=#hl-15-115>115</a>
+</span><span class=lnt id=hl-15-116><a class=lnlinks href=#hl-15-116>116</a>
+</span><span class=lnt id=hl-15-117><a class=lnlinks href=#hl-15-117>117</a>
+</span><span class=lnt id=hl-15-118><a class=lnlinks href=#hl-15-118>118</a>
+</span><span class=lnt id=hl-15-119><a class=lnlinks href=#hl-15-119>119</a>
+</span><span class=lnt id=hl-15-120><a class=lnlinks href=#hl-15-120>120</a>
+</span><span class=lnt id=hl-15-121><a class=lnlinks href=#hl-15-121>121</a>
+</span><span class=lnt id=hl-15-122><a class=lnlinks href=#hl-15-122>122</a>
+</span><span class=lnt id=hl-15-123><a class=lnlinks href=#hl-15-123>123</a>
+</span><span class=lnt id=hl-15-124><a class=lnlinks href=#hl-15-124>124</a>
+</span><span class=lnt id=hl-15-125><a class=lnlinks href=#hl-15-125>125</a>
+</span><span class=lnt id=hl-15-126><a class=lnlinks href=#hl-15-126>126</a>
+</span><span class=lnt id=hl-15-127><a class=lnlinks href=#hl-15-127>127</a>
+</span><span class=lnt id=hl-15-128><a class=lnlinks href=#hl-15-128>128</a>
+</span><span class=lnt id=hl-15-129><a class=lnlinks href=#hl-15-129>129</a>
+</span><span class=lnt id=hl-15-130><a class=lnlinks href=#hl-15-130>130</a>
+</span><span class=lnt id=hl-15-131><a class=lnlinks href=#hl-15-131>131</a>
+</span><span class=lnt id=hl-15-132><a class=lnlinks href=#hl-15-132>132</a>
+</span><span class=lnt id=hl-15-133><a class=lnlinks href=#hl-15-133>133</a>
+</span><span class=lnt id=hl-15-134><a class=lnlinks href=#hl-15-134>134</a>
+</span><span class=lnt id=hl-15-135><a class=lnlinks href=#hl-15-135>135</a>
+</span><span class=lnt id=hl-15-136><a class=lnlinks href=#hl-15-136>136</a>
+</span><span class=lnt id=hl-15-137><a class=lnlinks href=#hl-15-137>137</a>
+</span><span class=lnt id=hl-15-138><a class=lnlinks href=#hl-15-138>138</a>
+</span><span class=lnt id=hl-15-139><a class=lnlinks href=#hl-15-139>139</a>
+</span><span class=lnt id=hl-15-140><a class=lnlinks href=#hl-15-140>140</a>
+</span><span class=lnt id=hl-15-141><a class=lnlinks href=#hl-15-141>141</a>
+</span><span class=lnt id=hl-15-142><a class=lnlinks href=#hl-15-142>142</a>
+</span><span class=lnt id=hl-15-143><a class=lnlinks href=#hl-15-143>143</a>
+</span><span class=lnt id=hl-15-144><a class=lnlinks href=#hl-15-144>144</a>
+</span><span class=lnt id=hl-15-145><a class=lnlinks href=#hl-15-145>145</a>
+</span><span class=lnt id=hl-15-146><a class=lnlinks href=#hl-15-146>146</a>
+</span><span class=lnt id=hl-15-147><a class=lnlinks href=#hl-15-147>147</a>
+</span><span class=lnt id=hl-15-148><a class=lnlinks href=#hl-15-148>148</a>
+</span><span class=lnt id=hl-15-149><a class=lnlinks href=#hl-15-149>149</a>
+</span><span class=lnt id=hl-15-150><a class=lnlinks href=#hl-15-150>150</a>
+</span><span class=lnt id=hl-15-151><a class=lnlinks href=#hl-15-151>151</a>
+</span><span class=lnt id=hl-15-152><a class=lnlinks href=#hl-15-152>152</a>
+</span><span class=lnt id=hl-15-153><a class=lnlinks href=#hl-15-153>153</a>
+</span><span class=lnt id=hl-15-154><a class=lnlinks href=#hl-15-154>154</a>
+</span><span class=lnt id=hl-15-155><a class=lnlinks href=#hl-15-155>155</a>
+</span><span class=lnt id=hl-15-156><a class=lnlinks href=#hl-15-156>156</a>
+</span><span class=lnt id=hl-15-157><a class=lnlinks href=#hl-15-157>157</a>
+</span><span class=lnt id=hl-15-158><a class=lnlinks href=#hl-15-158>158</a>
+</span><span class=lnt id=hl-15-159><a class=lnlinks href=#hl-15-159>159</a>
+</span><span class=lnt id=hl-15-160><a class=lnlinks href=#hl-15-160>160</a>
+</span><span class=lnt id=hl-15-161><a class=lnlinks href=#hl-15-161>161</a>
+</span><span class=lnt id=hl-15-162><a class=lnlinks href=#hl-15-162>162</a>
+</span><span class=lnt id=hl-15-163><a class=lnlinks href=#hl-15-163>163</a>
+</span><span class=lnt id=hl-15-164><a class=lnlinks href=#hl-15-164>164</a>
+</span><span class=lnt id=hl-15-165><a class=lnlinks href=#hl-15-165>165</a>
+</span><span class=lnt id=hl-15-166><a class=lnlinks href=#hl-15-166>166</a>
+</span><span class=lnt id=hl-15-167><a class=lnlinks href=#hl-15-167>167</a>
+</span><span class=lnt id=hl-15-168><a class=lnlinks href=#hl-15-168>168</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>time</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>threading</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>random</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>enum</span> <span class=kn>import</span> <span class=n>Enum</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>typing</span> <span class=kn>import</span> <span class=n>Dict</span><span class=p>,</span> <span class=n>List</span><span class=p>,</span> <span class=n>Optional</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>NodeState</span><span class=p>(</span><span class=n>Enum</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;노드 상태 정의&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>FOLLOWER</span> <span class=o>=</span> <span class=s2>&#34;follower&#34;</span>      <span class=c1># 팔로워 상태</span>
+</span></span><span class=line><span class=cl>    <span class=n>CANDIDATE</span> <span class=o>=</span> <span class=s2>&#34;candidate&#34;</span>    <span class=c1># 후보자 상태  </span>
+</span></span><span class=line><span class=cl>    <span class=n>LEADER</span> <span class=o>=</span> <span class=s2>&#34;leader&#34;</span>         <span class=c1># 리더 상태</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>DistributedBroker</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;분산 메시지 브로커의 분산 조정 구현&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>node_id</span><span class=p>:</span> <span class=nb>int</span><span class=p>,</span> <span class=n>cluster_nodes</span><span class=p>:</span> <span class=n>List</span><span class=p>[</span><span class=nb>int</span><span class=p>]):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>node_id</span> <span class=o>=</span> <span class=n>node_id</span>                    <span class=c1># 현재 노드 ID</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>cluster_nodes</span> <span class=o>=</span> <span class=n>cluster_nodes</span>        <span class=c1># 클러스터 내 모든 노드 ID</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>state</span> <span class=o>=</span> <span class=n>NodeState</span><span class=o>.</span><span class=n>FOLLOWER</span>          <span class=c1># 초기 상태는 팔로워</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>current_term</span> <span class=o>=</span> <span class=mi>0</span>                    <span class=c1># 현재 선출 주기</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>voted_for</span> <span class=o>=</span> <span class=kc>None</span>                    <span class=c1># 투표한 후보</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>leader_id</span> <span class=o>=</span> <span class=kc>None</span>                    <span class=c1># 현재 리더 ID</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>last_heartbeat</span> <span class=o>=</span> <span class=n>time</span><span class=o>.</span><span class=n>time</span><span class=p>()</span>        <span class=c1># 마지막 하트비트 시간</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>election_timeout</span> <span class=o>=</span> <span class=n>random</span><span class=o>.</span><span class=n>uniform</span><span class=p>(</span><span class=mi>5</span><span class=p>,</span> <span class=mi>10</span><span class=p>)</span>  <span class=c1># 선출 타임아웃 (초)</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>heartbeat_interval</span> <span class=o>=</span> <span class=mi>2</span>              <span class=c1># 하트비트 간격 (초)</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>votes_received</span> <span class=o>=</span> <span class=mi>0</span>                  <span class=c1># 받은 투표 수</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>running</span> <span class=o>=</span> <span class=kc>False</span>                     <span class=c1># 실행 상태</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>start</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;브로커 노드 시작&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>running</span> <span class=o>=</span> <span class=kc>True</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>last_heartbeat</span> <span class=o>=</span> <span class=n>time</span><span class=o>.</span><span class=n>time</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 백그라운드 스레드에서 선출 타이머 실행</span>
+</span></span><span class=line><span class=cl>        <span class=n>threading</span><span class=o>.</span><span class=n>Thread</span><span class=p>(</span><span class=n>target</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>_election_timer</span><span class=p>,</span> <span class=n>daemon</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span><span class=o>.</span><span class=n>start</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;[Node </span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>node_id</span><span class=si>}</span><span class=s2>] 브로커 시작됨 - 상태: </span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>state</span><span class=o>.</span><span class=n>value</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>_election_timer</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;선출 타이머 - 리더 부재 시 새 선출 시작&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=k>while</span> <span class=bp>self</span><span class=o>.</span><span class=n>running</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>time</span><span class=o>.</span><span class=n>sleep</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=c1># 팔로워이고 하트비트 타임아웃 발생 시 선출 시작</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>state</span> <span class=o>==</span> <span class=n>NodeState</span><span class=o>.</span><span class=n>FOLLOWER</span> <span class=ow>and</span> 
+</span></span><span class=line><span class=cl>                <span class=n>time</span><span class=o>.</span><span class=n>time</span><span class=p>()</span> <span class=o>-</span> <span class=bp>self</span><span class=o>.</span><span class=n>last_heartbeat</span> <span class=o>&gt;</span> <span class=bp>self</span><span class=o>.</span><span class=n>election_timeout</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>                <span class=bp>self</span><span class=o>.</span><span class=n>_start_election</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>_start_election</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;새로운 리더 선출 시작&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>state</span> <span class=o>=</span> <span class=n>NodeState</span><span class=o>.</span><span class=n>CANDIDATE</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>current_term</span> <span class=o>+=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>voted_for</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>node_id</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>votes_received</span> <span class=o>=</span> <span class=mi>1</span>  <span class=c1># 자신에게 투표</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;[Node </span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>node_id</span><span class=si>}</span><span class=s2>] 선출 시작 - Term: </span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>current_term</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 다른 노드들에게 투표 요청</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>node_id</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>cluster_nodes</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=n>node_id</span> <span class=o>!=</span> <span class=bp>self</span><span class=o>.</span><span class=n>node_id</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=bp>self</span><span class=o>.</span><span class=n>_request_vote</span><span class=p>(</span><span class=n>node_id</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 과반수 득표 시 리더가 됨</span>
+</span></span><span class=line><span class=cl>        <span class=n>majority</span> <span class=o>=</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>cluster_nodes</span><span class=p>)</span> <span class=o>//</span> <span class=mi>2</span> <span class=o>+</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>votes_received</span> <span class=o>&gt;=</span> <span class=n>majority</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>_become_leader</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>_request_vote</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>target_node</span><span class=p>:</span> <span class=nb>int</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;다른 노드에게 투표 요청 (실제로는 네트워크 통신)&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 실제 구현에서는 네트워크를 통해 투표 요청 메시지 전송</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 여기서는 시뮬레이션을 위해 확률적으로 투표 승인</span>
+</span></span><span class=line><span class=cl>        <span class=n>vote_granted</span> <span class=o>=</span> <span class=n>random</span><span class=o>.</span><span class=n>choice</span><span class=p>([</span><span class=kc>True</span><span class=p>,</span> <span class=kc>False</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>vote_granted</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>votes_received</span> <span class=o>+=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>            <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;[Node </span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>node_id</span><span class=si>}</span><span class=s2>] Node </span><span class=si>{</span><span class=n>target_node</span><span class=si>}</span><span class=s2>로부터 투표 획득&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>_become_leader</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;리더로 상태 변경&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>state</span> <span class=o>=</span> <span class=n>NodeState</span><span class=o>.</span><span class=n>LEADER</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>leader_id</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>node_id</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;[Node </span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>node_id</span><span class=si>}</span><span class=s2>] 리더로 선출됨! Term: </span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>current_term</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 리더는 주기적으로 하트비트 전송</span>
+</span></span><span class=line><span class=cl>        <span class=n>threading</span><span class=o>.</span><span class=n>Thread</span><span class=p>(</span><span class=n>target</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>_send_heartbeat</span><span class=p>,</span> <span class=n>daemon</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span><span class=o>.</span><span class=n>start</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>_send_heartbeat</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;리더가 팔로워들에게 하트비트 전송&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=k>while</span> <span class=bp>self</span><span class=o>.</span><span class=n>running</span> <span class=ow>and</span> <span class=bp>self</span><span class=o>.</span><span class=n>state</span> <span class=o>==</span> <span class=n>NodeState</span><span class=o>.</span><span class=n>LEADER</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 모든 팔로워에게 하트비트 전송</span>
+</span></span><span class=line><span class=cl>            <span class=k>for</span> <span class=n>node_id</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>cluster_nodes</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=n>node_id</span> <span class=o>!=</span> <span class=bp>self</span><span class=o>.</span><span class=n>node_id</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                    <span class=bp>self</span><span class=o>.</span><span class=n>_send_heartbeat_to_node</span><span class=p>(</span><span class=n>node_id</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=n>time</span><span class=o>.</span><span class=n>sleep</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>heartbeat_interval</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>_send_heartbeat_to_node</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>target_node</span><span class=p>:</span> <span class=nb>int</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;특정 노드에게 하트비트 전송&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;[Node </span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>node_id</span><span class=si>}</span><span class=s2>] 하트비트 전송 -&gt; Node </span><span class=si>{</span><span class=n>target_node</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 실제로는 네트워크를 통해 하트비트 메시지 전송</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>receive_heartbeat</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>leader_id</span><span class=p>:</span> <span class=nb>int</span><span class=p>,</span> <span class=n>term</span><span class=p>:</span> <span class=nb>int</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;다른 노드로부터 하트비트 수신&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>term</span> <span class=o>&gt;=</span> <span class=bp>self</span><span class=o>.</span><span class=n>current_term</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>current_term</span> <span class=o>=</span> <span class=n>term</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>state</span> <span class=o>=</span> <span class=n>NodeState</span><span class=o>.</span><span class=n>FOLLOWER</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>leader_id</span> <span class=o>=</span> <span class=n>leader_id</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>last_heartbeat</span> <span class=o>=</span> <span class=n>time</span><span class=o>.</span><span class=n>time</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>voted_for</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;[Node </span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>node_id</span><span class=si>}</span><span class=s2>] 리더 </span><span class=si>{</span><span class=n>leader_id</span><span class=si>}</span><span class=s2>로부터 하트비트 수신&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>handle_partition_request</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>topic</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>partition</span><span class=p>:</span> <span class=nb>int</span><span class=p>,</span> <span class=n>message</span><span class=p>:</span> <span class=nb>str</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;파티션 메시지 처리 (리더만 처리 가능)&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>state</span> <span class=o>!=</span> <span class=n>NodeState</span><span class=o>.</span><span class=n>LEADER</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=p>{</span><span class=s2>&#34;error&#34;</span><span class=p>:</span> <span class=s2>&#34;Not a leader&#34;</span><span class=p>,</span> <span class=s2>&#34;leader_id&#34;</span><span class=p>:</span> <span class=bp>self</span><span class=o>.</span><span class=n>leader_id</span><span class=p>}</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 리더만 메시지 처리 및 팔로워들에게 복제</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;[Node </span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>node_id</span><span class=si>}</span><span class=s2>] 메시지 처리: </span><span class=si>{</span><span class=n>topic</span><span class=si>}</span><span class=s2>:</span><span class=si>{</span><span class=n>partition</span><span class=si>}</span><span class=s2> -&gt; </span><span class=si>{</span><span class=n>message</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 팔로워들에게 복제 요청</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>_replicate_to_followers</span><span class=p>(</span><span class=n>topic</span><span class=p>,</span> <span class=n>partition</span><span class=p>,</span> <span class=n>message</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=p>{</span><span class=s2>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;success&#34;</span><span class=p>,</span> <span class=s2>&#34;leader_id&#34;</span><span class=p>:</span> <span class=bp>self</span><span class=o>.</span><span class=n>node_id</span><span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>_replicate_to_followers</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>topic</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>partition</span><span class=p>:</span> <span class=nb>int</span><span class=p>,</span> <span class=n>message</span><span class=p>:</span> <span class=nb>str</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;팔로워 노드들에게 메시지 복제&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>node_id</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>cluster_nodes</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=n>node_id</span> <span class=o>!=</span> <span class=bp>self</span><span class=o>.</span><span class=n>node_id</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;[Node </span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>node_id</span><span class=si>}</span><span class=s2>] 복제 전송 -&gt; Node </span><span class=si>{</span><span class=n>node_id</span><span class=si>}</span><span class=s2>: </span><span class=si>{</span><span class=n>message</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=c1># 실제로는 네트워크를 통해 복제 메시지 전송</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>get_cluster_status</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Dict</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;클러스터 상태 정보 반환&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;node_id&#34;</span><span class=p>:</span> <span class=bp>self</span><span class=o>.</span><span class=n>node_id</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;state&#34;</span><span class=p>:</span> <span class=bp>self</span><span class=o>.</span><span class=n>state</span><span class=o>.</span><span class=n>value</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;term&#34;</span><span class=p>:</span> <span class=bp>self</span><span class=o>.</span><span class=n>current_term</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;leader_id&#34;</span><span class=p>:</span> <span class=bp>self</span><span class=o>.</span><span class=n>leader_id</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;cluster_size&#34;</span><span class=p>:</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>cluster_nodes</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 사용 예시</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=vm>__name__</span> <span class=o>==</span> <span class=s2>&#34;__main__&#34;</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 3노드 클러스터 생성</span>
+</span></span><span class=line><span class=cl>    <span class=n>cluster_nodes</span> <span class=o>=</span> <span class=p>[</span><span class=mi>1</span><span class=p>,</span> <span class=mi>2</span><span class=p>,</span> <span class=mi>3</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 각 노드 생성 및 시작</span>
+</span></span><span class=line><span class=cl>    <span class=n>brokers</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>node_id</span> <span class=ow>in</span> <span class=n>cluster_nodes</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>broker</span> <span class=o>=</span> <span class=n>DistributedBroker</span><span class=p>(</span><span class=n>node_id</span><span class=p>,</span> <span class=n>cluster_nodes</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>broker</span><span class=o>.</span><span class=n>start</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=n>brokers</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 시뮬레이션 실행</span>
+</span></span><span class=line><span class=cl>    <span class=n>time</span><span class=o>.</span><span class=n>sleep</span><span class=p>(</span><span class=mi>15</span><span class=p>)</span>  <span class=c1># 15초 동안 실행</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 클러스터 상태 출력</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>broker</span> <span class=ow>in</span> <span class=n>brokers</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>status</span> <span class=o>=</span> <span class=n>broker</span><span class=o>.</span><span class=n>get_cluster_status</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;노드 </span><span class=si>{</span><span class=n>status</span><span class=p>[</span><span class=s1>&#39;node_id&#39;</span><span class=p>]</span><span class=si>}</span><span class=s2>: </span><span class=si>{</span><span class=n>status</span><span class=p>[</span><span class=s1>&#39;state&#39;</span><span class=p>]</span><span class=si>}</span><span class=s2> (Term: </span><span class=si>{</span><span class=n>status</span><span class=p>[</span><span class=s1>&#39;term&#39;</span><span class=p>]</span><span class=si>}</span><span class=s2>, Leader: </span><span class=si>{</span><span class=n>status</span><span class=p>[</span><span class=s1>&#39;leader_id&#39;</span><span class=p>]</span><span class=si>}</span><span class=s2>)&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 리더에게 메시지 전송 테스트</span>
+</span></span><span class=line><span class=cl>    <span class=n>leader_broker</span> <span class=o>=</span> <span class=nb>next</span><span class=p>((</span><span class=n>b</span> <span class=k>for</span> <span class=n>b</span> <span class=ow>in</span> <span class=n>brokers</span> <span class=k>if</span> <span class=n>b</span><span class=o>.</span><span class=n>state</span> <span class=o>==</span> <span class=n>NodeState</span><span class=o>.</span><span class=n>LEADER</span><span class=p>),</span> <span class=kc>None</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>leader_broker</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>result</span> <span class=o>=</span> <span class=n>leader_broker</span><span class=o>.</span><span class=n>handle_partition_request</span><span class=p>(</span><span class=s2>&#34;user-events&#34;</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=s2>&#34;User login event&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;메시지 처리 결과: </span><span class=si>{</span><span class=n>result</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=10-구현-예시-python>10. 구현 예시 (Python)<a hidden class=anchor aria-hidden=true href=#10-구현-예시-python>#</a></h2><p>ZooKeeper 기반 분산 락 예시—<code>kazoo</code> 라이브러리 사용</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-16-1><a class=lnlinks href=#hl-16-1> 1</a>
+</span><span class=lnt id=hl-16-2><a class=lnlinks href=#hl-16-2> 2</a>
+</span><span class=lnt id=hl-16-3><a class=lnlinks href=#hl-16-3> 3</a>
+</span><span class=lnt id=hl-16-4><a class=lnlinks href=#hl-16-4> 4</a>
+</span><span class=lnt id=hl-16-5><a class=lnlinks href=#hl-16-5> 5</a>
+</span><span class=lnt id=hl-16-6><a class=lnlinks href=#hl-16-6> 6</a>
+</span><span class=lnt id=hl-16-7><a class=lnlinks href=#hl-16-7> 7</a>
+</span><span class=lnt id=hl-16-8><a class=lnlinks href=#hl-16-8> 8</a>
+</span><span class=lnt id=hl-16-9><a class=lnlinks href=#hl-16-9> 9</a>
+</span><span class=lnt id=hl-16-10><a class=lnlinks href=#hl-16-10>10</a>
+</span><span class=lnt id=hl-16-11><a class=lnlinks href=#hl-16-11>11</a>
+</span><span class=lnt id=hl-16-12><a class=lnlinks href=#hl-16-12>12</a>
+</span><span class=lnt id=hl-16-13><a class=lnlinks href=#hl-16-13>13</a>
+</span><span class=lnt id=hl-16-14><a class=lnlinks href=#hl-16-14>14</a>
+</span><span class=lnt id=hl-16-15><a class=lnlinks href=#hl-16-15>15</a>
+</span><span class=lnt id=hl-16-16><a class=lnlinks href=#hl-16-16>16</a>
+</span><span class=lnt id=hl-16-17><a class=lnlinks href=#hl-16-17>17</a>
+</span><span class=lnt id=hl-16-18><a class=lnlinks href=#hl-16-18>18</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>kazoo.client</span> <span class=kn>import</span> <span class=n>KazooClient</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>kazoo.recipe.lock</span> <span class=kn>import</span> <span class=n>Lock</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>zk</span> <span class=o>=</span> <span class=n>KazooClient</span><span class=p>(</span><span class=n>hosts</span><span class=o>=</span><span class=s1>&#39;127.0.0.1:2181&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>zk</span><span class=o>.</span><span class=n>start</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>lock</span> <span class=o>=</span> <span class=n>Lock</span><span class=p>(</span><span class=n>zk</span><span class=p>,</span> <span class=s2>&#34;/distributed_lock/mylock&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=n>lock</span><span class=o>.</span><span class=n>acquire</span><span class=p>(</span><span class=n>timeout</span><span class=o>=</span><span class=mi>10</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 임계 영역 작업 수행</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Lock acquired, critical task executing&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>finally</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>lock</span><span class=o>.</span><span class=n>release</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Lock released&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Timeout: Could not acquire lock&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>zk</span><span class=o>.</span><span class=n>stop</span><span class=p>()</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li><code>kazoo</code> 의 <code>Lock</code> 은 내부적으로 sequence znode 와 watch 를 사용하여 <strong>fair, deadlock-free</strong> 락 제공</li><li>실무에서는 재시도 로직, 타임아웃, 예외 처리, 세션유지/재연결 관리를 추가할 것을 권장</li></ul><h3 id=11-구현-예시-python>11. 구현 예시 (Python)<a hidden class=anchor aria-hidden=true href=#11-구현-예시-python>#</a></h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt id=hl-17-1><a class=lnlinks href=#hl-17-1> 1</a>
+</span><span class=lnt id=hl-17-2><a class=lnlinks href=#hl-17-2> 2</a>
+</span><span class=lnt id=hl-17-3><a class=lnlinks href=#hl-17-3> 3</a>
+</span><span class=lnt id=hl-17-4><a class=lnlinks href=#hl-17-4> 4</a>
+</span><span class=lnt id=hl-17-5><a class=lnlinks href=#hl-17-5> 5</a>
+</span><span class=lnt id=hl-17-6><a class=lnlinks href=#hl-17-6> 6</a>
+</span><span class=lnt id=hl-17-7><a class=lnlinks href=#hl-17-7> 7</a>
+</span><span class=lnt id=hl-17-8><a class=lnlinks href=#hl-17-8> 8</a>
+</span><span class=lnt id=hl-17-9><a class=lnlinks href=#hl-17-9> 9</a>
+</span><span class=lnt id=hl-17-10><a class=lnlinks href=#hl-17-10>10</a>
+</span><span class=lnt id=hl-17-11><a class=lnlinks href=#hl-17-11>11</a>
+</span><span class=lnt id=hl-17-12><a class=lnlinks href=#hl-17-12>12</a>
+</span><span class=lnt id=hl-17-13><a class=lnlinks href=#hl-17-13>13</a>
+</span><span class=lnt id=hl-17-14><a class=lnlinks href=#hl-17-14>14</a>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># ZooKeeper를 이용한 분산 락 구현 예시</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>kazoo.client</span> <span class=kn>import</span> <span class=n>KazooClient</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># ZooKeeper 서버 연결</span>
+</span></span><span class=line><span class=cl><span class=n>zk</span> <span class=o>=</span> <span class=n>KazooClient</span><span class=p>(</span><span class=n>hosts</span><span class=o>=</span><span class=s1>&#39;127.0.0.1:2181&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>zk</span><span class=o>.</span><span class=n>start</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 분산 락 획득</span>
+</span></span><span class=line><span class=cl><span class=n>lock</span> <span class=o>=</span> <span class=n>zk</span><span class=o>.</span><span class=n>Lock</span><span class=p>(</span><span class=s2>&#34;/mylockpath&#34;</span><span class=p>,</span> <span class=s2>&#34;my-identifier&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=k>with</span> <span class=n>lock</span><span class=p>:</span>  <span class=c1># 락 획득 및 자동 해제</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 락이 잡힌 상태에서 실행할 코드</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;임계구역 진입&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>zk</span><span class=o>.</span><span class=n>stop</span><span class=p>()</span>
+</span></span></code></pre></td></tr></table></div></div><p><em>설명: Kazoo 는 Python 용 ZooKeeper 클라이언트 라이브러리. 위 코드는 분산 락을 획득하여 임계구역을 안전하게 처리하는 예시.</em></p><h2 id=5-실무-적용-시-주의사항>5. 실무 적용 시 주의사항<a hidden class=anchor aria-hidden=true href=#5-실무-적용-시-주의사항>#</a></h2><ul><li><strong>Ensemble 크기</strong>: odd-number 최소 3, 장애 허용 필요 노드 수 ≥ quorum</li><li><strong>Client 재연결 대응</strong>: 세션 타임아웃/재연결 시 ephemeral ZNode 삭제 주의</li><li><strong>Watch 처리</strong>: 재등록 로직과 누락 대응 설계 필수</li><li><strong>비즈니스 목적에 적절한 consistency 설정</strong>: 읽기 일관성 요구 시 leader 픽</li><li><strong>로그 스냅샷 주기 관리</strong>: 디스크 사용량 최적화, 복구 성능 확보</li></ul><h3 id=14-실무에서-효과적으로-적용하기-위한-고려사항-및-주의할-점>14. 실무에서 효과적으로 적용하기 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#14-실무에서-효과적으로-적용하기-위한-고려사항-및-주의할-점>#</a></h3><table><thead><tr><th>항목</th><th>설명</th><th>권장사항</th></tr></thead><tbody><tr><td>노드 수</td><td>과도한 노드 증가는 성능 저하</td><td>최적 노드 수 유지</td></tr><tr><td>네트워크 품질</td><td>지연 및 패킷 손실 최소화</td><td>전용 네트워크 사용</td></tr><tr><td>장애 대응</td><td>자동화된 장애 감지 및 복구</td><td>헬스 체크, 자동 리더 선출</td></tr></tbody></table><h3 id=a-적용-고려사항>A. 적용 고려사항<a hidden class=anchor aria-hidden=true href=#a-적용-고려사항>#</a></h3><table><thead><tr><th>항목</th><th>설명</th><th>권장사항</th></tr></thead><tbody><tr><td>ZNode 구조 설계</td><td>Ephemeral, Sequential 활용</td><td>직관적 디렉토리 구조 설계</td></tr><tr><td>Watch 관리</td><td>재등록, 누락 대응</td><td>재등록 루프 구현, 백오프 전략</td></tr><tr><td>Leader affinity</td><td>읽기 consistency</td><td>Leader 읽기 API 사용 유도</td></tr><tr><td>Session timeout</td><td>Ephemeral 노드 안정</td><td>유지 idle heartbeat, timeout 보정</td></tr><tr><td>장애 대응</td><td>Split-brain, leader fail-over</td><td>Health monitoring, election tuning</td></tr></tbody></table><h4 id=615-실무에서-효과적으로-적용하기-위한-고려사항-및-주의할-점>6.15 실무에서 효과적으로 적용하기 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#615-실무에서-효과적으로-적용하기-위한-고려사항-및-주의할-점>#</a></h4><table><thead><tr><th>구분</th><th>고려사항</th><th>설명</th><th>권장사항</th></tr></thead><tbody><tr><td><strong>성능</strong></td><td>네트워크 최적화</td><td>합의 지연 최소화 필요</td><td>지역별 클러스터링, 배칭 처리</td></tr><tr><td><strong>가용성</strong></td><td>장애 복구 시간</td><td>빠른 장애 탐지와 복구</td><td>적응적 타임아웃, 다중 백업</td></tr><tr><td><strong>일관성</strong></td><td>데이터 정합성</td><td>스플릿 브레인 방지</td><td>쿼럼 기반 의사결정</td></tr><tr><td><strong>보안</strong></td><td>인증과 암호화</td><td>악의적 노드 대응</td><td>상호 인증, 메시지 서명</td></tr><tr><td><strong>모니터링</strong></td><td>상태 추적</td><td>실시간 클러스터 상태 파악</td><td>메트릭 수집, 대시보드 구축</td></tr></tbody></table><h4 id=616-최적화하기-위한-고려사항-및-주의할-점>6.16 최적화하기 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#616-최적화하기-위한-고려사항-및-주의할-점>#</a></h4><table><thead><tr><th>구분</th><th>최적화 영역</th><th>설명</th><th>권장사항</th></tr></thead><tbody><tr><td><strong>처리량</strong></td><td>배칭 및 파이프라이닝</td><td>합의 과정 최적화</td><td>요청 그룹화, 비동기 처리</td></tr><tr><td><strong>지연시간</strong></td><td>네트워크 토폴로지</td><td>물리적 거리 최소화</td><td>지역별 클러스터, CDN 활용</td></tr><tr><td><strong>메모리</strong></td><td>상태 관리</td><td>합의 로그 크기 제한</td><td>스냅샷, 가비지 컬렉션</td></tr><tr><td><strong>CPU</strong></td><td>알고리즘 효율성</td><td>계산 복잡도 감소</td><td>간소화된 프로토콜 사용</td></tr><tr><td><strong>확장성</strong></td><td>수평 확장</td><td>노드 추가/제거 지원</td><td>동적 멤버십 관리</td></tr></tbody></table><h3 id=b-최적화-고려사항>B. 최적화 고려사항<a hidden class=anchor aria-hidden=true href=#b-최적화-고려사항>#</a></h3><table><thead><tr><th>항목</th><th>설명</th><th>권장사항</th></tr></thead><tbody><tr><td>Ensemble 사이즈</td><td>odd-number 성능/가용성 최적화</td><td>최소 3, 최대 7-9 노드</td></tr><tr><td>스냅샷 주기</td><td>디스크 IO 및 복구 시간</td><td>HDD/SSD 기반 주기 조정</td></tr><tr><td>워치 패턴</td><td>과다 알림 vs 누락 리스크</td><td>EventDebounce, batching</td></tr><tr><td>네트워크 비용</td><td>쓰기/읽기 레이턴시 최적화</td><td>리더 - 팔로어 지리적 고려</td></tr><tr><td>롤링 리플레이</td><td>장애 시 빠른 가동</td><td>준비된 리플레이 스냅샷 사용</td></tr></tbody></table><h3 id=15-최적화하기-위한-고려사항-및-주의할-점>15. 최적화하기 위한 고려사항 및 주의할 점<a hidden class=anchor aria-hidden=true href=#15-최적화하기-위한-고려사항-및-주의할-점>#</a></h3><table><thead><tr><th>항목</th><th>설명</th><th>권장사항</th></tr></thead><tbody><tr><td>합의 메시지 최소화</td><td>네트워크 오버헤드 감소</td><td>Batching, 압축</td></tr><tr><td>데이터 복제 최적화</td><td>복제 지연 최소화</td><td>비동기 복제</td></tr><tr><td>리더 선출 최적화</td><td>빠른 장애 복구</td><td>타임아웃 조정</td></tr></tbody></table><h3 id=16-기타-사항>16. 기타 사항<a hidden class=anchor aria-hidden=true href=#16-기타-사항>#</a></h3><ul><li>최신 트렌드로는 클라우드 네이티브 환경에서 etcd, Consul, ZooKeeper 의 활용이 증가.</li><li>서비스 메시 (Service Mesh) 와의 연계, 컨테이너 오케스트레이션 (Kubernetes 등) 에서의 필수 요소로 자리잡음.</li></ul><h3 id=주제와-관련하여-주목할-내용>주제와 관련하여 주목할 내용<a hidden class=anchor aria-hidden=true href=#주제와-관련하여-주목할-내용>#</a></h3><table><thead><tr><th>카테고리</th><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>합의 알고리즘</td><td>Paxos</td><td>합의</td><td>복잡하지만 이론적으로 검증됨</td></tr><tr><td>합의 알고리즘</td><td>Raft</td><td>합의</td><td>구현이 쉽고 실무에서 널리 사용</td></tr><tr><td>서비스</td><td>ZooKeeper</td><td>분산 코디네이션</td><td>대표적인 오픈소스 솔루션</td></tr><tr><td>서비스</td><td>etcd</td><td>키 - 값 저장소</td><td>Kubernetes 의 핵심 컴포넌트</td></tr><tr><td>서비스</td><td>Consul</td><td>서비스 디스커버리</td><td>분산 환경에서 서비스 등록/탐색</td></tr></tbody></table><h2 id=-작업-9-주목할-내용-정리>✅ 작업 9: 주목할 내용 정리<a hidden class=anchor aria-hidden=true href=#-작업-9-주목할-내용-정리>#</a></h2><table><thead><tr><th>카테고리</th><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>Algorithms</td><td>Paxos</td><td>Phase‑1 Prepare/Promise</td><td>합의 전 단계</td></tr><tr><td>Algorithms</td><td>Raft</td><td>Leader AppendEntries</td><td>로그 복제 및 안정 리더</td></tr><tr><td>Coordination™</td><td>ZooKeeper</td><td>Watches & Znodes</td><td>변경 감시 및 트리 구조</td></tr><tr><td>Transactions</td><td>2PC/3PC</td><td>Commit phases</td><td>글로벌 트랜잭션 조정</td></tr><tr><td>Networking</td><td>Gossip</td><td>Epidemic style</td><td>분산 상태 확산</td></tr></tbody></table><h3 id=7-주제와-관련하여-주목할-내용>7. 주제와 관련하여 주목할 내용<a hidden class=anchor aria-hidden=true href=#7-주제와-관련하여-주목할-내용>#</a></h3><table><thead><tr><th>카테고리</th><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td><strong>이론 기반</strong></td><td>FLP 불가능성</td><td>FLP Impossibility</td><td>비동기 환경에서 합의의 근본적 한계</td></tr><tr><td><strong>이론 기반</strong></td><td>CAP 정리</td><td>CAP Theorem</td><td>분산 시스템 설계의 기본 제약 사항</td></tr><tr><td><strong>알고리즘</strong></td><td>Paxos</td><td>기본 Paxos</td><td>안전성 우선의 고전적 합의 알고리즘</td></tr><tr><td><strong>알고리즘</strong></td><td>Raft</td><td>리더 기반 합의</td><td>이해하기 쉬운 실용적 합의 알고리즘</td></tr><tr><td><strong>시계 동기화</strong></td><td>Lamport Clock</td><td>논리적 시계</td><td>단순한 인과관계 추적</td></tr><tr><td><strong>시계 동기화</strong></td><td>Vector Clock</td><td>벡터 시계</td><td>동시성 탐지 가능한 논리적 시계</td></tr><tr><td><strong>상호 배제</strong></td><td>Token Ring</td><td>토큰 기반</td><td>순환 토큰을 통한 상호 배제</td></tr><tr><td><strong>상호 배제</strong></td><td>Lamport&rsquo;s Algorithm</td><td>권한 기반</td><td>타임스탬프 기반 상호 배제</td></tr><tr><td><strong>리더 선출</strong></td><td>Bully Algorithm</td><td>우선순위 기반</td><td>ID 기반 리더 선출 알고리즘</td></tr><tr><td><strong>실무 적용</strong></td><td>Apache Kafka</td><td>메시지 브로커</td><td>분산 스트리밍 플랫폼</td></tr><tr><td><strong>실무 적용</strong></td><td>etcd</td><td>분산 KV 저장소</td><td>Kubernetes 메타데이터 저장</td></tr><tr><td><strong>실무 적용</strong></td><td>Consul</td><td>서비스 디스커버리</td><td>분산 서비스 조정 플랫폼</td></tr></tbody></table><h3 id=8-반드시-학습해야할-내용>8. 반드시 학습해야할 내용<a hidden class=anchor aria-hidden=true href=#8-반드시-학습해야할-내용>#</a></h3><table><thead><tr><th>카테고리</th><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td><strong>기초 이론</strong></td><td>분산 시스템 기본</td><td>네트워크 모델</td><td>동기/비동기, 신뢰성 있는/없는 채널</td></tr><tr><td><strong>기초 이론</strong></td><td>장애 모델</td><td>Crash vs Byzantine</td><td>장애 유형과 대응 방법</td></tr><tr><td><strong>합의 알고리즘</strong></td><td>Paxos 계열</td><td>Multi-Paxos, Fast Paxos</td><td>성능 최적화된 Paxos 변형</td></tr><tr><td><strong>합의 알고리즘</strong></td><td>BFT 계열</td><td>PBFT, Tendermint</td><td>비잔틴 장애 내성 알고리즘</td></tr><tr><td><strong>논리적 시계</strong></td><td>이벤트 순서</td><td>Happens-before 관계</td><td>분산 이벤트 인과관계</td></tr><tr><td><strong>논리적 시계</strong></td><td>동시성 탐지</td><td>Concurrent Events</td><td>독립적 이벤트 식별</td></tr><tr><td><strong>상호 배제</strong></td><td>분산 락</td><td>Distributed Locking</td><td>공유 자원 접근 제어</td></tr><tr><td><strong>상호 배제</strong></td><td>교착 상태</td><td>Deadlock Prevention</td><td>순환 대기 방지 기법</td></tr><tr><td><strong>리더 선출</strong></td><td>선출 알고리즘</td><td>Election Algorithms</td><td>다양한 선출 방식 비교</td></tr><tr><td><strong>리더 선출</strong></td><td>장애 복구</td><td>Failure Recovery</td><td>리더 장애 시 복구 과정</td></tr><tr><td><strong>실무 도구</strong></td><td>분산 조정 도구</td><td>Zookeeper, etcd</td><td>상용 분산 조정 서비스</td></tr><tr><td><strong>성능 최적화</strong></td><td>배칭 기법</td><td>Batching</td><td>여러 요청 그룹화 처리</td></tr><tr><td><strong>성능 최적화</strong></td><td>파이프라이닝</td><td>Pipelining</td><td>병렬 처리를 통한 성능 향상</td></tr></tbody></table><h2 id=-작업-10-반드시-학습할-내용>✅ 작업 10: 반드시 학습할 내용<a hidden class=anchor aria-hidden=true href=#-작업-10-반드시-학습할-내용>#</a></h2><table><thead><tr><th>카테고리</th><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>Protocols</td><td>Raft vs Paxos</td><td>장단점 비교</td><td>실무 적용 시 선택 기준</td></tr><tr><td>Storage</td><td>etcd/ZooKeeper</td><td>데이터 모델</td><td>구조 및 API 이해</td></tr><tr><td>Transactions</td><td>2PC/3PC</td><td>Failure handling</td><td>트랜잭션 회복, 타임아웃</td></tr><tr><td>CAP</td><td>CAP Theorem</td><td>KA 또는 CA 선택</td><td>시스템 설계 철학</td></tr><tr><td>Consistency</td><td>Linearizability vs Eventual</td><td>일관성 모델</td><td>요구사항에 따른 선택</td></tr></tbody></table><h3 id=반드시-학습해야할-내용>반드시 학습해야할 내용<a hidden class=anchor aria-hidden=true href=#반드시-학습해야할-내용>#</a></h3><table><thead><tr><th>카테고리</th><th>주제</th><th>항목</th><th>설명</th></tr></thead><tbody><tr><td>합의 알고리즘</td><td>Paxos, Raft, Zab</td><td>합의</td><td>분산 코디네이션의 핵심 원리</td></tr><tr><td>분산 락</td><td>ZooKeeper Lock, Redlock</td><td>분산 락</td><td>동시성 제어</td></tr><tr><td>리더 선출</td><td>ZooKeeper, etcd</td><td>리더 선출</td><td>대표 노드 선정</td></tr><tr><td>서비스 디스커버리</td><td>Consul, etcd</td><td>서비스 등록/탐색</td><td>마이크로서비스 필수 기능</td></tr><tr><td>장애 감지</td><td>Heartbeat, Health Check</td><td>장애 감지</td><td>자동화된 장애 대응</td></tr></tbody></table><hr><h3 id=용어-정리>용어 정리<a hidden class=anchor aria-hidden=true href=#용어-정리>#</a></h3><table><thead><tr><th>카테고리</th><th>용어</th><th>설명</th></tr></thead><tbody><tr><td>합의 알고리즘</td><td>Paxos</td><td>분산 시스템에서 합의를 이루는 알고리즘</td></tr><tr><td>합의 알고리즘</td><td>Raft</td><td>이해와 구현이 쉬운 합의 알고리즘</td></tr><tr><td>합의 알고리즘</td><td>Zab</td><td>ZooKeeper 에서 사용하는 합의 프로토콜</td></tr><tr><td>분산 코디네이션</td><td>Distributed Lock</td><td>여러 노드가 리소스 접근을 조율하는 락</td></tr><tr><td>분산 코디네이션</td><td>Leader Election</td><td>대표 노드를 선출하는 과정</td></tr><tr><td>분산 코디네이션</td><td>Service Discovery</td><td>서비스 위치를 동적으로 찾는 기능</td></tr><tr><td>분산 코디네이션</td><td>Failure Detection</td><td>노드 장애를 감지하는 기능</td></tr><tr><td>서비스</td><td>ZooKeeper</td><td>분산 코디네이션을 위한 오픈소스 서비스</td></tr><tr><td>서비스</td><td>etcd</td><td>Kubernetes 등에서 사용하는 분산 키 - 값 저장소</td></tr><tr><td>서비스</td><td>Consul</td><td>서비스 디스커버리 및 상태 관리 솔루션</td></tr></tbody></table><h2 id=용어-정리-1>용어 정리<a hidden class=anchor aria-hidden=true href=#용어-정리-1>#</a></h2><table><thead><tr><th>카테고리</th><th>용어</th><th>설명</th></tr></thead><tbody><tr><td>Consensus</td><td>Paxos/Raft</td><td>분산 환경에서 상태 합의를 통한 일관성 확보</td></tr><tr><td>Coordination</td><td>Watcher/Watch</td><td>ZooKeeper 의 변경 알림 메커니즘</td></tr><tr><td>Locking</td><td>Distributed Lock</td><td>분산 환경에서 상호 배제를 위한 락 구현</td></tr><tr><td>Transaction</td><td>Two‑Phase Commit (2PC)</td><td>원자성 보장을 위한 분산 트랜잭션 프로토콜</td></tr><tr><td>Consistency</td><td>Quorum</td><td>합의형성을 위한 최소 노드 수 (과반수)</td></tr></tbody></table><h3 id=용어-정리-2>용어 정리<a hidden class=anchor aria-hidden=true href=#용어-정리-2>#</a></h3><table><thead><tr><th>카테고리</th><th>용어</th><th>설명</th></tr></thead><tbody><tr><td><strong>기본 개념</strong></td><td>분산 합의 (Distributed Consensus)</td><td>여러 노드가 공통 결정에 도달하는 과정</td></tr><tr><td><strong>기본 개념</strong></td><td>논리적 시계 (Logical Clock)</td><td>물리적 시간 없이 이벤트 순서를 결정하는 메커니즘</td></tr><tr><td><strong>기본 개념</strong></td><td>상호 배제 (Mutual Exclusion)</td><td>공유 자원에 대한 독점적 접근 보장</td></tr><tr><td><strong>알고리즘</strong></td><td>Paxos</td><td>비동기 환경에서 안전성을 보장하는 합의 알고리즘</td></tr><tr><td><strong>알고리즘</strong></td><td>Raft</td><td>리더 기반의 이해하기 쉬운 합의 알고리즘</td></tr><tr><td><strong>시계</strong></td><td>램포트 타임스탬프 (Lamport Timestamp)</td><td>단순한 논리적 시계로 부분 순서 제공</td></tr><tr><td><strong>시계</strong></td><td>벡터 클럭 (Vector Clock)</td><td>동시성 탐지가 가능한 논리적 시계</td></tr><tr><td><strong>장애 모델</strong></td><td>CFT (Crash Fault Tolerance)</td><td>노드 정지 장애만 고려하는 모델</td></tr><tr><td><strong>장애 모델</strong></td><td>BFT (Byzantine Fault Tolerance)</td><td>악의적 행동을 포함한 모든 장애 고려</td></tr><tr><td><strong>선출</strong></td><td>리더 선출 (Leader Election)</td><td>분산 시스템에서 조정자를 선택하는 과정</td></tr><tr><td><strong>선출</strong></td><td>Bully Algorithm</td><td>ID 기반 우선순위로 리더를 선출하는 알고리즘</td></tr><tr><td><strong>이론</strong></td><td>FLP 불가능성 (FLP Impossibility)</td><td>비동기 환경에서 합의의 근본적 한계</td></tr><tr><td><strong>이론</strong></td><td>CAP 정리 (CAP Theorem)</td><td>일관성, 가용성, 분할 내성 중 2 개만 보장 가능</td></tr><tr><td><strong>성질</strong></td><td>안전성 (Safety)</td><td>나쁜 일이 절대 일어나지 않음을 보장</td></tr><tr><td><strong>성질</strong></td><td>활성 (Liveness)</td><td>좋은 일이 결국 일어남을 보장</td></tr><tr><td><strong>통신</strong></td><td>쿼럼 (Quorum)</td><td>의사결정에 필요한 최소 노드 수</td></tr><tr><td><strong>상태</strong></td><td>스플릿 브레인 (Split Brain)</td><td>네트워크 분할로 인한 다중 리더 상황</td></tr></tbody></table><hr><h3 id=참고-및-출처>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처>#</a></h3><ul><li><a href=https://www.geeksforgeeks.org/distributed-consensus-in-distributed-systems/>Distributed Consensus in Distributed Systems - GeeksforGeeks</a></li><li><a href=https://github.com/heidihoward/distributed-consensus-reading-list>GitHub - Distributed Consensus Reading List</a></li><li><a href=https://ar5iv.labs.arxiv.org/html/1904.04098>A Survey of Distributed Consensus Protocols for Blockchain Networks</a></li><li><a href=https://medium.com/@mani.saksham12/raft-and-paxos-consensus-algorithms-for-distributed-systems-138cd7c2d35a>Raft and Paxos: Consensus Algorithms for Distributed Systems - Medium</a></li><li><a href=https://aws.amazon.com/builders-library/leader-election-in-distributed-systems/>Leader Election in Distributed Systems - Amazon Builders&rsquo; Library</a></li><li><a href=https://www.geeksforgeeks.org/clock-synchronization-in-distributed-system/>Clock Synchronization in Distributed Systems - GeeksforGeeks</a></li><li><a href=https://www.geeksforgeeks.org/vector-clocks-in-distributed-systems/>Vector Clocks in Distributed Systems - GeeksforGeeks</a></li><li><a href=https://www.geeksforgeeks.org/lamports-logical-clock/>Lamport&rsquo;s Logical Clock - GeeksforGeeks</a></li><li><a href=https://ethereum.org/en/developers/docs/consensus-mechanisms/>Consensus Mechanisms - Ethereum.org</a></li><li><a href=https://eax360.com/distributed-coordination-algorithms/>Distributed Coordination Algorithms - Eax360</a></li></ul><h2 id=참고-및-출처-1>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처-1>#</a></h2><ul><li>Paxos (computer science) (<a href="https://www.cs.umbc.edu/courses/undergraduate/421/spring03/slides/ch17.pdf?utm_source=chatgpt.com" title="[PDF] Chapter 17 Distributed Coordination">cs.umbc.edu</a>, <a href="https://restate.dev/blog/every-system-is-a-log-avoiding-coordination-in-distributed-applications/?utm_source=chatgpt.com" title="Every System is a Log: Avoiding coordination in distributed … - Restate">restate.dev</a>, <a href="https://www.geeksforgeeks.org/distributed-coordination-services-zookeeper-system-design/?utm_source=chatgpt.com" title="Distributed Coordination services (ZooKeeper) - System design …">geeksforgeeks.org</a>, <a href="https://medium.com/%40vinciabhinav7/apache-zookeeper-but-why-part-1-distributed-coordination-overview-65c7cebb6c79?utm_source=chatgpt.com" title="Apache ZooKeeper: But Why??—Part 1: Distributed Coordination …">medium.com</a>, <a href="https://en.wikipedia.org/wiki/Distributed_coordination_function?utm_source=chatgpt.com" title="Distributed coordination function">en.wikipedia.org</a>, <a href="https://en.wikipedia.org/wiki/Paxos_%28computer_science%29?utm_source=chatgpt.com" title="Paxos (computer science)">en.wikipedia.org</a>)</li><li>CAP theorem</li><li>Gossip protocol</li><li>Distributed Coordination-Based Systems (GeeksforGeeks) (<a href="https://www.geeksforgeeks.org/system-design/distributed-coordination-based-systems/?utm_source=chatgpt.com" title="Distributed Coordination-Based Systems - GeeksforGeeks">geeksforgeeks.org</a>)</li></ul><h3 id=참고-및-출처-2>참고 및 출처<a hidden class=anchor aria-hidden=true href=#참고-및-출처-2>#</a></h3><ul><li><a href=https://zookeeper.apache.org/doc/>ZooKeeper 공식 문서</a></li><li><a href=https://etcd.io/docs/>etcd 공식 문서</a></li><li><a href=https://www.consul.io/docs>Consul 공식 문서</a></li><li><a href=https://lamport.azurewebsites.net/pubs/paxos-simple.pdf>Paxos Algorithm 설명</a></li><li><a href=https://raft.github.io/>Raft Consensus Algorithm</a></li><li><a href=https://en.wikipedia.org/wiki/CAP_theorem>CAP Theorem 설명</a></li></ul><hr><hr><hr></div><article class=post-entry><header class=entry-header><h2 class=entry-hint-parent>Distributed Locking</h2></header><div class=entry-content><p>Distributed Locking 분산 락은 다수 노드가 공유 자원에 동시 접근하지 않도록 제어하여 데이터 일관성과 무결성을 보장하는 핵심 동기화 메커니즘이다. ZooKeeper 의 ephemeral znode, etcd 의 lease, Redis Redlock 등 다양한 구현이 존재하며, fencing token, TTL, 세션 감시 등을 통해 장애 상황에서도 안전성을 확보한다. 리더 선출, 예약 처리, 트랜잭션 제어 등 실무에서 널리 활용되며, CAP 이론 기반의 성능과 일관성 트레이드오프 설계가 중요하다.
+등장 배경 및 발전 과정 등장 배경 초기 컴퓨터 시스템에서는 단일 프로세스 내에서 Mutex, Spinlock 등을 사용해 동시성을 제어했음. 하지만 분산 시스템 환경에서는 여러 노드가 동일 자원에 접근하면서 Race Condition, 중복 실행, 일관성 손상 문제가 발생. 특히 클러스터, MSA, NoSQL, 비동기 처리 확산과 함께 분산 환경에서의 상호 배제 (Mutual Exclusion) 보장이 필요해졌음. 이론적 기반 (1970s~2000s) 1978: Lamport 의 Logical Clock 및 Mutual Exclusion 이론 등장 1981: Ricart–Agrawala 알고리즘 발표 1989: Paxos(분산 합의 알고리즘) 발표 이 시기에는 분산 환경에서의 상호 배제를 위한 이론이 주로 연구됨 실용화 시작 (2000 년대 초반) 2006: Google 이 내부 시스템 (GFS, Bigtable) 을 위해 Chubby 락 서비스를 도입 2008: Yahoo 에서 ZooKeeper 오픈소스로 공개 → Hadoop, Kafka 등에서 광범위하게 사용됨 2010 년대: 클라우드와 컨테이너 기술 확산에 따라 락 서비스도 고가용성 기반으로 요구됨 현대적 진화 (2010s~현재) 2013: Raft 알고리즘 등장–Paxos 보다 이해하기 쉬운 합의 프로토콜 2014~2016: Redis 기반의 Redlock 알고리즘 등장 (antirez), 이후 Martin Kleppmann 에 의해 안정성 논쟁 촉발 etcd, Consul 등 새로운 고가용 락/키 - 값 저장소가 확산되며, Kubernetes 에서도 Lease API를 통해 리더 선출 등에서 락 개념이 적용됨 오늘날 활용 예 Kubernetes, Kafka, DB Failover 시스템, MSA 기반 잡 스케줄러 등에서 사용 Redis/etcd/ZooKeeper 를 통한 분산락 구현은 고가용성 (HR), 리더 선출, 작업 중복 방지, 동시성 보장 등에 필수 요소로 자리잡음 목적 및 필요성 목적 데이터 일관성 보장
+...</p></div><footer class=entry-footer><span title='2025-07-13 04:17:00 +0000 UTC'>July 13, 2025</span>&nbsp;·&nbsp;<span>54 min</span>&nbsp;·&nbsp;<span>Me</span></footer><a class=entry-link aria-label="post link to Distributed Locking" href=https://buenhyden.github.io/posts/system-architecture--design/distributed-systems/distribution-fundamentals/coordination/distributed-locking/></a></article></main><footer class=footer><span>&copy; 2026 <a href=https://buenhyden.github.io/>hyunyoun's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>
