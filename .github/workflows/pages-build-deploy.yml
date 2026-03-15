@@ -1,0 +1,145 @@
+name: Pages CI Build and Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_repo:
+        description: "Private source repository(buenhyden/blog-data)."
+        required: true
+        type: string
+      source_ref_name:
+        description: "Branch name in private repo"
+        required: true
+        type: string
+      source_sha:
+        description: "Commit SHA in private repo"
+        required: true
+        type: string
+      source_event:
+        description: "Original event name"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      PRIVATE_REPO_DIR: ./
+      PRIVATE_WEB_DIR: ./web
+
+    steps:
+      - name: Checkout public Pages repo
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Checkout private blog-data into temporary workspace only
+        uses: actions/checkout@v5
+        with:
+          repository: ${{ inputs.source_repo }}
+          ref: ${{ inputs.source_ref_name }}
+          token: ${{ secrets.BLOG_DATA_READ_TOKEN }}
+          path: ${{ env.PRIVATE_REPO_DIR }}
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Verify exact private source commit
+        working-directory: ${{ env.PRIVATE_REPO_DIR }}
+        run: |
+          set -euo pipefail
+          ACTUAL_SHA="$(git rev-parse HEAD)"
+          echo "expected=${{ inputs.source_sha }}"
+          echo "actual=${ACTUAL_SHA}"
+          test "${ACTUAL_SHA}" = "${{ inputs.source_sha }}"
+
+      - name: Ensure web directory exists
+        run: |
+          set -euo pipefail
+          test -d "${PRIVATE_WEB_DIR}"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: ${{ env.PRIVATE_WEB_DIR }}/package-lock.json
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Install dependencies
+        working-directory: ${{ env.PRIVATE_WEB_DIR }}
+        run: npm ci
+
+      - name: CI - lint
+        working-directory: ${{ env.PRIVATE_WEB_DIR }}
+        run: npm run lint
+
+      - name: CI - typecheck
+        working-directory: ${{ env.PRIVATE_WEB_DIR }}
+        run: npm run typecheck --if-present
+
+      - name: Build static site
+        working-directory: ${{ env.PRIVATE_WEB_DIR }}
+        env:
+          CI: true
+        run: npm run build
+
+      - name: Enforce no private raw source in Pages output
+        working-directory: ${{ env.PRIVATE_WEB_DIR }}
+        run: |
+          set -euo pipefail
+
+          test -d ./out
+          test ! -d ./out/.git
+          test ! -d ./out/.github
+          test ! -d ./out/web
+
+          if find ./out -type d \( -name ".git" -o -name ".github" \) | grep -q .; then
+            echo "Forbidden repository metadata found in output"
+            exit 1
+          fi
+
+      - name: Remove temporary private checkout before upload
+        run: |
+          set -euo pipefail
+          rm -rf "${PRIVATE_REPO_DIR}"
+
+      - name: Verify private checkout is removed
+        run: |
+          set -euo pipefail
+          test ! -e "${PRIVATE_REPO_DIR}"
+
+      - name: Upload Pages artifact only
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./${{ env.PRIVATE_WEB_DIR }}/out
+
+      - name: Final cleanup
+        if: always()
+        run: |
+          rm -rf "${PRIVATE_REPO_DIR}"
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy Pages artifact
+        id: deployment
+        uses: actions/deploy-pages@v4
