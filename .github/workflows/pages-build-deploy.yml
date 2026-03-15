@@ -55,6 +55,7 @@ jobs:
                   path: ${{ env.PRIVATE_REPO_DIR }}
                   persist-credentials: false
                   fetch-depth: 1
+                  submodules: recursive
 
             - name: Verify exact private source commit
               working-directory: ${{ env.PRIVATE_REPO_DIR }}
@@ -79,6 +80,12 @@ jobs:
                   cache-dependency-path:
                       ${{ env.PRIVATE_WEB_DIR }}/package-lock.json
 
+            - name: Show Node version
+              working-directory: ${{ env.PRIVATE_WEB_DIR }}
+              run: |
+                  node -v
+                  npm -v
+
             - name: Configure GitHub Pages
               uses: actions/configure-pages@v5
 
@@ -86,32 +93,36 @@ jobs:
               working-directory: ${{ env.PRIVATE_WEB_DIR }}
               run: npm ci
 
-            - name: CI - lint
+            - name: CI - Lint
               working-directory: ${{ env.PRIVATE_WEB_DIR }}
               run: npm run lint
 
-            - name: CI - typecheck
+            - name: CI - Type Check
               working-directory: ${{ env.PRIVATE_WEB_DIR }}
               run: npm run typecheck --if-present
 
+            - name: Unit Test
+              working-directory: ${{ env.PRIVATE_WEB_DIR }}
+              run: npm run test:unit
+
+            - name: Format generated files
+              working-directory: ${{ env.PRIVATE_WEB_DIR }}
+              run: npx prettier --write "src/generated/route-map.json"
             - name: Build static site
               working-directory: ${{ env.PRIVATE_WEB_DIR }}
               env:
-                  CI: true
                   NODE_ENV: production
                   BLOG_ENV: production
-              run: npm run build
+              run: npm run build:ci
 
             - name: Verify exported routes before publish
               env:
                   TEST_EXPORT: 1
               run: npm run verify:export
-            - name: Verify Next.js export output exists
+
+            - name: Create .nojekyll
               working-directory: ${{ env.PRIVATE_WEB_DIR }}
-              run: |
-                  set -euo pipefail
-                  test -d ./out
-                  test -f ./out/index.html -o -f ./out/404.html
+              run: touch out/.nojekyll
 
             - name: Enforce no repository metadata in output
               working-directory: ${{ env.PRIVATE_WEB_DIR }}
@@ -157,6 +168,7 @@ jobs:
     deploy:
         runs-on: ubuntu-latest
         needs: build
+        timeout-minutes: 15
 
         environment:
             name: github-pages
@@ -166,3 +178,44 @@ jobs:
             - name: Deploy Pages artifact
               id: deployment
               uses: actions/deploy-pages@v4
+
+    smoke_post_deploy:
+        needs: deploy
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+        steps:
+            - name: Verify core endpoints availability
+              shell: bash
+              run: |
+                  set -euo pipefail
+
+                  ROUTES=(
+                      "/"
+                      "/about/"
+                      "/about/projects/"
+                      "/about/experiences/"
+                      "/about/skills/"
+                      "/search/"
+                      "/posts/"
+                      "/til/"
+                      "/tags/"
+                      "/categories/"
+                  )
+
+                  for route in "${ROUTES[@]}"; do
+                      url="https://buenhyden.github.io${route}"
+                      echo "Checking ${url}"
+                      success=0
+                      for attempt in 1 2 3 4 5; do
+                      if curl -fsSL "$url" > /dev/null; then
+                          success=1
+                          break
+                      fi
+                      sleep 10
+                      done
+
+                      if [ "$success" -ne 1 ]; then
+                      echo "Smoke check failed for ${url}"
+                      exit 1
+                      fi
+                  done
