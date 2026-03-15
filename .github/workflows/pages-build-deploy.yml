@@ -1,145 +1,168 @@
 name: Pages CI Build and Deploy
 
 on:
-  workflow_dispatch:
-    inputs:
-      source_repo:
-        description: "Private source repository(buenhyden/blog-data)."
-        required: true
-        type: string
-      source_ref_name:
-        description: "Branch name in private repo"
-        required: true
-        type: string
-      source_sha:
-        description: "Commit SHA in private repo"
-        required: true
-        type: string
-      source_event:
-        description: "Original event name"
-        required: false
-        type: string
+    workflow_dispatch:
+        inputs:
+            source_repo:
+                description:
+                    "Private source repository. Example: buenhyden/blog-data"
+                required: true
+                type: string
+            source_ref_name:
+                description: "Branch name in private repo"
+                required: true
+                type: string
+            source_sha:
+                description: "Commit SHA in private repo"
+                required: true
+                type: string
+            source_event:
+                description: "Original event name"
+                required: false
+                type: string
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+    contents: read
+    pages: write
+    id-token: write
 
 concurrency:
-  group: pages-${{ github.ref }}
-  cancel-in-progress: true
+    group: pages-${{ github.ref }}
+    cancel-in-progress: true
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+    build:
+        runs-on: ubuntu-latest
 
-    env:
-      PRIVATE_REPO_DIR: ./
-      PRIVATE_WEB_DIR: ./web
-
-    steps:
-      - name: Checkout public Pages repo
-        uses: actions/checkout@v5
-        with:
-          persist-credentials: false
-          fetch-depth: 1
-
-      - name: Checkout private blog-data into temporary workspace only
-        uses: actions/checkout@v5
-        with:
-          repository: ${{ inputs.source_repo }}
-          ref: ${{ inputs.source_ref_name }}
-          token: ${{ secrets.BLOG_DATA_READ_TOKEN }}
-          path: ${{ env.PRIVATE_REPO_DIR }}
-          persist-credentials: false
-          fetch-depth: 1
-
-      - name: Verify exact private source commit
-        working-directory: ${{ env.PRIVATE_REPO_DIR }}
-        run: |
-          set -euo pipefail
-          ACTUAL_SHA="$(git rev-parse HEAD)"
-          echo "expected=${{ inputs.source_sha }}"
-          echo "actual=${ACTUAL_SHA}"
-          test "${ACTUAL_SHA}" = "${{ inputs.source_sha }}"
-
-      - name: Ensure web directory exists
-        run: |
-          set -euo pipefail
-          test -d "${PRIVATE_WEB_DIR}"
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: ${{ env.PRIVATE_WEB_DIR }}/package-lock.json
-
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
-
-      - name: Install dependencies
-        working-directory: ${{ env.PRIVATE_WEB_DIR }}
-        run: npm ci
-
-      - name: CI - lint
-        working-directory: ${{ env.PRIVATE_WEB_DIR }}
-        run: npm run lint
-
-      - name: CI - typecheck
-        working-directory: ${{ env.PRIVATE_WEB_DIR }}
-        run: npm run typecheck --if-present
-
-      - name: Build static site
-        working-directory: ${{ env.PRIVATE_WEB_DIR }}
         env:
-          CI: true
-        run: npm run build
+            PRIVATE_REPO_DIR: __private_blog_data
+            PRIVATE_WEB_DIR: __private_blog_data/web
+            PAGES_ARTIFACT_DIR: __pages_artifact
 
-      - name: Enforce no private raw source in Pages output
-        working-directory: ${{ env.PRIVATE_WEB_DIR }}
-        run: |
-          set -euo pipefail
+        steps:
+            - name: Checkout public Pages repo
+              uses: actions/checkout@v5
+              with:
+                  persist-credentials: false
+                  fetch-depth: 1
 
-          test -d ./out
-          test ! -d ./out/.git
-          test ! -d ./out/.github
-          test ! -d ./out/web
+            - name: Checkout private blog-data into temporary workspace only
+              uses: actions/checkout@v5
+              with:
+                  repository: ${{ inputs.source_repo }}
+                  ref: ${{ inputs.source_ref_name }}
+                  token: ${{ secrets.BLOG_DEPLOY_TOKEN }}
+                  path: ${{ env.PRIVATE_REPO_DIR }}
+                  persist-credentials: false
+                  fetch-depth: 1
 
-          if find ./out -type d \( -name ".git" -o -name ".github" \) | grep -q .; then
-            echo "Forbidden repository metadata found in output"
-            exit 1
-          fi
+            - name: Verify exact private source commit
+              working-directory: ${{ env.PRIVATE_REPO_DIR }}
+              run: |
+                  set -euo pipefail
+                  ACTUAL_SHA="$(git rev-parse HEAD)"
+                  echo "expected=${{ inputs.source_sha }}"
+                  echo "actual=${ACTUAL_SHA}"
+                  test "${ACTUAL_SHA}" = "${{ inputs.source_sha }}"
 
-      - name: Remove temporary private checkout before upload
-        run: |
-          set -euo pipefail
-          rm -rf "${PRIVATE_REPO_DIR}"
+            - name: Ensure web directory exists
+              run: |
+                  set -euo pipefail
+                  test -d "${PRIVATE_WEB_DIR}"
+                  test -f "${PRIVATE_WEB_DIR}/package.json"
 
-      - name: Verify private checkout is removed
-        run: |
-          set -euo pipefail
-          test ! -e "${PRIVATE_REPO_DIR}"
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: npm
+                  cache-dependency-path:
+                      ${{ env.PRIVATE_WEB_DIR }}/package-lock.json
 
-      - name: Upload Pages artifact only
-        uses: actions/upload-pages-artifact@v4
-        with:
-          path: ./${{ env.PRIVATE_WEB_DIR }}/out
+            - name: Configure GitHub Pages
+              uses: actions/configure-pages@v5
 
-      - name: Final cleanup
-        if: always()
-        run: |
-          rm -rf "${PRIVATE_REPO_DIR}"
+            - name: Install dependencies
+              working-directory: ${{ env.PRIVATE_WEB_DIR }}
+              run: npm ci
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
+            - name: CI - lint
+              working-directory: ${{ env.PRIVATE_WEB_DIR }}
+              run: npm run lint
 
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+            - name: CI - typecheck
+              working-directory: ${{ env.PRIVATE_WEB_DIR }}
+              run: npm run typecheck --if-present
 
-    steps:
-      - name: Deploy Pages artifact
-        id: deployment
-        uses: actions/deploy-pages@v4
+            - name: Build static site
+              working-directory: ${{ env.PRIVATE_WEB_DIR }}
+              env:
+                  CI: true
+                  NODE_ENV: production
+                  BLOG_ENV: production
+              run: npm run build
+
+            - name: Verify exported routes before publish
+              env:
+                  TEST_EXPORT: 1
+              run: npm run verify:export
+            - name: Verify Next.js export output exists
+              working-directory: ${{ env.PRIVATE_WEB_DIR }}
+              run: |
+                  set -euo pipefail
+                  test -d ./out
+                  test -f ./out/index.html -o -f ./out/404.html
+
+            - name: Enforce no repository metadata in output
+              working-directory: ${{ env.PRIVATE_WEB_DIR }}
+              run: |
+                  set -euo pipefail
+
+                  if find ./out -type d \( -name ".git" -o -name ".github" \) | grep -q .; then
+                    echo "Forbidden repository metadata found in output"
+                    exit 1
+                  fi
+
+            - name: Copy static output to safe upload directory
+              run: |
+                  set -euo pipefail
+                  rm -rf "${PAGES_ARTIFACT_DIR}"
+                  mkdir -p "${PAGES_ARTIFACT_DIR}"
+                  rsync -a --delete "${PRIVATE_WEB_DIR}/out/" "${PAGES_ARTIFACT_DIR}/"
+
+            - name: Remove temporary private checkout before upload
+              run: |
+                  set -euo pipefail
+                  rm -rf "${PRIVATE_REPO_DIR}"
+
+            - name: Verify private source is fully removed
+              run: |
+                  set -euo pipefail
+                  test ! -e "${PRIVATE_REPO_DIR}"
+                  test -d "${PAGES_ARTIFACT_DIR}"
+                  test ! -e "${PAGES_ARTIFACT_DIR}/.git"
+                  test ! -e "${PAGES_ARTIFACT_DIR}/.github"
+                  test ! -e "${PAGES_ARTIFACT_DIR}/web"
+
+            - name: Upload Pages artifact only
+              uses: actions/upload-pages-artifact@v4
+              with:
+                  path: ./${{ env.PAGES_ARTIFACT_DIR }}
+
+            - name: Final cleanup
+              if: always()
+              run: |
+                  rm -rf "${PRIVATE_REPO_DIR}" "${PAGES_ARTIFACT_DIR}"
+
+    deploy:
+        runs-on: ubuntu-latest
+        needs: build
+
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+
+        steps:
+            - name: Deploy Pages artifact
+              id: deployment
+              uses: actions/deploy-pages@v4
