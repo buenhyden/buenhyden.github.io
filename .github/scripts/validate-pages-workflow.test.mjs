@@ -94,6 +94,18 @@ test("mutable action tags are rejected", () => {
   );
 });
 
+test("unapproved full-SHA actions are rejected", () => {
+  const mutant = readWorkflow().replace(
+    /actions\/deploy-pages@[a-f0-9]{40}/,
+    `actions/deploy-pages@${"0".repeat(40)}`,
+  );
+  assert.ok(
+    validateWorkflowText(mutant).some((error) =>
+      error.includes("workflow actions must be exactly"),
+    ),
+  );
+});
+
 test("duplicate public quality checks are rejected", () => {
   const mutant = `${readWorkflow()}\n# npm run test:unit\n`;
   assert.ok(
@@ -134,7 +146,7 @@ test("unsupported hidden-file inputs are rejected", () => {
   );
   assert.ok(
     validateWorkflowText(mutant).some((error) =>
-      error.includes("does not accept include-hidden-files"),
+      error.includes("must not opt into hidden entries"),
     ),
   );
 });
