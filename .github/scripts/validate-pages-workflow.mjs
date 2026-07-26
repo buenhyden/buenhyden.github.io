@@ -4,6 +4,37 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const FULL_SHA_ACTION = /^[^@\s]+@[a-f0-9]{40}$/;
+const EXPECTED_JOB_PERMISSIONS = new Map([
+  ["build", new Map([["contents", "read"]])],
+  [
+    "deploy",
+    new Map([
+      ["pages", "write"],
+      ["id-token", "write"],
+    ]),
+  ],
+  ["smoke_post_deploy", new Map()],
+]);
+const EXPECTED_JOB_NEEDS = new Map([
+  ["build", null],
+  ["deploy", "build"],
+  ["smoke_post_deploy", "deploy"],
+]);
+const EXPECTED_JOB_SNIPPETS = new Map([
+  [
+    "build",
+    [
+      "Verify successful private source CI run",
+      "Upload public Pages artifact only",
+      "actions/upload-pages-artifact@",
+    ],
+  ],
+  ["deploy", ["name: github-pages", "actions/deploy-pages@"]],
+  [
+    "smoke_post_deploy",
+    ["Verify core endpoints availability", "ROUTES=(", "curl --fail"],
+  ],
+]);
 
 const REQUIRED_SNIPPETS = new Map([
   ["workflow input source_repo", "source_repo:"],
@@ -58,6 +89,65 @@ const FORBIDDEN_PATTERNS = [
   ],
 ];
 
+function extractJobBlocks(text) {
+  const blocks = new Map();
+  let inJobs = false;
+  let currentJob = null;
+
+  for (const line of text.split(/\r?\n/)) {
+    if (line === "jobs:") {
+      inJobs = true;
+      continue;
+    }
+    if (!inJobs) continue;
+    if (/^[A-Za-z_][A-Za-z0-9_-]*:\s*$/.test(line)) break;
+
+    const jobMatch = line.match(/^  ([A-Za-z0-9_-]+):\s*$/);
+    if (jobMatch) {
+      currentJob = jobMatch[1];
+      blocks.set(currentJob, []);
+      continue;
+    }
+    if (currentJob) blocks.get(currentJob).push(line);
+  }
+
+  return new Map(
+    [...blocks].map(([jobId, lines]) => [jobId, lines.join("\n")]),
+  );
+}
+
+function readJobPermissions(block) {
+  const lines = block.split(/\r?\n/);
+  const start = lines.findIndex((line) =>
+    /^    permissions:(?:\s*\{\})?\s*$/.test(line),
+  );
+  if (start === -1) return null;
+  if (/\{\}/.test(lines[start])) return new Map();
+
+  const permissions = new Map();
+  for (const line of lines.slice(start + 1)) {
+    const match = line.match(/^      ([A-Za-z0-9_-]+):\s*(\S+)\s*$/);
+    if (!match) break;
+    permissions.set(match[1], match[2]);
+  }
+  return permissions;
+}
+
+function sameEntries(actual, expected) {
+  return (
+    actual instanceof Map &&
+    actual.size === expected.size &&
+    [...expected].every(([key, value]) => actual.get(key) === value)
+  );
+}
+
+function formatPermissions(permissions) {
+  if (permissions.size === 0) return "empty";
+  return [...permissions]
+    .map(([key, value]) => `${key}: ${value}`)
+    .join(", ");
+}
+
 export function validateWorkflowText(text) {
   const errors = [];
 
@@ -77,6 +167,62 @@ export function validateWorkflowText(text) {
     if (!FULL_SHA_ACTION.test(use)) {
       errors.push(`action is not pinned to a full commit SHA: ${use}`);
     }
+  }
+
+  const jobBlocks = extractJobBlocks(text);
+  const actualJobIds = [...jobBlocks.keys()];
+  const expectedJobIds = [...EXPECTED_JOB_PERMISSIONS.keys()];
+  if (
+    actualJobIds.length !== expectedJobIds.length ||
+    actualJobIds.some((jobId, index) => jobId !== expectedJobIds[index])
+  ) {
+    errors.push(`job ids must be exactly ${expectedJobIds.join(", ")}`);
+  }
+
+  for (const [jobId, expectedPermissions] of EXPECTED_JOB_PERMISSIONS) {
+    const block = jobBlocks.get(jobId);
+    if (block === undefined) continue;
+
+    const actualPermissions = readJobPermissions(block);
+    if (!sameEntries(actualPermissions, expectedPermissions)) {
+      errors.push(
+        `${jobId} permissions must be exactly ${formatPermissions(expectedPermissions)}`,
+      );
+    }
+
+    const expectedNeeds = EXPECTED_JOB_NEEDS.get(jobId);
+    const actualNeeds = block.match(/^    needs:\s*([^\s#]+)\s*$/m)?.[1] ?? null;
+    if (actualNeeds !== expectedNeeds) {
+      errors.push(
+        `${jobId} needs must be ${expectedNeeds ?? "absent"}; got ${actualNeeds ?? "absent"}`,
+      );
+    }
+
+    if (jobId !== "build" && block.includes("secrets.")) {
+      errors.push(`${jobId} must not receive repository secrets`);
+    }
+
+    for (const snippet of EXPECTED_JOB_SNIPPETS.get(jobId) ?? []) {
+      if (!block.includes(snippet)) {
+        errors.push(`${jobId} is missing required boundary step: ${snippet}`);
+      }
+    }
+  }
+
+  const buildBlock = jobBlocks.get("build") ?? "";
+  const deployBlock = jobBlocks.get("deploy") ?? "";
+  const smokeBlock = jobBlocks.get("smoke_post_deploy") ?? "";
+  if (
+    deployBlock.includes("actions/upload-pages-artifact@") ||
+    smokeBlock.includes("actions/upload-pages-artifact@")
+  ) {
+    errors.push("only build may upload the Pages artifact");
+  }
+  if (
+    buildBlock.includes("actions/deploy-pages@") ||
+    smokeBlock.includes("actions/deploy-pages@")
+  ) {
+    errors.push("only deploy may invoke actions/deploy-pages");
   }
 
   return errors;
