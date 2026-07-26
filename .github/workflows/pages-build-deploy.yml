@@ -1,223 +1,371 @@
+---
 name: Pages CI Build and Deploy
 
 on:
-    workflow_dispatch:
-        inputs:
-            source_repo:
-                description:
-                    "Private source repository. Example: buenhyden/blog-data"
-                required: true
-                type: string
-            source_ref_name:
-                description: "Branch name in private repo"
-                required: true
-                type: string
-            source_sha:
-                description: "Commit SHA in private repo"
-                required: true
-                type: string
-            source_event:
-                description: "Original event name"
-                required: false
-                type: string
+  workflow_dispatch:
+    inputs:
+      source_repo:
+        description: "Private source repository"
+        required: true
+        type: string
+      source_ref_name:
+        description: "Source branch name"
+        required: true
+        type: string
+      source_sha:
+        description: "Immutable source commit SHA"
+        required: true
+        type: string
+      source_event:
+        description: "Original source event"
+        required: true
+        type: string
+      source_run_id:
+        description: "Successful private source workflow run ID"
+        required: false
+        type: string
+      source_run_attempt:
+        description: "Successful private source workflow run attempt"
+        required: false
+        type: string
 
-permissions:
-    contents: read
-    pages: write
-    id-token: write
+# Deny GitHub's token all capabilities by default. Each job receives only the
+# permissions it needs; cross-repository reads use the scoped repository secret.
+permissions: {}
 
 concurrency:
-    group: pages-${{ github.ref }}
-    cancel-in-progress: true
+  group: pages-production
+  cancel-in-progress: true
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
+  build:
+    name: Verify source and package Pages output
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    env:
+      PRIVATE_REPO_DIR: __private_blog_data
+      PRIVATE_WEB_DIR: __private_blog_data/web
+      PAGES_ARTIFACT_DIR: __pages_artifact
 
+    steps:
+      - name: Validate dispatch inputs
+        shell: bash
         env:
-            PRIVATE_REPO_DIR: __private_blog_data
-            PRIVATE_WEB_DIR: __private_blog_data/web
-            PAGES_ARTIFACT_DIR: __pages_artifact
+          SOURCE_REPO: ${{ inputs.source_repo }}
+          SOURCE_REF_NAME: ${{ inputs.source_ref_name }}
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          SOURCE_EVENT: ${{ inputs.source_event }}
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+          SOURCE_RUN_ATTEMPT: ${{ inputs.source_run_attempt }}
+        run: |
+          set -euo pipefail
 
-        steps:
-            - name: Checkout public Pages repo
-              uses: actions/checkout@v5
-              with:
-                  persist-credentials: false
-                  fetch-depth: 1
+          [[ "${SOURCE_REPO}" == "buenhyden/blog-data" ]]
+          [[ "${SOURCE_REF_NAME}" == "main" ]]
+          [[ "${SOURCE_EVENT}" == "push" ]]
+          [[ "${SOURCE_SHA}" =~ ^[0-9a-f]{40}$ ]]
 
-            - name: Checkout private blog-data into temporary workspace only
-              uses: actions/checkout@v5
-              with:
-                  repository: ${{ inputs.source_repo }}
-                  ref: ${{ inputs.source_ref_name }}
-                  token: ${{ secrets.BLOG_DEPLOY_TOKEN }}
-                  path: ${{ env.PRIVATE_REPO_DIR }}
-                  persist-credentials: false
-                  fetch-depth: 1
-                  submodules: recursive
+          if [[ -n "${SOURCE_RUN_ID}" ]]; then
+            [[ "${SOURCE_RUN_ID}" =~ ^[1-9][0-9]*$ ]]
+          fi
 
-            - name: Verify exact private source commit
-              working-directory: ${{ env.PRIVATE_REPO_DIR }}
-              run: |
-                  set -euo pipefail
-                  ACTUAL_SHA="$(git rev-parse HEAD)"
-                  echo "expected=${{ inputs.source_sha }}"
-                  echo "actual=${ACTUAL_SHA}"
-                  test "${ACTUAL_SHA}" = "${{ inputs.source_sha }}"
+          if [[ -n "${SOURCE_RUN_ATTEMPT}" ]]; then
+            [[ "${SOURCE_RUN_ATTEMPT}" =~ ^[1-9][0-9]*$ ]]
+          fi
 
-            - name: Ensure web directory exists
-              run: |
-                  set -euo pipefail
-                  test -d "${PRIVATE_WEB_DIR}"
-                  test -f "${PRIVATE_WEB_DIR}/package.json"
+      - name: Verify successful private source CI run
+        id: source_attestation
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.BLOG_DEPLOY_TOKEN }}
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+          SOURCE_RUN_ATTEMPT: ${{ inputs.source_run_attempt }}
+          SOURCE_ATTESTATION_FILE: ${{ runner.temp }}/source-run.json
+        run: |
+          set -euo pipefail
 
-            - name: Setup Node
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 24
-                  cache: npm
-                  cache-dependency-path:
-                      ${{ env.PRIVATE_WEB_DIR }}/package-lock.json
+          API_ROOT="https://api.github.com/repos/buenhyden/blog-data"
+          RUN_RESPONSE="${RUNNER_TEMP}/source-run-response.json"
+          ATTESTED=false
 
-            - name: Show Node version
-              working-directory: ${{ env.PRIVATE_WEB_DIR }}
-              run: |
-                  node -v
-                  npm -v
+          for attestation_attempt in {1..24}; do
+            if [[ -n "${SOURCE_RUN_ID}" ]]; then
+              RUN_URL="${API_ROOT}/actions/runs/${SOURCE_RUN_ID}"
+              curl --fail-with-body --retry 3 --retry-delay 3 \
+                --retry-connrefused --silent --show-error --location \
+                -H "Accept: application/vnd.github+json" \
+                -H "Authorization: Bearer ${GH_TOKEN}" \
+                -H "X-GitHub-Api-Version: 2022-11-28" \
+                "${RUN_URL}" \
+                --output "${SOURCE_ATTESTATION_FILE}"
+            else
+              RUN_URL="${API_ROOT}/actions/workflows/trigger-pages-build.yml/runs"
+              curl --fail-with-body --retry 3 --retry-delay 3 \
+                --retry-connrefused --silent --show-error --get \
+                -H "Accept: application/vnd.github+json" \
+                -H "Authorization: Bearer ${GH_TOKEN}" \
+                -H "X-GitHub-Api-Version: 2022-11-28" \
+                --data-urlencode "branch=main" \
+                --data-urlencode "event=push" \
+                --data-urlencode "status=success" \
+                --data-urlencode "head_sha=${SOURCE_SHA}" \
+                --data-urlencode "per_page=10" \
+                "${RUN_URL}" \
+                --output "${RUN_RESPONSE}"
 
-            - name: Configure GitHub Pages
-              uses: actions/configure-pages@v5
+              jq --arg source_sha "${SOURCE_SHA}" \
+                '.workflow_runs
+                  | map(select(.head_sha == $source_sha))
+                  | first // empty' \
+                "${RUN_RESPONSE}" > "${SOURCE_ATTESTATION_FILE}"
+            fi
 
-            - name: Install dependencies
-              working-directory: ${{ env.PRIVATE_WEB_DIR }}
-              run: npm ci
+            if jq --exit-status \
+              --arg source_sha "${SOURCE_SHA}" \
+              --arg source_run_id "${SOURCE_RUN_ID}" \
+              --arg source_run_attempt "${SOURCE_RUN_ATTEMPT}" \
+              '
+                .repository.full_name == "buenhyden/blog-data" and
+                .head_repository.full_name == "buenhyden/blog-data" and
+                .status == "completed" and
+                .conclusion == "success" and
+                .event == "push" and
+                .head_branch == "main" and
+                .path == ".github/workflows/trigger-pages-build.yml" and
+                .head_sha == $source_sha and
+                ($source_run_id == "" or
+                  (.id | tostring) == $source_run_id) and
+                ($source_run_attempt == "" or
+                  (.run_attempt | tostring) == $source_run_attempt)
+              ' "${SOURCE_ATTESTATION_FILE}" > /dev/null; then
+              ATTESTED=true
+              break
+            fi
 
-            - name: CI - Lint
-              working-directory: ${{ env.PRIVATE_WEB_DIR }}
-              run: npm run lint
+            echo "Waiting for private source run attestation (${attestation_attempt}/24)."
+            sleep 5
+          done
 
-            - name: CI - Type Check
-              working-directory: ${{ env.PRIVATE_WEB_DIR }}
-              run: npm run typecheck --if-present
+          if [[ "${ATTESTED}" != "true" ]]; then
+            echo "::error::Private source CI run did not reach a verified success state."
+            exit 1
+          fi
 
-            - name: Unit Test
-              working-directory: ${{ env.PRIVATE_WEB_DIR }}
-              run: npm run test:unit
+          ATTESTED_RUN_ID="$(jq --raw-output '.id' "${SOURCE_ATTESTATION_FILE}")"
+          ATTESTED_RUN_ATTEMPT="$(
+            jq --raw-output '.run_attempt' "${SOURCE_ATTESTATION_FILE}"
+          )"
+          echo "run_id=${ATTESTED_RUN_ID}" >> "${GITHUB_OUTPUT}"
+          echo "run_attempt=${ATTESTED_RUN_ATTEMPT}" >> "${GITHUB_OUTPUT}"
+          echo "Verified private source CI run ${ATTESTED_RUN_ID}."
 
-            - name: Format generated files
-              working-directory: ${{ env.PRIVATE_WEB_DIR }}
-              run: npx prettier --write "src/generated/route-map.json"
-              
-            - name: Build static site
-              working-directory: ${{ env.PRIVATE_WEB_DIR }}
-              env:
-                  NODE_ENV: production
-                  BLOG_ENV: production
-              run: npm run build:ci
+      - name: Checkout exact private source commit
+        # actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          repository: buenhyden/blog-data
+          ref: ${{ inputs.source_sha }}
+          token: ${{ secrets.BLOG_DEPLOY_TOKEN }}
+          path: ${{ env.PRIVATE_REPO_DIR }}
+          persist-credentials: false
+          fetch-depth: 1
+          show-progress: false
 
-            - name: Verify exported routes before publish
-              working-directory: ${{ env.PRIVATE_WEB_DIR }}
-              env:
-                  TEST_EXPORT: 1
-              run: npm run verify:export
+      - name: Setup Node
+        # actions/setup-node@v6
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: "24"
+          package-manager-cache: false
 
-            - name: Create .nojekyll
-              working-directory: ${{ env.PRIVATE_WEB_DIR }}
-              run: touch out/.nojekyll
+      - name: Install private source dependencies quietly
+        working-directory: ${{ env.PRIVATE_WEB_DIR }}
+        shell: bash
+        env:
+          HUSKY: "0"
+          ATTESTED_RUN_ID: ${{ steps.source_attestation.outputs.run_id }}
+          PRIVATE_INSTALL_LOG: ${{ runner.temp }}/private-install.log
+        run: |
+          set -euo pipefail
 
-            - name: Enforce no repository metadata in output
-              working-directory: ${{ env.PRIVATE_WEB_DIR }}
-              run: |
-                  set -euo pipefail
+          if ! npm ci --no-audit --no-fund \
+            >"${PRIVATE_INSTALL_LOG}" 2>&1; then
+            echo "::error::Dependency install failed. Inspect private source run ${ATTESTED_RUN_ID}."
+            exit 1
+          fi
 
-                  if find ./out -type d \( -name ".git" -o -name ".github" \) | grep -q .; then
-                    echo "Forbidden repository metadata found in output"
-                    exit 1
-                  fi
+      - name: Rebuild attested source without public logs
+        working-directory: ${{ env.PRIVATE_WEB_DIR }}
+        shell: bash
+        env:
+          NODE_ENV: production
+          BLOG_ENV: production
+          TEST_EXPORT: "1"
+          ATTESTED_RUN_ID: ${{ steps.source_attestation.outputs.run_id }}
+          PRIVATE_BUILD_LOG: ${{ runner.temp }}/private-build.log
+        run: |
+          set -euo pipefail
 
-            - name: Copy static output to safe upload directory
-              run: |
-                  set -euo pipefail
-                  rm -rf "${PAGES_ARTIFACT_DIR}"
-                  mkdir -p "${PAGES_ARTIFACT_DIR}"
-                  rsync -a --delete "${PRIVATE_WEB_DIR}/out/" "${PAGES_ARTIFACT_DIR}/"
+          if ! npm run build:ci >"${PRIVATE_BUILD_LOG}" 2>&1; then
+            echo "::error::Static build failed. Inspect private source run ${ATTESTED_RUN_ID}."
+            exit 1
+          fi
 
-            - name: Remove temporary private checkout before upload
-              run: |
-                  set -euo pipefail
-                  rm -rf "${PRIVATE_REPO_DIR}"
+          if ! npm run verify:export >>"${PRIVATE_BUILD_LOG}" 2>&1; then
+            echo "::error::Export verification failed. Inspect private source run ${ATTESTED_RUN_ID}."
+            exit 1
+          fi
 
-            - name: Verify private source is fully removed
-              run: |
-                  set -euo pipefail
-                  test ! -e "${PRIVATE_REPO_DIR}"
-                  test -d "${PAGES_ARTIFACT_DIR}"
-                  test ! -e "${PAGES_ARTIFACT_DIR}/.git"
-                  test ! -e "${PAGES_ARTIFACT_DIR}/.github"
-                  test ! -e "${PAGES_ARTIFACT_DIR}/web"
+      - name: Prepare public Pages artifact
+        shell: bash
+        run: |
+          set -euo pipefail
 
-            - name: Upload Pages artifact only
-              uses: actions/upload-pages-artifact@v4
-              with:
-                  path: ./${{ env.PAGES_ARTIFACT_DIR }}
+          test -d "${PRIVATE_WEB_DIR}/out"
 
-            - name: Final cleanup
-              if: always()
-              run: |
-                  rm -rf "${PRIVATE_REPO_DIR}" "${PAGES_ARTIFACT_DIR}"
+          if find "${PRIVATE_WEB_DIR}/out" \
+            \( -name ".git" -o -name ".github" \) -print -quit | grep -q .; then
+            echo "::error::Repository metadata was found in the public output."
+            exit 1
+          fi
 
-    deploy:
-        runs-on: ubuntu-latest
-        needs: build
-        timeout-minutes: 15
+          if find "${PRIVATE_WEB_DIR}/out" -type l -print -quit | grep -q .; then
+            echo "::error::Symbolic links are forbidden in the Pages artifact."
+            exit 1
+          fi
 
-        environment:
-            name: github-pages
-            url: ${{ steps.deployment.outputs.page_url }}
+          if find "${PRIVATE_WEB_DIR}/out" -type f -links +1 -print -quit |
+            grep -q .; then
+            echo "::error::Hard links are forbidden in the Pages artifact."
+            exit 1
+          fi
 
-        steps:
-            - name: Deploy Pages artifact
-              id: deployment
-              uses: actions/deploy-pages@v4
+          mkdir -p "${PAGES_ARTIFACT_DIR}"
+          rsync -a --delete \
+            "${PRIVATE_WEB_DIR}/out/" \
+            "${PAGES_ARTIFACT_DIR}/"
 
-    smoke_post_deploy:
-        needs: deploy
-        runs-on: ubuntu-latest
-        timeout-minutes: 10
-        steps:
-            - name: Verify core endpoints availability
-              shell: bash
-              run: |
-                  set -euo pipefail
+      - name: Remove private source before artifact upload
+        shell: bash
+        env:
+          PRIVATE_INSTALL_LOG: ${{ runner.temp }}/private-install.log
+          PRIVATE_BUILD_LOG: ${{ runner.temp }}/private-build.log
+          SOURCE_ATTESTATION_FILE: ${{ runner.temp }}/source-run.json
+        run: |
+          set -euo pipefail
 
-                  ROUTES=(
-                      "/"
-                      "/about/"
-                      "/about/projects/"
-                      "/about/experiences/"
-                      "/about/skills/"
-                      "/search/"
-                      "/posts/"
-                      "/til/"
-                      "/tags/"
-                      "/categories/"
-                  )
+          rm -rf "${PRIVATE_REPO_DIR}"
+          rm -f \
+            "${PRIVATE_INSTALL_LOG}" \
+            "${PRIVATE_BUILD_LOG}" \
+            "${SOURCE_ATTESTATION_FILE}" \
+            "${RUNNER_TEMP}/source-run-response.json"
 
-                  for route in "${ROUTES[@]}"; do
-                      url="https://buenhyden.github.io${route}"
-                      echo "Checking ${url}"
-                      success=0
-                      for attempt in 1 2 3 4 5; do
-                      if curl -fsSL "$url" > /dev/null; then
-                          success=1
-                          break
-                      fi
-                      sleep 10
-                      done
+          test ! -e "${PRIVATE_REPO_DIR}"
+          test -d "${PAGES_ARTIFACT_DIR}"
+          test ! -e "${PAGES_ARTIFACT_DIR}/.git"
+          test ! -e "${PAGES_ARTIFACT_DIR}/.github"
+          test ! -e "${PAGES_ARTIFACT_DIR}/web"
 
-                      if [ "$success" -ne 1 ]; then
-                      echo "Smoke check failed for ${url}"
-                      exit 1
-                      fi
-                  done
+      - name: Upload public Pages artifact only
+        # actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b
+        with:
+          path: ./${{ env.PAGES_ARTIFACT_DIR }}
+          retention-days: 1
+
+      - name: Record verified deployment identity
+        shell: bash
+        env:
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          ATTESTED_RUN_ID: ${{ steps.source_attestation.outputs.run_id }}
+          ATTESTED_RUN_ATTEMPT: ${{ steps.source_attestation.outputs.run_attempt }}
+        run: |
+          {
+            echo "## Verified Pages Build"
+            echo
+            echo "- Source repository: \`buenhyden/blog-data\`"
+            echo "- Source ref: \`main\`"
+            echo "- Source SHA: \`${SOURCE_SHA}\`"
+            echo "- Source run: \`${ATTESTED_RUN_ID}\`"
+            echo "- Source attempt: \`${ATTESTED_RUN_ATTEMPT}\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Final cleanup
+        if: always()
+        shell: bash
+        env:
+          PRIVATE_INSTALL_LOG: ${{ runner.temp }}/private-install.log
+          PRIVATE_BUILD_LOG: ${{ runner.temp }}/private-build.log
+          SOURCE_ATTESTATION_FILE: ${{ runner.temp }}/source-run.json
+        run: |
+          rm -rf "${PRIVATE_REPO_DIR}" "${PAGES_ARTIFACT_DIR}"
+          rm -f \
+            "${PRIVATE_INSTALL_LOG}" \
+            "${PRIVATE_BUILD_LOG}" \
+            "${SOURCE_ATTESTATION_FILE}" \
+            "${RUNNER_TEMP}/source-run-response.json"
+
+  deploy:
+    name: Deploy verified Pages artifact
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy Pages artifact
+        id: deployment
+        # actions/deploy-pages@v4
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e
+
+  smoke_post_deploy:
+    name: Verify deployed public routes
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions: {}
+    steps:
+      - name: Verify core endpoints availability
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ROUTES=(
+            "/"
+            "/about/"
+            "/about/projects/"
+            "/about/experiences/"
+            "/about/skills/"
+            "/search/"
+            "/posts/"
+            "/til/"
+            "/tags/"
+            "/categories/"
+          )
+
+          for route in "${ROUTES[@]}"; do
+            url="https://buenhyden.github.io${route}"
+            echo "Checking ${url}"
+            success=0
+            for _attempt in 1 2 3 4 5; do
+              if curl --fail --silent --show-error --location \
+                "${url}" > /dev/null; then
+                success=1
+                break
+              fi
+              sleep 10
+            done
+
+            if [[ "${success}" -ne 1 ]]; then
+              echo "::error::Smoke check failed for ${url}"
+              exit 1
+            fi
+          done
