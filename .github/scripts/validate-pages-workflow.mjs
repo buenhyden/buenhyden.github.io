@@ -20,6 +20,19 @@ const EXPECTED_JOB_NEEDS = new Map([
   ["deploy", "build"],
   ["smoke_post_deploy", "deploy"],
 ]);
+const EXPECTED_SMOKE_ROUTES = [
+  "/",
+  "/about/",
+  "/about/projects/",
+  "/about/experiences/",
+  "/about/skills/",
+  "/blog/",
+  "/series/",
+  "/posts/",
+  "/til/",
+  "/tags/",
+  "/categories/",
+];
 const EXPECTED_JOB_SNIPPETS = new Map([
   [
     "build",
@@ -212,6 +225,21 @@ export function validateWorkflowText(text) {
   const buildBlock = jobBlocks.get("build") ?? "";
   const deployBlock = jobBlocks.get("deploy") ?? "";
   const smokeBlock = jobBlocks.get("smoke_post_deploy") ?? "";
+  const smokeRoutes = [
+    ...(smokeBlock.match(/ROUTES=\(\s*([\s\S]*?)\s*\)/)?.[1] ?? "").matchAll(
+      /^\s*"([^"]+)"\s*$/gm,
+    ),
+  ].map((match) => match[1]);
+  if (
+    smokeRoutes.length !== EXPECTED_SMOKE_ROUTES.length ||
+    smokeRoutes.some(
+      (route, index) => route !== EXPECTED_SMOKE_ROUTES[index],
+    )
+  ) {
+    errors.push(
+      `smoke routes must be exactly ${EXPECTED_SMOKE_ROUTES.join(", ")}`,
+    );
+  }
   if (
     deployBlock.includes("actions/upload-pages-artifact@") ||
     smokeBlock.includes("actions/upload-pages-artifact@")

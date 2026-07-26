@@ -103,6 +103,18 @@ test("duplicate public quality checks are rejected", () => {
   );
 });
 
+test("smoke routes must match exported public surfaces", () => {
+  const staleSearchRoute = readWorkflow().replace(
+    '            "/series/"',
+    '            "/search/"',
+  );
+  assert.ok(
+    validateWorkflowText(staleSearchRoute).some((error) =>
+      error.includes("smoke routes must be exactly"),
+    ),
+  );
+});
+
 test("repository metadata scan rejects files as well as directories", () => {
   const mutant = readWorkflow().replace(
     'find "${PRIVATE_WEB_DIR}/out" \\',
