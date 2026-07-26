@@ -4,6 +4,12 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const FULL_SHA_ACTION = /^[^@\s]+@[a-f0-9]{40}$/;
+const EXPECTED_ACTION_USES = [
+  "actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+  "actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38",
+  "actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9",
+  "actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128",
+];
 const EXPECTED_JOB_PERMISSIONS = new Map([
   ["build", new Map([["contents", "read"]])],
   [
@@ -98,7 +104,7 @@ const FORBIDDEN_PATTERNS = [
   ],
   [
     /include-hidden-files|touch\s+.*\.nojekyll/,
-    "upload-pages-artifact v4 excludes hidden entries and does not accept include-hidden-files",
+    "Pages artifacts must not opt into hidden entries or synthesize .nojekyll",
   ],
 ];
 
@@ -180,6 +186,14 @@ export function validateWorkflowText(text) {
     if (!FULL_SHA_ACTION.test(use)) {
       errors.push(`action is not pinned to a full commit SHA: ${use}`);
     }
+  }
+  if (
+    uses.length !== EXPECTED_ACTION_USES.length ||
+    uses.some((use, index) => use !== EXPECTED_ACTION_USES[index])
+  ) {
+    errors.push(
+      `workflow actions must be exactly ${EXPECTED_ACTION_USES.join(", ")}`,
+    );
   }
 
   const jobBlocks = extractJobBlocks(text);
