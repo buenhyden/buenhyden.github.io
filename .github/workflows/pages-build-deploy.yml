@@ -21,12 +21,16 @@ on:
         required: true
         type: string
       source_run_id:
-        description: "Successful private source workflow run ID"
-        required: false
+        description: "Exact source workflow run ID"
+        required: true
         type: string
       source_run_attempt:
-        description: "Successful private source workflow run attempt"
-        required: false
+        description: "Exact source workflow run attempt"
+        required: true
+        type: string
+      html_signature:
+        description: "Required HTML identity marker"
+        required: true
         type: string
 
 # Deny GitHub's token all capabilities by default. Each job receives only the
@@ -59,6 +63,7 @@ jobs:
           SOURCE_EVENT: ${{ inputs.source_event }}
           SOURCE_RUN_ID: ${{ inputs.source_run_id }}
           SOURCE_RUN_ATTEMPT: ${{ inputs.source_run_attempt }}
+          HTML_SIGNATURE: ${{ inputs.html_signature }}
         run: |
           set -euo pipefail
 
@@ -66,14 +71,9 @@ jobs:
           [[ "${SOURCE_REF_NAME}" == "main" ]]
           [[ "${SOURCE_EVENT}" == "push" ]]
           [[ "${SOURCE_SHA}" =~ ^[0-9a-f]{40}$ ]]
-
-          if [[ -n "${SOURCE_RUN_ID}" ]]; then
-            [[ "${SOURCE_RUN_ID}" =~ ^[1-9][0-9]*$ ]]
-          fi
-
-          if [[ -n "${SOURCE_RUN_ATTEMPT}" ]]; then
-            [[ "${SOURCE_RUN_ATTEMPT}" =~ ^[1-9][0-9]*$ ]]
-          fi
+          [[ "${SOURCE_RUN_ID}" =~ ^[1-9][0-9]*$ ]]
+          [[ "${SOURCE_RUN_ATTEMPT}" =~ ^[1-9][0-9]*$ ]]
+          [[ "${HTML_SIGNATURE}" == "quiet-editorial-notebook:v1" ]]
 
       - name: Verify successful private source CI run
         id: source_attestation
@@ -88,40 +88,17 @@ jobs:
           set -euo pipefail
 
           API_ROOT="https://api.github.com/repos/buenhyden/blog-data"
-          RUN_RESPONSE="${RUNNER_TEMP}/source-run-response.json"
           ATTESTED=false
 
           for attestation_attempt in {1..24}; do
-            if [[ -n "${SOURCE_RUN_ID}" ]]; then
-              RUN_URL="${API_ROOT}/actions/runs/${SOURCE_RUN_ID}"
-              curl --fail-with-body --retry 3 --retry-delay 3 \
-                --retry-connrefused --silent --show-error --location \
-                -H "Accept: application/vnd.github+json" \
-                -H "Authorization: Bearer ${GH_TOKEN}" \
-                -H "X-GitHub-Api-Version: 2022-11-28" \
-                "${RUN_URL}" \
-                --output "${SOURCE_ATTESTATION_FILE}"
-            else
-              RUN_URL="${API_ROOT}/actions/workflows/trigger-pages-build.yml/runs"
-              curl --fail-with-body --retry 3 --retry-delay 3 \
-                --retry-connrefused --silent --show-error --get \
-                -H "Accept: application/vnd.github+json" \
-                -H "Authorization: Bearer ${GH_TOKEN}" \
-                -H "X-GitHub-Api-Version: 2022-11-28" \
-                --data-urlencode "branch=main" \
-                --data-urlencode "event=push" \
-                --data-urlencode "status=success" \
-                --data-urlencode "head_sha=${SOURCE_SHA}" \
-                --data-urlencode "per_page=10" \
-                "${RUN_URL}" \
-                --output "${RUN_RESPONSE}"
-
-              jq --arg source_sha "${SOURCE_SHA}" \
-                '.workflow_runs
-                  | map(select(.head_sha == $source_sha))
-                  | first // empty' \
-                "${RUN_RESPONSE}" > "${SOURCE_ATTESTATION_FILE}"
-            fi
+            RUN_URL="${API_ROOT}/actions/runs/${SOURCE_RUN_ID}"
+            curl --fail-with-body --retry 3 --retry-delay 3 \
+              --retry-connrefused --silent --show-error --location \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "${RUN_URL}" \
+              --output "${SOURCE_ATTESTATION_FILE}"
 
             if jq --exit-status \
               --arg source_sha "${SOURCE_SHA}" \
@@ -136,10 +113,8 @@ jobs:
                 .head_branch == "main" and
                 .path == ".github/workflows/trigger-pages-build.yml" and
                 .head_sha == $source_sha and
-                ($source_run_id == "" or
-                  (.id | tostring) == $source_run_id) and
-                ($source_run_attempt == "" or
-                  (.run_attempt | tostring) == $source_run_attempt)
+                (.id | tostring) == $source_run_id and
+                (.run_attempt | tostring) == $source_run_attempt
               ' "${SOURCE_ATTESTATION_FILE}" > /dev/null; then
               ATTESTED=true
               break
@@ -166,13 +141,22 @@ jobs:
         # actions/checkout@v6
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
-          repository: buenhyden/blog-data
+          repository: ${{ inputs.source_repo }}
           ref: ${{ inputs.source_sha }}
           token: ${{ secrets.BLOG_DEPLOY_TOKEN }}
           path: ${{ env.PRIVATE_REPO_DIR }}
           persist-credentials: false
           fetch-depth: 1
           show-progress: false
+
+      - name: Verify exact private source checkout
+        working-directory: ${{ env.PRIVATE_REPO_DIR }}
+        shell: bash
+        env:
+          SOURCE_SHA: ${{ inputs.source_sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${SOURCE_SHA}"
 
       - name: Setup Node
         # actions/setup-node@v6
@@ -206,11 +190,36 @@ jobs:
           TEST_EXPORT: "1"
           ATTESTED_RUN_ID: ${{ steps.source_attestation.outputs.run_id }}
           PRIVATE_BUILD_LOG: ${{ runner.temp }}/private-build.log
+          BLOG_SOURCE_REPOSITORY: ${{ inputs.source_repo }}
+          BLOG_SOURCE_REF_NAME: ${{ inputs.source_ref_name }}
+          BLOG_SOURCE_SHA: ${{ inputs.source_sha }}
+          BLOG_SOURCE_EVENT: ${{ inputs.source_event }}
+          BLOG_SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+          BLOG_SOURCE_RUN_ATTEMPT: ${{ inputs.source_run_attempt }}
+          BLOG_BUILDER_REPOSITORY: ${{ github.repository }}
+          BLOG_BUILDER_RUN_ID: ${{ github.run_id }}
+          BLOG_BUILDER_RUN_ATTEMPT: ${{ github.run_attempt }}
+          BLOG_HTML_SIGNATURE: ${{ inputs.html_signature }}
         run: |
           set -euo pipefail
 
           if ! npm run build:ci >"${PRIVATE_BUILD_LOG}" 2>&1; then
             echo "::error::Static build failed. Inspect private source run ${ATTESTED_RUN_ID}."
+            exit 1
+          fi
+
+          if ! npm run build:manifest >>"${PRIVATE_BUILD_LOG}" 2>&1; then
+            echo "::error::Build manifest generation failed. Inspect private source run ${ATTESTED_RUN_ID}."
+            exit 1
+          fi
+
+          if ! npm run verify:provenance >>"${PRIVATE_BUILD_LOG}" 2>&1; then
+            echo "::error::Deployment provenance verification failed. Inspect private source run ${ATTESTED_RUN_ID}."
+            exit 1
+          fi
+
+          if ! npm run verify:html-signature >>"${PRIVATE_BUILD_LOG}" 2>&1; then
+            echo "::error::HTML signature verification failed. Inspect private source run ${ATTESTED_RUN_ID}."
             exit 1
           fi
 
@@ -225,10 +234,18 @@ jobs:
           set -euo pipefail
 
           test -d "${PRIVATE_WEB_DIR}/out"
+          test -f "${PRIVATE_WEB_DIR}/out/build-manifest.json"
 
           if find "${PRIVATE_WEB_DIR}/out" \
-            \( -name ".git" -o -name ".github" \) -print -quit | grep -q .; then
-            echo "::error::Repository metadata was found in the public output."
+            \( -name ".git" -o -name ".github" -o -name "*.pem" -o -name "*.key" \) \
+            -print -quit | grep -q .; then
+            echo "::error::Repository metadata or key material was found in the public output."
+            exit 1
+          fi
+
+          if find "${PRIVATE_WEB_DIR}/out" -type f -path "*/content/*" \
+            -print -quit | grep -q .; then
+            echo "::error::Private source content was found in the public output."
             exit 1
           fi
 
@@ -248,6 +265,41 @@ jobs:
             "${PRIVATE_WEB_DIR}/out/" \
             "${PAGES_ARTIFACT_DIR}/"
 
+      - name: Record verified deployment identity
+        shell: bash
+        env:
+          SOURCE_REPO: ${{ inputs.source_repo }}
+          SOURCE_REF_NAME: ${{ inputs.source_ref_name }}
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          SOURCE_RUN_ID: ${{ steps.source_attestation.outputs.run_id }}
+          SOURCE_RUN_ATTEMPT: ${{ steps.source_attestation.outputs.run_attempt }}
+          BUILDER_REPOSITORY: ${{ github.repository }}
+          BUILDER_RUN_ID: ${{ github.run_id }}
+          BUILDER_RUN_ATTEMPT: ${{ github.run_attempt }}
+          HTML_SIGNATURE: ${{ inputs.html_signature }}
+        run: |
+          set -euo pipefail
+
+          MANIFEST="${PRIVATE_WEB_DIR}/out/build-manifest.json"
+          ARTIFACT_NAME="$(jq --raw-output '.artifact.name' "${MANIFEST}")"
+
+          {
+            echo "## Verified Pages Build"
+            echo
+            echo "- Source repository: \`${SOURCE_REPO}\`"
+            echo "- Source ref: \`${SOURCE_REF_NAME}\`"
+            echo "- Source SHA: \`${SOURCE_SHA}\`"
+            echo "- Source run: \`${SOURCE_RUN_ID}\`"
+            echo "- Source attempt: \`${SOURCE_RUN_ATTEMPT}\`"
+            echo "- Builder repository: \`${BUILDER_REPOSITORY}\`"
+            echo "- Builder run: \`${BUILDER_RUN_ID}\`"
+            echo "- Builder attempt: \`${BUILDER_RUN_ATTEMPT}\`"
+            echo "- Artifact: \`${ARTIFACT_NAME}\`"
+            echo "- HTML signature: \`${HTML_SIGNATURE}\`"
+            echo "- Provenance validator: \`PASS\`"
+            echo "- HTML validator: \`PASS\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
       - name: Remove private source before artifact upload
         shell: bash
         env:
@@ -261,8 +313,7 @@ jobs:
           rm -f \
             "${PRIVATE_INSTALL_LOG}" \
             "${PRIVATE_BUILD_LOG}" \
-            "${SOURCE_ATTESTATION_FILE}" \
-            "${RUNNER_TEMP}/source-run-response.json"
+            "${SOURCE_ATTESTATION_FILE}"
 
           test ! -e "${PRIVATE_REPO_DIR}"
           test -d "${PAGES_ARTIFACT_DIR}"
@@ -277,23 +328,6 @@ jobs:
           path: ./${{ env.PAGES_ARTIFACT_DIR }}
           retention-days: 1
 
-      - name: Record verified deployment identity
-        shell: bash
-        env:
-          SOURCE_SHA: ${{ inputs.source_sha }}
-          ATTESTED_RUN_ID: ${{ steps.source_attestation.outputs.run_id }}
-          ATTESTED_RUN_ATTEMPT: ${{ steps.source_attestation.outputs.run_attempt }}
-        run: |
-          {
-            echo "## Verified Pages Build"
-            echo
-            echo "- Source repository: \`buenhyden/blog-data\`"
-            echo "- Source ref: \`main\`"
-            echo "- Source SHA: \`${SOURCE_SHA}\`"
-            echo "- Source run: \`${ATTESTED_RUN_ID}\`"
-            echo "- Source attempt: \`${ATTESTED_RUN_ATTEMPT}\`"
-          } >> "${GITHUB_STEP_SUMMARY}"
-
       - name: Final cleanup
         if: always()
         shell: bash
@@ -306,8 +340,7 @@ jobs:
           rm -f \
             "${PRIVATE_INSTALL_LOG}" \
             "${PRIVATE_BUILD_LOG}" \
-            "${SOURCE_ATTESTATION_FILE}" \
-            "${RUNNER_TEMP}/source-run-response.json"
+            "${SOURCE_ATTESTATION_FILE}"
 
   deploy:
     name: Deploy verified Pages artifact
@@ -327,38 +360,98 @@ jobs:
         uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128
 
   smoke_post_deploy:
-    name: Verify deployed public routes
+    name: Verify deployed provenance and public routes
     needs: deploy
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions: {}
     steps:
-      - name: Verify core endpoints availability
+      - name: Verify live manifest and HTML identity
         shell: bash
+        env:
+          SOURCE_REPOSITORY: ${{ inputs.source_repo }}
+          SOURCE_REF_NAME: ${{ inputs.source_ref_name }}
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+          BUILDER_REPOSITORY: ${{ github.repository }}
+          BUILDER_RUN_ID: ${{ github.run_id }}
+          HTML_SIGNATURE: ${{ inputs.html_signature }}
         run: |
           set -euo pipefail
 
+          SITE_URL="https://buenhyden.github.io"
+          LIVE_MANIFEST="${RUNNER_TEMP}/live-build-manifest.json"
+          MANIFEST_VERIFIED=false
+
+          for manifest_attempt in {1..12}; do
+            if curl --fail --silent --show-error --location \
+              "${SITE_URL}/build-manifest.json" \
+              --output "${LIVE_MANIFEST}" &&
+              jq --exit-status \
+                --arg source_repository "${SOURCE_REPOSITORY}" \
+                --arg source_ref_name "${SOURCE_REF_NAME}" \
+                --arg source_sha "${SOURCE_SHA}" \
+                --arg source_run_id "${SOURCE_RUN_ID}" \
+                --arg builder_repository "${BUILDER_REPOSITORY}" \
+                --arg builder_run_id "${BUILDER_RUN_ID}" \
+                --arg html_signature "${HTML_SIGNATURE}" \
+                '
+                  .schemaVersion == 1 and
+                  .source.repository == $source_repository and
+                  .source.refName == $source_ref_name and
+                  .source.sha == $source_sha and
+                  .source.runId == $source_run_id and
+                  .builder.repository == $builder_repository and
+                  .builder.runId == $builder_run_id and
+                  .artifact.htmlSignature == $html_signature
+                ' "${LIVE_MANIFEST}" > /dev/null; then
+              MANIFEST_VERIFIED=true
+              break
+            fi
+            echo "Waiting for live manifest identity (${manifest_attempt}/12)."
+            sleep 10
+          done
+
+          if [[ "${MANIFEST_VERIFIED}" != "true" ]]; then
+            echo "::error::Live build manifest does not match the deployed source and builder identity."
+            exit 1
+          fi
+
           ROUTES=(
-            "/"
-            "/about/"
-            "/about/projects/"
-            "/about/experiences/"
-            "/about/skills/"
-            "/blog/"
-            "/series/"
-            "/posts/"
-            "/til/"
-            "/tags/"
-            "/categories/"
+            "/|ko"
+            "/posts/|ko"
+            "/blog/|ko"
+            "/til/|ko"
+            "/search/|ko"
+            "/about/|ko"
+            "/categories/|ko"
+            "/tags/|ko"
+            "/series/|ko"
+            "/en/search/|en"
+            "/coding-test/|ko"
           )
 
-          for route in "${ROUTES[@]}"; do
-            url="https://buenhyden.github.io${route}"
+          for route_record in "${ROUTES[@]}"; do
+            route="${route_record%%|*}"
+            language="${route_record##*|}"
+            url="${SITE_URL}${route}"
+            body_file="${RUNNER_TEMP}/live-route.html"
+            header_file="${RUNNER_TEMP}/live-route.headers"
             echo "Checking ${url}"
             success=0
-            for _attempt in 1 2 3 4 5; do
+            for route_attempt in 1 2 3 4 5 6; do
               if curl --fail --silent --show-error --location \
-                "${url}" > /dev/null; then
+                --dump-header "${header_file}" \
+                --output "${body_file}" \
+                "${url}" &&
+                grep --fixed-strings --quiet \
+                  "data-site-signature=\"${HTML_SIGNATURE}\"" "${body_file}" &&
+                grep --fixed-strings --quiet \
+                  "data-source-sha=\"${SOURCE_SHA}\"" "${body_file}" &&
+                grep --fixed-strings --quiet \
+                  "name=\"blog-source-sha\" content=\"${SOURCE_SHA}\"" "${body_file}" &&
+                grep --extended-regexp --quiet \
+                  "<html[^>]*lang=\"${language}\"" "${body_file}"; then
                 success=1
                 break
               fi
@@ -366,7 +459,45 @@ jobs:
             done
 
             if [[ "${success}" -ne 1 ]]; then
-              echo "::error::Smoke check failed for ${url}"
+              echo "::error::Live HTML identity check failed for ${url}"
               exit 1
             fi
+
+            if [[ "${route}" == "/coding-test/" ]]; then
+              if grep --ignore-case --extended-regexp --quiet \
+                '^location:' "${header_file}"; then
+                echo "::error::Compatibility route unexpectedly redirected."
+                exit 1
+              fi
+              if grep --ignore-case --quiet "HTTP 301" "${body_file}"; then
+                echo "::error::Compatibility route falsely claims an HTTP 301."
+                exit 1
+              fi
+            fi
           done
+
+          NOT_FOUND_BODY="${RUNNER_TEMP}/live-404.html"
+          NOT_FOUND_STATUS="$(
+            curl --silent --show-error --location \
+              --output "${NOT_FOUND_BODY}" \
+              --write-out "%{http_code}" \
+              "${SITE_URL}/definitely-missing-redesign-route/"
+          )"
+          [[ "${NOT_FOUND_STATUS}" == "404" ]]
+          grep --fixed-strings --quiet \
+            "data-site-signature=\"${HTML_SIGNATURE}\"" "${NOT_FOUND_BODY}"
+          grep --fixed-strings --quiet \
+            "data-source-sha=\"${SOURCE_SHA}\"" "${NOT_FOUND_BODY}"
+
+          {
+            echo "## Live Pages Verification"
+            echo
+            echo "- Deployment URL: \`${SITE_URL}/\`"
+            echo "- Source SHA: \`${SOURCE_SHA}\`"
+            echo "- Source run: \`${SOURCE_RUN_ID}\`"
+            echo "- Builder run: \`${BUILDER_RUN_ID}\`"
+            echo "- HTML signature: \`${HTML_SIGNATURE}\`"
+            echo "- Live manifest: \`PASS\`"
+            echo "- Representative HTML: \`PASS\`"
+            echo "- Compatibility and 404 behavior: \`PASS\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
