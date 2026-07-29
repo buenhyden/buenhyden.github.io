@@ -141,7 +141,7 @@ jobs:
         # actions/checkout@v6
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
-          repository: ${{ inputs.source_repo }}
+          repository: buenhyden/blog-data
           ref: ${{ inputs.source_sha }}
           token: ${{ secrets.BLOG_DEPLOY_TOKEN }}
           path: ${{ env.PRIVATE_REPO_DIR }}
@@ -178,6 +178,21 @@ jobs:
           if ! npm ci --no-audit --no-fund \
             >"${PRIVATE_INSTALL_LOG}" 2>&1; then
             echo "::error::Dependency install failed. Inspect private source run ${ATTESTED_RUN_ID}."
+            exit 1
+          fi
+
+      - name: Install export verification browser quietly
+        working-directory: ${{ env.PRIVATE_WEB_DIR }}
+        shell: bash
+        env:
+          ATTESTED_RUN_ID: ${{ steps.source_attestation.outputs.run_id }}
+          PRIVATE_BROWSER_LOG: ${{ runner.temp }}/private-browser-install.log
+        run: |
+          set -euo pipefail
+
+          if ! npx playwright install --with-deps chromium \
+            >"${PRIVATE_BROWSER_LOG}" 2>&1; then
+            echo "::error::Export verification browser install failed. Inspect private source run ${ATTESTED_RUN_ID}."
             exit 1
           fi
 
@@ -304,6 +319,7 @@ jobs:
         shell: bash
         env:
           PRIVATE_INSTALL_LOG: ${{ runner.temp }}/private-install.log
+          PRIVATE_BROWSER_LOG: ${{ runner.temp }}/private-browser-install.log
           PRIVATE_BUILD_LOG: ${{ runner.temp }}/private-build.log
           SOURCE_ATTESTATION_FILE: ${{ runner.temp }}/source-run.json
         run: |
@@ -312,6 +328,7 @@ jobs:
           rm -rf "${PRIVATE_REPO_DIR}"
           rm -f \
             "${PRIVATE_INSTALL_LOG}" \
+            "${PRIVATE_BROWSER_LOG}" \
             "${PRIVATE_BUILD_LOG}" \
             "${SOURCE_ATTESTATION_FILE}"
 
@@ -333,12 +350,14 @@ jobs:
         shell: bash
         env:
           PRIVATE_INSTALL_LOG: ${{ runner.temp }}/private-install.log
+          PRIVATE_BROWSER_LOG: ${{ runner.temp }}/private-browser-install.log
           PRIVATE_BUILD_LOG: ${{ runner.temp }}/private-build.log
           SOURCE_ATTESTATION_FILE: ${{ runner.temp }}/source-run.json
         run: |
           rm -rf "${PRIVATE_REPO_DIR}" "${PAGES_ARTIFACT_DIR}"
           rm -f \
             "${PRIVATE_INSTALL_LOG}" \
+            "${PRIVATE_BROWSER_LOG}" \
             "${PRIVATE_BUILD_LOG}" \
             "${SOURCE_ATTESTATION_FILE}"
 
@@ -439,7 +458,7 @@ jobs:
             header_file="${RUNNER_TEMP}/live-route.headers"
             echo "Checking ${url}"
             success=0
-            for route_attempt in 1 2 3 4 5 6; do
+            for _ in 1 2 3 4 5 6; do
               if curl --fail --silent --show-error --location \
                 --dump-header "${header_file}" \
                 --output "${body_file}" \

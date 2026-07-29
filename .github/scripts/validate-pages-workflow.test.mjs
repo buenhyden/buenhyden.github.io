@@ -46,8 +46,8 @@ test("public build, deploy, and smoke permission boundaries cannot be consolidat
   );
 
   const broadenedSmoke = readWorkflow().replace(
-    "  smoke_post_deploy:\n    name: Verify deployed public routes\n    needs: deploy\n    runs-on: ubuntu-latest\n    timeout-minutes: 10\n    permissions: {}\n",
-    "  smoke_post_deploy:\n    name: Verify deployed public routes\n    needs: deploy\n    runs-on: ubuntu-latest\n    timeout-minutes: 10\n    permissions:\n      contents: read\n",
+    "  smoke_post_deploy:\n    name: Verify deployed provenance and public routes\n    needs: deploy\n    runs-on: ubuntu-latest\n    timeout-minutes: 10\n    permissions: {}\n",
+    "  smoke_post_deploy:\n    name: Verify deployed provenance and public routes\n    needs: deploy\n    runs-on: ubuntu-latest\n    timeout-minutes: 10\n    permissions:\n      contents: read\n",
   );
   assert.ok(
     validateWorkflowText(broadenedSmoke).some((error) =>
@@ -78,6 +78,32 @@ test("mutable source branch checkout is rejected", () => {
   assert.ok(
     validateWorkflowText(mutant).some((error) =>
       error.includes("moving branch checkout"),
+    ),
+  );
+});
+
+test("dynamic private repository checkout is rejected", () => {
+  const mutant = readWorkflow().replace(
+    "repository: buenhyden/blog-data",
+    "repository: ${{ inputs.source_repo }}",
+  );
+  assert.ok(
+    validateWorkflowText(mutant).some((error) =>
+      error.includes("fixed private source repository"),
+    ),
+  );
+});
+
+test("workflow-run listing cannot replace exact run attestation", () => {
+  const mutant = readWorkflow().replace(
+    "actions/runs/${SOURCE_RUN_ID}",
+    "actions/workflows/trigger-pages-build.yml/runs",
+  );
+  assert.ok(
+    validateWorkflowText(mutant).some(
+      (error) =>
+        error.includes("exact source run attestation API") ||
+        error.includes("exact dispatched run"),
     ),
   );
 });
@@ -117,12 +143,34 @@ test("duplicate public quality checks are rejected", () => {
 
 test("smoke routes must match exported public surfaces", () => {
   const staleSearchRoute = readWorkflow().replace(
-    '            "/series/"',
-    '            "/search/"',
+    '            "/series/|ko"',
+    '            "/stale-route/|ko"',
   );
   assert.ok(
     validateWorkflowText(staleSearchRoute).some((error) =>
-      error.includes("smoke routes must be exactly"),
+      error.includes("smoke route records must be exactly"),
+    ),
+  );
+});
+
+test("public rebuild installs Chromium before export verification", () => {
+  const command = "npx playwright install --with-deps chromium";
+  const withoutInstall = readWorkflow().replace(command, "true");
+  assert.ok(
+    validateWorkflowText(withoutInstall).some((error) =>
+      error.includes("public export browser install"),
+    ),
+  );
+
+  const movedAfterExport = readWorkflow()
+    .replace(command, "true")
+    .replace(
+      'echo "::error::Export verification failed. Inspect private source run ${ATTESTED_RUN_ID}."',
+      `${command}\n            echo "::error::Export verification failed. Inspect private source run \${ATTESTED_RUN_ID}."`,
+    );
+  assert.ok(
+    validateWorkflowText(movedAfterExport).some((error) =>
+      error.includes("must be installed before"),
     ),
   );
 });

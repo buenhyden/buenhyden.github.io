@@ -26,24 +26,25 @@ const EXPECTED_JOB_NEEDS = new Map([
   ["deploy", "build"],
   ["smoke_post_deploy", "deploy"],
 ]);
-const EXPECTED_SMOKE_ROUTES = [
-  "/",
-  "/about/",
-  "/about/projects/",
-  "/about/experiences/",
-  "/about/skills/",
-  "/blog/",
-  "/series/",
-  "/posts/",
-  "/til/",
-  "/tags/",
-  "/categories/",
+const EXPECTED_SMOKE_ROUTE_RECORDS = [
+  "/|ko",
+  "/posts/|ko",
+  "/blog/|ko",
+  "/til/|ko",
+  "/search/|ko",
+  "/about/|ko",
+  "/categories/|ko",
+  "/tags/|ko",
+  "/series/|ko",
+  "/en/search/|en",
+  "/coding-test/|ko",
 ];
 const EXPECTED_JOB_SNIPPETS = new Map([
   [
     "build",
     [
       "Verify successful private source CI run",
+      "Install export verification browser quietly",
       "Upload public Pages artifact only",
       "actions/upload-pages-artifact@",
     ],
@@ -51,7 +52,14 @@ const EXPECTED_JOB_SNIPPETS = new Map([
   ["deploy", ["name: github-pages", "actions/deploy-pages@"]],
   [
     "smoke_post_deploy",
-    ["Verify core endpoints availability", "ROUTES=(", "curl --fail"],
+    [
+      "Verify live manifest and HTML identity",
+      "build-manifest.json",
+      "data-site-signature",
+      "data-source-sha",
+      "ROUTES=(",
+      "curl --fail",
+    ],
   ],
 ]);
 
@@ -62,18 +70,30 @@ const REQUIRED_SNIPPETS = new Map([
   ["workflow input source_event", "source_event:"],
   ["workflow input source_run_id", "source_run_id:"],
   ["workflow input source_run_attempt", "source_run_attempt:"],
+  ["workflow input html_signature", "html_signature:"],
   ["deny-by-default workflow permissions", "permissions: {}"],
   ["fixed private source repository", "repository: buenhyden/blog-data"],
   ["immutable private source checkout", "ref: ${{ inputs.source_sha }}"],
   ["quiet private source checkout", "show-progress: false"],
-  ["source workflow attestation API", "actions/workflows/trigger-pages-build.yml/runs"],
+  ["exact source run attestation API", "actions/runs/${SOURCE_RUN_ID}"],
   ["source run success check", '.conclusion == "success"'],
   ["source run event check", '.event == "push"'],
   ["source run branch check", '.head_branch == "main"'],
   ["source run path check", '.path == ".github/workflows/trigger-pages-build.yml"'],
   ["source run SHA check", ".head_sha == $source_sha"],
   ["source run completion wait", "for attestation_attempt in {1..24}"],
+  [
+    "exact source checkout verification",
+    'test "$(git rev-parse HEAD)" = "${SOURCE_SHA}"',
+  ],
   ["private build command", "npm run build:ci"],
+  ["build manifest command", "npm run build:manifest"],
+  ["deployment provenance verification", "npm run verify:provenance"],
+  ["HTML signature verification", "npm run verify:html-signature"],
+  [
+    "public export browser install",
+    "npx playwright install --with-deps chromium",
+  ],
   ["private export verification", "npm run verify:export"],
   ["public cache disable", "package-manager-cache: false"],
   ["private log redirection", '>"${PRIVATE_BUILD_LOG}" 2>&1'],
@@ -105,6 +125,10 @@ const FORBIDDEN_PATTERNS = [
   [
     /include-hidden-files|touch\s+.*\.nojekyll/,
     "Pages artifacts must not opt into hidden entries or synthesize .nojekyll",
+  ],
+  [
+    /actions\/workflows\/trigger-pages-build\.yml\/runs/,
+    "source attestation must read the exact dispatched run instead of listing workflow runs",
   ],
 ];
 
@@ -239,19 +263,32 @@ export function validateWorkflowText(text) {
   const buildBlock = jobBlocks.get("build") ?? "";
   const deployBlock = jobBlocks.get("deploy") ?? "";
   const smokeBlock = jobBlocks.get("smoke_post_deploy") ?? "";
-  const smokeRoutes = [
+  const smokeRouteRecords = [
     ...(smokeBlock.match(/ROUTES=\(\s*([\s\S]*?)\s*\)/)?.[1] ?? "").matchAll(
       /^\s*"([^"]+)"\s*$/gm,
     ),
   ].map((match) => match[1]);
   if (
-    smokeRoutes.length !== EXPECTED_SMOKE_ROUTES.length ||
-    smokeRoutes.some(
-      (route, index) => route !== EXPECTED_SMOKE_ROUTES[index],
+    smokeRouteRecords.length !== EXPECTED_SMOKE_ROUTE_RECORDS.length ||
+    smokeRouteRecords.some(
+      (record, index) => record !== EXPECTED_SMOKE_ROUTE_RECORDS[index],
     )
   ) {
     errors.push(
-      `smoke routes must be exactly ${EXPECTED_SMOKE_ROUTES.join(", ")}`,
+      `smoke route records must be exactly ${EXPECTED_SMOKE_ROUTE_RECORDS.join(", ")}`,
+    );
+  }
+  const browserInstallIndex = buildBlock.indexOf(
+    "npx playwright install --with-deps chromium",
+  );
+  const exportVerificationIndex = buildBlock.indexOf("npm run verify:export");
+  if (
+    browserInstallIndex === -1 ||
+    exportVerificationIndex === -1 ||
+    browserInstallIndex >= exportVerificationIndex
+  ) {
+    errors.push(
+      "public export verification browser must be installed before npm run verify:export",
     );
   }
   if (
