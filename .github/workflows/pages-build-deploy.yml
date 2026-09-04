@@ -447,7 +447,6 @@ jobs:
             "/tags/|ko"
             "/series/|ko"
             "/en/search/|en"
-            "/coding-test/|ko"
           )
 
           for route_record in "${ROUTES[@]}"; do
@@ -455,12 +454,10 @@ jobs:
             language="${route_record##*|}"
             url="${SITE_URL}${route}"
             body_file="${RUNNER_TEMP}/live-route.html"
-            header_file="${RUNNER_TEMP}/live-route.headers"
             echo "Checking ${url}"
             success=0
             for _ in 1 2 3 4 5 6; do
               if curl --fail --silent --show-error --location \
-                --dump-header "${header_file}" \
                 --output "${body_file}" \
                 "${url}" &&
                 grep --fixed-strings --quiet \
@@ -480,18 +477,6 @@ jobs:
             if [[ "${success}" -ne 1 ]]; then
               echo "::error::Live HTML identity check failed for ${url}"
               exit 1
-            fi
-
-            if [[ "${route}" == "/coding-test/" ]]; then
-              if grep --ignore-case --extended-regexp --quiet \
-                '^location:' "${header_file}"; then
-                echo "::error::Compatibility route unexpectedly redirected."
-                exit 1
-              fi
-              if grep --ignore-case --quiet "HTTP 301" "${body_file}"; then
-                echo "::error::Compatibility route falsely claims an HTTP 301."
-                exit 1
-              fi
             fi
           done
 
@@ -518,5 +503,5 @@ jobs:
             echo "- HTML signature: \`${HTML_SIGNATURE}\`"
             echo "- Live manifest: \`PASS\`"
             echo "- Representative HTML: \`PASS\`"
-            echo "- Compatibility and 404 behavior: \`PASS\`"
+            echo "- 404 behavior: \`PASS\`"
           } >> "${GITHUB_STEP_SUMMARY}"

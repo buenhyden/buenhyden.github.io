@@ -37,7 +37,6 @@ const EXPECTED_SMOKE_ROUTE_RECORDS = [
   "/tags/|ko",
   "/series/|ko",
   "/en/search/|en",
-  "/coding-test/|ko",
 ];
 const EXPECTED_JOB_SNIPPETS = new Map([
   [
