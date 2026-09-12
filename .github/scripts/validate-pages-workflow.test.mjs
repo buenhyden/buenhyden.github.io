@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { test } from "node:test";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -20,8 +22,165 @@ function readWorkflow() {
   return fs.readFileSync(workflowPath, "utf8");
 }
 
+function extractDispatchValidationScript(text) {
+  const start = text.indexOf("      - name: Validate dispatch inputs\n");
+  assert.notEqual(start, -1, "Validate dispatch inputs step must exist");
+
+  const nextStep = text.indexOf("\n      - name:", start + 1);
+  const step = text.slice(start, nextStep === -1 ? undefined : nextStep);
+  const runMarker = "        run: |\n";
+  const runStart = step.indexOf(runMarker);
+  assert.notEqual(runStart, -1, "validation step must have a Bash run block");
+
+  return step
+    .slice(runStart + runMarker.length)
+    .split("\n")
+    .map((line) => line.replace(/^ {10}/, ""))
+    .join("\n");
+}
+
+function runDispatchValidation(sourceWebDir) {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "pages-inputs-"));
+  const githubEnvPath = path.join(tempDir, "github-env");
+  const env = {
+    ...process.env,
+    PRIVATE_REPO_DIR: "__private_blog_data",
+    GITHUB_ENV: githubEnvPath,
+    SOURCE_REPO: "buenhyden/blog-data",
+    SOURCE_REF_NAME: "main",
+    SOURCE_SHA: "a".repeat(40),
+    SOURCE_EVENT: "push",
+    SOURCE_RUN_ID: "123",
+    SOURCE_RUN_ATTEMPT: "1",
+    HTML_SIGNATURE: "quiet-editorial-notebook:v1",
+  };
+  if (sourceWebDir !== undefined) env.SOURCE_WEB_DIR = sourceWebDir;
+  else delete env.SOURCE_WEB_DIR;
+
+  try {
+    const result = spawnSync(
+      "bash",
+      ["-c", extractDispatchValidationScript(readWorkflow())],
+      { env, encoding: "utf8" },
+    );
+    const githubEnv = fs.existsSync(githubEnvPath)
+      ? fs.readFileSync(githubEnvPath, "utf8")
+      : "";
+    return { ...result, githubEnv };
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
 test("canonical Pages workflow satisfies the private/public contract", () => {
   assert.deepEqual(validateWorkflowText(readWorkflow()), []);
+});
+
+test("legacy callers and both supported source web directories select the expected private path", () => {
+  const cases = [
+    [undefined, "PRIVATE_WEB_DIR=__private_blog_data/web\n"],
+    ["", "PRIVATE_WEB_DIR=__private_blog_data/web\n"],
+    ["web", "PRIVATE_WEB_DIR=__private_blog_data/web\n"],
+    ["site/web", "PRIVATE_WEB_DIR=__private_blog_data/site/web\n"],
+  ];
+
+  for (const [sourceWebDir, expectedEnv] of cases) {
+    const result = runDispatchValidation(sourceWebDir);
+    assert.equal(
+      result.status,
+      0,
+      `expected ${JSON.stringify(sourceWebDir)} to pass: ${result.stderr}`,
+    );
+    assert.equal(result.githubEnv, expectedEnv);
+  }
+});
+
+test("absolute, traversal, arbitrary, and shell-significant source web directories are rejected", () => {
+  const invalidValues = [
+    "/web",
+    "../web",
+    "site/../web",
+    "frontend",
+    " web",
+    "web ",
+    "site\\web",
+    "web\nsite/web",
+    "web;echo injected",
+  ];
+
+  for (const sourceWebDir of invalidValues) {
+    const result = runDispatchValidation(sourceWebDir);
+    assert.notEqual(
+      result.status,
+      0,
+      `expected ${JSON.stringify(sourceWebDir)} to fail`,
+    );
+    assert.equal(result.githubEnv, "");
+  }
+});
+
+test("source web directory contract rejects missing defaults and weakened validation", () => {
+  const missingInput = readWorkflow().replace(
+    [
+      "      source_web_dir:",
+      '        description: "Source web directory"',
+      "        required: false",
+      '        default: "web"',
+      "        type: string",
+      "",
+    ].join("\n"),
+    "",
+  );
+  assert.ok(
+    validateWorkflowText(missingInput).some((error) =>
+      error.includes("workflow input source_web_dir"),
+    ),
+  );
+
+  const wrongDefault = readWorkflow().replace(
+    '        default: "web"',
+    '        default: "site/web"',
+  );
+  assert.ok(
+    validateWorkflowText(wrongDefault).some((error) =>
+      error.includes("source_web_dir default"),
+    ),
+  );
+
+  const weakenedAllowlist = readWorkflow().replace(
+    '[[ "${SOURCE_WEB_DIR}" == "web" || "${SOURCE_WEB_DIR}" == "site/web" ]]',
+    '[[ "${SOURCE_WEB_DIR}" == "web" || "${SOURCE_WEB_DIR}" == site/* ]]',
+  );
+  assert.ok(
+    validateWorkflowText(weakenedAllowlist).some((error) =>
+      error.includes("source_web_dir allowlist"),
+    ),
+  );
+});
+
+test("source web directory cannot construct a job path before validation", () => {
+  const mutant = readWorkflow().replace(
+    "      PRIVATE_REPO_DIR: __private_blog_data\n",
+    "      PRIVATE_REPO_DIR: __private_blog_data\n" +
+      "      PRIVATE_WEB_DIR: __private_blog_data/${{ inputs.source_web_dir }}\n",
+  );
+  assert.ok(
+    validateWorkflowText(mutant).some((error) =>
+      error.includes("PRIVATE_WEB_DIR must be exported after validation"),
+    ),
+  );
+});
+
+test("source web directory cannot be interpolated directly into validation shell", () => {
+  const mutant = readWorkflow().replace(
+    'SOURCE_WEB_DIR="${SOURCE_WEB_DIR:-web}"',
+    'SOURCE_WEB_DIR="${{ inputs.source_web_dir }}"',
+  );
+  assert.ok(
+    validateWorkflowText(mutant).some((error) =>
+      error.includes("direct shell interpolation"),
+    ),
+  );
 });
 
 test("public build, deploy, and smoke permission boundaries cannot be consolidated", () => {
@@ -183,6 +342,28 @@ test("repository metadata scan rejects files as well as directories", () => {
   assert.ok(
     validateWorkflowText(mutant).some((error) =>
       error.includes("metadata scan must reject files and directories"),
+    ),
+  );
+});
+
+test("artifact cleanup rejects legacy and migrated private directory wrappers", () => {
+  const withoutLegacyGuard = readWorkflow().replace(
+    'test ! -e "${PAGES_ARTIFACT_DIR}/web"',
+    "true # legacy wrapper guard removed",
+  );
+  assert.ok(
+    validateWorkflowText(withoutLegacyGuard).some((error) =>
+      error.includes("legacy private directory wrapper exclusion"),
+    ),
+  );
+
+  const withoutMigratedGuard = readWorkflow().replace(
+    'test ! -e "${PAGES_ARTIFACT_DIR}/site/web"',
+    "true # migrated wrapper guard removed",
+  );
+  assert.ok(
+    validateWorkflowText(withoutMigratedGuard).some((error) =>
+      error.includes("migrated private directory wrapper exclusion"),
     ),
   );
 });

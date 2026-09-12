@@ -97,6 +97,14 @@ const REQUIRED_SNIPPETS = new Map([
   ["public cache disable", "package-manager-cache: false"],
   ["private log redirection", '>"${PRIVATE_BUILD_LOG}" 2>&1'],
   ["source cleanup", 'rm -rf "${PRIVATE_REPO_DIR}"'],
+  [
+    "legacy private directory wrapper exclusion",
+    'test ! -e "${PAGES_ARTIFACT_DIR}/web"',
+  ],
+  [
+    "migrated private directory wrapper exclusion",
+    'test ! -e "${PAGES_ARTIFACT_DIR}/site/web"',
+  ],
   ["Pages upload permission", "contents: read"],
   ["Pages deploy permission", "pages: write"],
   ["Pages OIDC permission", "id-token: write"],
@@ -156,6 +164,33 @@ function extractJobBlocks(text) {
   return new Map(
     [...blocks].map(([jobId, lines]) => [jobId, lines.join("\n")]),
   );
+}
+
+function extractWorkflowInputBlock(text, inputName) {
+  const escapedName = inputName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return (
+    text.match(
+      new RegExp(
+        `^      ${escapedName}:\\s*\\r?\\n((?:^        .*\\r?\\n?)*)`,
+        "m",
+      ),
+    )?.[1] ?? null
+  );
+}
+
+function extractNamedStepBlock(jobBlock, stepName) {
+  const marker = `      - name: ${stepName}`;
+  const start = jobBlock.indexOf(marker);
+  if (start === -1) return null;
+
+  const nextStep = jobBlock.indexOf("\n      - name:", start + marker.length);
+  return jobBlock.slice(start, nextStep === -1 ? undefined : nextStep);
+}
+
+function extractRunBlock(stepBlock) {
+  const marker = "        run: |\n";
+  const start = stepBlock?.indexOf(marker) ?? -1;
+  return start === -1 ? null : stepBlock.slice(start + marker.length);
 }
 
 function readJobPermissions(block) {
@@ -262,6 +297,72 @@ export function validateWorkflowText(text) {
   const buildBlock = jobBlocks.get("build") ?? "";
   const deployBlock = jobBlocks.get("deploy") ?? "";
   const smokeBlock = jobBlocks.get("smoke_post_deploy") ?? "";
+  const sourceWebDirInput = extractWorkflowInputBlock(text, "source_web_dir");
+  if (sourceWebDirInput === null) {
+    errors.push("missing workflow input source_web_dir");
+  } else {
+    if (!/^        required: false\s*$/m.test(sourceWebDirInput)) {
+      errors.push("source_web_dir must be optional");
+    }
+    if (!/^        default: "web"\s*$/m.test(sourceWebDirInput)) {
+      errors.push('source_web_dir default must be exactly "web"');
+    }
+    if (!/^        type: string\s*$/m.test(sourceWebDirInput)) {
+      errors.push("source_web_dir type must be string");
+    }
+  }
+
+  if (/^\s+PRIVATE_WEB_DIR:/m.test(text)) {
+    errors.push("PRIVATE_WEB_DIR must be exported after validation");
+  }
+
+  const validationStep = extractNamedStepBlock(
+    buildBlock,
+    "Validate dispatch inputs",
+  );
+  const validationRun = extractRunBlock(validationStep);
+  const sourceWebDirEnvBinding =
+    "          SOURCE_WEB_DIR: ${{ inputs.source_web_dir }}";
+  if (!validationStep?.includes(sourceWebDirEnvBinding)) {
+    errors.push("source_web_dir must use the validation step env binding");
+  }
+  const sourceWebDirExpressionLines = text
+    .split(/\r?\n/)
+    .filter((line) => line.includes("${{ inputs.source_web_dir }}"));
+  if (
+    sourceWebDirExpressionLines.some(
+      (line) => line !== sourceWebDirEnvBinding,
+    )
+  ) {
+    errors.push("source_web_dir direct shell interpolation is forbidden");
+  }
+
+  const sourceWebDirFallback = 'SOURCE_WEB_DIR="${SOURCE_WEB_DIR:-web}"';
+  const sourceWebDirAllowlist =
+    '[[ "${SOURCE_WEB_DIR}" == "web" || "${SOURCE_WEB_DIR}" == "site/web" ]]';
+  const privateWebDirExport =
+    'echo "PRIVATE_WEB_DIR=${PRIVATE_REPO_DIR}/${SOURCE_WEB_DIR}" >> "${GITHUB_ENV}"';
+  const fallbackIndex = validationRun?.indexOf(sourceWebDirFallback) ?? -1;
+  const allowlistIndex = validationRun?.indexOf(sourceWebDirAllowlist) ?? -1;
+  const exportIndex = validationRun?.indexOf(privateWebDirExport) ?? -1;
+  if (fallbackIndex === -1) {
+    errors.push("source_web_dir must fall back to web when missing or empty");
+  }
+  if (allowlistIndex === -1) {
+    errors.push("source_web_dir allowlist must be exactly web and site/web");
+  }
+  if (exportIndex === -1) {
+    errors.push("PRIVATE_WEB_DIR must derive from validated source_web_dir");
+  }
+  if (
+    fallbackIndex !== -1 &&
+    allowlistIndex !== -1 &&
+    exportIndex !== -1 &&
+    !(fallbackIndex < allowlistIndex && allowlistIndex < exportIndex)
+  ) {
+    errors.push("PRIVATE_WEB_DIR must be exported after validation");
+  }
+
   const smokeRouteRecords = [
     ...(smokeBlock.match(/ROUTES=\(\s*([\s\S]*?)\s*\)/)?.[1] ?? "").matchAll(
       /^\s*"([^"]+)"\s*$/gm,

@@ -12,6 +12,11 @@ on:
         description: "Source branch name"
         required: true
         type: string
+      source_web_dir:
+        description: "Source web directory"
+        required: false
+        default: "web"
+        type: string
       source_sha:
         description: "Immutable source commit SHA"
         required: true
@@ -50,7 +55,6 @@ jobs:
       contents: read
     env:
       PRIVATE_REPO_DIR: __private_blog_data
-      PRIVATE_WEB_DIR: __private_blog_data/web
       PAGES_ARTIFACT_DIR: __pages_artifact
 
     steps:
@@ -59,6 +63,7 @@ jobs:
         env:
           SOURCE_REPO: ${{ inputs.source_repo }}
           SOURCE_REF_NAME: ${{ inputs.source_ref_name }}
+          SOURCE_WEB_DIR: ${{ inputs.source_web_dir }}
           SOURCE_SHA: ${{ inputs.source_sha }}
           SOURCE_EVENT: ${{ inputs.source_event }}
           SOURCE_RUN_ID: ${{ inputs.source_run_id }}
@@ -74,6 +79,9 @@ jobs:
           [[ "${SOURCE_RUN_ID}" =~ ^[1-9][0-9]*$ ]]
           [[ "${SOURCE_RUN_ATTEMPT}" =~ ^[1-9][0-9]*$ ]]
           [[ "${HTML_SIGNATURE}" == "quiet-editorial-notebook:v1" ]]
+          SOURCE_WEB_DIR="${SOURCE_WEB_DIR:-web}"
+          [[ "${SOURCE_WEB_DIR}" == "web" || "${SOURCE_WEB_DIR}" == "site/web" ]]
+          echo "PRIVATE_WEB_DIR=${PRIVATE_REPO_DIR}/${SOURCE_WEB_DIR}" >> "${GITHUB_ENV}"
 
       - name: Verify successful private source CI run
         id: source_attestation
@@ -337,6 +345,7 @@ jobs:
           test ! -e "${PAGES_ARTIFACT_DIR}/.git"
           test ! -e "${PAGES_ARTIFACT_DIR}/.github"
           test ! -e "${PAGES_ARTIFACT_DIR}/web"
+          test ! -e "${PAGES_ARTIFACT_DIR}/site/web"
 
       - name: Upload public Pages artifact only
         # actions/upload-pages-artifact@v5
