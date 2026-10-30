@@ -62,6 +62,61 @@ const EXPECTED_JOB_SNIPPETS = new Map([
   ],
 ]);
 
+// These checks bind the existing executable guards to their owning steps.
+// Behavioral fixtures below the workflow boundary exercise the actual jq/Python.
+const REQUIRED_STEP_BOUNDARIES = new Map([
+  [
+    "Verify successful private source CI run",
+    [
+      '.repository.full_name == "buenhyden/blog-data" and',
+      '.head_repository.full_name == "buenhyden/blog-data" and',
+      '.status == "completed" and',
+      "(.id | tostring) == $source_run_id and",
+      "(.run_attempt | tostring) == $source_run_attempt",
+    ],
+  ],
+  [
+    "Retrieve exact private source context",
+    [
+      'ARTIFACT_NAME="source-context-${SOURCE_RUN_ID}-${SOURCE_RUN_ATTEMPT}"',
+      ".total_count <= 100 and ($matches | length) == 1",
+      ".expired == false and .size_in_bytes <= 16384",
+      "(.workflow_run.id | tostring) == env.SOURCE_RUN_ID",
+      ".workflow_run.head_sha == env.SOURCE_SHA",
+      "--max-filesize 16384",
+      'len(entries) != 1 or entries[0].filename != "source-context.json"',
+      "entry.file_size > 2048 or stat.S_ISLNK",
+      "stat.S_ISDIR(entry.external_attr >> 16)",
+      'raise ValueError("duplicate source context key")',
+      "object_pairs_hook=unique",
+      'type(data.get("schema_version")) is not int',
+      'set(data) != set(expected) | {"source_before"}',
+      "any(data[key] != value for key, value in expected.items())",
+      're.fullmatch(r"[0-9a-f]{40}", before)',
+      'before == "0" * 40 or before == data["source_sha"]',
+    ],
+  ],
+  [
+    "Record verified deployment identity",
+    [
+      "SOURCE_CONTEXT_FILE: ${{ runner.temp }}/source-context.json",
+      "BUILDER_WORKFLOW_REVISION: ${{ github.workflow_sha }}",
+      'sha256sum "${SOURCE_CONTEXT_FILE}"',
+      "Source context JSON SHA-256:",
+      "Builder workflow revision:",
+    ],
+  ],
+  ["Upload public Pages artifact only", ["id: pages_artifact"]],
+  [
+    "Record uploaded Pages artifact identity",
+    [
+      "ARTIFACT_ID: ${{ steps.pages_artifact.outputs.artifact_id }}",
+      '[[ "${ARTIFACT_ID}" =~ ^[1-9][0-9]*$ ]]',
+      "Pages upload artifact ID:",
+    ],
+  ],
+]);
+
 const REQUIRED_SNIPPETS = new Map([
   ["workflow input source_repo", "source_repo:"],
   ["workflow input source_ref_name", "source_ref_name:"],
@@ -78,7 +133,10 @@ const REQUIRED_SNIPPETS = new Map([
   ["source run success check", '.conclusion == "success"'],
   ["source run event check", '.event == "push"'],
   ["source run branch check", '.head_branch == "main"'],
-  ["source run path check", '.path == ".github/workflows/trigger-pages-build.yml"'],
+  [
+    "source run path check",
+    '.path == ".github/workflows/trigger-pages-build.yml"',
+  ],
   ["source run SHA check", ".head_sha == $source_sha"],
   ["source run completion wait", "for attestation_attempt in {1..24}"],
   [
@@ -220,9 +278,7 @@ function sameEntries(actual, expected) {
 
 function formatPermissions(permissions) {
   if (permissions.size === 0) return "empty";
-  return [...permissions]
-    .map(([key, value]) => `${key}: ${value}`)
-    .join(", ");
+  return [...permissions].map(([key, value]) => `${key}: ${value}`).join(", ");
 }
 
 export function validateWorkflowText(text) {
@@ -239,7 +295,8 @@ export function validateWorkflowText(text) {
   const uses = [...text.matchAll(/^\s*uses:\s*([^\s#]+)\s*$/gm)].map(
     (match) => match[1],
   );
-  if (uses.length === 0) errors.push("workflow must use pinned official actions");
+  if (uses.length === 0)
+    errors.push("workflow must use pinned official actions");
   for (const use of uses) {
     if (!FULL_SHA_ACTION.test(use)) {
       errors.push(`action is not pinned to a full commit SHA: ${use}`);
@@ -276,7 +333,8 @@ export function validateWorkflowText(text) {
     }
 
     const expectedNeeds = EXPECTED_JOB_NEEDS.get(jobId);
-    const actualNeeds = block.match(/^    needs:\s*([^\s#]+)\s*$/m)?.[1] ?? null;
+    const actualNeeds =
+      block.match(/^    needs:\s*([^\s#]+)\s*$/m)?.[1] ?? null;
     if (actualNeeds !== expectedNeeds) {
       errors.push(
         `${jobId} needs must be ${expectedNeeds ?? "absent"}; got ${actualNeeds ?? "absent"}`,
@@ -297,6 +355,97 @@ export function validateWorkflowText(text) {
   const buildBlock = jobBlocks.get("build") ?? "";
   const deployBlock = jobBlocks.get("deploy") ?? "";
   const smokeBlock = jobBlocks.get("smoke_post_deploy") ?? "";
+  for (const [name, snippets] of REQUIRED_STEP_BOUNDARIES) {
+    const step = extractNamedStepBlock(buildBlock, name);
+    for (const snippet of snippets) {
+      if (!step?.includes(snippet)) {
+        errors.push(`missing ${name} boundary: ${snippet}`);
+      }
+    }
+  }
+  const orderedSteps = [
+    "Validate dispatch inputs",
+    "Verify successful private source CI run",
+    "Retrieve exact private source context",
+    "Checkout exact private source commit",
+    "Rebuild attested source without public logs",
+    "Prepare public Pages artifact",
+    "Record verified deployment identity",
+    "Remove private source before artifact upload",
+    "Upload public Pages artifact only",
+    "Record uploaded Pages artifact identity",
+    "Final cleanup",
+  ];
+  let previousStep = -1;
+  for (const name of orderedSteps) {
+    const index = buildBlock.indexOf(`      - name: ${name}\n`);
+    if (index <= previousStep)
+      errors.push(`source context/build boundary order: ${name}`);
+    previousStep = index;
+  }
+  for (const [jobId, block] of jobBlocks) {
+    if (/^\s+continue-on-error:/m.test(block) || /^    if:/m.test(block)) {
+      errors.push(`${jobId} must retain default failure propagation`);
+    }
+    for (const step of block.split(/(?=^      - name:)/m)) {
+      const run = extractRunBlock(step);
+      if (run && /\$\{\{/.test(run)) {
+        errors.push(
+          `${jobId} direct shell interpolation is forbidden; use env bindings`,
+        );
+      }
+      if (
+        /^        if:/m.test(step) &&
+        !step.startsWith("      - name: Final cleanup\n")
+      ) {
+        errors.push(`${jobId} boundary steps must execute on success`);
+      }
+    }
+  }
+  const cleanupStep = extractNamedStepBlock(buildBlock, "Final cleanup");
+  if (!cleanupStep?.includes("        if: always()\n")) {
+    errors.push("final private cleanup must run with always()");
+  }
+  const liveStep =
+    extractNamedStepBlock(
+      smokeBlock,
+      "Verify live manifest and HTML identity",
+    ) ?? "";
+  for (const snippet of [
+    "SOURCE_RUN_ATTEMPT: ${{ inputs.source_run_attempt }}",
+    "BUILDER_RUN_ATTEMPT: ${{ github.run_attempt }}",
+    '--arg source_run_attempt "${SOURCE_RUN_ATTEMPT}"',
+    '--arg builder_run_attempt "${BUILDER_RUN_ATTEMPT}"',
+    '.source.event == "push" and',
+    ".source.runAttempt == $source_run_attempt and",
+    ".builder.runAttempt == $builder_run_attempt and",
+    '[[ "${MANIFEST_STATUS}" == "200" ]]',
+    '[[ "${ROUTE_STATUS}" == "200" ]]',
+    '[[ "${NOT_FOUND_STATUS}" == "404" ]]',
+    "--connect-timeout 10 --max-time 30",
+    '-H "Cache-Control: no-cache"',
+  ]) {
+    if (!liveStep.includes(snippet))
+      errors.push(`missing live identity boundary: ${snippet}`);
+  }
+  if (/--location|(?:^|\s)-L(?:\s|$)/m.test(liveStep)) {
+    errors.push("live canonical status must not follow redirects");
+  }
+  const liveRun = extractRunBlock(liveStep) ?? "";
+  const liveRequests = [
+    ...liveRun.matchAll(/\bcurl\b([\s\S]*?)(?:\)"|\n\s*\))/g),
+  ];
+  if (
+    liveRequests.length !== 3 ||
+    liveRequests.some(
+      ([, request]) =>
+        !request.includes("--connect-timeout 10 --max-time 30") ||
+        !request.includes('-H "Cache-Control: no-cache"') ||
+        !request.includes('--write-out "%{http_code}"'),
+    )
+  ) {
+    errors.push("every live request must be bounded and check its HTTP status");
+  }
   const sourceWebDirInput = extractWorkflowInputBlock(text, "source_web_dir");
   if (sourceWebDirInput === null) {
     errors.push("missing workflow input source_web_dir");
@@ -330,9 +479,7 @@ export function validateWorkflowText(text) {
     .split(/\r?\n/)
     .filter((line) => line.includes("${{ inputs.source_web_dir }}"));
   if (
-    sourceWebDirExpressionLines.some(
-      (line) => line !== sourceWebDirEnvBinding,
-    )
+    sourceWebDirExpressionLines.some((line) => line !== sourceWebDirEnvBinding)
   ) {
     errors.push("source_web_dir direct shell interpolation is forbidden");
   }

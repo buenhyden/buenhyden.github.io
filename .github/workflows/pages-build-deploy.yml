@@ -407,12 +407,17 @@ jobs:
           BUILDER_REPOSITORY: ${{ github.repository }}
           BUILDER_RUN_ID: ${{ github.run_id }}
           BUILDER_RUN_ATTEMPT: ${{ github.run_attempt }}
+          BUILDER_WORKFLOW_REVISION: ${{ github.workflow_sha }}
+          SOURCE_CONTEXT_FILE: ${{ runner.temp }}/source-context.json
           HTML_SIGNATURE: ${{ inputs.html_signature }}
         run: |
           set -euo pipefail
 
           MANIFEST="${PRIVATE_WEB_DIR}/out/build-manifest.json"
           ARTIFACT_NAME="$(jq --raw-output '.artifact.name' "${MANIFEST}")"
+          SOURCE_CONTEXT_DIGEST="$(sha256sum "${SOURCE_CONTEXT_FILE}" | cut -d' ' -f1)"
+          [[ "${SOURCE_CONTEXT_DIGEST}" =~ ^[0-9a-f]{64}$ ]]
+          [[ "${BUILDER_WORKFLOW_REVISION}" =~ ^[0-9a-f]{40}$ ]]
 
           {
             echo "## Verified Pages Build"
@@ -422,9 +427,11 @@ jobs:
             echo "- Source SHA: \`${SOURCE_SHA}\`"
             echo "- Source run: \`${SOURCE_RUN_ID}\`"
             echo "- Source attempt: \`${SOURCE_RUN_ATTEMPT}\`"
+            echo "- Source context JSON SHA-256: \`${SOURCE_CONTEXT_DIGEST}\`"
             echo "- Builder repository: \`${BUILDER_REPOSITORY}\`"
             echo "- Builder run: \`${BUILDER_RUN_ID}\`"
             echo "- Builder attempt: \`${BUILDER_RUN_ATTEMPT}\`"
+            echo "- Builder workflow revision: \`${BUILDER_WORKFLOW_REVISION}\`"
             echo "- Artifact: \`${ARTIFACT_NAME}\`"
             echo "- HTML signature: \`${HTML_SIGNATURE}\`"
             echo "- Provenance validator: \`PASS\`"
@@ -462,11 +469,21 @@ jobs:
           test ! -e "${PAGES_ARTIFACT_DIR}/site/web"
 
       - name: Upload public Pages artifact only
+        id: pages_artifact
         # actions/upload-pages-artifact@v5
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9
         with:
           path: ./${{ env.PAGES_ARTIFACT_DIR }}
           retention-days: 1
+
+      - name: Record uploaded Pages artifact identity
+        shell: bash
+        env:
+          ARTIFACT_ID: ${{ steps.pages_artifact.outputs.artifact_id }}
+        run: |
+          set -euo pipefail
+          [[ "${ARTIFACT_ID}" =~ ^[1-9][0-9]*$ ]]
+          echo "- Pages upload artifact ID: \`${ARTIFACT_ID}\`" >> "${GITHUB_STEP_SUMMARY}"
 
       - name: Final cleanup
         if: always()
@@ -521,8 +538,10 @@ jobs:
           SOURCE_REF_NAME: ${{ inputs.source_ref_name }}
           SOURCE_SHA: ${{ inputs.source_sha }}
           SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+          SOURCE_RUN_ATTEMPT: ${{ inputs.source_run_attempt }}
           BUILDER_REPOSITORY: ${{ github.repository }}
           BUILDER_RUN_ID: ${{ github.run_id }}
+          BUILDER_RUN_ATTEMPT: ${{ github.run_attempt }}
           HTML_SIGNATURE: ${{ inputs.html_signature }}
         run: |
           set -euo pipefail
@@ -532,25 +551,33 @@ jobs:
           MANIFEST_VERIFIED=false
 
           for manifest_attempt in {1..12}; do
-            if curl --fail --silent --show-error --location \
+            if MANIFEST_STATUS="$(curl --fail --silent --show-error \
+              --connect-timeout 10 --max-time 30 \
+              -H "Cache-Control: no-cache" \
               "${SITE_URL}/build-manifest.json" \
-              --output "${LIVE_MANIFEST}" &&
+              --output "${LIVE_MANIFEST}" --write-out "%{http_code}")" &&
+              [[ "${MANIFEST_STATUS}" == "200" ]] &&
               jq --exit-status \
                 --arg source_repository "${SOURCE_REPOSITORY}" \
                 --arg source_ref_name "${SOURCE_REF_NAME}" \
                 --arg source_sha "${SOURCE_SHA}" \
                 --arg source_run_id "${SOURCE_RUN_ID}" \
+                --arg source_run_attempt "${SOURCE_RUN_ATTEMPT}" \
                 --arg builder_repository "${BUILDER_REPOSITORY}" \
                 --arg builder_run_id "${BUILDER_RUN_ID}" \
+                --arg builder_run_attempt "${BUILDER_RUN_ATTEMPT}" \
                 --arg html_signature "${HTML_SIGNATURE}" \
                 '
                   .schemaVersion == 1 and
                   .source.repository == $source_repository and
                   .source.refName == $source_ref_name and
                   .source.sha == $source_sha and
+                  .source.event == "push" and
                   .source.runId == $source_run_id and
+                  .source.runAttempt == $source_run_attempt and
                   .builder.repository == $builder_repository and
                   .builder.runId == $builder_run_id and
+                  .builder.runAttempt == $builder_run_attempt and
                   .artifact.htmlSignature == $html_signature
                 ' "${LIVE_MANIFEST}" > /dev/null; then
               MANIFEST_VERIFIED=true
@@ -586,9 +613,12 @@ jobs:
             echo "Checking ${url}"
             success=0
             for _ in 1 2 3 4 5 6; do
-              if curl --fail --silent --show-error --location \
+              if ROUTE_STATUS="$(curl --fail --silent --show-error \
+                --connect-timeout 10 --max-time 30 \
+                -H "Cache-Control: no-cache" \
                 --output "${body_file}" \
-                "${url}" &&
+                --write-out "%{http_code}" "${url}")" &&
+                [[ "${ROUTE_STATUS}" == "200" ]] &&
                 grep --fixed-strings --quiet \
                   "data-site-signature=\"${HTML_SIGNATURE}\"" "${body_file}" &&
                 grep --fixed-strings --quiet \
@@ -611,7 +641,9 @@ jobs:
 
           NOT_FOUND_BODY="${RUNNER_TEMP}/live-404.html"
           NOT_FOUND_STATUS="$(
-            curl --silent --show-error --location \
+            curl --silent --show-error \
+              --connect-timeout 10 --max-time 30 \
+              -H "Cache-Control: no-cache" \
               --output "${NOT_FOUND_BODY}" \
               --write-out "%{http_code}" \
               "${SITE_URL}/definitely-missing-redesign-route/"
@@ -628,7 +660,9 @@ jobs:
             echo "- Deployment URL: \`${SITE_URL}/\`"
             echo "- Source SHA: \`${SOURCE_SHA}\`"
             echo "- Source run: \`${SOURCE_RUN_ID}\`"
+            echo "- Source attempt: \`${SOURCE_RUN_ATTEMPT}\`"
             echo "- Builder run: \`${BUILDER_RUN_ID}\`"
+            echo "- Builder attempt: \`${BUILDER_RUN_ATTEMPT}\`"
             echo "- HTML signature: \`${HTML_SIGNATURE}\`"
             echo "- Live manifest: \`PASS\`"
             echo "- Representative HTML: \`PASS\`"
