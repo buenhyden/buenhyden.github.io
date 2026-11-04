@@ -18,8 +18,14 @@ const validationWorkflowPath = path.resolve(
   "../workflows/validate-pages-contract.yml",
 );
 
+// A Windows checkout with core.autocrlf stores CRLF; the step extractors below
+// match LF-delimited YAML, so tracked files are read with LF line endings.
+function readTracked(filePath) {
+  return fs.readFileSync(filePath, "utf8").replace(/\r\n/g, "\n");
+}
+
 function readWorkflow() {
-  return fs.readFileSync(workflowPath, "utf8");
+  return readTracked(workflowPath);
 }
 
 function extractStepScript(text, name) {
@@ -400,7 +406,7 @@ test("public setup cannot cache private dependency metadata", () => {
 });
 
 test("public contract validation workflow is pinned and secret-free", () => {
-  const text = fs.readFileSync(validationWorkflowPath, "utf8");
+  const text = readTracked(validationWorkflowPath);
   const uses = [...text.matchAll(/^\s*uses:\s*([^\s#]+)\s*$/gm)].map(
     (match) => match[1],
   );
