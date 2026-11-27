@@ -1031,6 +1031,13 @@ test("archive digest is recorded only when the tar holds exactly the manifest fi
       ),
       ok.summary,
     );
+    // The manifest itself is kept in the summary for per-file comparison.
+    assert.ok(
+      ok.summary.includes(
+        fs.readFileSync(payload.env.PAYLOAD_MANIFEST, "utf8").trim(),
+      ),
+      ok.summary,
+    );
     fs.rmSync(ok.tempDir, { recursive: true, force: true });
 
     fs.writeFileSync(path.join(dir, "extra.txt"), "not in the manifest");
@@ -1045,6 +1052,21 @@ test("archive digest is recorded only when the tar holds exactly the manifest fi
     assert.notEqual(extra.status, 0);
     assert.ok(!extra.summary.includes("Pages archive"), extra.summary);
     fs.rmSync(extra.tempDir, { recursive: true, force: true });
+
+    // Same file names, changed bytes: the content check must still fail.
+    fs.rmSync(path.join(dir, "extra.txt"));
+    fs.writeFileSync(path.join(dir, "index.html"), "changed after the manifest");
+    const changedTar = tarFrom(dir);
+    assert.equal(changedTar.status, 0, changedTar.stderr);
+    const changed = runArtifactStep(
+      "Record uploaded Pages artifact identity",
+      dir,
+      env,
+      archiveDir,
+    );
+    assert.notEqual(changed.status, 0);
+    assert.ok(!changed.summary.includes("Pages archive"), changed.summary);
+    fs.rmSync(changed.tempDir, { recursive: true, force: true });
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
     fs.rmSync(archiveDir, { recursive: true, force: true });

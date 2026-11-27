@@ -518,16 +518,29 @@ jobs:
           [[ "${ARTIFACT_ID}" =~ ^[1-9][0-9]*$ ]]
 
           # The tar that upload-pages-artifact sent must hold exactly the
-          # files the payload manifest recorded, and nothing else.
+          # files the payload manifest recorded, with the same contents, and
+          # nothing else: extract it and check every file against the manifest.
           test -f "${PAGES_ARCHIVE}"
+          CHECK_DIR="$(mktemp -d "${RUNNER_TEMP:-/tmp}/pages-archive-check.XXXXXX")"
+          trap 'rm -rf "${CHECK_DIR}"' EXIT
+          tar -xf "${PAGES_ARCHIVE}" -C "${CHECK_DIR}"
           diff \
-            <(tar -tf "${PAGES_ARCHIVE}" | grep -v '/$' | sed 's#^\./##' | LC_ALL=C sort) \
-            <(sed 's#^[0-9a-f]\{64\}  \./##' "${PAYLOAD_MANIFEST}" | LC_ALL=C sort)
+            <(cd "${CHECK_DIR}" && find . -type f | LC_ALL=C sort) \
+            <(sed 's#^[0-9a-f]\{64\}  ##' "${PAYLOAD_MANIFEST}" | LC_ALL=C sort)
+          (cd "${CHECK_DIR}" && sha256sum --check --strict --quiet "${PAYLOAD_MANIFEST}")
           ARCHIVE_DIGEST="$(sha256sum "${PAGES_ARCHIVE}" | cut -d' ' -f1)"
           [[ "${ARCHIVE_DIGEST}" =~ ^[0-9a-f]{64}$ ]]
           {
             echo "- Pages upload artifact ID: \`${ARTIFACT_ID}\`"
             echo "- Pages archive (artifact.tar) SHA-256: \`${ARCHIVE_DIGEST}\`"
+            echo
+            echo "<details><summary>Payload manifest (sha256  path)</summary>"
+            echo
+            echo '```'
+            cat "${PAYLOAD_MANIFEST}"
+            echo '```'
+            echo
+            echo "</details>"
           } >> "${GITHUB_STEP_SUMMARY}"
 
       - name: Final cleanup
