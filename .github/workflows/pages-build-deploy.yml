@@ -396,6 +396,37 @@ jobs:
             "${PRIVATE_WEB_DIR}/out/" \
             "${PAGES_ARTIFACT_DIR}/"
 
+      # The payload digest names the extracted file set; the archive digest
+      # recorded after upload names the transferred tar. They are different
+      # representations and are never compared to each other as strings.
+      - name: Record public payload manifest
+        shell: bash
+        env:
+          PAYLOAD_MANIFEST: ${{ runner.temp }}/payload-manifest.sha256
+        run: |
+          set -euo pipefail
+
+          # upload-pages-artifact drops hidden entries from the archive; fail
+          # instead of letting a file vanish from the published payload.
+          if find "${PAGES_ARTIFACT_DIR}" -mindepth 1 -name '.*' -print -quit |
+            grep -q .; then
+            echo "::error::Hidden entries would be excluded from the Pages archive."
+            exit 1
+          fi
+
+          (
+            cd "${PAGES_ARTIFACT_DIR}"
+            find . -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum --text
+          ) > "${PAYLOAD_MANIFEST}"
+          PAYLOAD_FILES="$(wc -l < "${PAYLOAD_MANIFEST}" | tr -d ' ')"
+          [[ "${PAYLOAD_FILES}" =~ ^[1-9][0-9]*$ ]]
+          PAYLOAD_DIGEST="$(sha256sum "${PAYLOAD_MANIFEST}" | cut -d' ' -f1)"
+          [[ "${PAYLOAD_DIGEST}" =~ ^[0-9a-f]{64}$ ]]
+          {
+            echo "- Payload files: \`${PAYLOAD_FILES}\`"
+            echo "- Payload manifest SHA-256: \`${PAYLOAD_DIGEST}\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
       - name: Record verified deployment identity
         shell: bash
         env:
@@ -480,10 +511,24 @@ jobs:
         shell: bash
         env:
           ARTIFACT_ID: ${{ steps.pages_artifact.outputs.artifact_id }}
+          PAGES_ARCHIVE: ${{ runner.temp }}/artifact.tar
+          PAYLOAD_MANIFEST: ${{ runner.temp }}/payload-manifest.sha256
         run: |
           set -euo pipefail
           [[ "${ARTIFACT_ID}" =~ ^[1-9][0-9]*$ ]]
-          echo "- Pages upload artifact ID: \`${ARTIFACT_ID}\`" >> "${GITHUB_STEP_SUMMARY}"
+
+          # The tar that upload-pages-artifact sent must hold exactly the
+          # files the payload manifest recorded, and nothing else.
+          test -f "${PAGES_ARCHIVE}"
+          diff \
+            <(tar -tf "${PAGES_ARCHIVE}" | grep -v '/$' | sed 's#^\./##' | LC_ALL=C sort) \
+            <(sed 's#^[0-9a-f]\{64\}  \./##' "${PAYLOAD_MANIFEST}" | LC_ALL=C sort)
+          ARCHIVE_DIGEST="$(sha256sum "${PAGES_ARCHIVE}" | cut -d' ' -f1)"
+          [[ "${ARCHIVE_DIGEST}" =~ ^[0-9a-f]{64}$ ]]
+          {
+            echo "- Pages upload artifact ID: \`${ARTIFACT_ID}\`"
+            echo "- Pages archive (artifact.tar) SHA-256: \`${ARCHIVE_DIGEST}\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
 
       - name: Final cleanup
         if: always()

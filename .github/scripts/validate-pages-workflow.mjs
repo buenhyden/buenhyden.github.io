@@ -97,6 +97,16 @@ const REQUIRED_STEP_BOUNDARIES = new Map([
     ],
   ],
   [
+    "Record public payload manifest",
+    [
+      "PAYLOAD_MANIFEST: ${{ runner.temp }}/payload-manifest.sha256",
+      "-name '.*' -print -quit",
+      "find . -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum --text",
+      'sha256sum "${PAYLOAD_MANIFEST}"',
+      "Payload manifest SHA-256:",
+    ],
+  ],
+  [
     "Record verified deployment identity",
     [
       "SOURCE_CONTEXT_FILE: ${{ runner.temp }}/source-context.json",
@@ -113,6 +123,10 @@ const REQUIRED_STEP_BOUNDARIES = new Map([
       "ARTIFACT_ID: ${{ steps.pages_artifact.outputs.artifact_id }}",
       '[[ "${ARTIFACT_ID}" =~ ^[1-9][0-9]*$ ]]',
       "Pages upload artifact ID:",
+      "PAGES_ARCHIVE: ${{ runner.temp }}/artifact.tar",
+      'tar -tf "${PAGES_ARCHIVE}"',
+      'sha256sum "${PAGES_ARCHIVE}"',
+      "Pages archive (artifact.tar) SHA-256:",
     ],
   ],
 ]);
@@ -370,6 +384,7 @@ export function validateWorkflowText(text) {
     "Checkout exact private source commit",
     "Rebuild attested source without public logs",
     "Prepare public Pages artifact",
+    "Record public payload manifest",
     "Record verified deployment identity",
     "Remove private source before artifact upload",
     "Upload public Pages artifact only",

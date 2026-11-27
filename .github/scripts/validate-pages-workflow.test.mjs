@@ -902,3 +902,168 @@ test("exact source context accepts producer schema and rejects malformed archive
     }
   }
 });
+
+const posix = (value) => value.replaceAll("\\", "/");
+
+function runArtifactStep(name, artifactDir, extraEnv = {}, cwd = undefined) {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "pages-digest-"));
+  const summary = path.join(tempDir, "summary.md");
+  const env = {
+    ...process.env,
+    PAGES_ARTIFACT_DIR: posix(artifactDir),
+    PAYLOAD_MANIFEST: posix(path.join(tempDir, "payload-manifest.sha256")),
+    GITHUB_STEP_SUMMARY: posix(summary),
+    ...extraEnv,
+  };
+  const result = spawnSync(
+    "bash",
+    ["-c", extractStepScript(readWorkflow(), name)],
+    { env, encoding: "utf8", cwd },
+  );
+  assert.ifError(result.error);
+  return {
+    ...result,
+    env,
+    tempDir,
+    summary: fs.existsSync(summary) ? fs.readFileSync(summary, "utf8") : "",
+  };
+}
+
+function stagedArtifact(files) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "pages-artifact-"));
+  for (const [name, body] of Object.entries(files)) {
+    fs.mkdirSync(path.dirname(path.join(dir, name)), { recursive: true });
+    fs.writeFileSync(path.join(dir, name), body);
+  }
+  return dir;
+}
+
+function sha256File(file) {
+  return spawnSync("sha256sum", [file], { encoding: "utf8" }).stdout.slice(
+    0,
+    64,
+  );
+}
+
+test("payload manifest records every artifact file in sorted order with its digest", () => {
+  const dir = stagedArtifact({
+    "index.html": "<p>home</p>",
+    "b/x.css": "a{}",
+    "a/z.js": "1",
+  });
+  const run = runArtifactStep("Record public payload manifest", dir);
+  try {
+    assert.equal(run.status, 0, run.stderr);
+    const manifest = fs.readFileSync(run.env.PAYLOAD_MANIFEST, "utf8");
+    assert.deepEqual(
+      manifest
+        .trim()
+        .split("\n")
+        .map((line) => line.slice(66)),
+      ["./a/z.js", "./b/x.css", "./index.html"],
+    );
+    const digest = sha256File(run.env.PAYLOAD_MANIFEST);
+    assert.ok(
+      run.summary.includes(`Payload manifest SHA-256: \`${digest}\``),
+      run.summary,
+    );
+    assert.ok(run.summary.includes("Payload files: `3`"), run.summary);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+    fs.rmSync(run.tempDir, { recursive: true, force: true });
+  }
+});
+
+test("payload manifest refuses hidden entries the Pages archive would drop", () => {
+  const dir = stagedArtifact({ "index.html": "ok", ".well-known/x": "hidden" });
+  const run = runArtifactStep("Record public payload manifest", dir);
+  try {
+    assert.equal(run.status, 1);
+    assert.match(run.stdout, /Hidden entries would be excluded/);
+    assert.equal(run.summary, "");
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+    fs.rmSync(run.tempDir, { recursive: true, force: true });
+  }
+});
+
+test("archive digest is recorded only when the tar holds exactly the manifest files", () => {
+  const dir = stagedArtifact({ "index.html": "home", "en/index.html": "en" });
+  const payload = runArtifactStep("Record public payload manifest", dir);
+  const archiveDir = fs.mkdtempSync(path.join(os.tmpdir(), "pages-archive-"));
+  // GNU tar reads a Windows drive letter as host:path, so tar paths stay
+  // relative to the archive directory, as they would on the Linux runner.
+  const archive = "artifact.tar";
+  // Same archive shape as actions/upload-pages-artifact on Linux.
+  const tarFrom = (source) =>
+    spawnSync(
+      "tar",
+      [
+        "--directory",
+        posix(path.relative(archiveDir, source)),
+        "-cf",
+        archive,
+        "--exclude=.[^/]*",
+        ".",
+      ],
+      { encoding: "utf8", cwd: archiveDir },
+    );
+  try {
+    assert.equal(payload.status, 0, `stdout:${payload.stdout} stderr:${payload.stderr}`);
+    const tarred = tarFrom(dir);
+    assert.equal(tarred.status, 0, tarred.stderr);
+    const env = {
+      PAYLOAD_MANIFEST: payload.env.PAYLOAD_MANIFEST,
+      PAGES_ARCHIVE: archive,
+      ARTIFACT_ID: "42",
+    };
+    const ok = runArtifactStep(
+      "Record uploaded Pages artifact identity",
+      dir,
+      env,
+      archiveDir,
+    );
+    assert.equal(ok.status, 0, `stdout:${ok.stdout} stderr:${ok.stderr}`);
+    const archiveDigest = sha256File(posix(path.join(archiveDir, archive)));
+    assert.ok(
+      ok.summary.includes(
+        `Pages archive (artifact.tar) SHA-256: \`${archiveDigest}\``,
+      ),
+      ok.summary,
+    );
+    fs.rmSync(ok.tempDir, { recursive: true, force: true });
+
+    fs.writeFileSync(path.join(dir, "extra.txt"), "not in the manifest");
+    const retarred = tarFrom(dir);
+    assert.equal(retarred.status, 0, retarred.stderr);
+    const extra = runArtifactStep(
+      "Record uploaded Pages artifact identity",
+      dir,
+      env,
+      archiveDir,
+    );
+    assert.notEqual(extra.status, 0);
+    assert.ok(!extra.summary.includes("Pages archive"), extra.summary);
+    fs.rmSync(extra.tempDir, { recursive: true, force: true });
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+    fs.rmSync(archiveDir, { recursive: true, force: true });
+    fs.rmSync(payload.tempDir, { recursive: true, force: true });
+  }
+});
+
+test("payload and archive digest records cannot be removed from the builder", () => {
+  for (const [line, step] of [
+    ["Payload manifest SHA-256:", "Record public payload manifest"],
+    [
+      "Pages archive (artifact.tar) SHA-256:",
+      "Record uploaded Pages artifact identity",
+    ],
+  ]) {
+    const mutant = readWorkflow().replace(line, "Removed digest:");
+    assert.ok(
+      validateWorkflowText(mutant).some((error) => error.includes(step)),
+      `${step} must be required`,
+    );
+  }
+});
