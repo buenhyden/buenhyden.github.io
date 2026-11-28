@@ -416,6 +416,9 @@ test("public contract validation workflow is pinned and secret-free", () => {
   );
 
   assert.deepEqual(jobIds, ["validate"]);
+  // `validate` is a required check, so every pull request must run it.
+  const prTrigger = text.slice(text.indexOf("\n  pull_request:"), text.indexOf("\n  push:"));
+  assert.doesNotMatch(prTrigger, /paths/);
   assert.ok(uses.length > 0);
   for (const use of uses) {
     assert.match(use, /^[^@\s]+@[a-f0-9]{40}$/);
